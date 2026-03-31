@@ -133,9 +133,9 @@
         pointer-events: auto;
     }
 
-    .lang-group { top: 15%; right: 30px; --rot: -6deg; transform: rotate(var(--rot)); }
-    .theme-group { top: 50%; right: 50px; --rot: 0deg; transform: translateY(-50%) rotate(var(--rot)); }
-    .bg-group { bottom: 15%; right: 30px; --rot: 6deg; transform: rotate(var(--rot)); }
+    .lang-group { top: 15%; right: 18.75%; --rot: -6deg; transform: rotate(var(--rot)); }
+    .theme-group { top: 50%; right: 31.25%; --rot: 0deg; transform: translateY(-50%) rotate(var(--rot)); }
+    .bg-group { bottom: 15%; right: 18.75%; --rot: 6deg; transform: rotate(var(--rot)); }
 
     .control-btn {
         background: rgba(255, 255, 255, 0.05);

@@ -16,31 +16,31 @@
         {
             id: "commercial",
             label: () => t.tabs.commercial.title,
-            pos: "left: 15%; top: 64px;",
+            pos: "left: 15%; top: 30%;",
             rot: "4deg",
         },
         {
             id: "apps",
             label: () => t.tabs.apps.title,
-            pos: "left: 32%; top: 75px;",
+            pos: "left: 32%; top: 38%;",
             rot: "2deg",
         },
         {
             id: "home",
             label: () => t.nav.about,
-            pos: "left: 50%; top: 80px;",
+            pos: "left: 50%; top: 42%;",
             rot: "0deg",
         },
         {
             id: "games",
             label: () => t.tabs.games.title,
-            pos: "left: 68%; top: 75px;",
+            pos: "left: 68%; top: 38%;",
             rot: "-2deg",
         },
         {
             id: "charity",
             label: () => t.tabs.charity.title,
-            pos: "left: 85%; top: 64px;",
+            pos: "left: 85%; top: 30%;",
             rot: "-4deg",
         },
     ];
@@ -154,11 +154,11 @@
     }
 
     .arc-nav {
-        position: relative;
+        position: absolute;
+        top: 0;
+        left: 0;
         width: 100%;
         height: 100%;
-        max-width: 1400px;
-        margin: 0 auto;
         pointer-events: none;
     }
 
