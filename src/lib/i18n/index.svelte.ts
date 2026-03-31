@@ -1,0 +1,159 @@
+import { z } from 'zod';
+import { en } from './locales/en';
+import { uk } from './locales/uk';
+import { browser } from '$app/environment';
+
+export type Language = 'en' | 'uk';
+
+class LanguageState {
+    current = $state<Language>('en');
+    isChanging = $state(false);
+
+    constructor() {}
+
+    init() {
+        if (browser) {
+            const params = new URLSearchParams(window.location.search);
+            const lang = params.get('lang') as Language;
+            if (lang === 'en' || lang === 'uk') {
+                this.current = lang;
+            } else {
+                const saved = localStorage.getItem('lang') as Language;
+                if (saved === 'en' || saved === 'uk') {
+                    this.current = saved;
+                }
+            }
+            
+            document.documentElement.lang = this.current;
+
+            $effect.root(() => {
+                $effect(() => {
+                    const lang = this.current;
+                    const url = new URL(window.location.href);
+                    
+                    document.documentElement.lang = lang;
+
+                    if (url.searchParams.get('lang') !== lang) {
+                        url.searchParams.set('lang', lang);
+                        window.history.replaceState(null, '', url.toString());
+                    }
+                });
+            });
+        }
+    }
+    
+    set(lang: Language) {
+        if (this.current === lang) return;
+        
+        this.isChanging = true;
+        
+        setTimeout(() => {
+            this.current = lang;
+            if (browser) {
+                localStorage.setItem('lang', lang);
+                document.documentElement.lang = lang;
+            }
+            setTimeout(() => {
+                this.isChanging = false;
+            }, 50);
+        }, 200);
+    }
+}
+
+export const language = new LanguageState();
+
+const TranslationSchema = z.object({
+    lastUpdate: z.string(),
+    title: z.array(z.string()),
+    title_mobile: z.string(),
+    nav: z.object({
+        about: z.string(),
+        portfolio: z.string(),
+        commercial: z.string(),
+        apps: z.string(),
+        games: z.string(),
+        charity: z.string(),
+        contact: z.string()
+    }),
+    hero: z.object({
+        greeting: z.string(),
+        description: z.string(),
+        buttons: z.object({
+            commercial: z.string(),
+            apps: z.string(),
+            games: z.string(),
+            charity: z.string()
+        })
+    }),
+    portfolio: z.object({
+        title: z.string(),
+        subtitle: z.string(),
+        projects: z.record(z.string(), z.object({
+            title: z.string(),
+            description: z.string(),
+            tech: z.string(),
+            feature: z.string(),
+            linkText: z.string()
+        }))
+    }),
+    tabs: z.object({
+        commercial: z.object({
+            title: z.string(),
+            intro: z.string(),
+            benefitsTitle: z.string(),
+            benefits: z.array(z.object({
+                h: z.string(),
+                p: z.string()
+            })),
+            cta: z.string()
+        }),
+        apps: z.object({
+            title: z.string(),
+            intro: z.string(),
+            faq: z.array(z.object({
+                q: z.string(),
+                a: z.string()
+            })),
+            cta: z.string()
+        }),
+        games: z.object({
+            title: z.string(),
+            intro: z.string(),
+            faq: z.array(z.object({
+                q: z.string(),
+                a: z.string()
+            })),
+            cta: z.string()
+        }),
+        charity: z.object({
+            title: z.string(),
+            intro: z.string(),
+            faq: z.array(z.object({
+                q: z.string(),
+                a: z.string()
+            })),
+            cta: z.string()
+        })
+    }),
+    pdf_modal: z.object({
+        title: z.string(),
+        ats: z.string(),
+        dark: z.string(),
+        light: z.string()
+    })
+});
+
+export type Translations = z.infer<typeof TranslationSchema>;
+
+export const translations: Record<Language, Translations> = { en, uk };
+
+export const t = {
+    get lastUpdate() { return translations[language.current].lastUpdate; },
+    get title() { return translations[language.current].title; },
+    get title_mobile() { return translations[language.current].title_mobile; },
+    get nav() { return translations[language.current].nav; },
+    get hero() { return translations[language.current].hero; },
+    get portfolio() { return translations[language.current].portfolio; },
+    get tabs() { return translations[language.current].tabs; },
+    get pdf_modal() { return translations[language.current].pdf_modal; }
+};
