@@ -1,6 +1,6 @@
 <script lang="ts">
     import { theme, background, tabs } from "$lib/states/ui.svelte";
-    import { SparklesIcon, WavesIcon, ShapesIcon, CircleOffIcon } from "$lib/components/icons";
+    import { EyeOff, Sparkles, Waves, Shapes } from "lucide-svelte";
     import LeftSideArcSvg from "./ui/arcs/LeftSideArcSvg.svelte";
     import { spring } from "svelte/motion";
 
@@ -125,7 +125,7 @@
                 class:active={background.type === 0}
                 title="Off"
             >
-                <CircleOffIcon size={20} />
+                <EyeOff size={20} />
             </button>
             <button
                 class="control-btn glass"
@@ -133,7 +133,7 @@
                 class:active={background.type === 1}
                 title="Particles"
             >
-                <SparklesIcon size={20} />
+                <Sparkles size={20} />
             </button>
             <button
                 class="control-btn glass"
@@ -141,7 +141,7 @@
                 class:active={background.type === 2}
                 title="Waves"
             >
-                <WavesIcon size={20} />
+                <Waves size={20} />
             </button>
             <button
                 class="control-btn glass"
@@ -149,7 +149,7 @@
                 class:active={background.type === 3}
                 title="Shapes"
             >
-                <ShapesIcon size={20} />
+                <Shapes size={20} />
             </button>
         </div>
     </div>

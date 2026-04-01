@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { ChevronDownIcon, MonitorIcon, GlobeIcon, SmartphoneIcon, ZapIcon } from "$lib/components/icons";
+    import { ChevronDown, Monitor, Globe, Smartphone, Zap } from "lucide-svelte";
     import { slide } from "svelte/transition";
     import { skillsData } from "$lib/data/skills";
     import Section from "../ui/Section.svelte";
@@ -10,26 +10,26 @@
 
 <Section id="skills" title={t.skills.title}>
     {#snippet icon()}
-        <ZapIcon size={22} aria-hidden="true" />
+        <Zap size={22} aria-hidden="true" />
     {/snippet}
 
     <div class="platforms-grid">
         <div class="platform-item glass card">
-            <div class="platform-icon"><MonitorIcon size={24} aria-hidden="true" /></div>
+            <div class="platform-icon"><Monitor size={24} aria-hidden="true" /></div>
             <div class="platform-text">
                 <strong>Desktop app</strong>
                 <span>{t.skills.platforms.desktop.split(": ")[1]}</span>
             </div>
         </div>
         <div class="platform-item glass card">
-            <div class="platform-icon"><GlobeIcon size={24} aria-hidden="true" /></div>
+            <div class="platform-icon"><Globe size={24} aria-hidden="true" /></div>
             <div class="platform-text">
                 <strong>Web</strong>
                 <span>{t.skills.platforms.web.split(": ")[1]}</span>
             </div>
         </div>
         <div class="platform-item glass card">
-            <div class="platform-icon"><SmartphoneIcon size={24} aria-hidden="true" /></div>
+            <div class="platform-icon"><Smartphone size={24} aria-hidden="true" /></div>
             <div class="platform-text">
                 <strong>Mobile app</strong>
                 <span>{t.skills.platforms.mobile.split(": ")[1]}</span>
@@ -127,7 +127,7 @@
             aria-controls="extra-skills-content"
         >
             {showMoreSkills ? t.skills.hideMore : t.skills.showMore}
-            <ChevronDownIcon size={18} class={showMoreSkills ? "rotated" : ""} />
+            <ChevronDown size={18} class={showMoreSkills ? "rotated" : ""} />
         </button>
     </div>
 </Section>

@@ -1,21 +1,21 @@
 <script lang="ts">
     import { language, translations } from "$lib/i18n/index.svelte";
     import {
-        UserIcon,
-        RocketIcon,
-        LayersIcon,
-        MessageSquareIcon
-    } from "$lib/components/icons";
+        User,
+        Rocket,
+        Layers,
+        MessageSquare
+    } from "lucide-svelte";
 
     let { activeSection = "hero" } = $props<{ activeSection?: string }>();
     
     let t = $derived(translations[language.current]);
 
     let navItems = $derived([
-        { id: "about", icon: UserIcon, label: t.nav.about },
-        { id: "projects", icon: RocketIcon, label: t.nav.portfolio },
-        { id: "portfolio-details", icon: LayersIcon, label: t.nav.website },
-        { id: "contact", icon: MessageSquareIcon, label: t.nav.contact }
+        { id: "about", icon: User, label: t.nav.about },
+        { id: "projects", icon: Rocket, label: t.nav.portfolio },
+        { id: "portfolio-details", icon: Layers, label: t.nav.website },
+        { id: "contact", icon: MessageSquare, label: t.nav.contact }
     ]);
 </script>
 

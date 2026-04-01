@@ -2,10 +2,10 @@
     import { theme, background, tabs } from "$lib/states/ui.svelte";
     import { language } from "$lib/i18n/index.svelte";
     import {
-        SunIcon,
-        MoonIcon,
-        PaletteIcon
-    } from "$lib/components/icons";
+        Sun,
+        Moon,
+        Palette
+    } from "lucide-svelte";
     import RightSideArcSvg from "./ui/arcs/RightSideArcSvg.svelte";
     import FlagUK from "$lib/components/flags/FlagUK.svelte";
     import FlagEN from "$lib/components/flags/FlagEN.svelte";
@@ -17,10 +17,10 @@
 
     let ThemeIcon = $derived(
         theme.current === "colorful"
-            ? PaletteIcon
+            ? Palette
             : theme.current === "dark"
-              ? MoonIcon
-              : SunIcon,
+              ? Moon
+              : Sun,
     );
 
     let h = $state(0);
@@ -166,7 +166,7 @@
                 class:active={theme.current === "dark"}
                 title="Dark"
             >
-                <MoonIcon size={20} />
+                <Moon size={20} />
             </button>
             <button
                 class="control-btn glass"
@@ -174,7 +174,7 @@
                 class:active={theme.current === "colorful"}
                 title="Colorful"
             >
-                <PaletteIcon size={20} />
+                <Palette size={20} />
             </button>
             <button
                 class="control-btn glass"
@@ -182,7 +182,7 @@
                 class:active={theme.current === "light"}
                 title="Light"
             >
-                <SunIcon size={20} />
+                <Sun size={20} />
             </button>
         </div>
     </div>

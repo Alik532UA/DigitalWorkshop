@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { ChevronDownIcon, BriefcaseIcon } from "$lib/components/icons";
+    import { ChevronDown, Briefcase } from "lucide-svelte";
     import { slide } from "svelte/transition";
     import Section from "../ui/Section.svelte";
     import { t } from "$lib/i18n/index.svelte";
@@ -10,7 +10,7 @@
 
     <Section id="experience" title={t.experience.title}>
     {#snippet icon()}
-        <BriefcaseIcon size={22} aria-hidden="true" />
+        <Briefcase size={22} aria-hidden="true" />
     {/snippet}
 
     <div class="timeline">
@@ -30,7 +30,7 @@
             aria-controls="non-it-experience-list"
         >
             {showNonIT ? t.experience.hideNonIT : t.experience.showNonIT}
-            <ChevronDownIcon size={18} class={showNonIT ? "rotated" : ""} />
+            <ChevronDown size={18} class={showNonIT ? "rotated" : ""} />
         </button>
 
         {#if showNonIT}

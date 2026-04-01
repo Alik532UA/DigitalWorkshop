@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { TrophyIcon, LightbulbIcon, AwardIcon, CarIcon, LanguagesIcon, SkullIcon, PuzzleIcon, StarIcon } from "$lib/components/icons";
+    import { Trophy, Lightbulb, Award, Car, Languages, Skull, Puzzle, Star } from "lucide-svelte";
     import FlagUK from "$lib/components/flags/FlagUK.svelte";
     import FlagEN from "$lib/components/flags/FlagEN.svelte";
     import Section from "../ui/Section.svelte";
@@ -8,23 +8,23 @@
 
 <Section id="other" title={t.other.title}>
     {#snippet icon()}
-        <StarIcon size={22} />
+        <Star size={22} />
     {/snippet}
 
     <div class="other-grid">
         <div class="success-card glass card">
-            <h3><TrophyIcon size={20} class="inline-icon" /> Highlights</h3>
+            <h3><Trophy size={20} class="inline-icon" /> Highlights</h3>
             <ul>
                 <li>
-                    <strong><LightbulbIcon size={16} class="inline-icon" /> IQ:</strong>
+                    <strong><Lightbulb size={16} class="inline-icon" /> IQ:</strong>
                     {t.other.iq}
                 </li>
                 <li>
-                    <strong><AwardIcon size={16} class="inline-icon" /> Olympics:</strong>
+                    <strong><Award size={16} class="inline-icon" /> Olympics:</strong>
                     {t.other.olympics}
                 </li>
                 <li>
-                    <strong><CarIcon size={16} class="inline-icon" /> Drive:</strong>
+                    <strong><Car size={16} class="inline-icon" /> Drive:</strong>
                     {t.other.driver}
                 </li>
             </ul>
@@ -32,7 +32,7 @@
 
         <div class="success-card glass card">
             <h3>
-                <LanguagesIcon size={20} class="inline-icon" />
+                <Languages size={20} class="inline-icon" />
                 {t.other.languages.title}
             </h3>
             <ul>
@@ -45,7 +45,7 @@
                     {t.other.languages.en}
                 </li>
                 <li>
-                    <SkullIcon size={16} class="inline-icon" />
+                    <Skull size={16} class="inline-icon" />
                     {t.other.languages.ru}
                 </li>
             </ul>
@@ -53,7 +53,7 @@
 
         <div class="hobbies-card glass card">
             <h3>
-                <PuzzleIcon size={20} class="inline-icon" />
+                <Puzzle size={20} class="inline-icon" />
                 {t.about.hobbiesTitle}
             </h3>
             <div class="hobbies-tags">

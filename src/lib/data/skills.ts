@@ -1,46 +1,46 @@
 import {
-    BotIcon,
-    ZapIcon,
-    CoffeeIcon,
-    DramaIcon,
-    PaletteIcon,
-    PrinterIcon,
-    BoxIcon,
-    Gamepad2Icon,
-    FilmIcon,
-    BrushIcon,
-    MicIcon,
-    SparklesIcon,
-    BarChartIcon,
-    FolderIcon,
-    FlameIcon
-} from "$lib/components/icons";
+    Bot,
+    Zap,
+    Coffee,
+    Drama,
+    Palette,
+    Printer,
+    Box,
+    Gamepad2,
+    Film,
+    Brush,
+    Mic,
+    Sparkles,
+    BarChart,
+    Folder,
+    Flame
+} from "lucide-svelte";
 import { SkillsDataSchema, type SkillsData } from "./schemas";
 
 const rawData = {
     it: [
-        { id: "ai", level: 95, icon: BotIcon },
-        { id: "csharp", level: 85, icon: ZapIcon },
-        { id: "java", level: 75, icon: CoffeeIcon },
-        { id: "playwright", level: 80, icon: DramaIcon },
+        { id: "ai", level: 95, icon: Bot },
+        { id: "csharp", level: 85, icon: Zap },
+        { id: "java", level: 75, icon: Coffee },
+        { id: "playwright", level: 80, icon: Drama },
     ],
     design3d: [
-        { id: "blender", level: 60, icon: PaletteIcon },
-        { id: "slicer", level: 85, icon: PrinterIcon },
-        { id: "printing", level: 90, icon: BoxIcon },
-        { id: "godot", level: 75, icon: Gamepad2Icon },
+        { id: "blender", level: 60, icon: Palette },
+        { id: "slicer", level: 85, icon: Printer },
+        { id: "printing", level: 90, icon: Box },
+        { id: "godot", level: 75, icon: Gamepad2 },
     ],
     video: [
-        { id: "premiere", level: 95, icon: FilmIcon },
-        { id: "photoshop", level: 85, icon: BrushIcon },
-        { id: "topaz", level: 80, icon: SparklesIcon },
-        { id: "vmix", level: 85, icon: MicIcon },
+        { id: "premiere", level: 95, icon: Film },
+        { id: "photoshop", level: 85, icon: Brush },
+        { id: "topaz", level: 80, icon: Sparkles },
+        { id: "vmix", level: 85, icon: Mic },
     ],
     tools: [
-        { id: "jira", level: 95, icon: BarChartIcon },
-        { id: "git", level: 85, icon: FolderIcon },
-        { id: "figma", level: 80, icon: PaletteIcon },
-        { id: "firebase", level: 65, icon: FlameIcon },
+        { id: "jira", level: 95, icon: BarChart },
+        { id: "git", level: 85, icon: Folder },
+        { id: "figma", level: 80, icon: Palette },
+        { id: "firebase", level: 65, icon: Flame },
     ],
 };
 
