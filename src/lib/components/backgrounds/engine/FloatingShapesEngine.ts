@@ -26,7 +26,7 @@ const ICON_PATHS = {
 
 export class FloatingShapesEngine extends CanvasEngine {
     private icons: FloatingIcon[] = [];
-    private currentTab: string = "home";
+    private currentTab: string = "about";
 
     public setTab(tab: string) {
         if (this.currentTab === tab) return;
@@ -38,8 +38,8 @@ export class FloatingShapesEngine extends CanvasEngine {
         this.icons = [];
         
         let availablePaths: string[] = [];
-        if (this.currentTab === "home") {
-            // Show all icons on home tab
+        if (this.currentTab === "about") {
+            // Show all icons on about tab
             availablePaths = [
                 ...ICON_PATHS.website,
                 ...ICON_PATHS.apps,
@@ -52,7 +52,7 @@ export class FloatingShapesEngine extends CanvasEngine {
         }
 
         const paths = availablePaths.map(p => new Path2D(p));
-        const count = this.currentTab === "home" ? 20 : 15;
+        const count = this.currentTab === "about" ? 20 : 15;
         
         for (let i = 0; i < count; i++) {
             this.icons.push({

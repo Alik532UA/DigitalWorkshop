@@ -84,7 +84,7 @@
                 class="tab-content"
             >
                 <div class="content-centering">
-                    {#if tabs.current === "home"}
+                    {#if tabs.current === "about"}
                         <HeroSection {isMobile} />
                     {:else if tabs.current === "website"}
                         <WebsitePage />
