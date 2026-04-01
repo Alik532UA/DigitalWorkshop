@@ -83,21 +83,27 @@ class ThemeState {
     }
 
     async toggle() {
+        let next: ThemeType = "colorful";
+        if (this.current === "colorful") next = "dark";
+        else if (this.current === "dark") next = "light";
+        else next = "colorful";
+        
+        await this.setWithAnimation(next);
+    }
+
+    async setWithAnimation(theme: ThemeType) {
+        if (this.current === theme) return;
+        
         this.isChanging = true;
-        await new Promise((r) => setTimeout(r, 50));
+        // Даємо час на початок анімації блюру
+        await new Promise((r) => setTimeout(r, 150));
 
+        this.set(theme);
+
+        // Даємо час на завершення анімації
         setTimeout(() => {
-            let next: ThemeType = "colorful";
-            if (this.current === "colorful") next = "dark";
-            else if (this.current === "dark") next = "light";
-            else next = "colorful";
-            
-            this.set(next);
-
-            setTimeout(() => {
-                this.isChanging = false;
-            }, 300);
-        }, 200);
+            this.isChanging = false;
+        }, 300);
     }
 
     set(theme: ThemeType) {

@@ -55,7 +55,10 @@
     ></div>
 {/key}
 
-<div class="app-wrapper" style="
+<div class="theme-transition-overlay" class:active={theme.isChanging || language.isChanging}></div>
+
+<div class="app-wrapper" 
+    style="
     --accent-primary: {tabs.currentColor};
     --accent-primary-rgb: {accentRgb};
 ">
@@ -65,7 +68,7 @@
     <RightSideArc />
     <LeftSideArc />
 
-    <main class="main-content" class:theme-changing={theme.isChanging}>
+    <main class="main-content">
         <div class="page-scroll-area">
             {@render children()}
         </div>
@@ -75,6 +78,24 @@
 </div>
 
 <style>
+    .theme-transition-overlay {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0;
+        backdrop-filter: blur(0px);
+        transition:
+            opacity 0.3s ease-in-out,
+            backdrop-filter 0.3s ease-in-out;
+        z-index: 9999;
+        background: rgba(0, 0, 0, 0.05);
+    }
+
+    .theme-transition-overlay.active {
+        opacity: 1;
+        backdrop-filter: blur(12px);
+    }
+
     .app-wrapper {
         min-height: 100vh;
         position: relative;
@@ -93,17 +114,6 @@
         view-transition-name: main-content;
         transform-origin: top center;
         perspective: 1000px;
-    }
-
-    .page-scroll-area {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .theme-changing {
-        opacity: 0;
     }
 
     :global(::view-transition-old(main-content)) {

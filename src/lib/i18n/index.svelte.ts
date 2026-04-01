@@ -69,8 +69,8 @@ class LanguageState {
             }
             setTimeout(() => {
                 this.isChanging = false;
-            }, 50);
-        }, 200);
+            }, 150);
+        }, 250);
     }
 }
 

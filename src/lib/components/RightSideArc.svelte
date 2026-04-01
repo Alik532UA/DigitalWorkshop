@@ -208,7 +208,7 @@
         >
             <button
                 class="control-btn glass"
-                onclick={() => theme.set("dark")}
+                onclick={() => theme.setWithAnimation("dark")}
                 class:active={theme.current === "dark"}
                 title="Dark"
             >
@@ -216,7 +216,7 @@
             </button>
             <button
                 class="control-btn glass"
-                onclick={() => theme.set("colorful")}
+                onclick={() => theme.setWithAnimation("colorful")}
                 class:active={theme.current === "colorful"}
                 title="Colorful"
             >
@@ -224,7 +224,7 @@
             </button>
             <button
                 class="control-btn glass"
-                onclick={() => theme.set("light")}
+                onclick={() => theme.setWithAnimation("light")}
                 class:active={theme.current === "light"}
                 title="Light"
             >
