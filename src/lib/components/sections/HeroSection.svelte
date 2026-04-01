@@ -2,12 +2,23 @@
     import { t } from "$lib/i18n/index.svelte";
     import { tabs, type TabType } from "$lib/states/ui.svelte";
 
+    let { isMobile = false } = $props<{ isMobile?: boolean }>();
+
     function selectTab(tab: TabType) {
         tabs.set(tab);
     }
 
+    // Інтерфейс для розпарсених частин привітання
+    interface ParsedPart {
+        type: 'button' | 'text';
+        key?: string;
+        label?: string;
+        delay?: string;
+        content?: string;
+    }
+
     // Парсер для перетворення [[marker]] у компоненти кнопок
-    function parseGreeting(text: string) {
+    function parseGreeting(text: string): ParsedPart[] {
         const parts = text.split(/(\[\[.*?\]\])/g);
         return parts.map(part => {
             if (part.startsWith('[[') && part.endsWith(']]')) {
@@ -43,7 +54,7 @@
                     >
                         {part.label}
                     </button>
-                {:else}
+                {:else if part.content}
                     {@html part.content.replace(/\n/g, '<br />')}
                 {/if}
             {/each}
