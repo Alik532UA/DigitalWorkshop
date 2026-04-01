@@ -1,38 +1,22 @@
 # DigitalWorkshop
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Персональне портфоліо-візитка, розроблене на **SvelteKit 5** з інтерактивними елементами, динамічним фоном та підтримкою багатомовності (UK/EN).
 
-## Creating a project
+## 🚀 Особливості
+- **Svelte 5 (Runes)**: сучасний підхід до реактивності.
+- **Interactive Backgrounds**: Particles, Waves, Floating Shapes на Canvas.
+- **Multilingual Support**: повна локалізація контенту.
+- **Responsive Design**: адаптація під мобільні пристрої.
+- **Static Deployment**: хостинг на GitHub Pages.
 
-If you're seeing this, you've probably already done this step. Congrats!
+## 🛠 Технології
+- **Framework**: SvelteKit
+- **Styling**: Vanilla CSS (Modern CSS features)
+- **Icons**: Lucide Svelte
+- **Deployment**: GitHub Actions + Adapter Static
 
-```sh
-# create a new project in the current directory
-npx sv create
+## 📂 Розгортання
+Сайт доступний за адресою: [https://alik532ua.github.io/DigitalWorkshop/](https://alik532ua.github.io/DigitalWorkshop/)
 
-# create a new project in my-app
-npx sv create my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+---
+© 2026 Alik Zapolnov
