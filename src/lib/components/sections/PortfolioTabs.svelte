@@ -4,13 +4,13 @@
     import { t } from "$lib/i18n/index.svelte";
     import Section from "../ui/Section.svelte";
 
-    let activeTab = $state('commercial');
+    let activeTab = $state('website');
 
     const tabs = [
-        { id: 'commercial', icon: Layout, label: () => t.tabs.commercial.title },
+        { id: 'website', icon: Layout, label: () => t.tabs.website.title },
         { id: 'apps', icon: Smartphone, label: () => t.tabs.apps.title },
         { id: 'games', icon: Gamepad2, label: () => t.tabs.games.title },
-        { id: 'charity', icon: Gift, label: () => t.tabs.charity.title }
+        { id: 'promo', icon: Gift, label: () => t.tabs.promo.title }
     ];
 
     function setActiveTab(id: string) {
@@ -40,13 +40,13 @@
 
         <!-- Tab Content -->
         <main class="tab-content-area">
-            {#if activeTab === 'commercial'}
+            {#if activeTab === 'website'}
                 <div in:fly={{ x: 20, duration: 400 }} out:fade={{ duration: 200 }} class="tab-panel">
-                    <h2 class="tab-title">{t.tabs.commercial.title}</h2>
-                    <p class="tab-intro">{t.tabs.commercial.intro}</p>
+                    <h2 class="tab-title">{t.tabs.website.title}</h2>
+                    <p class="tab-intro">{t.tabs.website.intro}</p>
                     
                     <div class="benefits-grid">
-                        {#each t.tabs.commercial.benefits as benefit}
+                        {#each t.tabs.website.benefits as benefit}
                             <div class="benefit-card glass card">
                                 <div class="benefit-icon"><CheckCircle2 size={24} /></div>
                                 <h3>{benefit.h}</h3>
@@ -57,7 +57,7 @@
 
                     <div class="cta-wrapper">
                         <a href="https://t.me/alik532" target="_blank" class="btn-primary">
-                            {t.tabs.commercial.cta} <ChevronRight size={18} />
+                            {t.tabs.website.cta} <ChevronRight size={18} />
                         </a>
                     </div>
                 </div>
@@ -107,13 +107,13 @@
                         </a>
                     </div>
                 </div>
-            {:else if activeTab === 'charity'}
+            {:else if activeTab === 'promo'}
                 <div in:fly={{ x: 20, duration: 400 }} out:fade={{ duration: 200 }} class="tab-panel">
-                    <h2 class="tab-title">{t.tabs.charity.title}</h2>
-                    <p class="tab-intro">{t.tabs.charity.intro}</p>
+                    <h2 class="tab-title">{t.tabs.promo.title}</h2>
+                    <p class="tab-intro">{t.tabs.promo.intro}</p>
 
                     <div class="faq-list grid-faq">
-                        {#each t.tabs.charity.faq as item}
+                        {#each t.tabs.promo.faq as item}
                             <div class="faq-item glass card">
                                 <div class="faq-q">
                                     <HelpCircle size={20} class="accent-icon" />
@@ -126,7 +126,7 @@
 
                     <div class="cta-wrapper">
                         <a href="https://t.me/alik532" target="_blank" class="btn-primary">
-                            {t.tabs.charity.cta}
+                            {t.tabs.promo.cta}
                         </a>
                     </div>
                 </div>

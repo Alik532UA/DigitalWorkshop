@@ -83,20 +83,20 @@ const TranslationSchema = z.object({
     nav: z.object({
         about: z.string(),
         portfolio: z.string(),
-        commercial: z.string(),
+        website: z.string(),
         apps: z.string(),
         games: z.string(),
-        charity: z.string(),
+        promo: z.string(),
         contact: z.string()
     }),
     hero: z.object({
         greeting: z.string(),
         description: z.string(),
         buttons: z.object({
-            commercial: z.string(),
+            website: z.string(),
             apps: z.string(),
             games: z.string(),
-            charity: z.string()
+            promo: z.string()
         })
     }),
     portfolio: z.object({
@@ -111,7 +111,7 @@ const TranslationSchema = z.object({
         }))
     }),
     tabs: z.object({
-        commercial: z.object({
+        website: z.object({
             title: z.string(),
             intro: z.string(),
             benefitsTitle: z.string(),
@@ -139,7 +139,7 @@ const TranslationSchema = z.object({
             })),
             cta: z.string()
         }),
-        charity: z.object({
+        promo: z.object({
             title: z.string(),
             intro: z.string(),
             faq: z.array(z.object({

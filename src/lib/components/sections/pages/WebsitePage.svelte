@@ -5,14 +5,14 @@
 </script>
 
 <div class="page-container">
-    <Section id="commercial" title={t.tabs.commercial.title}>
+    <Section id="website" title={t.tabs.website.title}>
         {#snippet icon()}<Layout size={24} />{/snippet}
 
         <div class="content-wrapper">
-            <p class="intro-text">{t.tabs.commercial.intro}</p>
+            <p class="intro-text">{t.tabs.website.intro}</p>
             
             <div class="benefits-grid">
-                {#each t.tabs.commercial.benefits as benefit}
+                {#each t.tabs.website.benefits as benefit}
                     <div class="benefit-card glass card">
                         <div class="benefit-icon"><CheckCircle2 size={24} /></div>
                         <h3>{benefit.h}</h3>
@@ -23,7 +23,7 @@
 
             <div class="cta-section">
                 <a href="https://t.me/alik532" target="_blank" class="btn-primary large-btn">
-                    {t.tabs.commercial.cta} <ChevronRight size={20} />
+                    {t.tabs.website.cta} <ChevronRight size={20} />
                 </a>
             </div>
         </div>

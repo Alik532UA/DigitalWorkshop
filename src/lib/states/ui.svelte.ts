@@ -1,18 +1,18 @@
 import { browser } from "$app/environment";
 import { replaceState } from "$app/navigation";
 
-export type TabType = 'home' | 'commercial' | 'apps' | 'games' | 'charity';
+export type TabType = 'home' | 'website' | 'apps' | 'games' | 'promo';
 export type ThemeType = 'dark' | 'light' | 'colorful';
 
 export const tabColors: Record<TabType, string> = {
     home: '#86efac',       // Green
-    commercial: '#93c5fd', // Blue
+    website: '#93c5fd',    // Blue
     apps: '#d8b4fe',       // Purple
     games: '#fdba74',      // Orange
-    charity: '#f9a8d4'     // Pink
+    promo: '#f9a8d4'       // Pink
 };
 
-export const tabOrder: TabType[] = ['commercial', 'apps', 'home', 'games', 'charity'];
+export const tabOrder: TabType[] = ['website', 'apps', 'home', 'games', 'promo'];
 
 class TabState {
     current = $state<TabType>('home');

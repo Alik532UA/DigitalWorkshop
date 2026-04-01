@@ -14,7 +14,7 @@
     let navItems = $derived([
         { id: "about", icon: User, label: t.nav.about },
         { id: "projects", icon: Rocket, label: t.nav.portfolio },
-        { id: "portfolio-details", icon: Layers, label: t.nav.commercial },
+        { id: "portfolio-details", icon: Layers, label: t.nav.website },
         { id: "contact", icon: MessageSquare, label: t.nav.contact }
     ]);
 </script>

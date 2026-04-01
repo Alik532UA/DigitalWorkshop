@@ -16,13 +16,12 @@
     let h = $state(0);
 
     const baseLinks: { id: TabType; label: () => string; left: number }[] = [
-        { id: "commercial", label: () => t.tabs.commercial.title, left: 15 },
-        { id: "apps", label: () => t.tabs.apps.title, left: 32 },
-        { id: "home", label: () => t.nav.about, left: 50 },
-        { id: "games", label: () => t.tabs.games.title, left: 68 },
-        { id: "charity", label: () => t.tabs.charity.title, left: 85 },
+        { id: "website", label: () => t.tabs.website.title, left: 15 },
+        { id: "apps", label: () => t.tabs.apps.title, left: 38.5 },
+        { id: "home", label: () => "Alik", left: 61.5 },
+        { id: "games", label: () => t.tabs.games.title, left: 85 },
+        { id: "promo", label: () => t.tabs.promo.title, left: 85 },
     ];
-
     // Розрахунок позиції на дузі Q 500 150 (від -50 50 до 1050 50)
     function getHeaderLinkParams(leftPercent: number) {
         if (!w || !h)

@@ -7,20 +7,20 @@ export const en: Translations = {
     nav: {
         about: "About",
         portfolio: "Portfolio",
-        commercial: "Websites",
+        website: "Websites",
         apps: "Apps",
         games: "Games",
-        charity: "Promo",
+        promo: "Promo",
         contact: "Contact"
     },
     hero: {
-        greeting: "My name is Alik\nand I create modern [[commercial]], [[apps]], and even [[games]]!\n\nAnd for creative schools and charities, I have a [[charity]]!",
+        greeting: "My name is Alik\nand I create modern [[website]], [[apps]], and even [[games]]!\n\nAnd for creative schools and charities, I have a [[promo]]!",
         description: "Select which product interests you to learn more and see my existing work",
         buttons: {
-            commercial: "websites",
+            website: "websites",
             apps: "apps",
             games: "games",
-            charity: "special offer"
+            promo: "special offer"
         }
     },
     portfolio: {
@@ -58,7 +58,7 @@ export const en: Translations = {
         }
     },
     tabs: {
-        commercial: {
+        website: {
             title: "Websites",
             intro: "If you need a fast, reliable business site, corporate portal, or landing page — I can help realize it on the most modern tech stack.",
             benefitsTitle: "Why choose my approach?",
@@ -112,7 +112,7 @@ export const en: Translations = {
             ],
             cta: "Order a game"
         },
-        charity: {
+        promo: {
             title: "Promo",
             intro: "I want creative schools in Ukraine to have modern and stylish websites. Helping a local school, I see the reality: budgets are minimal, but a modern look is needed. Therefore, I offer special terms.",
             faq: [

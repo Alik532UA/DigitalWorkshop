@@ -5,10 +5,10 @@
 
     // Pages
     import HeroSection from "$lib/components/sections/HeroSection.svelte";
-    import CommercialPage from "$lib/components/sections/pages/CommercialPage.svelte";
+    import WebsitePage from "$lib/components/sections/pages/WebsitePage.svelte";
     import AppsPage from "$lib/components/sections/pages/AppsPage.svelte";
     import GamesPage from "$lib/components/sections/pages/GamesPage.svelte";
-    import CharityPage from "$lib/components/sections/pages/CharityPage.svelte";
+    import PromoPage from "$lib/components/sections/pages/PromoPage.svelte";
 
     let isMobile = $state(false);
 
@@ -86,14 +86,14 @@
                 <div class="content-centering">
                     {#if tabs.current === "home"}
                         <HeroSection {isMobile} />
-                    {:else if tabs.current === "commercial"}
-                        <CommercialPage />
+                    {:else if tabs.current === "website"}
+                        <WebsitePage />
                     {:else if tabs.current === "apps"}
                         <AppsPage />
                     {:else if tabs.current === "games"}
                         <GamesPage />
-                    {:else if tabs.current === "charity"}
-                        <CharityPage />
+                    {:else if tabs.current === "promo"}
+                        <PromoPage />
                     {/if}
                 </div>
             </div>

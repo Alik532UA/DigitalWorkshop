@@ -28,10 +28,10 @@
                 
                 // Визначаємо затримку анімації на основі ключа
                 const delays: Record<string, string> = {
-                    commercial: '0s',
+                    website: '0s',
                     apps: '1.5s',
                     games: '3s',
-                    charity: '4.5s'
+                    promo: '4.5s'
                 };
 
                 return { 

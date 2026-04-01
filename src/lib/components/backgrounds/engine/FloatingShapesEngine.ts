@@ -15,13 +15,13 @@ interface FloatingIcon {
 // SVG paths for specific Lucide icons (normalized to 24x24)
 const ICON_PATHS = {
     // PanelsTopLeft
-    commercial: ["M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5zm0 4h18M9 21V9"], 
+    website: ["M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5zm0 4h18M9 21V9"], 
     // Smartphone
     apps: ["M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm5 16h.01"], 
     // Gamepad2
     games: ["M6 11h4M8 9v4M15 12h.01M18 10h.01M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"], 
     // Gift
-    charity: ["M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"], 
+    promo: ["M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"], 
 };
 
 export class FloatingShapesEngine extends CanvasEngine {
@@ -41,14 +41,14 @@ export class FloatingShapesEngine extends CanvasEngine {
         if (this.currentTab === "home") {
             // Show all icons on home tab
             availablePaths = [
-                ...ICON_PATHS.commercial,
+                ...ICON_PATHS.website,
                 ...ICON_PATHS.apps,
                 ...ICON_PATHS.games,
-                ...ICON_PATHS.charity
+                ...ICON_PATHS.promo
             ];
         } else {
             // Show specific icons for the current tab
-            availablePaths = ICON_PATHS[this.currentTab as keyof typeof ICON_PATHS] || ICON_PATHS.commercial;
+            availablePaths = ICON_PATHS[this.currentTab as keyof typeof ICON_PATHS] || ICON_PATHS.website;
         }
 
         const paths = availablePaths.map(p => new Path2D(p));
