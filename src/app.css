@@ -47,7 +47,7 @@
 
 /* Кольорова тема */
 [data-theme='colorful'] {
-    --bg-color: transparent;
+    --bg-color: #f5f5f7;
     --sidebar-bg: rgba(255, 255, 255, 0.4);
     --header-bg: rgba(255, 255, 255, 0.4);
     --card-bg: rgba(255, 255, 255, 0.5);

@@ -88,7 +88,6 @@
             opacity 0.3s ease-in-out,
             backdrop-filter 0.3s ease-in-out;
         z-index: 9999;
-        background: rgba(0, 0, 0, 0.05);
     }
 
     .theme-transition-overlay.active {
