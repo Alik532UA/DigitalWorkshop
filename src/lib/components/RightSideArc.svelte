@@ -179,19 +179,19 @@
         >
             <button
                 class="control-btn glass"
-                onclick={() => theme.set("colorful")}
-                class:active={theme.current === "colorful"}
-                title="Colorful"
-            >
-                <Palette size={20} />
-            </button>
-            <button
-                class="control-btn glass"
                 onclick={() => theme.set("dark")}
                 class:active={theme.current === "dark"}
                 title="Dark"
             >
                 <Moon size={20} />
+            </button>
+            <button
+                class="control-btn glass"
+                onclick={() => theme.set("colorful")}
+                class:active={theme.current === "colorful"}
+                title="Colorful"
+            >
+                <Palette size={20} />
             </button>
             <button
                 class="control-btn glass"

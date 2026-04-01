@@ -101,8 +101,8 @@ export abstract class CanvasEngine {
     protected abstract init(): void;
     protected abstract draw(): void;
 
-    private hexToRgba(hex: string): string {
-        if (!hex) return "rgba(0, 242, 255, ";
+    protected hexToRgb(hex: string): string {
+        if (!hex) return "0, 242, 255";
         let r = 0, g = 0, b = 0;
         try {
             if (hex.length === 4) {
@@ -115,31 +115,21 @@ export abstract class CanvasEngine {
                 b = parseInt(hex.substring(5, 7), 16);
             }
         } catch (e) {
-            return "rgba(0, 242, 255, ";
+            return "0, 242, 255";
         }
-        return `rgba(${r}, ${g}, ${b}, `;
+        return `${r}, ${g}, ${b}`;
     }
 
     protected getColors() {
-        // У кольоровій темі ЗАВЖДИ використовуємо колір вкладки
-        if (this.theme === "colorful") {
-            const primary = this.hexToRgba(this.color);
-            return {
-                primary: primary,
-                secondary: primary,
-            };
-        }
-
-        if (this.theme === "light") {
-            return {
-                primary: "rgba(0, 113, 227, ",
-                secondary: "rgba(94, 92, 230, ",
-            };
-        }
-        // За замовчуванням (dark)
+        // Тепер ЗАВЖДИ використовуємо колір вкладки для формування динамічного фону
+        const rgb = this.hexToRgb(this.color);
+        const primary = `rgba(${rgb}, `;
+        
+        // Для secondary можна використати той самий колір, 
+        // або трохи змінений, якщо захочемо градієнти пізніше.
         return {
-            primary: "rgba(0, 242, 255, ",
-            secondary: "rgba(112, 0, 255, ",
+            primary: primary,
+            secondary: primary,
         };
     }
 }
