@@ -62,13 +62,15 @@
         color: var(--text-primary);
         letter-spacing: -0.03em;
         margin-bottom: 0; /* Override previous margin */
+        text-align: center;
     }
 
     .section-title::after {
         content: '';
         position: absolute;
         bottom: -5px;
-        left: 0;
+        left: 50%;
+        transform: translateX(-50%);
         width: 40px;
         height: 3px;
         background: var(--gradient);

@@ -10,11 +10,11 @@ export const en: Translations = {
         website: "Websites",
         apps: "Apps",
         games: "Games",
-        promo: "Promo",
+        promo: "Initiative",
         contact: "Contact"
     },
     hero: {
-        greeting: "My name is Alik\nand I create modern [[website]], [[apps]], and even [[games]]!\n\nAnd for creative schools and charities, I have a [[promo]]!",
+        greeting: "My name is Alik\nand I create modern [[website]], [[apps]], and even [[games]]!\n\nAnd for creative schools and charities, I have an [[promo]]!",
         description: "Select which product interests you to learn more and see my existing work",
         buttons: {
             website: "websites",
@@ -84,7 +84,7 @@ export const en: Translations = {
         },
         apps: {
             title: "Apps",
-            intro: "Have an idea for a service, dashboard, or internal tool for your business? I develop interactive web applications (SPA/PWA) and desktop tools.",
+            intro: "Have an idea for a service, dashboard, or internal tool for your business? I develop interactive web apps (SPA/PWA) and desktop tools.",
             faq: [
                 {
                     q: "What is the difference between an app and a site?",
@@ -95,11 +95,11 @@ export const en: Translations = {
                     a: "Yes. Modern web apps work directly in the browser on any device, look like native programs and don't require installation. Desktop builds are also possible."
                 }
             ],
-            cta: "Order an application"
+            cta: "Order an app"
         },
         games: {
             title: "Games",
-            intro: "Development of light browser games, interactive quizzes, educational platforms, and gamified promo projects.",
+            intro: "Development of light browser games, interactive quizzes, educational platforms, and gamified initiatives.",
             faq: [
                 {
                     q: "What games do I create?",
@@ -113,8 +113,8 @@ export const en: Translations = {
             cta: "Order a game"
         },
         promo: {
-            title: "Promo",
-            pageTitle: "Social Initiative",
+            title: "Initiative",
+            pageTitle: "Special Offer",
             intro: "This program is specially created for non-profit, educational, and socially beneficial initiatives. My goal is to provide them with modern tools for development.",
             faq: [
                 {
@@ -122,8 +122,8 @@ export const en: Translations = {
                     a: "I want creative schools in Ukraine to have modern and stylish websites instead of outdated and slow pages from the 2010s."
                 },
                 {
-                    q: "Who can take advantage of this social program?",
-                    a: "This offer is created specifically for non-profit, educational, and socially beneficial initiatives. These include:\n* State and private creative schools (music, art, theater).\n* General education schools and kindergartens.\n* Sports, logic, and creative clubs.\n* Charitable foundations and non-governmental organizations.\n* Volunteer initiatives.\nIf your project has social or educational value — this program is for you."
+                    q: "Who can take advantage of this special offer?",
+                    a: "This offer is created specifically for non-profit, educational, and socially beneficial initiatives. These include:\n* State and private creative schools (music, art, theater).\n* General education schools and kindergartens.\n* Sports, logic, and creative clubs.\n* Charitable foundations and non-governmental organizations.\n* Volunteer initiatives.\nIf your project has social or educational value — this initiative is for you."
                 },
                 {
                     q: "What's my benefit if website creation and launch are free?",
@@ -147,11 +147,11 @@ export const en: Translations = {
                 },
                 {
                     q: "Why so cheap?",
-                    a: "For me, this is a social and creative project. I myself graduated from the 'Children's Theater School of Odesa' and perfectly understand the realities of state funding for creative institutions. There is no extra money there, and having a modern, stylish, fast website can help attract new students."
+                    a: "For me, this is a social and creative initiative. I myself graduated from the 'Children's Theater School of Odesa' and perfectly understand the realities of state funding for creative institutions. There is no extra money there, and having a modern, stylish, fast website can help attract new students."
                 },
                 {
                     q: "Can it be even cheaper?",
-                    a: "Yes! I have a partner program. If you recommend me to another school or foundation:\n* **For them:** they get a discounted price for the first year of the site's operation (35 euros instead of 50).\n* **For you:** you get a -10 euro discount on your subscription fee for each referred initiative. 5 recommendations = free support for a year!"
+                    a: "Yes! I have a partner program. If you recommend me to another school or foundation:\n* **For them:** they get a discounted price for the first year of the site's operation (35 euros instead of 50).\n* **For you:** you get a -10 euro discount on your subscription fee for each referred initiative.\n5 recommendations = free support for a year!"
                 },
                 {
                     q: "Can I order only the website?",

@@ -28,6 +28,7 @@
                     class="tab-btn" 
                     class:active={activeTab === tab.id}
                     onclick={() => setActiveTab(tab.id)}
+                    data-testid="portfolio-tab-{tab.id}"
                 >
                     <tab.icon size={20} />
                     <span>{tab.label()}</span>
@@ -56,7 +57,7 @@
                     </div>
 
                     <div class="cta-wrapper">
-                        <a href="https://t.me/alik532" target="_blank" class="btn-primary">
+                        <a href="https://t.me/alik532" target="_blank" class="btn-primary" data-testid="portfolio-cta-website">
                             {t.tabs.website.cta} <ChevronRight size={18} />
                         </a>
                     </div>
@@ -66,20 +67,20 @@
                     <h2 class="tab-title">{t.tabs.apps.title}</h2>
                     <p class="tab-intro">{t.tabs.apps.intro}</p>
 
-                    <div class="faq-list">
-                        {#each t.tabs.apps.faq as item}
-                            <div class="faq-item glass card">
+                    <div class="faq-list" data-testid="apps-faq-list">
+                        {#each t.tabs.apps.faq as item, i}
+                            <div class="faq-item glass card" data-testid="apps-faq-item-{i}">
                                 <div class="faq-q">
                                     <HelpCircle size={20} class="accent-icon" />
                                     <h4>{item.q}</h4>
                                 </div>
-                                <p class="faq-a">{item.a}</p>
+                                <p class="faq-a">{@html item.a.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n\* /g, '<br>• ')}</p>
                             </div>
                         {/each}
                     </div>
 
                     <div class="cta-wrapper">
-                        <a href="https://t.me/alik532" target="_blank" class="btn-primary">
+                        <a href="https://t.me/alik532" target="_blank" class="btn-primary" data-testid="portfolio-cta-apps">
                             {t.tabs.apps.cta} <ChevronRight size={18} />
                         </a>
                     </div>
@@ -89,20 +90,20 @@
                     <h2 class="tab-title">{t.tabs.games.title}</h2>
                     <p class="tab-intro">{t.tabs.games.intro}</p>
 
-                    <div class="faq-list">
-                        {#each t.tabs.games.faq as item}
-                            <div class="faq-item glass card">
+                    <div class="faq-list" data-testid="games-faq-list">
+                        {#each t.tabs.games.faq as item, i}
+                            <div class="faq-item glass card" data-testid="games-faq-item-{i}">
                                 <div class="faq-q">
                                     <HelpCircle size={20} class="accent-icon" />
                                     <h4>{item.q}</h4>
                                 </div>
-                                <p class="faq-a">{item.a}</p>
+                                <p class="faq-a">{@html item.a.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n\* /g, '<br>• ')}</p>
                             </div>
                         {/each}
                     </div>
 
                     <div class="cta-wrapper">
-                        <a href="https://t.me/alik532" target="_blank" class="btn-primary">
+                        <a href="https://t.me/alik532" target="_blank" class="btn-primary" data-testid="portfolio-cta-games">
                             {t.tabs.games.cta} <ChevronRight size={18} />
                         </a>
                     </div>
@@ -112,23 +113,23 @@
                     <h2 class="tab-title">{t.tabs.promo.title}</h2>
                     <p class="tab-intro">{t.tabs.promo.intro}</p>
 
-                    <div class="faq-list grid-faq">
-                        {#each t.tabs.promo.faq as item}
-                            <div class="faq-item glass card">
+                    <div class="faq-list grid-faq" data-testid="promo-faq-list">
+                        {#each t.tabs.promo.faq as item, i}
+                            <div class="faq-item glass card" data-testid="promo-faq-item-{i}">
                                 <div class="faq-q">
                                     <HelpCircle size={20} class="accent-icon" />
                                     <h4>{item.q}</h4>
                                 </div>
-                                <p class="faq-a">{item.a}</p>
+                                <p class="faq-a">{@html item.a.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n\* /g, '<br>• ')}</p>
                             </div>
                         {/each}
                     </div>
 
                     <div class="cta-wrapper">
-                        <a href="https://t.me/alik532" target="_blank" class="btn-primary">
-                            {t.tabs.promo.cta}
-                        </a>
-                    </div>
+                                            <a href="https://t.me/alik532" target="_blank" class="btn-primary" data-testid="portfolio-cta-promo">
+                                                {t.tabs.promo.cta}
+                                            </a>
+                                        </div>
                 </div>
             {/if}
         </main>
@@ -231,24 +232,19 @@
         color: var(--text-primary);
     }
 
-    .faq-list {
-        columns: 2 300px;
+    .faq-list, .grid-faq {
+        columns: 3 280px;
         column-gap: 20px;
-        display: block;
         height: fit-content;
-    }
-
-    .grid-faq {
-        columns: 2 300px;
-        column-gap: 20px;
         display: block;
     }
 
     .faq-item {
         padding: 20px;
-        break-inside: avoid;
-        margin-bottom: 20px;
         display: block;
+        height: fit-content;
+        margin-bottom: 20px;
+        break-inside: avoid;
     }
 
     .faq-q {
@@ -278,6 +274,18 @@
 
     .cta-wrapper {
         margin-top: 20px;
+    }
+
+    @media (max-width: 1200px) {
+        .faq-list {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .faq-list {
+            grid-template-columns: 1fr;
+        }
     }
 
     @media (max-width: 1024px) {

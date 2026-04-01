@@ -41,7 +41,7 @@
 			</div>
 
 			<div class="cta-section">
-				<a href="https://t.me/alik532" target="_blank" class="btn-primary large-btn">
+				<a href="https://t.me/alik532" target="_blank" class="btn-primary large-btn glass" data-testid="promo-cta-button">
 					{t.tabs.promo.cta}
 				</a>
 			</div>
@@ -53,7 +53,7 @@
     .content-wrapper { display: flex; flex-direction: column; gap: 40px; }
     .intro-text { font-size: 1.4rem; line-height: 1.6; color: var(--text-secondary); max-width: 900px; margin: 0 auto; text-align: center; }
     .faq-list { 
-        columns: 2 400px;
+        columns: 3 300px;
         column-gap: 20px;
         width: 100%;
         height: fit-content;
@@ -61,8 +61,17 @@
     .faq-item { 
         break-inside: avoid;
         margin-bottom: 20px;
-        display: block;
         padding: 30px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+    }
+
+    :global([data-theme="dark"]) .faq-item {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
     }
     .faq-q { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px; }
     .faq-q h4 { font-size: 1.3rem; color: var(--text-primary); line-height: 1.4; }
@@ -74,6 +83,10 @@
     :global(.accent-icon) { color: var(--accent-primary); flex-shrink: 0; margin-top: 3px; }
     .cta-section { display: flex; justify-content: center; }
     .large-btn { padding: 20px 40px; font-size: 1.2rem; }
+
+    @media (max-width: 1200px) {
+        .faq-list { grid-template-columns: repeat(2, 1fr); }
+    }
 
     @media (max-width: 768px) {
         .faq-list { grid-template-columns: 1fr; }

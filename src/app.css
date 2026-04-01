@@ -17,16 +17,16 @@
 /* Світла тема за замовчуванням (оскільки вона "чудова") */
 :root {
     --bg-color: #f5f5f7;
-    --sidebar-bg: rgba(255, 255, 255, 0.7);
-    --header-bg: rgba(245, 245, 247, 0.8);
-    --card-bg: rgba(0, 0, 0, 0.02);
+    --sidebar-bg: rgba(255, 255, 255, 0.4);
+    --header-bg: rgba(245, 245, 247, 0.5);
+    --card-bg: rgba(255, 255, 255, 0.18);
     --border-color: rgba(0, 0, 0, 0.1);
     --text-primary: #1d1d1f;
     --text-secondary: #86868b;
     /* --accent-primary тепер приходить динамічно з +layout.svelte */
     --accent-secondary: color-mix(in srgb, var(--accent-primary), #000 20%);
     --gradient: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-    --glass-blur: blur(12px);
+    --glass-blur: blur(5px);
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --font-main: 'e-Ukraine', sans-serif;
     color-scheme: light;
@@ -35,9 +35,9 @@
 /* Темна тема (зроблена трохи світлішою) */
 [data-theme='dark'] {
     --bg-color: #242424;
-    --sidebar-bg: rgba(45, 45, 45, 0.75);
-    --header-bg: rgba(35, 35, 35, 0.85);
-    --card-bg: rgba(255, 255, 255, 0.07);
+    --sidebar-bg: rgba(45, 45, 45, 0.45);
+    --header-bg: rgba(35, 35, 35, 0.5);
+    --card-bg: rgba(255, 255, 255, 0.12);
     --border-color: rgba(255, 255, 255, 0.15);
     --text-primary: #f5f5f5;
     --text-secondary: #c0c0c0;
@@ -48,9 +48,9 @@
 /* Кольорова тема */
 [data-theme='colorful'] {
     --bg-color: #f5f5f7;
-    --sidebar-bg: rgba(255, 255, 255, 0.4);
-    --header-bg: rgba(255, 255, 255, 0.4);
-    --card-bg: rgba(255, 255, 255, 0.5);
+    --sidebar-bg: rgba(255, 255, 255, 0.2);
+    --header-bg: rgba(255, 255, 255, 0.2);
+    --card-bg: rgba(255, 255, 255, 0.4);
     --border-color: rgba(255, 255, 255, 0.3);
     --text-primary: #1a1a1a;
     --text-secondary: #4a4a4a;
@@ -63,11 +63,7 @@
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
     font-family: var(--font-main);
-    transition: 
-        background-color 0.3s ease, 
-        color 0.3s ease, 
-        border-color 0.3s ease, 
-        box-shadow 0.3s ease;
+    /* Глобальний transition прибрано для кращої продуктивності */
 }
 
 html {
@@ -116,7 +112,7 @@ body::-webkit-scrollbar {
     min-height: 100vh;
     background: transparent;
     position: relative;
-    overflow: hidden;
+    /* Видалено overflow: hidden, щоб не обривати обчислення backdrop-filter */
 }
 
 .glass {
@@ -156,6 +152,29 @@ body::-webkit-scrollbar {
     box-shadow: 0 0 25px rgba(var(--accent-primary-rgb), 0.5);
 }
 
+.btn-primary.glass {
+    position: relative;
+    background: transparent;
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-primary.glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--gradient);
+    opacity: 0.35;
+    z-index: -1;
+    transition: var(--transition);
+}
+
+.btn-primary.glass:hover::before {
+    opacity: 0.9;
+}
+
 .btn-secondary {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -182,13 +201,15 @@ body::-webkit-scrollbar {
     margin-bottom: 40px;
     position: relative;
     display: inline-block;
+    text-align: center;
 }
 
 .section-title::after {
     content: '';
     position: absolute;
     bottom: -10px;
-    left: 0;
+    left: 50%;
+    transform: translateX(-50%);
     width: 60%;
     height: 4px;
     background: var(--gradient);

@@ -117,7 +117,7 @@
         width: 100%;
         height: 100%;
         background: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(8px);
+        backdrop-filter: var(--glass-blur);
         z-index: 2000;
         display: flex;
         align-items: center;

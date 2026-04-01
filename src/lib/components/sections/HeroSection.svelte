@@ -48,19 +48,46 @@
         });
     }
 
-    let parsedGreeting = $derived(parseGreeting(t.hero.greeting));
+    // Розділяємо привітання на дві частини по подвійному переносу рядка
+    let greetingParts = $derived(t.hero.greeting.split('\n\n'));
+    let parsedPart1 = $derived(parseGreeting(greetingParts[0]));
+    let parsedPart2 = $derived(parseGreeting(greetingParts[1] || ''));
 </script>
 
 <section id="hero" class="hero-section">
     <div class="hero-content">
         <div class="hero-text-container">
-            <h1 class="main-title">
-                {#each parsedGreeting as part}
+            <div class="hero-top-row">
+                <h1 class="main-title first-part" data-testid="hero-title-1">
+                    {#each parsedPart1 as part}
+                        {#if part.type === 'button'}
+                            <button 
+                                class="pulse-btn glass" 
+                                onclick={() => selectTab(part.key as TabType)} 
+                                style="--delay: {part.delay}; --btn-color: {part.color};"
+                                data-testid="hero-cta-{part.key}"
+                            >
+                                {part.label}
+                            </button>
+                        {:else if part.content}
+                            {@html part.content.replace(/\n/g, '<br />')}
+                        {/if}
+                    {/each}
+                </h1>
+                
+                <div class="photo-wrapper glass">
+                    <img src="{base}/images/profile.jpg" alt="Alik" class="profile-photo" />
+                </div>
+            </div>
+
+            <h1 class="main-title second-part" data-testid="hero-title-2">
+                {#each parsedPart2 as part}
                     {#if part.type === 'button'}
                         <button 
                             class="pulse-btn glass" 
                             onclick={() => selectTab(part.key as TabType)} 
                             style="--delay: {part.delay}; --btn-color: {part.color};"
+                            data-testid="hero-cta-{part.key}"
                         >
                             {part.label}
                         </button>
@@ -69,12 +96,8 @@
                     {/if}
                 {/each}
             </h1>
+
             <p class="hero-description">{t.hero.description}</p>
-        </div>
-        <div class="profile-container">
-            <div class="photo-wrapper glass">
-                <img src="{base}/images/profile.jpg" alt="Alik" class="profile-photo" />
-            </div>
         </div>
     </div>
 </section>
@@ -93,26 +116,29 @@
         max-width: 1200px;
         width: 100%;
         display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        gap: 60px;
+        flex-direction: column;
+        gap: 30px;
     }
 
     .hero-text-container {
-        flex: 1;
+        width: 100%;
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
+        gap: 20px;
     }
 
-    .profile-container {
-        flex-shrink: 0;
+    .hero-top-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 40px;
+        width: 100%;
     }
 
     .photo-wrapper {
-        width: 320px;
-        height: 320px;
+        flex-shrink: 0;
+        width: 280px;
+        height: 280px;
         border-radius: 50%;
         padding: 10px;
         background: color-mix(in srgb, var(--accent-primary), transparent 85%);
@@ -137,11 +163,19 @@
     }
 
     .main-title {
-        font-size: 3.2rem;
+        font-size: 2.3rem;
         font-weight: 500;
-        margin-bottom: 30px;
+        margin-bottom: 0;
         color: var(--text-primary);
         line-height: 1.4;
+    }
+
+    .main-title.first-part {
+        flex: 1;
+    }
+
+    .main-title.second-part {
+        margin-top: 10px;
     }
 
     .hero-description {
@@ -149,7 +183,8 @@
         color: var(--text-secondary);
         line-height: 1.6;
         font-weight: 400;
-        max-width: 700px;
+        max-width: 850px;
+        margin-top: 10px;
     }
 
     .pulse-btn {
@@ -158,7 +193,7 @@
         border: 1px solid color-mix(in srgb, var(--btn-color), transparent 80%);
         padding: 8px 24px;
         margin: 6px 4px;
-        font-size: 2.4rem;
+        font-size: 1.9rem;
         font-weight: 600;
         color: var(--btn-color);
         cursor: pointer;
@@ -211,26 +246,27 @@
     }
 
     @media (max-width: 1024px) {
-        .hero-content {
+        .hero-top-row {
             flex-direction: column-reverse;
             text-align: center;
-            gap: 40px;
+            gap: 30px;
         }
 
         .hero-text-container {
             align-items: center;
+            text-align: center;
         }
 
-        .main-title { font-size: 2.2rem; }
-        .pulse-btn { font-size: 1.6rem; padding: 6px 18px; }
+        .main-title { font-size: 1.9rem; }
+        .pulse-btn { font-size: 1.5rem; padding: 6px 18px; }
         .hero-description { font-size: 1.3rem; }
-        .photo-wrapper { width: 250px; height: 250px; }
+        .photo-wrapper { width: 220px; height: 220px; }
     }
 
     @media (max-width: 768px) {
-        .main-title { font-size: 1.8rem; }
+        .main-title { font-size: 1.6rem; }
         .pulse-btn { font-size: 1.3rem; padding: 4px 14px; animation: none; }
         .hero-description { font-size: 1.1rem; }
-        .photo-wrapper { width: 200px; height: 200px; }
+        .photo-wrapper { width: 180px; height: 180px; }
     }
 </style>

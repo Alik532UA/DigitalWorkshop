@@ -92,7 +92,7 @@
 
     .theme-transition-overlay.active {
         opacity: 1;
-        backdrop-filter: blur(12px);
+        backdrop-filter: blur(6px);
     }
 
     .app-wrapper {
@@ -104,14 +104,16 @@
 
     .main-content {
         position: relative;
-        z-index: 1;
         min-height: 100vh;
         padding-top: 180px; 
         padding-bottom: 160px;
         padding-right: 160px; /* Відступ для SideArc */
         padding-left: 160px; /* Відступ для LeftSideArc */
-        view-transition-name: main-content;
         transform-origin: top center;
+    }
+
+    :global(::view-transition-old(main-content)),
+    :global(::view-transition-new(main-content)) {
         perspective: 1000px;
     }
 

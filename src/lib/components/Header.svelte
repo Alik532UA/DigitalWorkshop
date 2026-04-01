@@ -127,13 +127,15 @@
 <header
     class="arc-header"
     style="--dynamic-bg: {theme.current === 'colorful'
-        ? `color-mix(in srgb, ${tabs.currentColor}, transparent 20%)`
+        ? `color-mix(in srgb, ${tabs.currentColor}, transparent 60%)`
         : 'var(--header-bg)'};
         transform: translateY(calc((1 - {$progressSpring}) * (-100% + 95px)));"
     bind:clientWidth={w}
     bind:clientHeight={h}
+    data-testid="arc-header"
 >
     <div class="svg-container">
+        <div class="svg-wrapper">
         <svg viewBox="0 0 1000 180" preserveAspectRatio="none" class="arc-svg">
             <defs>
                 <linearGradient
@@ -176,7 +178,6 @@
                 d="M -50 -50 L 1050 -50 L 1050 50 Q 500 150 -50 50 Z"
                 class="arc-path"
                 fill="var(--dynamic-bg)"
-                filter="url(#softShadowHeader)"
             />
 
             <path
@@ -184,6 +185,7 @@
                 fill="url(#cylinderLight)"
             />
         </svg>
+        </div>
     </div>
 
     <nav class="arc-nav">
@@ -217,6 +219,7 @@
 
     .arc-path {
         transition: fill 0.5s ease;
+        backdrop-filter: var(--glass-blur);
     }
 
     .svg-container {
@@ -233,6 +236,19 @@
         height: 100%;
         display: block;
         overflow: visible;
+        filter: drop-shadow(0px 8px 12px rgba(0,0,0,0.15));
+    }
+
+    .svg-wrapper {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1000 180" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M -50 -50 L 1050 -50 L 1050 50 Q 500 150 -50 50 Z" /></svg>');
+        mask-size: 100% 100%;
+        -webkit-mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1000 180" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M -50 -50 L 1050 -50 L 1050 50 Q 500 150 -50 50 Z" /></svg>');
+        -webkit-mask-size: 100% 100%;
     }
 
     .arc-nav {

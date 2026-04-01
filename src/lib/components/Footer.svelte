@@ -112,13 +112,15 @@
 <footer
     class="arc-footer"
     style="--dynamic-bg: {theme.current === 'colorful'
-        ? `color-mix(in srgb, ${tabs.currentColor}, transparent 20%)`
+        ? `color-mix(in srgb, ${tabs.currentColor}, transparent 60%)`
         : 'var(--header-bg)'};
         transform: translateY(calc((1 - {$progressSpring}) * (100% - 60px)));"
     bind:clientWidth={w}
     bind:clientHeight={h}
+    data-testid="arc-footer"
 >
     <div class="svg-container">
+        <div class="svg-wrapper">
         <svg viewBox="0 0 1000 150" preserveAspectRatio="none" class="arc-svg">
             <defs>
                 <linearGradient
@@ -161,7 +163,6 @@
                 d="M -50 200 L 1050 200 L 1050 100 Q 500 -20 -50 100 Z"
                 class="arc-path"
                 fill="var(--dynamic-bg)"
-                filter="url(#softShadowFooter)"
             />
 
             <path
@@ -169,6 +170,7 @@
                 fill="url(#cylinderLightFooter)"
             />
         </svg>
+        </div>
     </div>
 
     <div class="footer-content">
@@ -177,6 +179,7 @@
             target="_blank"
             class="footer-btn"
             style="left: {leftBtnStyles.left}; bottom: {leftBtnStyles.bottom}; --rot: {leftBtnStyles.rot};"
+            data-testid="footer-ask-button"
         >
             {t.footer.ask}
         </a>
@@ -185,6 +188,7 @@
             target="_blank"
             class="footer-btn"
             style="left: {rightBtnStyles.left}; bottom: {rightBtnStyles.bottom}; --rot: {rightBtnStyles.rot};"
+            data-testid="footer-order-button"
         >
             {orderText}
         </a>
@@ -205,6 +209,7 @@
 
     .arc-path {
         transition: fill 0.5s ease;
+        backdrop-filter: var(--glass-blur);
     }
 
     .svg-container {
@@ -221,6 +226,19 @@
         height: 100%;
         display: block;
         overflow: visible;
+        filter: drop-shadow(0px -4px 12px rgba(0,0,0,0.1));
+    }
+
+    .svg-wrapper {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1000 150" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M -50 200 L 1050 200 L 1050 100 Q 500 -20 -50 100 Z" /></svg>');
+        mask-size: 100% 100%;
+        -webkit-mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1000 150" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M -50 200 L 1050 200 L 1050 100 Q 500 -20 -50 100 Z" /></svg>');
+        -webkit-mask-size: 100% 100%;
     }
 
     .footer-content {
@@ -253,7 +271,7 @@
         white-space: nowrap;
         transform: translate(-50%, 50%) rotate(var(--rot));
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-        backdrop-filter: blur(4px);
+        backdrop-filter: var(--glass-blur);
     }
 
     .footer-btn:hover {

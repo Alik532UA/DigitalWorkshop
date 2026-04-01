@@ -22,7 +22,7 @@
             </div>
 
             <div class="cta-section">
-                <a href="https://t.me/alik532" target="_blank" class="btn-primary large-btn">
+                <a href="https://t.me/alik532" target="_blank" class="btn-primary large-btn glass" data-testid="website-cta-button">
                     {t.tabs.website.cta} <ChevronRight size={20} />
                 </a>
             </div>
