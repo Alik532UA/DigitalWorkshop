@@ -49,37 +49,6 @@ class TabState {
                 this.current = tab;
                 this.previous = tab;
             }
-
-            $effect.root(() => {
-                let isFirstRun = true;
-                $effect(() => {
-                    const tab = this.current;
-                    const url = new URL(window.location.href);
-                    const currentTabInUrl = url.searchParams.get('tab');
-                    
-                    if (currentTabInUrl !== tab) {
-                        if (isFirstRun) {
-                            isFirstRun = false;
-                            if (!currentTabInUrl) return; 
-                        }
-                        
-                        url.searchParams.set('tab', tab);
-                        
-                        // Якщо в URL немає bg, змінюємо його на дефолтний для нової вкладки
-                        if (!url.searchParams.has('bg')) {
-                            background.setQuiet(tabDefaultBackgrounds[tab]);
-                        }
-
-                        setTimeout(() => {
-                            try {
-                                replaceState(url.toString(), {});
-                            } catch (e) {
-                                window.history.replaceState(null, '', url.toString());
-                            }
-                        }, 0);
-                    }
-                });
-            });
         }
     }
 
@@ -87,7 +56,11 @@ class TabState {
         if (this.current === tab) return;
         this.previous = this.current;
         this.current = tab;
-        // Вимикаємо scrollTo або робимо його миттєвим, щоб не було смикання
+
+        // Автоматично змінюємо фон на дефолтний для нової вкладки
+        const defaultBg = tabDefaultBackgrounds[tab];
+        background.setQuiet(defaultBg);
+
         if (browser) {
             window.scrollTo({ top: 0 });
         }
@@ -106,31 +79,6 @@ class ThemeState {
             const themeParam = params.get('theme') as ThemeType;
             const saved = themeParam || localStorage.getItem("theme") as ThemeType || "dark";
             this.set(saved);
-
-            $effect.root(() => {
-                let isFirstRun = true;
-                $effect(() => {
-                    const theme = this.current;
-                    const url = new URL(window.location.href);
-                    const currentThemeInUrl = url.searchParams.get('theme');
-
-                    if (currentThemeInUrl !== theme) {
-                        if (isFirstRun) {
-                            isFirstRun = false;
-                            if (!currentThemeInUrl) return; 
-                        }
-                        
-                        url.searchParams.set('theme', theme);
-                        setTimeout(() => {
-                            try {
-                                replaceState(url.toString(), {});
-                            } catch (e) {
-                                window.history.replaceState(null, '', url.toString());
-                            }
-                        }, 0);
-                    }
-                });
-            });
         }
     }
 
@@ -163,7 +111,7 @@ class ThemeState {
 }
 
 class BackgroundState {
-    type = $state<1 | 2 | 3>(3);
+    type = $state<0 | 1 | 2 | 3>(0);
 
     constructor() {}
 
@@ -179,48 +127,20 @@ class BackgroundState {
                 if (saved && ["1", "2", "3"].includes(saved)) {
                     this.type = parseInt(saved) as 1 | 2 | 3;
                 } else {
-                    // Дефолт за вкладкою при ініціалізації
                     this.type = tabDefaultBackgrounds[tabs.current] || 3;
                 }
             }
-
-            $effect.root(() => {
-                let isFirstRun = true;
-                $effect(() => {
-                    const type = this.type;
-                    const url = new URL(window.location.href);
-                    const currentBgInUrl = url.searchParams.get('bg');
-                    const bgName = invBgUrlMap[type];
-
-                    if (currentBgInUrl !== bgName) {
-                        if (isFirstRun) {
-                            isFirstRun = false;
-                            if (!currentBgInUrl) return; 
-                        }
-                        
-                        url.searchParams.set('bg', bgName);
-                        setTimeout(() => {
-                            try {
-                                replaceState(url.toString(), {});
-                            } catch (e) {
-                                window.history.replaceState(null, '', url.toString());
-                            }
-                        }, 0);
-                    }
-                });
-            });
         }
     }
 
-    set(type: 1 | 2 | 3) {
+    set(type: 0 | 1 | 2 | 3) {
         this.type = type;
-        if (browser) {
+        if (browser && type !== 0) {
             localStorage.setItem("backgroundType", type.toString());
         }
     }
 
-    // Для зміни без негайного оновлення URL (використовується в TabState.init)
-    setQuiet(type: 1 | 2 | 3) {
+    setQuiet(type: 0 | 1 | 2 | 3) {
         this.type = type;
     }
 }
@@ -228,3 +148,70 @@ class BackgroundState {
 export const theme = new ThemeState();
 export const background = new BackgroundState();
 export const tabs = new TabState();
+
+// Централізована синхронізація URL
+if (browser) {
+    $effect.root(() => {
+        let isFirstRun = true;
+        
+        $effect(() => {
+            const currentTab = tabs.current;
+            const currentTheme = theme.current;
+            const currentBg = background.type;
+            
+            const url = new URL(window.location.href);
+            const params = url.searchParams;
+            
+            let changed = false;
+
+            // Синхронізація Tab
+            if (params.get('tab') !== currentTab) {
+                params.set('tab', currentTab);
+                changed = true;
+            }
+
+            // Синхронізація Theme (тільки якщо не Dark)
+            if (currentTheme !== 'dark') {
+                if (params.get('theme') !== currentTheme) {
+                    params.set('theme', currentTheme);
+                    changed = true;
+                }
+            } else if (params.has('theme')) {
+                params.delete('theme');
+                changed = true;
+            }
+
+            // Синхронізація Background
+            const bgName = invBgUrlMap[currentBg];
+            const defaultBgForTab = tabDefaultBackgrounds[currentTab];
+            
+            // Відображаємо bg в URL тільки якщо він відрізняється від дефолту вкладки
+            if (currentBg !== 0 && currentBg !== defaultBgForTab) {
+                if (params.get('bg') !== bgName) {
+                    params.set('bg', bgName);
+                    changed = true;
+                }
+            } else if (params.has('bg')) {
+                params.delete('bg');
+                changed = true;
+            }
+
+            if (changed) {
+                if (isFirstRun) {
+                    isFirstRun = false;
+                    return;
+                }
+
+                setTimeout(() => {
+                    try {
+                        replaceState(url.toString(), {});
+                    } catch (e) {
+                        window.history.replaceState(null, '', url.toString());
+                    }
+                }, 0);
+            }
+            
+            isFirstRun = false;
+        });
+    });
+}

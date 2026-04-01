@@ -13,10 +13,10 @@
     let { children } = $props();
 
     onMount(() => {
+        tabs.init();
         theme.init();
         background.init();
         language.init();
-        tabs.init();
     });
 
     function stay(node: HTMLElement, { duration = 800 }) {
