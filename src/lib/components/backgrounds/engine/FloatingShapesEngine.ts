@@ -9,6 +9,8 @@ interface FloatingIcon {
     vx: number;
     vy: number;
     path: Path2D;
+    nextPath?: Path2D;
+    transition: number; // 0 to 1
     alpha: number;
 }
 
@@ -35,44 +37,60 @@ const ICON_PATHS = {
 export class FloatingShapesEngine extends CanvasEngine {
     private icons: FloatingIcon[] = [];
     private currentTab: string = "about";
+    private isInitial: boolean = true;
 
     public setTab(tab: string) {
         if (this.currentTab === tab) return;
         this.currentTab = tab;
-        this.init(); // Re-initialize icons for the new tab
+        
+        if (this.isInitial) {
+            this.init();
+            this.isInitial = false;
+        } else {
+            this.transitionToNewIcons();
+        }
     }
 
-    protected init() {
-        this.icons = [];
+    private transitionToNewIcons() {
+        const availablePaths = this.getPathsForTab(this.currentTab);
+        const paths = availablePaths.map(p => new Path2D(p));
         
-        let availablePaths: string[] = [];
-        if (this.currentTab === "about") {
-            // Show all icons on about tab
-            availablePaths = [
+        this.icons.forEach(icon => {
+            icon.nextPath = paths[Math.floor(Math.random() * paths.length)];
+            icon.transition = 0;
+        });
+    }
+
+    private getPathsForTab(tab: string): string[] {
+        if (tab === "about") {
+            return [
                 ...ICON_PATHS.website,
                 ...ICON_PATHS.apps,
                 ...ICON_PATHS.games,
                 ...ICON_PATHS.promo
             ];
-        } else {
-            // Show specific icons for the current tab
-            availablePaths = ICON_PATHS[this.currentTab as keyof typeof ICON_PATHS] || ICON_PATHS.website;
         }
+        return ICON_PATHS[tab as keyof typeof ICON_PATHS] || ICON_PATHS.website;
+    }
 
+    protected init() {
+        const availablePaths = this.getPathsForTab(this.currentTab);
         const paths = availablePaths.map(p => new Path2D(p));
-        const count = this.currentTab === "about" ? 20 : 15;
+        const count = 20; // Keep constant count for stability
         
+        this.icons = [];
         for (let i = 0; i < count; i++) {
             this.icons.push({
                 x: Math.random() * this.width,
                 y: Math.random() * this.height,
-                size: 45 + Math.random() * 55, // Slightly larger
+                size: 45 + Math.random() * 55,
                 rotation: Math.random() * Math.PI * 2,
                 rotationSpeed: (Math.random() - 0.5) * 0.012,
                 vx: (Math.random() - 0.5) * 0.7,
                 vy: (Math.random() - 0.5) * 0.7,
                 path: paths[Math.floor(Math.random() * paths.length)],
-                alpha: 0.25 + Math.random() * 0.2, // More visible base alpha
+                transition: 1,
+                alpha: 0.25 + Math.random() * 0.2,
             });
         }
     }
@@ -90,39 +108,64 @@ export class FloatingShapesEngine extends CanvasEngine {
             icon.y += icon.vy;
             icon.rotation += icon.rotationSpeed;
 
+            // Transition logic
+            if (icon.nextPath && icon.transition < 1) {
+                icon.transition += 0.02; // Roughly 0.5s at 60fps
+                if (icon.transition >= 1) {
+                    icon.path = icon.nextPath;
+                    icon.nextPath = undefined;
+                    icon.transition = 1;
+                }
+            }
+
             // Wrap around screen
             if (icon.x < -icon.size) icon.x = this.width + icon.size;
             if (icon.x > this.width + icon.size) icon.x = -icon.size;
             if (icon.y < -icon.size) icon.y = this.height + icon.size;
             if (icon.y > this.height + icon.size) icon.y = -icon.size;
 
-            this.ctx!.save();
-            this.ctx!.translate(icon.x, icon.y);
-            this.ctx!.rotate(icon.rotation + scrollRotation);
-            
-            const scale = icon.size / 24;
-            this.ctx!.scale(scale, scale);
-            this.ctx!.translate(-12, -12);
+            const drawIcon = (path: Path2D, alphaMultiplier: number) => {
+                this.ctx!.save();
+                this.ctx!.translate(icon.x, icon.y);
+                this.ctx!.rotate(icon.rotation + scrollRotation);
+                
+                const scale = icon.size / 24;
+                this.ctx!.scale(scale, scale);
+                this.ctx!.translate(-12, -12);
 
-            const pulse = Math.sin(time * 0.8 + icon.rotation) * 0.2 + 0.8;
-            const currentAlpha = icon.alpha * pulse;
+                const pulse = Math.sin(time * 0.8 + icon.rotation) * 0.2 + 0.8;
+                const currentAlpha = icon.alpha * pulse * alphaMultiplier;
 
-            // Stronger Glow for visibility on colorful backgrounds
-            this.ctx!.shadowBlur = 20 * scale;
-            this.ctx!.shadowColor = colors.primary + (currentAlpha * 0.8) + ")";
-            
-            // Subtle Fill to make icons "solid"
-            this.ctx!.fillStyle = colors.primary + (currentAlpha * 0.15) + ")";
-            this.ctx!.fill(icon.path);
+                this.ctx!.shadowBlur = 20 * scale;
+                this.ctx!.shadowColor = colors.primary + (currentAlpha * 0.8) + ")";
+                this.ctx!.fillStyle = colors.primary + (currentAlpha * 0.15) + ")";
+                this.ctx!.fill(path);
+                this.ctx!.strokeStyle = colors.primary + currentAlpha + ")";
+                this.ctx!.lineWidth = 2.0;
+                this.ctx!.lineJoin = "round";
+                this.ctx!.lineCap = "round";
+                this.ctx!.stroke(path);
+                this.ctx!.restore();
+            };
 
-            // Strong Stroke
-            this.ctx!.strokeStyle = colors.primary + currentAlpha + ")";
-            this.ctx!.lineWidth = 2.0; // Matches default Lucide stroke-width and scales with the icon
-            this.ctx!.lineJoin = "round";
-            this.ctx!.lineCap = "round";
-            
-            this.ctx!.stroke(icon.path);
-            this.ctx!.restore();
+            if (icon.nextPath) {
+                // Extended overlapping transition (Stronger Cross-fade):
+                // Old icon fades out from 0.0 to 0.7
+                // New icon fades in from 0.3 to 1.0
+                // Overlap occurs between 0.3 and 0.7 (40% of total duration)
+                
+                const oldAlphaMult = Math.max(0, (0.7 - icon.transition) / 0.7);
+                const newAlphaMult = Math.max(0, (icon.transition - 0.3) / 0.7);
+
+                if (oldAlphaMult > 0) {
+                    drawIcon(icon.path, oldAlphaMult);
+                }
+                if (newAlphaMult > 0) {
+                    drawIcon(icon.nextPath, newAlphaMult);
+                }
+            } else {
+                drawIcon(icon.path, 1);
+            }
         });
     }
 }
