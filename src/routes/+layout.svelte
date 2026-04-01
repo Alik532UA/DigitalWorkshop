@@ -61,8 +61,10 @@
     }
 
     .page-scroll-area {
-        max-width: 1400px;
-        margin: 0 auto;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
     .theme-changing {

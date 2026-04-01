@@ -71,40 +71,40 @@
     });
 </script>
 
-<div class="container">
+<div class="animation-viewport">
     <div class="tab-wrapper">
         {#key tabs.current}
             <div
                 in:arcTransition={{
                     direction: direction,
                     intro: true,
-                    delay: 100,
+                    delay: 0,
                 }}
                 out:arcTransition={{ direction: -direction, intro: false }}
                 class="tab-content"
             >
-                {#if tabs.current === "home"}
-                    <HeroSection {isMobile} />
-                {:else if tabs.current === "commercial"}
-                    <CommercialPage />
-                {:else if tabs.current === "apps"}
-                    <AppsPage />
-                {:else if tabs.current === "games"}
-                    <GamesPage />
-                {:else if tabs.current === "charity"}
-                    <CharityPage />
-                {/if}
+                <div class="content-centering">
+                    {#if tabs.current === "home"}
+                        <HeroSection {isMobile} />
+                    {:else if tabs.current === "commercial"}
+                        <CommercialPage />
+                    {:else if tabs.current === "apps"}
+                        <AppsPage />
+                    {:else if tabs.current === "games"}
+                        <GamesPage />
+                    {:else if tabs.current === "charity"}
+                        <CharityPage />
+                    {/if}
+                </div>
             </div>
         {/key}
     </div>
 </div>
 
 <style>
-    .container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 0 20px;
-        overflow-x: hidden; /* Щоб не було горизонтального скролу під час анімації */
+    .animation-viewport {
+        width: 100%;
+        position: relative;
     }
 
     .tab-wrapper {
@@ -115,11 +115,18 @@
 
     .tab-content {
         width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .content-centering {
+        width: 100%;
+        max-width: 1400px;
+        padding: 0 20px;
     }
 
     @media (max-width: 1024px) {
-        .container {
-            width: 100%;
+        .content-centering {
             padding: 0 15px;
         }
     }

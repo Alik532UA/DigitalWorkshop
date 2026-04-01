@@ -55,7 +55,14 @@
 }
 
 html {
-    scroll-behavior: smooth;
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+html::-webkit-scrollbar {
+    display: none;
 }
 
 body {
@@ -63,6 +70,13 @@ body {
     color: var(--text-primary);
     overflow-x: hidden;
     transition: background-color 0.5s ease;
+    /* Також додаємо сюди для впевненості */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+body::-webkit-scrollbar {
+    display: none;
 }
 
 /* Фоновий шар для теми, щоб він був ПІД динамічним фоном */
