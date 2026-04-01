@@ -12,8 +12,11 @@ export const tabColors: Record<TabType, string> = {
     charity: '#f9a8d4'     // Pink
 };
 
+export const tabOrder: TabType[] = ['commercial', 'apps', 'home', 'games', 'charity'];
+
 class TabState {
     current = $state<TabType>('home');
+    previous = $state<TabType>('home');
     currentColor = $derived(tabColors[this.current]);
 
     constructor() {}
@@ -22,8 +25,9 @@ class TabState {
         if (browser) {
             const params = new URLSearchParams(window.location.search);
             const tab = params.get('tab') as TabType;
-            if (['home', 'commercial', 'apps', 'games', 'charity'].includes(tab)) {
+            if (tabOrder.includes(tab)) {
                 this.current = tab;
+                this.previous = tab;
             }
 
             $effect.root(() => {
@@ -55,17 +59,12 @@ class TabState {
 
     set(tab: TabType) {
         if (this.current === tab) return;
-
-        if (!document.startViewTransition) {
-            this.current = tab;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            return;
-        }
-
-        document.startViewTransition(() => {
-            this.current = tab;
+        this.previous = this.current;
+        this.current = tab;
+        // Вимикаємо scrollTo або робимо його миттєвим, щоб не було смикання
+        if (browser) {
             window.scrollTo({ top: 0 });
-        });
+        }
     }
 }
 

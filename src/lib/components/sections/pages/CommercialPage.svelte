@@ -2,10 +2,9 @@
     import { ChevronRight, CheckCircle2, Layout } from "lucide-svelte";
     import { t } from "$lib/i18n/index.svelte";
     import Section from "../../ui/Section.svelte";
-    import { fly } from "svelte/transition";
 </script>
 
-<div in:fly={{ y: 50, duration: 500 }} class="page-container">
+<div class="page-container">
     <Section id="commercial" title={t.tabs.commercial.title}>
         {#snippet icon()}<Layout size={24} />{/snippet}
 
@@ -23,7 +22,7 @@
             </div>
 
             <div class="cta-section">
-                <a href="https://t.me/alik532" target="_blank" class="btn-primary">
+                <a href="https://t.me/alik532" target="_blank" class="btn-primary large-btn">
                     {t.tabs.commercial.cta} <ChevronRight size={20} />
                 </a>
             </div>
