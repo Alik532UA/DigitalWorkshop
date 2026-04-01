@@ -24,36 +24,36 @@ export const en: Translations = {
         }
     },
     portfolio: {
-        title: "📂 My Portfolio",
+        title: "My Portfolio",
         subtitle: "Here are projects that demonstrate different technical capabilities: from logic games to educational platforms.",
         projects: {
             slovko: {
-                title: "Slovko — language learning web app",
-                description: "Free platform without registration for learning Ukrainian, English, Crimean Tatar, German, Dutch, and Greek.",
+                title: "Slovko",
+                description: "A comprehensive language learning platform with personal statistics and competitions. Create custom word lists and learn languages on any device.",
                 tech: "Svelte",
                 feature: "Maximum performance and user-friendly interface for daily training.",
-                linkText: "View Application"
-            },
-            music: {
-                title: "Music School",
-                description: "Modern website for a creative institution with interactive elements.",
-                tech: "SvelteKit + Firebase",
-                feature: "Built-in interactive piano keyboard.",
-                linkText: "View Website"
+                linkText: "Start learning"
             },
             mindstep: {
-                title: "MindStep — web game",
-                description: "A game aimed at developing logic and imagination.",
-                tech: "Svelte, Playwright (automated testing).",
-                feature: "Complex game state management and instant response to user actions.",
-                linkText: "View Game"
+                title: "MindStep",
+                description: "Strategic brain-training game for memory and spatial imagination. Move like a queen, avoid traps, or try the 'blind' mode!",
+                tech: "Svelte + Playwright",
+                feature: "Complex game state and instant response to user actions.",
+                linkText: "Try Game"
             },
-            keykeep: {
-                title: "KeyKeep — snippet manager",
-                description: "Desktop application for quick access to text templates using hotkeys.",
-                tech: "Svelte",
-                feature: "Optimization of routine processes and prompt management.",
-                linkText: "View Code"
+            cv3d: {
+                title: "3D CV Experience",
+                description: "Interactive 3D resume in Godot 4. Explore, interact, and find the turtle!",
+                tech: "Godot 4 (GDExtension)",
+                feature: "Fully interactive 3D environment in the browser.",
+                linkText: "Explore 3D"
+            },
+            cv_web: {
+                title: "My web CV",
+                description: "This is my stylish modern resume for those who want to hire me for their company.",
+                tech: "SvelteKit",
+                feature: "Clean code, responsiveness, and high loading speed.",
+                linkText: "View CV"
             }
         }
     },
@@ -114,26 +114,51 @@ export const en: Translations = {
         },
         promo: {
             title: "Promo",
-            intro: "I want creative schools in Ukraine to have modern and stylish websites. Helping a local school, I see the reality: budgets are minimal, but a modern look is needed. Therefore, I offer special terms.",
+            pageTitle: "Social Initiative",
+            intro: "This program is specially created for non-profit, educational, and socially beneficial initiatives. My goal is to provide them with modern tools for development.",
             faq: [
                 {
                     q: "Why is website creation free?",
-                    a: "My goal is a high-quality portfolio and recommendations. The only condition is a small 'Order a website' button at the bottom. You recommend me — I get commercial orders."
+                    a: "I want creative schools in Ukraine to have modern and stylish websites instead of outdated and slow pages from the 2010s."
                 },
                 {
-                    q: "What are the support terms?",
-                    a: "First year: 35 euros (payment after 12 months). From the second year: 50 euros per year for technical support."
+                    q: "Who can take advantage of this social program?",
+                    a: "This offer is created specifically for non-profit, educational, and socially beneficial initiatives. These include:\n* State and private creative schools (music, art, theater).\n* General education schools and kindergartens.\n* Sports, logic, and creative clubs.\n* Charitable foundations and non-governmental organizations.\n* Volunteer initiatives.\nIf your project has social or educational value — this program is for you."
                 },
                 {
-                    q: "What is included in support?",
-                    a: "5 update packages per year (schedule changes, teacher list updates, etc.). You provide the data — I publish it."
+                    q: "What's my benefit if website creation and launch are free?",
+                    a: "I really don't make money from developing these sites. My main goal is a high-quality live portfolio and word-of-mouth. Your cool site will become my business card. I expect that someone will see my work, and thanks to this, I will receive commercial projects where I can earn fair money.\nThe only condition is a small 'Order a website' button at the bottom. Thanks to this button, those who like your resource will be able to find me and order commercial development."
                 },
                 {
-                    q: "Is there a bonus program?",
-                    a: "Yes! For every school you bring, you get a -10 euro discount on your subscription. 5 schools = free support!"
+                    q: "What are the support conditions?",
+                    a: "The subscription fee is 50 euros per year for technical support (the first payment is made only 12 months after the website launch)."
+                },
+                {
+                    q: "Why pay 50 euros per year then?",
+                    a: "Usually schools pay third-party services just for 'hosting' (renting space on the internet) for an old site that no one updates. I suggest redirecting this money to a real result: you pay the same (or less) money, but get a modern resource, and I take over its technical support and publication of your news."
+                },
+                {
+                    q: "What is included in the support?",
+                    a: "5 update packages per year (change of schedule, list of teachers, etc.). You pass the data — I publish."
+                },
+                {
+                    q: "Why not free forever?",
+                    a: "I expect to help hundreds of schools. To have the resources to regularly update all these sites (publish news, change schedules, add photos), I need time. This minimum symbolic payment is a guarantee that your site will live and be updated, rather than being abandoned after a month."
+                },
+                {
+                    q: "Why so cheap?",
+                    a: "For me, this is a social and creative project. I myself graduated from the 'Children's Theater School of Odesa' and perfectly understand the realities of state funding for creative institutions. There is no extra money there, and having a modern, stylish, fast website can help attract new students."
+                },
+                {
+                    q: "Can it be even cheaper?",
+                    a: "Yes! I have a partner program. If you recommend me to another school or foundation:\n* **For them:** they get a discounted price for the first year of the site's operation (35 euros instead of 50).\n* **For you:** you get a -10 euro discount on your subscription fee for each referred initiative. 5 recommendations = free support for a year!"
+                },
+                {
+                    q: "Can I order only the website?",
+                    a: "The website is just the tip of the iceberg! I can also help with the development of logos, posters for performances, certificates, banners, and the general style of the organization. Contact me with any creative request — I will provide a consultation."
                 }
             ],
-            cta: "Submit an application for a school"
+            cta: "Submit an application"
         }
     },
     pdf_modal: {

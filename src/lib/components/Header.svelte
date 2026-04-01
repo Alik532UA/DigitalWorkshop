@@ -7,6 +7,7 @@
         tabColors,
     } from "$lib/states/ui.svelte";
     import { t } from "$lib/i18n/index.svelte";
+    import { spring } from "svelte/motion";
 
     function selectTab(tab: TabType) {
         tabs.set(tab);
@@ -74,9 +75,15 @@
 
     let windowHeight = $state(0);
     let mouseY = $state(9999);
+    let isMouseInWindow = $state(false);
 
-    let progress = $derived.by(() => {
-        if (!windowHeight) return 0;
+    let progressSpring = spring(0, {
+        stiffness: 0.05,
+        damping: 0.4,
+    });
+
+    let targetProgress = $derived.by(() => {
+        if (!windowHeight || !isMouseInWindow) return 0;
         const start = windowHeight * 0.8;
         const end = windowHeight * 0.3;
         if (mouseY > start) return 0;
@@ -84,19 +91,45 @@
         return (start - mouseY) / (start - end);
     });
 
+    let collapseTimeout: ReturnType<typeof setTimeout>;
+
+    $effect(() => {
+        const target = targetProgress;
+        if (target > progressSpring.stiffness) {
+            // Розгортання - миттєво до пружини
+            clearTimeout(collapseTimeout);
+            progressSpring.set(target);
+        } else {
+            // Згортання - з невеликою затримкою
+            clearTimeout(collapseTimeout);
+            collapseTimeout = setTimeout(() => {
+                progressSpring.set(target);
+            }, 200);
+        }
+    });
+
     function handleMouseMove(e: MouseEvent) {
         mouseY = e.clientY;
+        isMouseInWindow = true;
+    }
+
+    function handleMouseLeave() {
+        isMouseInWindow = false;
     }
 </script>
 
-<svelte:window onmousemove={handleMouseMove} bind:innerHeight={windowHeight} />
+<svelte:window
+    onmousemove={handleMouseMove}
+    onmouseleave={handleMouseLeave}
+    bind:innerHeight={windowHeight}
+/>
 
 <header
     class="arc-header"
     style="--dynamic-bg: {theme.current === 'colorful'
         ? `color-mix(in srgb, ${tabs.currentColor}, transparent 20%)`
         : 'var(--header-bg)'};
-        transform: translateY(calc((1 - {progress}) * (-100% + 95px)));"
+        transform: translateY(calc((1 - {$progressSpring}) * (-100% + 95px)));"
     bind:clientWidth={w}
     bind:clientHeight={h}
 >

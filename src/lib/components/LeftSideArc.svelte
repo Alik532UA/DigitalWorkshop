@@ -1,6 +1,7 @@
 <script lang="ts">
     import { theme, background, tabs } from "$lib/states/ui.svelte";
     import { Sparkles, Waves, Shapes, CircleOff } from "lucide-svelte";
+    import { spring } from "svelte/motion";
 
     function selectBackground(type: 0 | 1 | 2 | 3) {
         background.set(type);
@@ -49,9 +50,15 @@
 
     let windowWidth = $state(0);
     let mouseX = $state(9999);
+    let isMouseInWindow = $state(false);
 
-    let progress = $derived.by(() => {
-        if (!windowWidth) return 0;
+    let progressSpring = spring(0, {
+        stiffness: 0.05,
+        damping: 0.4,
+    });
+
+    let targetProgress = $derived.by(() => {
+        if (!windowWidth || !isMouseInWindow) return 0;
         const start = 0.35 * windowWidth;
         const end = 0.15 * windowWidth;
         if (mouseX > start) return 0;
@@ -59,19 +66,43 @@
         return (start - mouseX) / (start - end);
     });
 
+    let collapseTimeout: ReturnType<typeof setTimeout>;
+
+    $effect(() => {
+        const target = targetProgress;
+        if (target > progressSpring.stiffness) {
+            clearTimeout(collapseTimeout);
+            progressSpring.set(target);
+        } else {
+            clearTimeout(collapseTimeout);
+            collapseTimeout = setTimeout(() => {
+                progressSpring.set(target);
+            }, 200);
+        }
+    });
+
     function handleMouseMove(e: MouseEvent) {
         mouseX = e.clientX;
+        isMouseInWindow = true;
+    }
+
+    function handleMouseLeave() {
+        isMouseInWindow = false;
     }
 </script>
 
-<svelte:window onmousemove={handleMouseMove} bind:innerWidth={windowWidth} />
+<svelte:window
+    onmousemove={handleMouseMove}
+    onmouseleave={handleMouseLeave}
+    bind:innerWidth={windowWidth}
+/>
 
 <aside
     class="side-arc left"
     style="--dynamic-bg: {theme.current === 'colorful'
         ? `color-mix(in srgb, ${tabs.currentColor}, transparent 20%)`
         : 'var(--header-bg)'};
-        transform: translateX(calc((1 - {progress}) * (-100% + 20px)));"
+        transform: translateX(calc((1 - {$progressSpring}) * (-100% + 20px)));"
     bind:clientHeight={h}
     bind:clientWidth={w}
 >

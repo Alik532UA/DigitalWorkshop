@@ -5,6 +5,7 @@
 
     // Pages
     import HeroSection from "$lib/components/sections/HeroSection.svelte";
+    import ProjectsSection from "$lib/components/sections/ProjectsSection.svelte";
     import WebsitePage from "$lib/components/sections/pages/WebsitePage.svelte";
     import AppsPage from "$lib/components/sections/pages/AppsPage.svelte";
     import GamesPage from "$lib/components/sections/pages/GamesPage.svelte";
@@ -86,6 +87,7 @@
                 <div class="content-centering">
                     {#if tabs.current === "about"}
                         <HeroSection {isMobile} />
+                        <ProjectsSection />
                     {:else if tabs.current === "website"}
                         <WebsitePage />
                     {:else if tabs.current === "apps"}

@@ -141,6 +141,7 @@ const TranslationSchema = z.object({
         }),
         promo: z.object({
             title: z.string(),
+            pageTitle: z.string().optional(),
             intro: z.string(),
             faq: z.array(z.object({
                 q: z.string(),

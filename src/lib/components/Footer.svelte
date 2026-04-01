@@ -1,6 +1,7 @@
 <script lang="ts">
     import { theme, tabs } from "$lib/states/ui.svelte";
     import { t } from "$lib/i18n/index.svelte";
+    import { spring } from "svelte/motion";
 
     let w = $state(0);
     let h = $state(0);
@@ -61,9 +62,15 @@
 
     let windowHeight = $state(0);
     let mouseY = $state(0);
+    let isMouseInWindow = $state(false);
 
-    let progress = $derived.by(() => {
-        if (!windowHeight) return 0;
+    let progressSpring = spring(0, {
+        stiffness: 0.05,
+        damping: 0.4,
+    });
+
+    let targetProgress = $derived.by(() => {
+        if (!windowHeight || !isMouseInWindow) return 0;
         const start = windowHeight * 0.3;
         const end = windowHeight * 0.8;
         if (mouseY < start) return 0;
@@ -71,19 +78,43 @@
         return (mouseY - start) / (end - start);
     });
 
+    let collapseTimeout: ReturnType<typeof setTimeout>;
+
+    $effect(() => {
+        const target = targetProgress;
+        if (target > progressSpring.stiffness) {
+            clearTimeout(collapseTimeout);
+            progressSpring.set(target);
+        } else {
+            clearTimeout(collapseTimeout);
+            collapseTimeout = setTimeout(() => {
+                progressSpring.set(target);
+            }, 200);
+        }
+    });
+
     function handleMouseMove(e: MouseEvent) {
         mouseY = e.clientY;
+        isMouseInWindow = true;
+    }
+
+    function handleMouseLeave() {
+        isMouseInWindow = false;
     }
 </script>
 
-<svelte:window onmousemove={handleMouseMove} bind:innerHeight={windowHeight} />
+<svelte:window
+    onmousemove={handleMouseMove}
+    onmouseleave={handleMouseLeave}
+    bind:innerHeight={windowHeight}
+/>
 
 <footer
     class="arc-footer"
     style="--dynamic-bg: {theme.current === 'colorful'
         ? `color-mix(in srgb, ${tabs.currentColor}, transparent 20%)`
         : 'var(--header-bg)'};
-        transform: translateY(calc((1 - {progress}) * (100% - 60px)));"
+        transform: translateY(calc((1 - {$progressSpring}) * (100% - 60px)));"
     bind:clientWidth={w}
     bind:clientHeight={h}
 >
