@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { X } from "lucide-svelte";
+    import { XIcon } from "$lib/components/icons";
     import { fade, scale } from "svelte/transition";
     import { onMount, tick } from "svelte";
 
@@ -95,7 +95,7 @@
             transition:scale={{ duration: 200, start: 0.95 }}
         >
             <button class="close-btn" onclick={close} aria-label="Close modal">
-                <X size={24} />
+                <XIcon size={24} />
             </button>
 
             {#if title}

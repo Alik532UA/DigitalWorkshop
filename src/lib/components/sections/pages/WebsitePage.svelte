@@ -1,12 +1,12 @@
 <script lang="ts">
-    import { ChevronRight, CheckCircle2, Layout } from "lucide-svelte";
+    import { ChevronRightIcon, CheckCircle2Icon, WebsiteIcon } from "$lib/components/icons";
     import { t } from "$lib/i18n/index.svelte";
     import Section from "../../ui/Section.svelte";
 </script>
 
 <div class="page-container" data-testid="page-website">
     <Section id="website" title={t.tabs.website.title}>
-        {#snippet icon()}<Layout size={24} />{/snippet}
+        {#snippet icon()}<WebsiteIcon size={24} />{/snippet}
 
         <div class="content-wrapper">
             <p class="intro-text">{t.tabs.website.intro}</p>
@@ -14,7 +14,7 @@
             <div class="benefits-grid">
                 {#each t.tabs.website.benefits as benefit}
                     <div class="benefit-card glass card">
-                        <div class="benefit-icon"><CheckCircle2 size={24} /></div>
+                        <div class="benefit-icon"><CheckCircle2Icon size={24} /></div>
                         <h3>{benefit.h}</h3>
                         <p>{benefit.p}</p>
                     </div>
@@ -23,7 +23,7 @@
 
             <div class="cta-section">
                 <a href="https://t.me/alik532" target="_blank" class="btn-primary large-btn glass" data-testid="website-cta-button">
-                    {t.tabs.website.cta} <ChevronRight size={20} />
+                    {t.tabs.website.cta} <ChevronRightIcon size={20} />
                 </a>
             </div>
         </div>

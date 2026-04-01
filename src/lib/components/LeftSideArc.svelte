@@ -1,6 +1,7 @@
 <script lang="ts">
     import { theme, background, tabs } from "$lib/states/ui.svelte";
-    import { Sparkles, Waves, Shapes, CircleOff } from "lucide-svelte";
+    import { SparklesIcon, WavesIcon, ShapesIcon, CircleOffIcon } from "$lib/components/icons";
+    import LeftSideArcSvg from "./ui/arcs/LeftSideArcSvg.svelte";
     import { spring } from "svelte/motion";
 
     function selectBackground(type: 0 | 1 | 2 | 3) {
@@ -109,52 +110,7 @@
 >
     <div class="svg-container">
         <div class="svg-wrapper">
-        <svg viewBox="0 0 220 1000" preserveAspectRatio="none" class="arc-svg">
-            <defs>
-                <linearGradient
-                    id="cylinderLightSideLeft"
-                    x1="45%"
-                    y1="0%"
-                    x2="100%"
-                    y2="0%"
-                >
-                    <stop offset="0%" stop-color="rgba(255,255,255,0)" />
-                    <stop offset="100%" stop-color="rgba(255,255,255,0)" />
-                </linearGradient>
-                <filter
-                    id="softShadowSideLeft"
-                    x="-150%"
-                    y="-20%"
-                    width="400%"
-                    height="140%"
-                >
-                    <feGaussianBlur in="SourceAlpha" stdDeviation="10" />
-                    <feOffset dx="8" dy="0" result="offsetblur" />
-                    <feComposite
-                        in="offsetblur"
-                        in2="SourceAlpha"
-                        operator="out"
-                        result="shadowOutside"
-                    />
-                    <feComponentTransfer in="shadowOutside">
-                        <feFuncA type="linear" slope="0.4" />
-                    </feComponentTransfer>
-                    <feMerge>
-                        <feMergeNode />
-                        <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                </filter>
-            </defs>
-            <path
-                d="M 0 -50 L 0 1050 L 100 1050 Q 340 500 100 -50 Z"
-                class="arc-path"
-                fill="var(--dynamic-bg)"
-            />
-            <path
-                d="M 0 -50 L 0 1050 L 100 1050 Q 340 500 100 -50 Z"
-                fill="url(#cylinderLightSideLeft)"
-            />
-        </svg>
+            <LeftSideArcSvg fill="var(--dynamic-bg)" />
         </div>
     </div>
 
@@ -169,7 +125,7 @@
                 class:active={background.type === 0}
                 title="Off"
             >
-                <CircleOff size={20} />
+                <CircleOffIcon size={20} />
             </button>
             <button
                 class="control-btn glass"
@@ -177,7 +133,7 @@
                 class:active={background.type === 1}
                 title="Particles"
             >
-                <Sparkles size={20} />
+                <SparklesIcon size={20} />
             </button>
             <button
                 class="control-btn glass"
@@ -185,7 +141,7 @@
                 class:active={background.type === 2}
                 title="Waves"
             >
-                <Waves size={20} />
+                <WavesIcon size={20} />
             </button>
             <button
                 class="control-btn glass"
@@ -193,7 +149,7 @@
                 class:active={background.type === 3}
                 title="Shapes"
             >
-                <Shapes size={20} />
+                <ShapesIcon size={20} />
             </button>
         </div>
     </div>
@@ -221,14 +177,6 @@
         overflow: visible;
     }
 
-    .arc-svg {
-        width: 100%;
-        height: 100%;
-        display: block;
-        overflow: visible;
-        filter: drop-shadow(8px 0px 12px rgba(0,0,0,0.15));
-    }
-
     .svg-wrapper {
         position: absolute;
         top: 0; left: 0;
@@ -239,11 +187,6 @@
         mask-size: 100% 100%;
         -webkit-mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 220 1000" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M 0 -50 L 0 1050 L 100 1050 Q 340 500 100 -50 Z" /></svg>');
         -webkit-mask-size: 100% 100%;
-    }
-
-    .arc-path {
-        transition: fill 0.5s ease;
-        backdrop-filter: var(--glass-blur);
     }
 
     .side-controls {

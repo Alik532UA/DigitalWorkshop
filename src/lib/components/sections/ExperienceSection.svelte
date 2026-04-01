@@ -1,18 +1,18 @@
 <script lang="ts">
-    import { ChevronDown, Briefcase } from "lucide-svelte";
+    import { ChevronDownIcon, BriefcaseIcon } from "$lib/components/icons";
     import { slide } from "svelte/transition";
     import Section from "../ui/Section.svelte";
     import { t } from "$lib/i18n/index.svelte";
     import { experienceData } from "$lib/data/experience";
 
     let showNonIT = $state(false);
-</script>
+    </script>
 
-<Section id="experience" title={t.experience.title}>
+    <Section id="experience" title={t.experience.title}>
     {#snippet icon()}
-        <Briefcase size={22} aria-hidden="true" />
+        <BriefcaseIcon size={22} aria-hidden="true" />
     {/snippet}
-    
+
     <div class="timeline">
         {#each experienceData.it as exp (exp.id)}
             <div class="exp-card glass card">
@@ -30,7 +30,7 @@
             aria-controls="non-it-experience-list"
         >
             {showNonIT ? t.experience.hideNonIT : t.experience.showNonIT}
-            <ChevronDown size={18} class={showNonIT ? "rotated" : ""} />
+            <ChevronDownIcon size={18} class={showNonIT ? "rotated" : ""} />
         </button>
 
         {#if showNonIT}

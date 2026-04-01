@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { HelpCircle, WandSparkles } from 'lucide-svelte';
+	import { HelpCircleIcon, WandSparklesIcon } from "$lib/components/icons";
 	import { t } from '$lib/i18n/index.svelte';
 	import Section from '../../ui/Section.svelte';
 
@@ -10,7 +10,7 @@
 
 <div class="page-container" data-testid="page-promo">
 	<Section id="promo" title={t.tabs.promo.pageTitle || t.tabs.promo.title}>
-		{#snippet icon()}<WandSparkles size={24} />{/snippet}
+		{#snippet icon()}<WandSparklesIcon size={24} />{/snippet}
 
 		<div class="content-wrapper">
 			<p class="intro-text">{t.tabs.promo.intro}</p>
@@ -19,7 +19,7 @@
 				{#each t.tabs.promo.faq as item}
 					<div class="faq-item glass card">
 						<div class="faq-q">
-							<HelpCircle size={22} class="accent-icon" />
+							<HelpCircleIcon size={22} class="accent-icon" />
 							<h4>{item.q}</h4>
 						</div>
 						<div class="faq-a">

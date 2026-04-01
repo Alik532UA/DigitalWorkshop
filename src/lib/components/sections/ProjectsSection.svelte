@@ -1,20 +1,28 @@
 <script lang="ts">
-    import { ExternalLink, Rocket, Code, Globe, Gamepad2, Box, FileUser } from "lucide-svelte";
+    import {
+        ExternalLinkIcon,
+        RocketIcon,
+        CodeIcon,
+        GlobeIcon,
+        Gamepad2Icon,
+        BoxIcon,
+        FileUserIcon
+    } from "$lib/components/icons";
     import { base } from "$app/paths";
     import Section from "../ui/Section.svelte";
     import { t } from "$lib/i18n/index.svelte";
 
     const projects = [
-        { id: 'slovko', img: 'slovko.jpg', icon: Globe, link: 'https://alik532ua.github.io/Slovko/' },
-        { id: 'mindstep', img: 'mindstep.jpg', icon: Gamepad2, link: 'https://alik532ua.github.io/MindStep/' },
-        { id: 'cv3d', img: 'cv_3d.jpg', icon: Box, link: 'https://alik532ua.itch.io/alik-cv-interactive-3d-experience' },
-        { id: 'cv_web', img: 'cv_web.jpg', icon: FileUser, link: 'https://alik532ua.github.io/CV/' }
+        { id: 'slovko', img: 'slovko.jpg', icon: GlobeIcon, link: 'https://alik532ua.github.io/Slovko/' },
+        { id: 'mindstep', img: 'mindstep.jpg', icon: Gamepad2Icon, link: 'https://alik532ua.github.io/MindStep/' },
+        { id: 'cv3d', img: 'cv_3d.jpg', icon: BoxIcon, link: 'https://alik532ua.itch.io/alik-cv-interactive-3d-experience' },
+        { id: 'cv_web', img: 'cv_web.jpg', icon: FileUserIcon, link: 'https://alik532ua.github.io/CV/' }
     ];
 </script>
 
 <Section id="projects" title={t.portfolio.title}>
     {#snippet icon()}
-        <Rocket size={22} />
+        <RocketIcon size={22} />
     {/snippet}
 
     <p class="portfolio-subtitle">{t.portfolio.subtitle}</p>
@@ -42,7 +50,7 @@
                         class="btn-primary project-btn"
                     >
                         {data.linkText}
-                        <ExternalLink size={16} />
+                        <ExternalLinkIcon size={16} />
                     </a>
                 </div>
             </div>

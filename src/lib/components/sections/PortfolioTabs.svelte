@@ -1,16 +1,25 @@
 <script lang="ts">
     import { fly, fade } from 'svelte/transition';
-    import { Layout, Smartphone, Gamepad2, Gift, ExternalLink, ChevronRight, CheckCircle2, HelpCircle } from "lucide-svelte";
+    import {
+        WebsiteIcon,
+        SmartphoneIcon,
+        Gamepad2Icon,
+        GiftIcon,
+        ExternalLinkIcon,
+        ChevronRightIcon,
+        CheckCircle2Icon,
+        HelpCircleIcon
+    } from "$lib/components/icons";
     import { t } from "$lib/i18n/index.svelte";
     import Section from "../ui/Section.svelte";
 
     let activeTab = $state('website');
 
     const tabs = [
-        { id: 'website', icon: Layout, label: () => t.tabs.website.title },
-        { id: 'apps', icon: Smartphone, label: () => t.tabs.apps.title },
-        { id: 'games', icon: Gamepad2, label: () => t.tabs.games.title },
-        { id: 'promo', icon: Gift, label: () => t.tabs.promo.title }
+        { id: 'website', icon: WebsiteIcon, label: () => t.tabs.website.title },
+        { id: 'apps', icon: SmartphoneIcon, label: () => t.tabs.apps.title },
+        { id: 'games', icon: Gamepad2Icon, label: () => t.tabs.games.title },
+        { id: 'promo', icon: GiftIcon, label: () => t.tabs.promo.title }
     ];
 
     function setActiveTab(id: string) {
@@ -49,7 +58,7 @@
                     <div class="benefits-grid">
                         {#each t.tabs.website.benefits as benefit}
                             <div class="benefit-card glass card">
-                                <div class="benefit-icon"><CheckCircle2 size={24} /></div>
+                                <div class="benefit-icon"><CheckCircle2Icon size={24} /></div>
                                 <h3>{benefit.h}</h3>
                                 <p>{benefit.p}</p>
                             </div>
@@ -58,7 +67,7 @@
 
                     <div class="cta-wrapper">
                         <a href="https://t.me/alik532" target="_blank" class="btn-primary" data-testid="portfolio-cta-website">
-                            {t.tabs.website.cta} <ChevronRight size={18} />
+                            {t.tabs.website.cta} <ChevronRightIcon size={18} />
                         </a>
                     </div>
                 </div>
@@ -71,7 +80,7 @@
                         {#each t.tabs.apps.faq as item, i}
                             <div class="faq-item glass card" data-testid="apps-faq-item-{i}">
                                 <div class="faq-q">
-                                    <HelpCircle size={20} class="accent-icon" />
+                                    <HelpCircleIcon size={20} class="accent-icon" />
                                     <h4>{item.q}</h4>
                                 </div>
                                 <p class="faq-a">{@html item.a.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n\* /g, '<br>• ')}</p>
@@ -81,7 +90,7 @@
 
                     <div class="cta-wrapper">
                         <a href="https://t.me/alik532" target="_blank" class="btn-primary" data-testid="portfolio-cta-apps">
-                            {t.tabs.apps.cta} <ChevronRight size={18} />
+                            {t.tabs.apps.cta} <ChevronRightIcon size={18} />
                         </a>
                     </div>
                 </div>
@@ -94,7 +103,7 @@
                         {#each t.tabs.games.faq as item, i}
                             <div class="faq-item glass card" data-testid="games-faq-item-{i}">
                                 <div class="faq-q">
-                                    <HelpCircle size={20} class="accent-icon" />
+                                    <HelpCircleIcon size={20} class="accent-icon" />
                                     <h4>{item.q}</h4>
                                 </div>
                                 <p class="faq-a">{@html item.a.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n\* /g, '<br>• ')}</p>
@@ -104,7 +113,7 @@
 
                     <div class="cta-wrapper">
                         <a href="https://t.me/alik532" target="_blank" class="btn-primary" data-testid="portfolio-cta-games">
-                            {t.tabs.games.cta} <ChevronRight size={18} />
+                            {t.tabs.games.cta} <ChevronRightIcon size={18} />
                         </a>
                     </div>
                 </div>
@@ -117,7 +126,7 @@
                         {#each t.tabs.promo.faq as item, i}
                             <div class="faq-item glass card" data-testid="promo-faq-item-{i}">
                                 <div class="faq-q">
-                                    <HelpCircle size={20} class="accent-icon" />
+                                    <HelpCircleIcon size={20} class="accent-icon" />
                                     <h4>{item.q}</h4>
                                 </div>
                                 <p class="faq-a">{@html item.a.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n\* /g, '<br>• ')}</p>

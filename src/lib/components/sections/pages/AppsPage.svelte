@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { ChevronRight, HelpCircle, Smartphone } from "lucide-svelte";
+    import { ChevronRightIcon, HelpCircleIcon, SmartphoneIcon } from "$lib/components/icons";
     import { t } from "$lib/i18n/index.svelte";
     import Section from "../../ui/Section.svelte";
 </script>
 <div class="page-container" data-testid="page-apps">
     <Section id="apps" title={t.tabs.apps.title}>
-        {#snippet icon()}<Smartphone size={24} />{/snippet}
+        {#snippet icon()}<SmartphoneIcon size={24} />{/snippet}
 
         <div class="content-wrapper">
             <p class="intro-text">{t.tabs.apps.intro}</p>
@@ -14,7 +14,7 @@
                 {#each t.tabs.apps.faq as item}
                     <div class="faq-card glass card">
                         <div class="faq-q">
-                            <HelpCircle size={22} class="accent-icon" />
+                            <HelpCircleIcon size={22} class="accent-icon" />
                             <h4>{item.q}</h4>
                         </div>
                         <p class="faq-a">{item.a}</p>
@@ -24,7 +24,7 @@
 
             <div class="cta-section">
                 <a href="https://t.me/alik532" target="_blank" class="btn-primary large-btn glass" data-testid="apps-cta-button">
-                    {t.tabs.apps.cta} <ChevronRight size={20} />
+                    {t.tabs.apps.cta} <ChevronRightIcon size={20} />
                 </a>
             </div>
         </div>

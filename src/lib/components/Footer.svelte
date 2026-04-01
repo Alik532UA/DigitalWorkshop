@@ -1,6 +1,7 @@
 <script lang="ts">
     import { theme, tabs } from "$lib/states/ui.svelte";
     import { t } from "$lib/i18n/index.svelte";
+    import FooterArcSvg from "./ui/arcs/FooterArcSvg.svelte";
     import { spring } from "svelte/motion";
 
     let w = $state(0);
@@ -121,55 +122,7 @@
 >
     <div class="svg-container">
         <div class="svg-wrapper">
-        <svg viewBox="0 0 1000 150" preserveAspectRatio="none" class="arc-svg">
-            <defs>
-                <linearGradient
-                    id="cylinderLightFooter"
-                    x1="0%"
-                    y1="100%"
-                    x2="0%"
-                    y2="0%"
-                >
-                    <stop offset="0%" stop-color="rgba(255,255,255,0)" />
-                    <stop offset="100%" stop-color="rgba(255,255,255,0)" />
-                </linearGradient>
-
-                <filter
-                    id="softShadowFooter"
-                    x="-30%"
-                    y="-150%"
-                    width="160%"
-                    height="300%"
-                >
-                    <feGaussianBlur in="SourceAlpha" stdDeviation="12" />
-                    <feOffset dx="0" dy="-8" result="offsetblur" />
-                    <feComposite
-                        in="offsetblur"
-                        in2="SourceAlpha"
-                        operator="out"
-                        result="shadowOutside"
-                    />
-                    <feComponentTransfer in="shadowOutside">
-                        <feFuncA type="linear" slope="0.4" />
-                    </feComponentTransfer>
-                    <feMerge>
-                        <feMergeNode />
-                        <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                </filter>
-            </defs>
-
-            <path
-                d="M -50 200 L 1050 200 L 1050 100 Q 500 -20 -50 100 Z"
-                class="arc-path"
-                fill="var(--dynamic-bg)"
-            />
-
-            <path
-                d="M -50 200 L 1050 200 L 1050 100 Q 500 -20 -50 100 Z"
-                fill="url(#cylinderLightFooter)"
-            />
-        </svg>
+            <FooterArcSvg fill="var(--dynamic-bg)" />
         </div>
     </div>
 
@@ -207,11 +160,6 @@
         overflow: visible;
     }
 
-    .arc-path {
-        transition: fill 0.5s ease;
-        backdrop-filter: var(--glass-blur);
-    }
-
     .svg-container {
         position: absolute;
         bottom: 0;
@@ -219,14 +167,6 @@
         width: 100%;
         height: 100%;
         overflow: visible;
-    }
-
-    .arc-svg {
-        width: 100%;
-        height: 100%;
-        display: block;
-        overflow: visible;
-        filter: drop-shadow(0px -4px 12px rgba(0,0,0,0.1));
     }
 
     .svg-wrapper {

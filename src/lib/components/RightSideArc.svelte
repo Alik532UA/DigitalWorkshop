@@ -2,14 +2,11 @@
     import { theme, background, tabs } from "$lib/states/ui.svelte";
     import { language } from "$lib/i18n/index.svelte";
     import {
-        Sun,
-        Moon,
-        Palette,
-        Sparkles,
-        Waves,
-        Shapes,
-        CircleOff,
-    } from "lucide-svelte";
+        SunIcon,
+        MoonIcon,
+        PaletteIcon
+    } from "$lib/components/icons";
+    import RightSideArcSvg from "./ui/arcs/RightSideArcSvg.svelte";
     import FlagUK from "$lib/components/flags/FlagUK.svelte";
     import FlagEN from "$lib/components/flags/FlagEN.svelte";
     import { spring } from "svelte/motion";
@@ -20,10 +17,10 @@
 
     let ThemeIcon = $derived(
         theme.current === "colorful"
-            ? Palette
+            ? PaletteIcon
             : theme.current === "dark"
-              ? Moon
-              : Sun,
+              ? MoonIcon
+              : SunIcon,
     );
 
     let h = $state(0);
@@ -132,52 +129,7 @@
 >
     <div class="svg-container">
         <div class="svg-wrapper">
-        <svg viewBox="0 0 220 1000" preserveAspectRatio="none" class="arc-svg">
-            <defs>
-                <linearGradient
-                    id="cylinderLightSide"
-                    x1="55%"
-                    y1="0%"
-                    x2="0%"
-                    y2="0%"
-                >
-                    <stop offset="0%" stop-color="rgba(255,255,255,0.0)" />
-                    <stop offset="100%" stop-color="rgba(255,255,255,0)" />
-                </linearGradient>
-                <filter
-                    id="softShadowSide"
-                    x="-150%"
-                    y="-20%"
-                    width="400%"
-                    height="140%"
-                >
-                    <feGaussianBlur in="SourceAlpha" stdDeviation="10" />
-                    <feOffset dx="-8" dy="0" result="offsetblur" />
-                    <feComposite
-                        in="offsetblur"
-                        in2="SourceAlpha"
-                        operator="out"
-                        result="shadowOutside"
-                    />
-                    <feComponentTransfer in="shadowOutside">
-                        <feFuncA type="linear" slope="0.4" />
-                    </feComponentTransfer>
-                    <feMerge>
-                        <feMergeNode />
-                        <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                </filter>
-            </defs>
-            <path
-                d="M 220 -50 L 220 1050 L 120 1050 Q -120 500 120 -50 Z"
-                class="arc-path"
-                fill="var(--dynamic-bg)"
-            />
-            <path
-                d="M 220 -50 L 220 1050 L 120 1050 Q -120 500 120 -50 Z"
-                fill="url(#cylinderLightSide)"
-            />
-        </svg>
+            <RightSideArcSvg fill="var(--dynamic-bg)" />
         </div>
     </div>
 
@@ -214,7 +166,7 @@
                 class:active={theme.current === "dark"}
                 title="Dark"
             >
-                <Moon size={20} />
+                <MoonIcon size={20} />
             </button>
             <button
                 class="control-btn glass"
@@ -222,7 +174,7 @@
                 class:active={theme.current === "colorful"}
                 title="Colorful"
             >
-                <Palette size={20} />
+                <PaletteIcon size={20} />
             </button>
             <button
                 class="control-btn glass"
@@ -230,7 +182,7 @@
                 class:active={theme.current === "light"}
                 title="Light"
             >
-                <Sun size={20} />
+                <SunIcon size={20} />
             </button>
         </div>
     </div>
@@ -258,14 +210,6 @@
         overflow: visible;
     }
 
-    .arc-svg {
-        width: 100%;
-        height: 100%;
-        display: block;
-        overflow: visible;
-        filter: drop-shadow(-8px 0px 12px rgba(0,0,0,0.15));
-    }
-
     .svg-wrapper {
         position: absolute;
         top: 0; right: 0;
@@ -276,11 +220,6 @@
         mask-size: 100% 100%;
         -webkit-mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 220 1000" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M 220 -50 L 220 1050 L 120 1050 Q -120 500 120 -50 Z" /></svg>');
         -webkit-mask-size: 100% 100%;
-    }
-
-    .arc-path {
-        transition: fill 0.5s ease;
-        backdrop-filter: var(--glass-blur);
     }
 
     .side-controls {
