@@ -97,9 +97,7 @@
                     x2="0%"
                     y2="0%"
                 >
-                    <stop offset="0%" stop-color="rgba(255,255,255,0.2)" />
-                    <stop offset="20%" stop-color="rgba(255,255,255,0.05)" />
-                    <stop offset="80%" stop-color="rgba(255,255,255,0.02)" />
+                    <stop offset="0%" stop-color="rgba(255,255,255,0)" />
                     <stop offset="100%" stop-color="rgba(255,255,255,0)" />
                 </linearGradient>
 
