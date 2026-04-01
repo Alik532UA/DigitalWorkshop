@@ -49,8 +49,18 @@
     .page-container { padding: 40px 0; }
     .content-wrapper { display: flex; flex-direction: column; gap: 40px; }
     .intro-text { font-size: 1.4rem; line-height: 1.6; color: var(--text-secondary); max-width: 900px; margin: 0 auto; text-align: center; }
-    .faq-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; }
-    .faq-item { padding: 30px; }
+    .faq-list { 
+        columns: 2 400px;
+        column-gap: 20px;
+        width: 100%;
+        height: fit-content;
+    }
+    .faq-item { 
+        break-inside: avoid;
+        margin-bottom: 20px;
+        display: block;
+        padding: 30px;
+    }
     .faq-q { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px; }
     .faq-q h4 { font-size: 1.3rem; color: var(--text-primary); line-height: 1.4; }
     .faq-a { color: var(--text-secondary); line-height: 1.7; padding-left: 37px; font-size: 1.1rem; }

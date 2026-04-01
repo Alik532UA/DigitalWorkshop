@@ -233,15 +233,20 @@
         display: flex;
         flex-direction: column;
         gap: 15px;
+        height: fit-content;
     }
 
     .grid-faq {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        columns: 2 300px;
+        column-gap: 20px;
+        display: block;
     }
 
     .faq-item {
         padding: 20px;
+        break-inside: avoid;
+        margin-bottom: 20px;
+        display: block;
     }
 
     .faq-q {
