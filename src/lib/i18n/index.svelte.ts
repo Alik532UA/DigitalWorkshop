@@ -1,3 +1,4 @@
+import { replaceState } from '$app/navigation';
 import { z } from 'zod';
 import { en } from './locales/en';
 import { uk } from './locales/uk';
@@ -27,15 +28,28 @@ class LanguageState {
             document.documentElement.lang = this.current;
 
             $effect.root(() => {
+                let isFirstRun = true;
                 $effect(() => {
                     const lang = this.current;
                     const url = new URL(window.location.href);
+                    const currentLangInUrl = url.searchParams.get('lang');
                     
                     document.documentElement.lang = lang;
 
-                    if (url.searchParams.get('lang') !== lang) {
+                    if (currentLangInUrl !== lang) {
+                        if (isFirstRun) {
+                            isFirstRun = false;
+                            if (!currentLangInUrl) return; 
+                        }
+
                         url.searchParams.set('lang', lang);
-                        window.history.replaceState(null, '', url.toString());
+                        setTimeout(() => {
+                            try {
+                                replaceState(url.toString(), {});
+                            } catch (e) {
+                                window.history.replaceState(null, '', url.toString());
+                            }
+                        }, 0);
                     }
                 });
             });

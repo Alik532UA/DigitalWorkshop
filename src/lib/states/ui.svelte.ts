@@ -27,12 +27,29 @@ class TabState {
             }
 
             $effect.root(() => {
+                let isFirstRun = true;
                 $effect(() => {
                     const tab = this.current;
                     const url = new URL(window.location.href);
-                    if (url.searchParams.get('tab') !== tab) {
+                    const currentTabInUrl = url.searchParams.get('tab');
+                    
+                    if (currentTabInUrl !== tab) {
+                        if (isFirstRun) {
+                            isFirstRun = false;
+                            // На старті лише оновлюємо URL, якщо в ньому ВЖЕ щось було не так
+                            if (!currentTabInUrl) return; 
+                        }
+                        
                         url.searchParams.set('tab', tab);
-                        window.history.replaceState(null, '', url.toString());
+                        // Використовуємо setTimeout, щоб дати роутеру час на ініціалізацію
+                        setTimeout(() => {
+                            try {
+                                replaceState(url.toString(), {});
+                            } catch (e) {
+                                // Fallback на звичайний history, якщо роутер ще не готовий
+                                window.history.replaceState(null, '', url.toString());
+                            }
+                        }, 0);
                     }
                 });
             });
@@ -69,12 +86,26 @@ class ThemeState {
             this.set(saved);
 
             $effect.root(() => {
+                let isFirstRun = true;
                 $effect(() => {
                     const theme = this.current;
                     const url = new URL(window.location.href);
-                    if (url.searchParams.get('theme') !== theme) {
+                    const currentThemeInUrl = url.searchParams.get('theme');
+
+                    if (currentThemeInUrl !== theme) {
+                        if (isFirstRun) {
+                            isFirstRun = false;
+                            if (!currentThemeInUrl) return; 
+                        }
+                        
                         url.searchParams.set('theme', theme);
-                        window.history.replaceState(null, '', url.toString());
+                        setTimeout(() => {
+                            try {
+                                replaceState(url.toString(), {});
+                            } catch (e) {
+                                window.history.replaceState(null, '', url.toString());
+                            }
+                        }, 0);
                     }
                 });
             });

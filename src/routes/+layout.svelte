@@ -19,10 +19,12 @@
     });
 </script>
 
-<div class="app-wrapper" style="
-    --dynamic-bg-pastel: {theme.current === 'colorful' ? `linear-gradient(135deg, color-mix(in srgb, ${tabs.currentColor}, white 75%), color-mix(in srgb, ${tabs.currentColor}, white 92%))` : 'var(--bg-color)'};
-">
-    <DynamicBackground backgroundType={background.type} />
+<div class="theme-background" style="
+    --dynamic-bg-pastel: {theme.current === 'colorful' ? `linear-gradient(135deg, color-mix(in srgb, ${tabs.currentColor}, white 65%), color-mix(in srgb, ${tabs.currentColor}, white 95%))` : 'var(--bg-color)'};
+"></div>
+
+<div class="app-wrapper">
+    <DynamicBackground backgroundType={background.type} theme={theme.current} />
     
     <Header />
     <SideArc />
@@ -40,9 +42,8 @@
 <style>
     .app-wrapper {
         min-height: 100vh;
-        background-color: var(--dynamic-bg-pastel);
-        transition: background-color 0.5s ease;
         position: relative;
+        z-index: 1; /* Вище фонів */
         overflow: hidden;
     }
 
@@ -80,7 +81,8 @@
 
     :global(.arc-header) { view-transition-name: arc-header; }
     :global(.arc-footer) { view-transition-name: arc-footer; }
-    :global(.side-arc) { view-transition-name: side-arc; }
+    :global(.side-arc:not(.left)) { view-transition-name: side-arc-right; }
+    :global(.side-arc.left) { view-transition-name: side-arc-left; }
 
     @keyframes pendulum-out {
         0% { transform: rotateX(0deg); opacity: 1; }

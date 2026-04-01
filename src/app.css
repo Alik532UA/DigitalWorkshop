@@ -21,9 +21,9 @@
 
 /* Темна тема (зроблена трохи світлішою) */
 [data-theme='dark'] {
-    --bg-color: #1a1a1a;
-    --sidebar-bg: rgba(30, 30, 30, 0.75);
-    --header-bg: rgba(25, 25, 25, 0.85);
+    --bg-color: #242424;
+    --sidebar-bg: rgba(45, 45, 45, 0.75);
+    --header-bg: rgba(35, 35, 35, 0.85);
     --card-bg: rgba(255, 255, 255, 0.07);
     --border-color: rgba(255, 255, 255, 0.15);
     --text-primary: #f5f5f5;
@@ -37,10 +37,10 @@
 /* Кольорова тема */
 [data-theme='colorful'] {
     --bg-color: transparent;
-    --sidebar-bg: rgba(255, 255, 255, 0.1);
-    --header-bg: rgba(255, 255, 255, 0.1);
-    --card-bg: rgba(255, 255, 255, 0.2);
-    --border-color: rgba(255, 255, 255, 0.2);
+    --sidebar-bg: rgba(255, 255, 255, 0.4);
+    --header-bg: rgba(255, 255, 255, 0.4);
+    --card-bg: rgba(255, 255, 255, 0.5);
+    --border-color: rgba(255, 255, 255, 0.3);
     --text-primary: #1a1a1a;
     --text-secondary: #4a4a4a;
     color-scheme: light;
@@ -65,18 +65,28 @@ body {
     transition: background-color 0.5s ease;
 }
 
-/* Обгортка додатку для градієнтного фону */
-.app-wrapper {
-    min-height: 100vh;
-    background: var(--bg-color); /* Для світлої/темної теми */
-    position: relative;
-    overflow: hidden;
+/* Фоновий шар для теми, щоб він був ПІД динамічним фоном */
+.theme-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    background: var(--bg-color);
+    transition: background 0.5s ease;
 }
 
-/* Спеціальний фон для кольорової теми */
-[data-theme='colorful'] .app-wrapper {
+[data-theme='colorful'] .theme-background {
     background: var(--dynamic-bg-pastel);
-    transition: background 0.5s ease;
+}
+
+/* Обгортка додатку - тепер прозора, щоб було видно фони */
+.app-wrapper {
+    min-height: 100vh;
+    background: transparent;
+    position: relative;
+    overflow: hidden;
 }
 
 .glass {
