@@ -118,7 +118,8 @@
 
     <div class="footer-content">
         <a
-            href="mailto:alikzapolnov@gmail.com"
+            href="https://t.me/alik532"
+            target="_blank"
             class="footer-btn"
             style="left: {leftBtnStyles.left}; bottom: {leftBtnStyles.bottom}; --rot: {leftBtnStyles.rot};"
         >

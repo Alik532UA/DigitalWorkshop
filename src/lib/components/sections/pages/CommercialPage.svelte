@@ -23,9 +23,9 @@
             </div>
 
             <div class="cta-section">
-                <button class="btn-primary large-btn">
+                <a href="https://t.me/alik532" target="_blank" class="btn-primary">
                     {t.tabs.commercial.cta} <ChevronRight size={20} />
-                </button>
+                </a>
             </div>
         </div>
     </Section>

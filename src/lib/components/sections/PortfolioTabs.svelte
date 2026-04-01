@@ -56,9 +56,9 @@
                     </div>
 
                     <div class="cta-wrapper">
-                        <button class="btn-primary">
+                        <a href="https://t.me/alik532" target="_blank" class="btn-primary">
                             {t.tabs.commercial.cta} <ChevronRight size={18} />
-                        </button>
+                        </a>
                     </div>
                 </div>
             {:else if activeTab === 'apps'}
@@ -79,9 +79,9 @@
                     </div>
 
                     <div class="cta-wrapper">
-                        <button class="btn-primary">
+                        <a href="https://t.me/alik532" target="_blank" class="btn-primary">
                             {t.tabs.apps.cta} <ChevronRight size={18} />
-                        </button>
+                        </a>
                     </div>
                 </div>
             {:else if activeTab === 'games'}
@@ -102,9 +102,9 @@
                     </div>
 
                     <div class="cta-wrapper">
-                        <button class="btn-primary">
+                        <a href="https://t.me/alik532" target="_blank" class="btn-primary">
                             {t.tabs.games.cta} <ChevronRight size={18} />
-                        </button>
+                        </a>
                     </div>
                 </div>
             {:else if activeTab === 'charity'}
@@ -125,9 +125,9 @@
                     </div>
 
                     <div class="cta-wrapper">
-                        <button class="btn-primary">
+                        <a href="https://t.me/alik532" target="_blank" class="btn-primary">
                             {t.tabs.charity.cta} <Heart size={18} />
-                        </button>
+                        </a>
                     </div>
                 </div>
             {/if}
