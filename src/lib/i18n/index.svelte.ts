@@ -7,7 +7,7 @@ import { browser } from '$app/environment';
 export type Language = 'en' | 'uk';
 
 class LanguageState {
-    current = $state<Language>('en');
+    current = $state<Language>('uk');
     isChanging = $state(false);
 
     constructor() {}

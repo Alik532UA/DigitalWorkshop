@@ -1,4 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+@font-face {
+    font-family: 'e-Ukraine';
+    src: url('/fonts/e-Ukraine-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'e-Ukraine';
+    src: url('/fonts/e-Ukraine-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
 
 /* Світла тема за замовчуванням (оскільки вона "чудова") */
 :root {
@@ -14,7 +28,7 @@
     --gradient: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
     --glass-blur: blur(12px);
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --font-main: 'Outfit', sans-serif;
+    --font-main: 'e-Ukraine', sans-serif;
     color-scheme: light;
 }
 

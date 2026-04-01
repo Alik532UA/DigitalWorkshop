@@ -53,7 +53,7 @@
     let rightBtnStyles = $derived(getFooterLinkParams(62));
 
     let orderText = $derived.by(() => {
-        if (tabs.current === "home") return t.footer.order;
+        if (tabs.current === "about") return t.footer.order;
         return (
             t.tabs[tabs.current as keyof typeof t.tabs]?.cta || t.footer.order
         );

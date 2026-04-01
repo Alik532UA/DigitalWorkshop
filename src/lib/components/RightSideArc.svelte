@@ -154,20 +154,20 @@
             style="top: {langStyles.top}; right: {langStyles.right}; --rot: {langStyles.rot};"
         >
             <button
-                class="control-btn glass"
+                class="control-btn glass flag-btn"
                 onclick={() => language.set("uk")}
                 class:active={language.current === "uk"}
                 title="UA"
             >
-                <FlagUK width="24" height="18" />
+                <FlagUK />
             </button>
             <button
-                class="control-btn glass"
+                class="control-btn glass flag-btn"
                 onclick={() => language.set("en")}
                 class:active={language.current === "en"}
                 title="EN"
             >
-                <FlagEN width="24" height="18" />
+                <FlagEN />
             </button>
         </div>
 
@@ -281,6 +281,11 @@
         background: var(--accent-primary);
         color: white;
         border-color: var(--accent-primary);
+    }
+
+    .flag-btn {
+        padding: 0;
+        overflow: hidden;
     }
 
     @media (max-width: 1200px) {
