@@ -1,52 +1,55 @@
 <script lang="ts">
-    import { HelpCircle, WandSparkles } from "lucide-svelte";
-    import { t } from "$lib/i18n/index.svelte";
-    import Section from "../../ui/Section.svelte";
-    </script>
+	import { HelpCircle, WandSparkles } from 'lucide-svelte';
+	import { t } from '$lib/i18n/index.svelte';
+	import Section from '../../ui/Section.svelte';
 
-    <div class="page-container">
-    <Section id="promo" title={t.tabs.promo.pageTitle || t.tabs.promo.title}>
-        {#snippet icon()}<WandSparkles size={24} />{/snippet}
+	function processMarkdown(text: string): string {
+		return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+	}
+</script>
 
-        <div class="content-wrapper">
-            <p class="intro-text">{t.tabs.promo.intro}</p>
+<div class="page-container" data-testid="page-promo">
+	<Section id="promo" title={t.tabs.promo.pageTitle || t.tabs.promo.title}>
+		{#snippet icon()}<WandSparkles size={24} />{/snippet}
 
-            <div class="faq-list">
-                {#each t.tabs.promo.faq as item}
-                    <div class="faq-item glass card">
-                        <div class="faq-q">
-                            <HelpCircle size={22} class="accent-icon" />
-                            <h4>{item.q}</h4>
-                        </div>
-                        <div class="faq-a">
-                            {#each item.a.split("\n") as line}
-                                {#if line.trim().startsWith("*")}
-                                    <div class="faq-list-item">
-                                        <span class="bullet">•</span>
-                                        <span>{line.trim().substring(1).trim()}</span>
-                                    </div>
-                                {:else if line.trim() === ""}
-                                    <div class="faq-spacer"></div>
-                                {:else}
-                                    <p class="faq-text-line">{line}</p>
-                                {/if}
-                            {/each}
-                        </div>
-                    </div>
-                {/each}
-            </div>
+		<div class="content-wrapper">
+			<p class="intro-text">{t.tabs.promo.intro}</p>
 
-            <div class="cta-section">
-                <a href="https://t.me/alik532" target="_blank" class="btn-primary large-btn">
-                    {t.tabs.promo.cta}
-                </a>
-            </div>
-        </div>
-    </Section>
+			<div class="faq-list">
+				{#each t.tabs.promo.faq as item}
+					<div class="faq-item glass card">
+						<div class="faq-q">
+							<HelpCircle size={22} class="accent-icon" />
+							<h4>{item.q}</h4>
+						</div>
+						<div class="faq-a">
+							{#each item.a.split('\n') as line}
+								{#if line.trim().startsWith('*')}
+									<div class="faq-list-item">
+										<span class="bullet">•</span>
+										<span>{@html processMarkdown(line.trim().substring(1).trim())}</span>
+									</div>
+								{:else if line.trim() === ''}
+									<div class="faq-spacer"></div>
+								{:else}
+									<p class="faq-text-line">{@html processMarkdown(line)}</p>
+								{/if}
+							{/each}
+						</div>
+					</div>
+				{/each}
+			</div>
+
+			<div class="cta-section">
+				<a href="https://t.me/alik532" target="_blank" class="btn-primary large-btn">
+					{t.tabs.promo.cta}
+				</a>
+			</div>
+		</div>
+	</Section>
 </div>
 
 <style>
-    .page-container { padding: 40px 0; }
     .content-wrapper { display: flex; flex-direction: column; gap: 40px; }
     .intro-text { font-size: 1.4rem; line-height: 1.6; color: var(--text-secondary); max-width: 900px; margin: 0 auto; text-align: center; }
     .faq-list { 

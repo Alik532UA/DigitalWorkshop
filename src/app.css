@@ -205,6 +205,10 @@ body::-webkit-scrollbar {
     border-color: var(--accent-primary);
 }
 
+.page-container {
+    padding: 0;
+}
+
 .inline-icon {
     vertical-align: middle;
     margin-right: 8px;

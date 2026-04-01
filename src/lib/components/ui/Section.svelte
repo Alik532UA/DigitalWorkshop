@@ -15,7 +15,7 @@
 </script>
 
 <section {id}>
-    <div class="section-header">
+    <div class="section-header" data-testid="section-header-{id}">
         {#if icon}
             <div class="title-icon">
                 {@render icon()}
@@ -37,6 +37,7 @@
     .section-header {
         display: flex;
         align-items: center;
+        justify-content: center;
         gap: 15px;
         margin-bottom: 40px;
     }

@@ -3,14 +3,13 @@
     import { t } from "$lib/i18n/index.svelte";
     import Section from "../../ui/Section.svelte";
 </script>
-
-<div class="page-container">
+<div class="page-container" data-testid="page-games">
     <Section id="games" title={t.tabs.games.title}>
         {#snippet icon()}<Gamepad2 size={24} />{/snippet}
 
         <div class="content-wrapper">
             <p class="intro-text">{t.tabs.games.intro}</p>
-            
+
             <div class="faq-list">
                 {#each t.tabs.games.faq as item}
                     <div class="faq-card glass card">
@@ -33,7 +32,6 @@
 </div>
 
 <style>
-    .page-container { padding: 40px 0; }
     .content-wrapper { display: flex; flex-direction: column; gap: 40px; }
     .intro-text { font-size: 1.4rem; line-height: 1.6; color: var(--text-secondary); max-width: 900px; margin: 0 auto; text-align: center; }
     .faq-list { 

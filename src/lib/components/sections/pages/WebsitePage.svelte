@@ -4,7 +4,7 @@
     import Section from "../../ui/Section.svelte";
 </script>
 
-<div class="page-container">
+<div class="page-container" data-testid="page-website">
     <Section id="website" title={t.tabs.website.title}>
         {#snippet icon()}<Layout size={24} />{/snippet}
 
@@ -31,10 +31,6 @@
 </div>
 
 <style>
-    .page-container {
-        padding: 40px 0;
-    }
-
     .content-wrapper {
         display: flex;
         flex-direction: column;
