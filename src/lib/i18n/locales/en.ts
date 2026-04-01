@@ -7,20 +7,20 @@ export const en: Translations = {
     nav: {
         about: "About",
         portfolio: "Portfolio",
-        commercial: "Commercial",
+        commercial: "Websites",
         apps: "Apps",
         games: "Games",
-        charity: "Charity",
+        charity: "Promo",
         contact: "Contact"
     },
     hero: {
-        greeting: "Hi! I build modern, lightning-fast web applications and websites.",
-        description: "I specialize in interactive solutions based on modern technologies (Svelte/SvelteKit) that work faster than traditional sites and don't require expensive servers.",
+        greeting: "My name is Alik\nand I create modern [[commercial]], [[apps]], and even [[games]]!\n\nAnd for creative schools and charities, I have a [[charity]]!",
+        description: "Select which product interests you to learn more and see my existing work",
         buttons: {
-            commercial: "💼 Commercial Sites",
-            apps: "📱 Applications",
-            games: "🎮 Games",
-            charity: "🎭 Charity"
+            commercial: "websites",
+            apps: "apps",
+            games: "games",
+            charity: "special offer"
         }
     },
     portfolio: {
@@ -59,7 +59,7 @@ export const en: Translations = {
     },
     tabs: {
         commercial: {
-            title: "Commercial Sites",
+            title: "Websites",
             intro: "If you need a fast, reliable business site, corporate portal, or landing page — I can help realize it on the most modern tech stack.",
             benefitsTitle: "Why choose my approach?",
             benefits: [
@@ -83,7 +83,7 @@ export const en: Translations = {
             cta: "Order a website"
         },
         apps: {
-            title: "Apps (Web & Desktop)",
+            title: "Apps",
             intro: "Have an idea for a service, dashboard, or internal tool for your business? I develop interactive web applications (SPA/PWA) and desktop tools.",
             faq: [
                 {
@@ -98,7 +98,7 @@ export const en: Translations = {
             cta: "Order an application"
         },
         games: {
-            title: "Games (Browser & Logic)",
+            title: "Games",
             intro: "Development of light browser games, interactive quizzes, educational platforms, and gamified promo projects.",
             faq: [
                 {
@@ -113,7 +113,7 @@ export const en: Translations = {
             cta: "Order a game"
         },
         charity: {
-            title: "Charity Sites",
+            title: "Promo",
             intro: "I want creative schools in Ukraine to have modern and stylish websites. Helping a local school, I see the reality: budgets are minimal, but a modern look is needed. Therefore, I offer special terms.",
             faq: [
                 {
@@ -227,5 +227,9 @@ export const en: Translations = {
     },
     about: {
         hobbiesTitle: "Hobbies & Interests"
+    },
+    footer: {
+        ask: "Ask a question",
+        order: "Order a website"
     }
 };

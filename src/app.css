@@ -1,24 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
 
+/* Світла тема за замовчуванням (оскільки вона "чудова") */
 :root {
-    --bg-color: #050505;
-    --sidebar-bg: rgba(15, 15, 15, 0.7);
-    --header-bg: rgba(5, 5, 5, 0.8);
-    --card-bg: rgba(255, 255, 255, 0.03);
-    --border-color: rgba(255, 255, 255, 0.1);
-    --text-primary: #ffffff;
-    --text-secondary: #a0a0a0;
-    --accent-primary: #00f2ff;
-    --accent-primary-rgb: 0, 242, 255;
-    --accent-secondary: #7000ff;
-    --gradient: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-    --glass-blur: blur(12px);
-    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --font-main: 'Outfit', sans-serif;
-    color-scheme: dark;
-}
-
-[data-theme='light'] {
     --bg-color: #f5f5f7;
     --sidebar-bg: rgba(255, 255, 255, 0.7);
     --header-bg: rgba(245, 245, 247, 0.8);
@@ -29,6 +12,38 @@
     --accent-primary: #0071e3;
     --accent-primary-rgb: 0, 113, 227;
     --accent-secondary: #5e5ce6;
+    --gradient: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    --glass-blur: blur(12px);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --font-main: 'Outfit', sans-serif;
+    color-scheme: light;
+}
+
+/* Темна тема (зроблена трохи світлішою) */
+[data-theme='dark'] {
+    --bg-color: #1a1a1a;
+    --sidebar-bg: rgba(30, 30, 30, 0.75);
+    --header-bg: rgba(25, 25, 25, 0.85);
+    --card-bg: rgba(255, 255, 255, 0.07);
+    --border-color: rgba(255, 255, 255, 0.15);
+    --text-primary: #f5f5f5;
+    --text-secondary: #c0c0c0;
+    --accent-primary: #00f2ff;
+    --accent-primary-rgb: 0, 242, 255;
+    --accent-secondary: #7000ff;
+    color-scheme: dark;
+}
+
+/* Кольорова тема */
+[data-theme='colorful'] {
+    --bg-color: transparent;
+    --sidebar-bg: rgba(255, 255, 255, 0.1);
+    --header-bg: rgba(255, 255, 255, 0.1);
+    --card-bg: rgba(255, 255, 255, 0.2);
+    --border-color: rgba(255, 255, 255, 0.2);
+    --text-primary: #1a1a1a;
+    --text-secondary: #4a4a4a;
+    color-scheme: light;
 }
 
 * {
@@ -48,7 +63,20 @@ body {
     color: var(--text-primary);
     overflow-x: hidden;
     transition: background-color 0.5s ease;
-    -webkit-tap-highlight-color: transparent;
+}
+
+/* Обгортка додатку для градієнтного фону */
+.app-wrapper {
+    min-height: 100vh;
+    background: var(--bg-color); /* Для світлої/темної теми */
+    position: relative;
+    overflow: hidden;
+}
+
+/* Спеціальний фон для кольорової теми */
+[data-theme='colorful'] .app-wrapper {
+    background: var(--dynamic-bg-pastel);
+    transition: background 0.5s ease;
 }
 
 .glass {
@@ -63,7 +91,7 @@ body {
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    text-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+    text-shadow: 0 0 20px rgba(var(--accent-primary-rgb), 0.3);
 }
 
 .btn-primary {
@@ -83,7 +111,7 @@ body {
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 242, 255, 0.4);
+    box-shadow: 0 5px 15px rgba(var(--accent-primary-rgb), 0.4);
 }
 
 .btn-secondary {

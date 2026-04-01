@@ -185,6 +185,10 @@ const TranslationSchema = z.object({
     }),
     about: z.object({
         hobbiesTitle: z.string()
+    }),
+    footer: z.object({
+        ask: z.string(),
+        order: z.string()
     })
 });
 
@@ -205,5 +209,6 @@ export const t = {
     get experience() { return translations[language.current].experience; },
     get skills() { return translations[language.current].skills; },
     get other() { return translations[language.current].other; },
-    get about() { return translations[language.current].about; }
+    get about() { return translations[language.current].about; },
+    get footer() { return translations[language.current].footer; }
 };

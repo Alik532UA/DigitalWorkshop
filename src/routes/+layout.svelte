@@ -5,6 +5,7 @@
     import Header from "$lib/components/Header.svelte";
     import Footer from "$lib/components/Footer.svelte";
     import SideArc from "$lib/components/SideArc.svelte";
+    import LeftSideArc from "$lib/components/LeftSideArc.svelte";
     import DynamicBackground from "$lib/components/DynamicBackground.svelte";
     import "../app.css";
 
@@ -19,13 +20,13 @@
 </script>
 
 <div class="app-wrapper" style="
-    --dynamic-bg: {theme.current === 'colorful' ? tabs.currentColor : 'var(--bg-color)'};
-    --dynamic-bg-pastel: {theme.current === 'colorful' ? `color-mix(in srgb, ${tabs.currentColor}, white 40%)` : 'var(--bg-color)'};
+    --dynamic-bg-pastel: {theme.current === 'colorful' ? `linear-gradient(135deg, color-mix(in srgb, ${tabs.currentColor}, white 75%), color-mix(in srgb, ${tabs.currentColor}, white 92%))` : 'var(--bg-color)'};
 ">
     <DynamicBackground backgroundType={background.type} />
     
     <Header />
     <SideArc />
+    <LeftSideArc />
 
     <main class="main-content" class:theme-changing={theme.isChanging}>
         <div class="page-scroll-area">
@@ -52,6 +53,7 @@
         padding-top: 180px; 
         padding-bottom: 160px;
         padding-right: 160px; /* Відступ для SideArc */
+        padding-left: 160px; /* Відступ для LeftSideArc */
         view-transition-name: main-content;
         transform-origin: top center;
         perspective: 1000px;
@@ -91,13 +93,17 @@
     }
 
     @media (max-width: 1200px) {
-        .main-content { padding-right: 120px; }
+        .main-content { 
+            padding-right: 120px;
+            padding-left: 120px;
+        }
     }
 
     @media (max-width: 768px) {
         .main-content {
             padding-top: 140px;
             padding-right: 20px;
+            padding-left: 20px;
         }
     }
 </style>

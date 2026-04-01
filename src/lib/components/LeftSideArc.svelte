@@ -1,84 +1,58 @@
 <script lang="ts">
     import { theme, background, tabs } from "$lib/states/ui.svelte";
-    import { language } from "$lib/i18n/index.svelte";
-    import {
-        Sun,
-        Moon,
-        Palette,
-        Sparkles,
-        Waves,
-        Shapes,
-        CircleOff,
-    } from "lucide-svelte";
-    import FlagUK from "$lib/components/flags/FlagUK.svelte";
-    import FlagEN from "$lib/components/flags/FlagEN.svelte";
+    import { Sparkles, Waves, Shapes, CircleOff } from "lucide-svelte";
 
     function selectBackground(type: 0 | 1 | 2 | 3) {
         background.set(type);
     }
 
-    let ThemeIcon = $derived(
-        theme.current === "colorful"
-            ? Palette
-            : theme.current === "dark"
-              ? Moon
-              : Sun,
-    );
-
     let h = $state(0);
     let w = $state(0);
 
-    // Розрахунок позиції на дузі Q -20 500 (від 100 1050 до 100 -50)
+    // Розрахунок позиції на дузі Q 180 500 (від 60 1050 до 60 -50)
     function getArcParams(topPercent: number) {
         if (!h || !w)
-            return { right: "18%", top: `${topPercent}%`, rot: "0deg" };
+            return { left: "18%", top: `${topPercent}%`, rot: "0deg" };
 
-        // y в одиницях viewBox (0-1000)
         const yViewBox = topPercent * 10;
         const t = (1050 - yViewBox) / 1100;
 
-        // Точка на кривій (xViewBox)
-        const xViewBox = 100 - 240 * t + 240 * t * t;
+        // Точка на кривій (дзеркально відносно x=80 у viewBox 160)
+        // x_old = 100 - 240*t + 240*t^2
+        // x_new = 160 - x_old = 60 + 240*t - 240*t^2
+        const xViewBox = 60 + 240 * t - 240 * t * t;
 
-        // Похідні (тангенс)
-        const dxdt = -240 + 480 * t;
+        const dxdt = 240 - 480 * t;
         const dydt = -1100;
 
-        // Масштабування похідних
         const dx_px = dxdt * (w / 160);
         const dy_px = dydt * (h / 1000);
 
-        // Вектор нормалі (перпендикуляр вглиб, тобто праворуч)
         const length = Math.sqrt(dx_px * dx_px + dy_px * dy_px);
         const offset = 70;
 
-        // Нормаль pointing "right" для SideArc: (-dy, dx)
-        const nx = -dy_px / length;
-        const ny = dx_px / length;
+        // Нормаль pointing "left" для LeftSideArc: (dy, -dx)
+        const nx = dy_px / length;
+        const ny = -dx_px / length;
 
-        // Нові координати з урахуванням нормалі
         const xPx = xViewBox * (w / 160) + nx * offset;
         const yPx = yViewBox * (h / 1000) + ny * offset;
 
         const angleRad = Math.atan2(dx_px, -dy_px);
         const angleDeg = angleRad * (180 / Math.PI);
 
-        // Відступ від правого краю (viewBox width = 160)
-        const rightPx = 160 * (w / 160) - xPx;
-
         return {
-            right: `${rightPx}px`,
+            left: `${xPx}px`,
             top: `${yPx}px`,
             rot: `${angleDeg}deg`,
         };
     }
 
-    let langStyles = $derived(getArcParams(35));
-    let themeStyles = $derived(getArcParams(65));
+    let bgStyles = $derived(getArcParams(50));
 </script>
 
 <aside
-    class="side-arc"
+    class="side-arc left"
     style="--dynamic-bg: {theme.current === 'colorful'
         ? `color-mix(in srgb, ${tabs.currentColor}, transparent 20%)`
         : 'var(--header-bg)'}"
@@ -89,10 +63,10 @@
         <svg viewBox="0 0 160 1000" preserveAspectRatio="none" class="arc-svg">
             <defs>
                 <linearGradient
-                    id="cylinderLightSide"
-                    x1="100%"
+                    id="cylinderLightSideLeft"
+                    x1="0%"
                     y1="0%"
-                    x2="0%"
+                    x2="100%"
                     y2="0%"
                 >
                     <stop offset="0%" stop-color="rgba(255,255,255,0.2)" />
@@ -102,14 +76,14 @@
                 </linearGradient>
 
                 <filter
-                    id="softShadowSide"
+                    id="softShadowSideLeft"
                     x="-150%"
                     y="-20%"
                     width="400%"
                     height="140%"
                 >
                     <feGaussianBlur in="SourceAlpha" stdDeviation="10" />
-                    <feOffset dx="-8" dy="0" result="offsetblur" />
+                    <feOffset dx="8" dy="0" result="offsetblur" />
                     <feComposite
                         in="offsetblur"
                         in2="SourceAlpha"
@@ -127,69 +101,55 @@
             </defs>
 
             <path
-                d="M 200 -50 L 200 1050 L 100 1050 Q -20 500 100 -50 Z"
+                d="M -40 -50 L -40 1050 L 60 1050 Q 180 500 60 -50 Z"
                 class="arc-path"
                 fill="var(--dynamic-bg)"
-                filter="url(#softShadowSide)"
+                filter="url(#softShadowSideLeft)"
             />
 
             <path
-                d="M 200 -50 L 200 1050 L 100 1050 Q -20 500 100 -50 Z"
-                fill="url(#cylinderLightSide)"
+                d="M -40 -50 L -40 1050 L 60 1050 Q 180 500 60 -50 Z"
+                fill="url(#cylinderLightSideLeft)"
             />
         </svg>
     </div>
 
     <div class="side-controls">
         <div
-            class="control-group lang-group"
-            style="top: {langStyles.top}; right: {langStyles.right}; --rot: {langStyles.rot};"
+            class="control-group bg-group"
+            style="top: {bgStyles.top}; left: {bgStyles.left}; --rot: {bgStyles.rot};"
         >
             <button
                 class="control-btn glass"
-                onclick={() => language.set("uk")}
-                class:active={language.current === "uk"}
-                title="UA"
+                onclick={() => selectBackground(0)}
+                class:active={background.type === 0}
+                title="Off"
             >
-                <FlagUK width="24" height="18" />
+                <CircleOff size={20} />
             </button>
             <button
                 class="control-btn glass"
-                onclick={() => language.set("en")}
-                class:active={language.current === "en"}
-                title="EN"
+                onclick={() => selectBackground(1)}
+                class:active={background.type === 1}
+                title="Particles"
             >
-                <FlagEN width="24" height="18" />
-            </button>
-        </div>
-
-        <div
-            class="control-group theme-group"
-            style="top: {themeStyles.top}; right: {themeStyles.right}; --rot: {themeStyles.rot};"
-        >
-            <button
-                class="control-btn glass"
-                onclick={() => theme.set("colorful")}
-                class:active={theme.current === "colorful"}
-                title="Colorful"
-            >
-                <Palette size={20} />
+                <Sparkles size={20} />
             </button>
             <button
                 class="control-btn glass"
-                onclick={() => theme.set("dark")}
-                class:active={theme.current === "dark"}
-                title="Dark"
+                onclick={() => selectBackground(2)}
+                class:active={background.type === 2}
+                title="Waves"
             >
-                <Moon size={20} />
+                <Waves size={20} />
             </button>
             <button
                 class="control-btn glass"
-                onclick={() => theme.set("light")}
-                class:active={theme.current === "light"}
-                title="Light"
+                onclick={() => selectBackground(3)}
+                class:active={background.type === 3}
+                title="Shapes"
             >
-                <Sun size={20} />
+                <Shapes size={20} />
             </button>
         </div>
     </div>
@@ -199,10 +159,10 @@
     .side-arc {
         position: fixed;
         top: 0;
-        right: 0;
+        left: 0;
         width: 160px;
         height: 100vh;
-        z-index: 1010;
+        z-index: 1020;
         pointer-events: none;
         transition: --dynamic-bg 0.5s ease;
         overflow: visible;
@@ -211,7 +171,7 @@
     .svg-container {
         position: absolute;
         top: 0;
-        right: 0;
+        left: 0;
         width: 100%;
         height: 100%;
         overflow: visible;
@@ -240,11 +200,11 @@
         display: flex;
         flex-direction: column;
         gap: 15px;
-        align-items: flex-end;
+        align-items: flex-start;
         pointer-events: auto;
         transform: translateY(-50%) rotate(var(--rot));
         transition:
-            right 0.1s ease,
+            left 0.1s ease,
             top 0.1s ease,
             transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -266,7 +226,7 @@
 
     .control-btn:hover {
         background: rgba(255, 255, 255, 0.2);
-        transform: scale(1.03) translateX(-2px);
+        transform: scale(1.03) translateX(2px);
     }
 
     .control-btn.active {

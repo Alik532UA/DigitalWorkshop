@@ -72,7 +72,7 @@
 <header
     class="arc-header"
     style="--dynamic-bg: {theme.current === 'colorful'
-        ? tabs.currentColor
+        ? `color-mix(in srgb, ${tabs.currentColor}, transparent 20%)`
         : 'var(--header-bg)'}"
     bind:clientWidth={w}
     bind:clientHeight={h}
@@ -154,7 +154,7 @@
         left: 0;
         width: 100%;
         height: 180px;
-        z-index: 1000;
+        z-index: 1030;
         pointer-events: none;
         transition: --dynamic-bg 0.5s ease;
         overflow: visible;
