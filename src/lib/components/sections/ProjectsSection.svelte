@@ -73,7 +73,7 @@
     }
 
     .project-card:hover {
-        transform: translateY(-5px);
+        transform: scale(1.02);
     }
 
     .project-img {
@@ -102,7 +102,7 @@
         border-radius: 12px;
         font-size: 0.8rem;
         font-weight: 600;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        box-shadow: 0 0 8px rgba(0,0,0,0.2);
     }
 
     .project-content {

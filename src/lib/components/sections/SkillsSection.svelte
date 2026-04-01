@@ -150,7 +150,7 @@
     }
 
     .platform-item:hover {
-        transform: translateY(-5px);
+        transform: scale(1.03);
         border-color: var(--accent-primary);
     }
 

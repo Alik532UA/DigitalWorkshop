@@ -174,8 +174,8 @@
         background: color-mix(in srgb, var(--btn-color), transparent 80%);
         border-color: var(--btn-color);
         color: var(--btn-color);
-        transform: scale(1.05) translateY(-2px);
-        box-shadow: 0 8px 20px color-mix(in srgb, var(--btn-color), transparent 75%);
+        transform: scale(1.05);
+        box-shadow: 0 0 20px color-mix(in srgb, var(--btn-color), transparent 75%);
     }
 
     @keyframes slow-pulse {

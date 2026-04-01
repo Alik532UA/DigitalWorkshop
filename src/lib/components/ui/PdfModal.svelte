@@ -87,7 +87,7 @@
     .pdf-option:hover {
         background: rgba(var(--accent-primary-rgb), 0.1);
         border-color: var(--accent-primary);
-        transform: translateY(-3px);
+        transform: scale(1.02);
     }
 
     .pdf-preview {
