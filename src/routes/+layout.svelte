@@ -70,26 +70,23 @@
     }
 
     :global(::view-transition-old(main-content)) {
-        animation: 0.5s cubic-bezier(0.4, 0, 0.2, 1) both slide-out;
+        animation: 0.6s cubic-bezier(0.4, 0, 0.2, 1) both pendulum-out;
+        transform-origin: top center;
     }
 
     :global(::view-transition-new(main-content)) {
-        animation: 0.5s cubic-bezier(0.4, 0, 0.2, 1) both slide-in;
+        animation: 0.6s cubic-bezier(0.4, 0, 0.2, 1) both pendulum-in;
+        transform-origin: top center;
     }
 
-    :global(.arc-header) { view-transition-name: arc-header; }
-    :global(.arc-footer) { view-transition-name: arc-footer; }
-    :global(.side-arc:not(.left)) { view-transition-name: side-arc-right; }
-    :global(.side-arc.left) { view-transition-name: side-arc-left; }
-
-    @keyframes slide-out {
-        0% { transform: translateX(0); opacity: 1; }
-        100% { transform: translateX(-100px); opacity: 0; }
+    @keyframes pendulum-out {
+        0% { transform: rotateX(0deg); opacity: 1; }
+        100% { transform: rotateX(-90deg); opacity: 0; }
     }
 
-    @keyframes slide-in {
-        0% { transform: translateX(100px); opacity: 0; }
-        100% { transform: translateX(0); opacity: 1; }
+    @keyframes pendulum-in {
+        0% { transform: rotateX(90deg); opacity: 0; }
+        100% { transform: rotateX(0deg); opacity: 1; }
     }
 
     @media (max-width: 1200px) {

@@ -5,7 +5,7 @@
     import { fly } from "svelte/transition";
 </script>
 
-<div in:fly={{ x: 100, duration: 500 }} class="page-container">
+<div in:fly={{ y: 50, duration: 500 }} class="page-container">
     <Section id="apps" title={t.tabs.apps.title}>
         {#snippet icon()}<Smartphone size={24} />{/snippet}
 

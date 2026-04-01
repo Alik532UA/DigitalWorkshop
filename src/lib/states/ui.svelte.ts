@@ -36,17 +36,14 @@ class TabState {
                     if (currentTabInUrl !== tab) {
                         if (isFirstRun) {
                             isFirstRun = false;
-                            // На старті лише оновлюємо URL, якщо в ньому ВЖЕ щось було не так
                             if (!currentTabInUrl) return; 
                         }
                         
                         url.searchParams.set('tab', tab);
-                        // Використовуємо setTimeout, щоб дати роутеру час на ініціалізацію
                         setTimeout(() => {
                             try {
                                 replaceState(url.toString(), {});
                             } catch (e) {
-                                // Fallback на звичайний history, якщо роутер ще не готовий
                                 window.history.replaceState(null, '', url.toString());
                             }
                         }, 0);

@@ -5,7 +5,7 @@
     import { fly } from "svelte/transition";
 </script>
 
-<div in:fly={{ x: 100, duration: 500 }} class="page-container">
+<div in:fly={{ y: 50, duration: 500 }} class="page-container">
     <Section id="games" title={t.tabs.games.title}>
         {#snippet icon()}<Gamepad2 size={24} />{/snippet}
 
