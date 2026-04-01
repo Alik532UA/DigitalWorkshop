@@ -22,7 +22,7 @@
     --dynamic-bg: {theme.current === 'colorful' ? tabs.currentColor : 'var(--bg-color)'};
     --dynamic-bg-pastel: {theme.current === 'colorful' ? `color-mix(in srgb, ${tabs.currentColor}, white 40%)` : 'var(--bg-color)'};
 ">
-    <DynamicBackground type={background.type} />
+    <DynamicBackground backgroundType={background.type} />
     
     <Header />
     <SideArc />

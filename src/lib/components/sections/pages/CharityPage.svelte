@@ -42,7 +42,7 @@
     .faq-q { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px; }
     .faq-q h4 { font-size: 1.3rem; color: var(--text-primary); line-height: 1.4; }
     .faq-a { color: var(--text-secondary); line-height: 1.7; padding-left: 37px; font-size: 1.1rem; }
-    .accent-icon { color: var(--accent-primary); flex-shrink: 0; margin-top: 3px; }
+    :global(.accent-icon) { color: var(--accent-primary); flex-shrink: 0; margin-top: 3px; }
     .cta-section { display: flex; justify-content: center; }
     .large-btn { padding: 20px 40px; font-size: 1.2rem; }
 

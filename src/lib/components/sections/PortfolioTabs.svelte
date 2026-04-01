@@ -32,7 +32,7 @@
                     <tab.icon size={20} />
                     <span>{tab.label()}</span>
                     {#if activeTab === tab.id}
-                        <div class="active-indicator" layout:id="indicator"></div>
+                        <div class="active-indicator"></div>
                     {/if}
                 </button>
             {/each}
@@ -263,7 +263,7 @@
         padding-left: 32px;
     }
 
-    .accent-icon {
+    :global(.accent-icon) {
         color: var(--accent-primary);
         flex-shrink: 0;
         margin-top: 2px;

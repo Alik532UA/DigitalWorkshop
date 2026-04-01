@@ -10,9 +10,53 @@
     }
 
     let ThemeIcon = $derived(theme.current === 'colorful' ? Palette : (theme.current === 'dark' ? Moon : Sun));
+
+    let h = $state(0);
+    let w = $state(0);
+
+    // Розрахунок позиції на дузі Q -20 500 (від 100 1050 до 100 -50)
+    function getArcParams(topPercent: number) {
+        if (!h || !w) return { right: '18%', rot: '0deg' };
+        
+        // y в одиницях viewBox (0-1000)
+        const yViewBox = topPercent * 10;
+        // Параметр t для лінійної зміни y: y(t) = 1050 - 1100t => t = (1050 - y) / 1100
+        const t = (1050 - yViewBox) / 1100;
+        
+        // x(t) = 100(1-t)^2 + 2(-20)(1-t)t + 100t^2
+        const xViewBox = 100 - 240 * t + 240 * t * t;
+        
+        // Похідні для розрахунку кута
+        const dxdt = -240 + 480 * t;
+        const dydt = -1100;
+
+        // Масштабування похідних відповідно до реальних пікселів
+        const dx_px = dxdt * (w / 160);
+        const dy_px = dydt * (h / 1000);
+
+        const angleRad = Math.atan2(dx_px, -dy_px);
+        const angleDeg = angleRad * (180 / Math.PI);
+
+        // Відступ від правого краю (viewBox width = 160)
+        const rightPx = (160 - xViewBox) * (w / 160);
+
+        return {
+            right: `${rightPx}px`,
+            rot: `${angleDeg}deg`
+        };
+    }
+
+    let langStyles = $derived(getArcParams(18));
+    let themeStyles = $derived(getArcParams(50));
+    let bgStyles = $derived(getArcParams(82));
 </script>
 
-<aside class="side-arc" style="--dynamic-bg: {theme.current === 'colorful' ? tabs.currentColor : 'var(--header-bg)'}">
+<aside 
+    class="side-arc" 
+    style="--dynamic-bg: {theme.current === 'colorful' ? tabs.currentColor : 'var(--header-bg)'}"
+    bind:clientHeight={h}
+    bind:clientWidth={w}
+>
     <div class="svg-container">
         <svg viewBox="0 0 160 1000" preserveAspectRatio="none" class="arc-svg">
             <defs>
@@ -23,7 +67,6 @@
                     <stop offset="100%" stop-color="rgba(255,255,255,0)" />
                 </linearGradient>
                 
-                <!-- М'яка тінь, що не обрізається -->
                 <filter id="softShadowSide" x="-150%" y="-20%" width="400%" height="140%">
                     <feGaussianBlur in="SourceAlpha" stdDeviation="10" />
                     <feOffset dx="-8" dy="0" result="offsetblur" />
@@ -38,20 +81,18 @@
                 </filter>
             </defs>
             
-            <!-- ОСНОВНА ПАНЕЛЬ (Більш плоска дуга Q -20 500) -->
             <path d="M 200 -50 L 200 1050 L 100 1050 Q -20 500 100 -50 Z" 
                   class="arc-path" 
                   fill="var(--dynamic-bg)" 
                   filter="url(#softShadowSide)" />
             
-            <!-- ВНУТРІШНЄ ОСВІТЛЕННЯ -->
             <path d="M 200 -50 L 200 1050 L 100 1050 Q -20 500 100 -50 Z" 
                   fill="url(#cylinderLightSide)" />
         </svg>
     </div>
 
     <div class="side-controls">
-        <div class="control-group lang-group">
+        <div class="control-group lang-group" style="top: 18%; right: {langStyles.right}; --rot: {langStyles.rot};">
             <button class="control-btn glass" onclick={() => language.set('uk')} class:active={language.current === 'uk'} title="UA">
                 <FlagUK width="24" height="18" />
             </button>
@@ -60,14 +101,19 @@
             </button>
         </div>
 
-        <div class="control-group theme-group">
-            <button class="control-btn main-btn glass" onclick={() => theme.toggle()} title="Switch Theme">
-                <ThemeIcon size={28} />
-                <span class="btn-label">{theme.current}</span>
+        <div class="control-group theme-group" style="top: 50%; right: {themeStyles.right}; --rot: {themeStyles.rot};">
+            <button class="control-btn glass" onclick={() => theme.set('colorful')} class:active={theme.current === 'colorful'} title="Colorful">
+                <Palette size={20} />
+            </button>
+            <button class="control-btn glass" onclick={() => theme.set('dark')} class:active={theme.current === 'dark'} title="Dark">
+                <Moon size={20} />
+            </button>
+            <button class="control-btn glass" onclick={() => theme.set('light')} class:active={theme.current === 'light'} title="Light">
+                <Sun size={20} />
             </button>
         </div>
 
-        <div class="control-group bg-group">
+        <div class="control-group bg-group" style="top: 82%; right: {bgStyles.right}; --rot: {bgStyles.rot};">
             <button class="control-btn glass" onclick={() => selectBackground(0)} class:active={background.type === 0} title="Off">
                 <CircleOff size={20} />
             </button>
@@ -131,11 +177,9 @@
         gap: 15px;
         align-items: flex-end;
         pointer-events: auto;
+        transform: translateY(-50%) rotate(var(--rot));
+        transition: right 0.1s ease, transform 0.1s ease;
     }
-
-    .lang-group { top: 15%; right: 18.75%; --rot: -6deg; transform: rotate(var(--rot)); }
-    .theme-group { top: 50%; right: 31.25%; --rot: 0deg; transform: translateY(-50%) rotate(var(--rot)); }
-    .bg-group { bottom: 15%; right: 18.75%; --rot: 6deg; transform: rotate(var(--rot)); }
 
     .control-btn {
         background: rgba(255, 255, 255, 0.05);
@@ -163,28 +207,8 @@
         border-color: var(--accent-primary);
     }
 
-    .main-btn {
-        width: 70px;
-        height: 70px;
-        border-radius: 20px;
-        flex-direction: column;
-        gap: 5px;
-    }
-
-    .btn-label {
-        font-size: 0.6rem;
-        text-transform: uppercase;
-        font-weight: 700;
-    }
-
-    :global([data-theme="colorful"]) .control-btn {
-        color: #1a1a1a;
-        background: rgba(0, 0, 0, 0.05);
-    }
-
     @media (max-width: 1200px) {
         .side-arc { width: 120px; }
-        .main-btn { width: 60px; height: 60px; }
     }
 
     @media (max-width: 768px) {

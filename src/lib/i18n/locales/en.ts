@@ -141,5 +141,91 @@ export const en: Translations = {
         ats: "ATS / RMS",
         dark: "Dark theme",
         light: "Light theme"
+    },
+    education: {
+        title: "Education",
+        institutions: {
+            polytech_name: "Odesa Polytechnic National University",
+            theater_school_name: "Odesa Children's Theater School"
+        },
+        descriptions: {
+            polytech_desc: "Institute of Computer Systems. Specialized in Software Engineering.",
+            theater_school_desc: "Theater art department. Acting and public speaking skills."
+        }
+    },
+    experience: {
+        title: "Experience",
+        showNonIT: "Show TV & Creative Experience",
+        hideNonIT: "Hide TV & Creative Experience",
+        roles: {
+            intellias_role: "Software Engineer",
+            absoft_role: "Junior Software Engineer",
+            singree_role: "Trainee Web Developer",
+            unicorn_role: "Chief Editor & Host",
+            nutduet_role: "Event Host & Entertainer",
+            channel7_role: "TV Program Author & Host",
+            krug_role: "News Correspondent",
+            theater_role: "Acting Teacher"
+        },
+        descriptions: {
+            intellias_desc: "Developed enterprise-level web applications using modern JS frameworks.",
+            absoft_desc: "Focused on frontend development and UI components library.",
+            singree_desc: "Learned basics of web development and CMS integration.",
+            unicorn_role: "Managed content strategy and hosted video programs for YouTube.",
+            nutduet_desc: "Professional event management and entertainment.",
+            channel7_desc: "Created and hosted weekly TV shows about technology and city life.",
+            krug_desc: "Reported on local news and social issues.",
+            theater_desc: "Taught basics of acting and stage presence to children."
+        }
+    },
+    skills: {
+        title: "Skills & Stack",
+        showMore: "Show More Skills",
+        hideMore: "Hide Extra Skills",
+        categories: {
+            it: "Development & AI",
+            design3d: "3D & Manufacturing",
+            video: "Media Production",
+            tools: "Tools & DevOps"
+        },
+        platforms: {
+            desktop: "Cross-platform: Windows/macOS/Linux",
+            web: "Modern Web: SPA/SSR/PWA",
+            mobile: "Mobile Web: Optimized for smartphones"
+        },
+        items: {
+            ai: "AI Engineering & LLM",
+            csharp: "C# / .NET",
+            java: "Java",
+            playwright: "E2E Testing (Playwright)",
+            blender: "3D Modeling (Blender)",
+            slicer: "3D Printing & Slicing",
+            printing: "Rapid Prototyping",
+            godot: "GameDev (Godot Engine)",
+            premiere: "Video Editing (Premiere Pro)",
+            photoshop: "Graphic Design (Photoshop)",
+            topaz: "AI Video Upscaling",
+            vmix: "Live Streaming (vMix)",
+            jira: "Agile (Jira/Confluence)",
+            git: "Version Control (Git)",
+            figma: "UI/UX Design (Figma)",
+            firebase: "Cloud Backend (Firebase)"
+        }
+    },
+    other: {
+        title: "Additional Info",
+        iq: "135 (Mensa level)",
+        olympics: "Winner of regional Olympiads in Physics and Math",
+        driver: "B Category license",
+        languages: {
+            title: "Languages",
+            uk: "Ukrainian — Native",
+            en: "English — Intermediate+",
+            ru: "Russian — Language of the aggressor"
+        },
+        hobbies: ["3D Printing", "Photography", "Traveling", "Psychology", "IoT"]
+    },
+    about: {
+        hobbiesTitle: "Hobbies & Interests"
     }
 };

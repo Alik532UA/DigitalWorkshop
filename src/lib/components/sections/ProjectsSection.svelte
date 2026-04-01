@@ -119,7 +119,7 @@
         gap: 10px;
     }
 
-    .accent-icon {
+    :global(.accent-icon) {
         color: var(--accent-primary);
         flex-shrink: 0;
     }

@@ -1,5 +1,7 @@
 <script lang="ts">
     import { t } from "$lib/i18n/index.svelte";
+
+    let { isMobile = false } = $props();
 </script>
 
 <section id="hero" class="hero-section">

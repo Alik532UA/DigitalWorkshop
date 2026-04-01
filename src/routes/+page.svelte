@@ -9,9 +9,6 @@
     import GamesPage from "$lib/components/sections/pages/GamesPage.svelte";
     import CharityPage from "$lib/components/sections/pages/CharityPage.svelte";
     
-    // UI
-    import ErrorFallback from "$lib/components/ui/ErrorFallback.svelte";
-
     let isMobile = $state(false);
 
     onMount(() => {
@@ -29,40 +26,15 @@
 
 <div class="container">
     {#if tabs.current === 'home'}
-        <svelte:boundary>
-            <HeroSection {isMobile} />
-            {#snippet failed()}
-                <ErrorFallback sectionName="Hero" />
-            {/snippet}
-        </svelte:boundary>
+        <HeroSection {isMobile} />
     {:else if tabs.current === 'commercial'}
-        <svelte:boundary>
-            <CommercialPage />
-            {#snippet failed()}
-                <ErrorFallback sectionName="Комерційні сайти" />
-            {/snippet}
-        </svelte:boundary>
+        <CommercialPage />
     {:else if tabs.current === 'apps'}
-        <svelte:boundary>
-            <AppsPage />
-            {#snippet failed()}
-                <ErrorFallback sectionName="Застосунки" />
-            {/snippet}
-        </svelte:boundary>
+        <AppsPage />
     {:else if tabs.current === 'games'}
-        <svelte:boundary>
-            <GamesPage />
-            {#snippet failed()}
-                <ErrorFallback sectionName="Ігри" />
-            {/snippet}
-        </svelte:boundary>
+        <GamesPage />
     {:else if tabs.current === 'charity'}
-        <svelte:boundary>
-            <CharityPage />
-            {#snippet failed()}
-                <ErrorFallback sectionName="Благодійність" />
-            {/snippet}
-        </svelte:boundary>
+        <CharityPage />
     {/if}
 </div>
 

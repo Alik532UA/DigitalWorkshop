@@ -140,6 +140,51 @@ const TranslationSchema = z.object({
         ats: z.string(),
         dark: z.string(),
         light: z.string()
+    }),
+    education: z.object({
+        title: z.string(),
+        institutions: z.record(z.string(), z.string()),
+        descriptions: z.record(z.string(), z.string())
+    }),
+    experience: z.object({
+        title: z.string(),
+        showNonIT: z.string(),
+        hideNonIT: z.string(),
+        roles: z.record(z.string(), z.string()),
+        descriptions: z.record(z.string(), z.string())
+    }),
+    skills: z.object({
+        title: z.string(),
+        showMore: z.string(),
+        hideMore: z.string(),
+        categories: z.object({
+            it: z.string(),
+            design3d: z.string(),
+            video: z.string(),
+            tools: z.string()
+        }),
+        platforms: z.object({
+            desktop: z.string(),
+            web: z.string(),
+            mobile: z.string()
+        }),
+        items: z.record(z.string(), z.string())
+    }),
+    other: z.object({
+        title: z.string(),
+        iq: z.string(),
+        olympics: z.string(),
+        driver: z.string(),
+        languages: z.object({
+            title: z.string(),
+            uk: z.string(),
+            en: z.string(),
+            ru: z.string()
+        }),
+        hobbies: z.array(z.string())
+    }),
+    about: z.object({
+        hobbiesTitle: z.string()
     })
 });
 
@@ -155,5 +200,10 @@ export const t = {
     get hero() { return translations[language.current].hero; },
     get portfolio() { return translations[language.current].portfolio; },
     get tabs() { return translations[language.current].tabs; },
-    get pdf_modal() { return translations[language.current].pdf_modal; }
+    get pdf_modal() { return translations[language.current].pdf_modal; },
+    get education() { return translations[language.current].education; },
+    get experience() { return translations[language.current].experience; },
+    get skills() { return translations[language.current].skills; },
+    get other() { return translations[language.current].other; },
+    get about() { return translations[language.current].about; }
 };

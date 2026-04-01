@@ -141,5 +141,91 @@ export const uk: Translations = {
         ats: "ATS / RMS",
         dark: "Темна тема",
         light: "Світла тема"
+    },
+    education: {
+        title: "Освіта",
+        institutions: {
+            polytech_name: "Одеський національний політехнічний університет",
+            theater_school_name: "Одеська дитяча театральна школа"
+        },
+        descriptions: {
+            polytech_desc: "Інститут комп'ютерних систем. Спеціальність: Програмна інженерія.",
+            theater_school_desc: "Театральне відділення. Навички акторської майстерності та ораторського мистецтва."
+        }
+    },
+    experience: {
+        title: "Досвід роботи",
+        showNonIT: "Показати ТВ та креативний досвід",
+        hideNonIT: "Приховати ТВ та креативний досвід",
+        roles: {
+            intellias_role: "Software Engineer",
+            absoft_role: "Junior Software Engineer",
+            singree_role: "Trainee Web Developer",
+            unicorn_role: "Головний редактор та ведучий",
+            nutduet_role: "Ведучий заходів та івент-менеджер",
+            channel7_role: "Автор та ведучий ТБ-програм",
+            krug_role: "Кореспондент новин",
+            theater_role: "Викладач акторської майстерності"
+        },
+        descriptions: {
+            intellias_desc: "Розробка корпоративних веб-застосунків з використанням сучасних JS-фреймворків.",
+            absoft_desc: "Робота над frontend-частиною та бібліотекою UI-компонентів.",
+            singree_desc: "Вивчення основ веб-розробки та інтеграція з CMS.",
+            unicorn_role: "Управління контент-стратегією та ведення програм для YouTube.",
+            nutduet_desc: "Професійна організація та ведення святкових та ділових заходів.",
+            channel7_desc: "Створення та ведення щотижневих програм про технології та місто.",
+            krug_desc: "Підготовка репортажів про місцеві новини та соціальні проблеми.",
+            theater_desc: "Навчання дітей основам сценічного руху та мовлення."
+        }
+    },
+    skills: {
+        title: "Навички та стек",
+        showMore: "Показати більше навичок",
+        hideMore: "Приховати зайве",
+        categories: {
+            it: "Розробка та ШІ",
+            design3d: "3D та виробництво",
+            video: "Медіа-продакшн",
+            tools: "Інструменти та DevOps"
+        },
+        platforms: {
+            desktop: "Крос-платформовість: Windows/macOS/Linux",
+            web: "Сучасний веб: SPA/SSR/PWA",
+            mobile: "Мобільний веб: Оптимізація під смартфони"
+        },
+        items: {
+            ai: "AI Engineering & LLM",
+            csharp: "C# / .NET",
+            java: "Java",
+            playwright: "E2E тестування (Playwright)",
+            blender: "3D моделювання (Blender)",
+            slicer: "3D друк та слайсинг",
+            printing: "Швидке прототипування",
+            godot: "GameDev (Godot Engine)",
+            premiere: "Монтаж відео (Premiere Pro)",
+            photoshop: "Графічний дизайн (Photoshop)",
+            topaz: "Покращення відео за допомогою ШІ",
+            vmix: "Прямі ефіри (vMix)",
+            jira: "Agile (Jira/Confluence)",
+            git: "Контроль версій (Git)",
+            figma: "UI/UX дизайн (Figma)",
+            firebase: "Cloud Backend (Firebase)"
+        }
+    },
+    other: {
+        title: "Додатково",
+        iq: "135 (рівень Mensa)",
+        olympics: "Переможець обласних олімпіад з фізики та математики",
+        driver: "Посвідчення категорії B",
+        languages: {
+            title: "Мови",
+            uk: "Українська — Рідна",
+            en: "Англійська — Intermediate+",
+            ru: "Російська — Мова агресора"
+        },
+        hobbies: ["3D друк", "Фотографія", "Подорожі", "Психологія", "IoT"]
+    },
+    about: {
+        hobbiesTitle: "Хобі та зацікавлення"
     }
 };

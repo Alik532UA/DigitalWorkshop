@@ -7,83 +7,75 @@
         tabs.set(tab);
     }
 
-    const navLinks: {
-        id: TabType;
-        label: () => string;
-        pos: string;
-        rot: string;
-    }[] = [
-        {
-            id: "commercial",
-            label: () => t.tabs.commercial.title,
-            pos: "left: 15%; top: 30%;",
-            rot: "4deg",
-        },
-        {
-            id: "apps",
-            label: () => t.tabs.apps.title,
-            pos: "left: 32%; top: 38%;",
-            rot: "2deg",
-        },
-        {
-            id: "home",
-            label: () => t.nav.about,
-            pos: "left: 50%; top: 42%;",
-            rot: "0deg",
-        },
-        {
-            id: "games",
-            label: () => t.tabs.games.title,
-            pos: "left: 68%; top: 38%;",
-            rot: "-2deg",
-        },
-        {
-            id: "charity",
-            label: () => t.tabs.charity.title,
-            pos: "left: 85%; top: 30%;",
-            rot: "-4deg",
-        },
+    let w = $state(0);
+    let h = $state(0);
+
+    const baseLinks: { id: TabType; label: () => string; left: number }[] = [
+        { id: "commercial", label: () => t.tabs.commercial.title, left: 15 },
+        { id: "apps", label: () => t.tabs.apps.title, left: 32 },
+        { id: "home", label: () => t.nav.about, left: 50 },
+        { id: "games", label: () => t.tabs.games.title, left: 68 },
+        { id: "charity", label: () => t.tabs.charity.title, left: 85 },
     ];
+
+    // Розрахунок позиції на дузі Q 500 150 (від -50 50 до 1050 50)
+    function getHeaderLinkParams(leftPercent: number) {
+        if (!w || !h) return { top: '40%', rot: '0deg' };
+
+        // x в одиницях viewBox (0-1000)
+        const xViewBox = leftPercent * 10;
+        // Параметр t для лінійної зміни x: x(t) = -50 + 1100t => t = (x + 50) / 1100
+        const t = (xViewBox + 50) / 1100;
+
+        // y(t) = 50 + 200t - 200t^2
+        const yViewBox = 50 + 200 * t - 200 * t * t;
+
+        // Похідні
+        const dxdt = 1100;
+        const dydt = 200 - 400 * t;
+
+        // Масштабування похідних
+        const dx_px = dxdt * (w / 1000);
+        const dy_px = dydt * (h / 180);
+
+        const angleRad = Math.atan2(dy_px, dx_px);
+        const angleDeg = angleRad * (180 / Math.PI);
+
+        // Позиція y в пікселях (viewBox height = 180)
+        const yPx = yViewBox * (h / 180);
+
+        return {
+            top: `${yPx}px`,
+            rot: `${angleDeg}deg`
+        };
+    }
+
+    let navLinks = $derived(baseLinks.map(link => ({
+        ...link,
+        styles: getHeaderLinkParams(link.left)
+    })));
 </script>
 
 <header
     class="arc-header"
-    style="--dynamic-bg: {theme.current === 'colorful'
-        ? tabs.currentColor
-        : 'var(--header-bg)'}"
+    style="--dynamic-bg: {theme.current === 'colorful' ? tabs.currentColor : 'var(--header-bg)'}"
+    bind:clientWidth={w}
+    bind:clientHeight={h}
 >
     <div class="svg-container">
         <svg viewBox="0 0 1000 180" preserveAspectRatio="none" class="arc-svg">
             <defs>
-                <linearGradient
-                    id="cylinderLight"
-                    x1="0%"
-                    y1="0%"
-                    x2="0%"
-                    y2="100%"
-                >
+                <linearGradient id="cylinderLight" x1="0%" y1="0%" x2="0%" y2="100%">
                     <stop offset="0%" stop-color="rgba(255,255,255,0.2)" />
                     <stop offset="20%" stop-color="rgba(255,255,255,0.05)" />
                     <stop offset="80%" stop-color="rgba(255,255,255,0.02)" />
                     <stop offset="100%" stop-color="rgba(255,255,255,0)" />
                 </linearGradient>
 
-                <!-- М'яка тінь для Хедера -->
-                <filter
-                    id="softShadowHeader"
-                    x="-20%"
-                    y="-20%"
-                    width="140%"
-                    height="200%"
-                >
+                <filter id="softShadowHeader" x="-20%" y="-20%" width="140%" height="200%">
                     <feGaussianBlur in="SourceAlpha" stdDeviation="12" />
                     <feOffset dx="0" dy="8" result="offsetblur" />
-                    <feComposite
-                        in="offsetblur"
-                        in2="SourceAlpha"
-                        operator="out"
-                        result="shadowOutside"
-                    />
+                    <feComposite in="offsetblur" in2="SourceAlpha" operator="out" result="shadowOutside" />
                     <feComponentTransfer in="shadowOutside">
                         <feFuncA type="linear" slope="0.4" />
                     </feComponentTransfer>
@@ -94,7 +86,6 @@
                 </filter>
             </defs>
 
-            <!-- ОСНОВНА ПАНЕЛЬ (Більш плоска дуга Q 500 150) -->
             <path
                 d="M -50 -50 L 1050 -50 L 1050 50 Q 500 150 -50 50 Z"
                 class="arc-path"
@@ -102,7 +93,6 @@
                 filter="url(#softShadowHeader)"
             />
 
-            <!-- ВНУТРІШНЄ ОСВІТЛЕННЯ -->
             <path
                 d="M -50 -50 L 1050 -50 L 1050 50 Q 500 150 -50 50 Z"
                 fill="url(#cylinderLight)"
@@ -116,7 +106,7 @@
                 class="arc-btn"
                 class:active={tabs.current === link.id}
                 onclick={() => selectTab(link.id)}
-                style="{link.pos} --rot: {link.rot};"
+                style="left: {link.left}%; top: {link.styles.top}; --rot: {link.styles.rot};"
             >
                 {link.label()}
             </button>
@@ -173,7 +163,7 @@
         padding: 10px 20px;
         border-radius: 20px;
         pointer-events: auto;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: left 0.1s ease, top 0.1s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         white-space: nowrap;
         transform: translate(-50%, -50%) rotate(var(--rot));
