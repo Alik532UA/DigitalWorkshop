@@ -14,6 +14,7 @@
     --gradient: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
     --glass-blur: blur(12px);
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --font-main: 'Outfit', sans-serif;
     color-scheme: dark;
 }
 
@@ -35,6 +36,7 @@
     padding: 0;
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
+    font-family: var(--font-main);
 }
 
 html {
@@ -42,7 +44,6 @@ html {
 }
 
 body {
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background-color: var(--bg-color);
     color: var(--text-primary);
     overflow-x: hidden;
