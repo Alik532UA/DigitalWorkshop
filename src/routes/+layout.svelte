@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
+    import { fade } from "svelte/transition";
     import { theme, background, tabs } from "$lib/states/ui.svelte";
     import { language } from "$lib/i18n/index.svelte";
     import Header from "$lib/components/Header.svelte";
@@ -17,11 +18,25 @@
         language.init();
         tabs.init();
     });
+
+    function stay(node: HTMLElement, { duration = 800 }) {
+        return {
+            duration,
+            css: () => `opacity: 1`
+        };
+    }
 </script>
 
-<div class="theme-background" style="
-    --dynamic-bg-pastel: {theme.current === 'colorful' ? `linear-gradient(135deg, color-mix(in srgb, ${tabs.currentColor}, white 65%), color-mix(in srgb, ${tabs.currentColor}, white 95%))` : 'var(--bg-color)'};
-"></div>
+{#key tabs.current + theme.current}
+    <div
+        class="theme-background"
+        in:fade={{ duration: 800 }}
+        out:stay={{ duration: 800 }}
+        style="
+            --dynamic-bg-pastel: {theme.current === 'colorful' ? `linear-gradient(135deg, color-mix(in srgb, ${tabs.currentColor}, white 65%), color-mix(in srgb, ${tabs.currentColor}, white 95%))` : 'var(--bg-color)'};
+        "
+    ></div>
+{/key}
 
 <div class="app-wrapper">
     <DynamicBackground backgroundType={background.type} theme={theme.current} />

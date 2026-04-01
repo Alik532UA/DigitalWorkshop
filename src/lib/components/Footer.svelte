@@ -145,8 +145,11 @@
         height: 150px;
         z-index: 1040;
         pointer-events: none;
-        transition: --dynamic-bg 0.5s ease;
         overflow: visible;
+    }
+
+    .arc-path {
+        transition: fill 0.5s ease;
     }
 
     .svg-container {

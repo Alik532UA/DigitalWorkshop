@@ -204,7 +204,6 @@
         height: 100vh;
         z-index: 1010;
         pointer-events: none;
-        transition: --dynamic-bg 0.5s ease;
         overflow: visible;
     }
 
