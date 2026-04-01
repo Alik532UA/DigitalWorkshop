@@ -207,9 +207,9 @@
     }
 
     .benefits-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 20px;
+        columns: 2 280px;
+        column-gap: 20px;
+        display: block;
     }
 
     .benefit-card {
@@ -217,6 +217,8 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
+        break-inside: avoid;
+        margin-bottom: 20px;
     }
 
     .benefit-icon {
@@ -230,9 +232,9 @@
     }
 
     .faq-list {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
+        columns: 2 300px;
+        column-gap: 20px;
+        display: block;
         height: fit-content;
     }
 
