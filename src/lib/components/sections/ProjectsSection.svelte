@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { ExternalLink, Rocket, Code, Globe, Gamepad } from "lucide-svelte";
+    import { ExternalLink, Rocket, Code, Globe, Gamepad2 } from "lucide-svelte";
     import { base } from "$app/paths";
     import Section from "../ui/Section.svelte";
     import { t } from "$lib/i18n/index.svelte";
@@ -7,7 +7,7 @@
     const projects = [
         { id: 'slovko', img: 'slovko.jpg', icon: Globe, link: 'https://alik532ua.github.io/Slovko/' },
         { id: 'music', img: 'mindstep.jpg', icon: Rocket, link: '#' }, // Тимчасово mindstep для music school
-        { id: 'mindstep', img: 'mindstep.jpg', icon: Gamepad, link: 'https://alik532ua.github.io/MindStep/' },
+        { id: 'mindstep', img: 'mindstep.jpg', icon: Gamepad2, link: 'https://alik532ua.github.io/MindStep/' },
         { id: 'keykeep', img: 'cv_3d.jpg', icon: Code, link: '#' } // Тимчасово cv_3d для keykeep
     ];
 </script>

@@ -2,19 +2,26 @@
     import { onMount } from "svelte";
     import { WavesEngine } from "./engine/WavesEngine";
 
-    let { theme = "dark" } = $props<{ theme?: string }>();
+    import { tabs } from "$lib/states/ui.svelte";
+
+    let { theme = "dark", color = "#00f2ff" } = $props<{ 
+        theme?: string;
+        color?: string;
+    }>();
 
     let canvas: HTMLCanvasElement;
     let engine: WavesEngine;
 
     $effect(() => {
+        // Trigger on tab change
+        const _ = tabs.current;
         if (engine) {
-            engine.setTheme(theme);
+            engine.setTheme(theme, tabs.currentColor);
         }
     });
 
     onMount(() => {
-        engine = new WavesEngine(theme);
+        engine = new WavesEngine(theme, color);
         if (canvas) {
             engine.mount(canvas);
         }

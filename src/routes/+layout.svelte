@@ -5,7 +5,7 @@
     import { language } from "$lib/i18n/index.svelte";
     import Header from "$lib/components/Header.svelte";
     import Footer from "$lib/components/Footer.svelte";
-    import SideArc from "$lib/components/SideArc.svelte";
+    import RightSideArc from "$lib/components/RightSideArc.svelte";
     import LeftSideArc from "$lib/components/LeftSideArc.svelte";
     import DynamicBackground from "$lib/components/DynamicBackground.svelte";
     import "../app.css";
@@ -42,7 +42,7 @@
     <DynamicBackground backgroundType={background.type} theme={theme.current} />
     
     <Header />
-    <SideArc />
+    <RightSideArc />
     <LeftSideArc />
 
     <main class="main-content" class:theme-changing={theme.isChanging}>

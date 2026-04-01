@@ -1,6 +1,6 @@
 <script lang="ts">
     import { fly, fade } from 'svelte/transition';
-    import { Layout, Smartphone, Gamepad2, Heart, ExternalLink, ChevronRight, CheckCircle2, HelpCircle } from "lucide-svelte";
+    import { Layout, Smartphone, Gamepad2, Gift, ExternalLink, ChevronRight, CheckCircle2, HelpCircle } from "lucide-svelte";
     import { t } from "$lib/i18n/index.svelte";
     import Section from "../ui/Section.svelte";
 
@@ -10,7 +10,7 @@
         { id: 'commercial', icon: Layout, label: () => t.tabs.commercial.title },
         { id: 'apps', icon: Smartphone, label: () => t.tabs.apps.title },
         { id: 'games', icon: Gamepad2, label: () => t.tabs.games.title },
-        { id: 'charity', icon: Heart, label: () => t.tabs.charity.title }
+        { id: 'charity', icon: Gift, label: () => t.tabs.charity.title }
     ];
 
     function setActiveTab(id: string) {
@@ -126,7 +126,7 @@
 
                     <div class="cta-wrapper">
                         <a href="https://t.me/alik532" target="_blank" class="btn-primary">
-                            {t.tabs.charity.cta} <Heart size={18} />
+                            {t.tabs.charity.cta}
                         </a>
                     </div>
                 </div>

@@ -28,43 +28,37 @@
     let h = $state(0);
     let w = $state(0);
 
-    // Розрахунок позиції на дузі Q -20 500 (від 100 1050 до 100 -50)
+    // Розрахунок позиції на дузі Q -120 500 (від 120 1050 до 120 -50)
     function getArcParams(topPercent: number) {
         if (!h || !w)
             return { right: "18%", top: `${topPercent}%`, rot: "0deg" };
 
-        // y в одиницях viewBox (0-1000)
         const yViewBox = topPercent * 10;
         const t = (1050 - yViewBox) / 1100;
 
-        // Точка на кривій (xViewBox)
-        const xViewBox = 100 - 240 * t + 240 * t * t;
+        // xViewBox розрахований для ширини 220
+        const xViewBox = 120 - 480 * t + 480 * t * t;
 
-        // Похідні (тангенс)
-        const dxdt = -240 + 480 * t;
+        const dxdt = -480 + 960 * t;
         const dydt = -1100;
 
-        // Масштабування похідних
-        const dx_px = dxdt * (w / 160);
+        // Використовуємо актуальну ширину 'w' для масштабування
+        const dx_px = dxdt * (w / 220);
         const dy_px = dydt * (h / 1000);
 
-        // Вектор нормалі (перпендикуляр вглиб, тобто праворуч)
         const length = Math.sqrt(dx_px * dx_px + dy_px * dy_px);
-        const offset = 70;
+        const offset = 60;
 
-        // Нормаль pointing "right" для SideArc: (-dy, dx)
         const nx = -dy_px / length;
         const ny = dx_px / length;
 
-        // Нові координати з урахуванням нормалі
-        const xPx = xViewBox * (w / 160) + nx * offset;
+        const xPx = xViewBox * (w / 220) + nx * offset;
         const yPx = yViewBox * (h / 1000) + ny * offset;
 
         const angleRad = Math.atan2(dx_px, -dy_px);
         const angleDeg = angleRad * (180 / Math.PI);
 
-        // Відступ від правого краю (viewBox width = 160)
-        const rightPx = 160 * (w / 160) - xPx;
+        const rightPx = w - xPx;
 
         return {
             right: `${rightPx}px`,
@@ -75,18 +69,37 @@
 
     let langStyles = $derived(getArcParams(35));
     let themeStyles = $derived(getArcParams(65));
+
+    let windowWidth = $state(0);
+    let mouseX = $state(0);
+
+    let progress = $derived.by(() => {
+        if (!windowWidth) return 0;
+        const start = 0.65 * windowWidth;
+        const end = 0.85 * windowWidth;
+        if (mouseX < start) return 0;
+        if (mouseX > end) return 1;
+        return (mouseX - start) / (end - start);
+    });
+
+    function handleMouseMove(e: MouseEvent) {
+        mouseX = e.clientX;
+    }
 </script>
+
+<svelte:window onmousemove={handleMouseMove} bind:innerWidth={windowWidth} />
 
 <aside
     class="side-arc"
     style="--dynamic-bg: {theme.current === 'colorful'
         ? `color-mix(in srgb, ${tabs.currentColor}, transparent 20%)`
-        : 'var(--header-bg)'}"
+        : 'var(--header-bg)'};
+        transform: translateX(calc((1 - {progress}) * (100% - 20px)));"
     bind:clientHeight={h}
     bind:clientWidth={w}
 >
     <div class="svg-container">
-        <svg viewBox="0 0 160 1000" preserveAspectRatio="none" class="arc-svg">
+        <svg viewBox="0 0 220 1000" preserveAspectRatio="none" class="arc-svg">
             <defs>
                 <linearGradient
                     id="cylinderLightSide"
@@ -100,7 +113,6 @@
                     <stop offset="80%" stop-color="rgba(255,255,255,0.02)" />
                     <stop offset="100%" stop-color="rgba(255,255,255,0)" />
                 </linearGradient>
-
                 <filter
                     id="softShadowSide"
                     x="-150%"
@@ -125,16 +137,14 @@
                     </feMerge>
                 </filter>
             </defs>
-
             <path
-                d="M 200 -50 L 200 1050 L 100 1050 Q -20 500 100 -50 Z"
+                d="M 220 -50 L 220 1050 L 120 1050 Q -120 500 120 -50 Z"
                 class="arc-path"
                 fill="var(--dynamic-bg)"
                 filter="url(#softShadowSide)"
             />
-
             <path
-                d="M 200 -50 L 200 1050 L 100 1050 Q -20 500 100 -50 Z"
+                d="M 220 -50 L 220 1050 L 120 1050 Q -120 500 120 -50 Z"
                 fill="url(#cylinderLightSide)"
             />
         </svg>
@@ -200,11 +210,12 @@
         position: fixed;
         top: 0;
         right: 0;
-        width: 160px;
+        width: 85px;
         height: 100vh;
         z-index: 1010;
-        pointer-events: none;
+        pointer-events: auto;
         overflow: visible;
+        will-change: transform;
     }
 
     .svg-container {
@@ -251,9 +262,9 @@
     .control-btn {
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid var(--border-color);
-        border-radius: 12px;
-        width: 50px;
-        height: 50px;
+        border-radius: 10px;
+        width: 40px;
+        height: 40px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -276,7 +287,7 @@
 
     @media (max-width: 1200px) {
         .side-arc {
-            width: 120px;
+            width: 80px;
         }
     }
 

@@ -27,7 +27,7 @@
         const dy_px = dydt * (h / 150);
 
         const length = Math.sqrt(dx_px * dx_px + dy_px * dy_px);
-        const offset = 40;
+        const offset = 45;
 
         // Нормаль pointing "up" (вглиб дуги): (-dy, dx)
         const nx = -dy_px / length;
@@ -49,15 +49,41 @@
         };
     }
 
-    let leftBtnStyles = $derived(getFooterLinkParams(30));
-    let rightBtnStyles = $derived(getFooterLinkParams(70));
+    let leftBtnStyles = $derived(getFooterLinkParams(38));
+    let rightBtnStyles = $derived(getFooterLinkParams(62));
+
+    let orderText = $derived.by(() => {
+        if (tabs.current === "home") return t.footer.order;
+        return (
+            t.tabs[tabs.current as keyof typeof t.tabs]?.cta || t.footer.order
+        );
+    });
+
+    let windowHeight = $state(0);
+    let mouseY = $state(0);
+
+    let progress = $derived.by(() => {
+        if (!windowHeight) return 0;
+        const start = windowHeight * 0.3;
+        const end = windowHeight * 0.8;
+        if (mouseY < start) return 0;
+        if (mouseY > end) return 1;
+        return (mouseY - start) / (end - start);
+    });
+
+    function handleMouseMove(e: MouseEvent) {
+        mouseY = e.clientY;
+    }
 </script>
+
+<svelte:window onmousemove={handleMouseMove} bind:innerHeight={windowHeight} />
 
 <footer
     class="arc-footer"
     style="--dynamic-bg: {theme.current === 'colorful'
         ? `color-mix(in srgb, ${tabs.currentColor}, transparent 20%)`
-        : 'var(--header-bg)'}"
+        : 'var(--header-bg)'};
+        transform: translateY(calc((1 - {progress}) * (100% - 60px)));"
     bind:clientWidth={w}
     bind:clientHeight={h}
 >
@@ -131,7 +157,7 @@
             class="footer-btn"
             style="left: {rightBtnStyles.left}; bottom: {rightBtnStyles.bottom}; --rot: {rightBtnStyles.rot};"
         >
-            {t.footer.order}
+            {orderText}
         </a>
     </div>
 </footer>
@@ -180,27 +206,31 @@
     .footer-btn {
         position: absolute;
         background: transparent;
-        border: none;
+        border: 1px solid rgba(255, 255, 255, 0.1);
         color: var(--text-primary);
         font-size: 1.4rem;
-        font-weight: 500;
+        font-weight: 600;
         cursor: pointer;
-        padding: 10px 20px;
-        border-radius: 20px;
+        padding: 10px 24px;
+        border-radius: 35px;
         pointer-events: auto;
         transition:
             left 0.1s ease,
             bottom 0.1s ease,
-            transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+            box-shadow 0.3s ease;
         text-decoration: none;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         white-space: nowrap;
         transform: translate(-50%, 50%) rotate(var(--rot));
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        backdrop-filter: blur(4px);
     }
 
     .footer-btn:hover {
         transform: translate(-50%, 45%) scale(1.03) rotate(var(--rot));
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
     }
 
     @media (max-width: 768px) {

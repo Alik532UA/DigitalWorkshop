@@ -2,22 +2,31 @@
     import { onMount } from "svelte";
     import { FloatingShapesEngine } from "./engine/FloatingShapesEngine";
 
-    let { theme = "dark" } = $props<{ theme?: string }>();
+    import { tabs } from "$lib/states/ui.svelte";
+
+    let { theme = "dark", color = "#00f2ff" } = $props<{ 
+        theme?: string;
+        color?: string;
+    }>();
 
     let canvas: HTMLCanvasElement;
     let engine: FloatingShapesEngine;
+// Reactive theme/color/tab update
+$effect(() => {
+    // Trigger on tab change
+    const currentTab = tabs.current;
+    if (engine) {
+        engine.setTheme(theme, tabs.currentColor);
+        engine.setTab(currentTab);
+    }
+});
 
-    $effect(() => {
-        if (engine) {
-            engine.setTheme(theme);
-        }
-    });
-
-    onMount(() => {
-        engine = new FloatingShapesEngine(theme);
-        if (canvas) {
-            engine.mount(canvas);
-        }
+onMount(() => {
+    engine = new FloatingShapesEngine(theme, color);
+    engine.setTab(tabs.current);
+    if (canvas) {
+        engine.mount(canvas);
+    }
         
         return () => {
             engine?.unmount();

@@ -2,20 +2,27 @@
     import { onMount, onDestroy } from "svelte";
     import { ParticlesEngine } from "./engine/ParticlesEngine";
 
-    let { theme = "dark" } = $props<{ theme?: string }>();
+    import { tabs } from "$lib/states/ui.svelte";
+
+    let { theme = "dark", color = "#00f2ff" } = $props<{ 
+        theme?: string;
+        color?: string;
+    }>();
 
     let canvas: HTMLCanvasElement;
     let engine: ParticlesEngine;
 
-    // Reactive theme update
+    // Reactive theme/color update
     $effect(() => {
+        // Trigger on tab change
+        const _ = tabs.current; 
         if (engine) {
-            engine.setTheme(theme);
+            engine.setTheme(theme, tabs.currentColor);
         }
     });
 
     onMount(() => {
-        engine = new ParticlesEngine(theme);
+        engine = new ParticlesEngine(theme, color);
         if (canvas) {
             engine.mount(canvas);
         }

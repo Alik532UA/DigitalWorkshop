@@ -9,7 +9,7 @@
     let h = $state(0);
     let w = $state(0);
 
-    // Розрахунок позиції на дузі Q 180 500 (від 60 1050 до 60 -50)
+    // Розрахунок позиції на дузі Q 220 500 (від 100 1050 до 100 -50)
     function getArcParams(topPercent: number) {
         if (!h || !w)
             return { left: "18%", top: `${topPercent}%`, rot: "0deg" };
@@ -17,25 +17,22 @@
         const yViewBox = topPercent * 10;
         const t = (1050 - yViewBox) / 1100;
 
-        // Точка на кривій (дзеркально відносно x=80 у viewBox 160)
-        // x_old = 100 - 240*t + 240*t^2
-        // x_new = 160 - x_old = 60 + 240*t - 240*t^2
-        const xViewBox = 60 + 240 * t - 240 * t * t;
+        // xViewBox розрахований для ширини 220
+        const xViewBox = 100 + 480 * t - 480 * t * t;
 
-        const dxdt = 240 - 480 * t;
+        const dxdt = 480 - 960 * t;
         const dydt = -1100;
 
-        const dx_px = dxdt * (w / 160);
+        const dx_px = dxdt * (w / 220);
         const dy_px = dydt * (h / 1000);
 
         const length = Math.sqrt(dx_px * dx_px + dy_px * dy_px);
-        const offset = 70;
+        const offset = 60;
 
-        // Нормаль pointing "left" для LeftSideArc: (dy, -dx)
         const nx = dy_px / length;
         const ny = -dx_px / length;
 
-        const xPx = xViewBox * (w / 160) + nx * offset;
+        const xPx = xViewBox * (w / 220) + nx * offset;
         const yPx = yViewBox * (h / 1000) + ny * offset;
 
         const angleRad = Math.atan2(dx_px, -dy_px);
@@ -49,18 +46,37 @@
     }
 
     let bgStyles = $derived(getArcParams(50));
+
+    let windowWidth = $state(0);
+    let mouseX = $state(9999);
+
+    let progress = $derived.by(() => {
+        if (!windowWidth) return 0;
+        const start = 0.35 * windowWidth;
+        const end = 0.15 * windowWidth;
+        if (mouseX > start) return 0;
+        if (mouseX < end) return 1;
+        return (start - mouseX) / (start - end);
+    });
+
+    function handleMouseMove(e: MouseEvent) {
+        mouseX = e.clientX;
+    }
 </script>
+
+<svelte:window onmousemove={handleMouseMove} bind:innerWidth={windowWidth} />
 
 <aside
     class="side-arc left"
     style="--dynamic-bg: {theme.current === 'colorful'
         ? `color-mix(in srgb, ${tabs.currentColor}, transparent 20%)`
-        : 'var(--header-bg)'}"
+        : 'var(--header-bg)'};
+        transform: translateX(calc((1 - {progress}) * (-100% + 20px)));"
     bind:clientHeight={h}
     bind:clientWidth={w}
 >
     <div class="svg-container">
-        <svg viewBox="0 0 160 1000" preserveAspectRatio="none" class="arc-svg">
+        <svg viewBox="0 0 220 1000" preserveAspectRatio="none" class="arc-svg">
             <defs>
                 <linearGradient
                     id="cylinderLightSideLeft"
@@ -74,7 +90,6 @@
                     <stop offset="80%" stop-color="rgba(255,255,255,0.02)" />
                     <stop offset="100%" stop-color="rgba(255,255,255,0)" />
                 </linearGradient>
-
                 <filter
                     id="softShadowSideLeft"
                     x="-150%"
@@ -99,16 +114,14 @@
                     </feMerge>
                 </filter>
             </defs>
-
             <path
-                d="M -40 -50 L -40 1050 L 60 1050 Q 180 500 60 -50 Z"
+                d="M 0 -50 L 0 1050 L 100 1050 Q 340 500 100 -50 Z"
                 class="arc-path"
                 fill="var(--dynamic-bg)"
                 filter="url(#softShadowSideLeft)"
             />
-
             <path
-                d="M -40 -50 L -40 1050 L 60 1050 Q 180 500 60 -50 Z"
+                d="M 0 -50 L 0 1050 L 100 1050 Q 340 500 100 -50 Z"
                 fill="url(#cylinderLightSideLeft)"
             />
         </svg>
@@ -160,11 +173,12 @@
         position: fixed;
         top: 0;
         left: 0;
-        width: 160px;
+        width: 85px;
         height: 100vh;
         z-index: 1020;
-        pointer-events: none;
+        pointer-events: auto;
         overflow: visible;
+        will-change: transform;
     }
 
     .svg-container {
@@ -211,9 +225,9 @@
     .control-btn {
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid var(--border-color);
-        border-radius: 12px;
-        width: 50px;
-        height: 50px;
+        border-radius: 10px;
+        width: 40px;
+        height: 40px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -236,7 +250,7 @@
 
     @media (max-width: 1200px) {
         .side-arc {
-            width: 120px;
+            width: 80px;
         }
     }
 

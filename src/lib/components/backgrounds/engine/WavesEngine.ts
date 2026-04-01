@@ -46,11 +46,10 @@ export class WavesEngine extends CanvasEngine {
             this.ctx.lineTo(this.width, this.height);
             this.ctx.closePath();
 
-            const gradient = this.ctx.createLinearGradient(0, 0, this.width, this.height);
-            const alpha = 0.08 - layer * 0.02;
+            const gradient = this.ctx.createLinearGradient(0, this.height * this.waveBaseHeight, 0, this.height);
+            const alpha = 0.2 - layer * 0.05; // Slightly more visible
             gradient.addColorStop(0, colors.primary + alpha + ")");
-            gradient.addColorStop(0.5, colors.secondary + alpha + ")");
-            gradient.addColorStop(1, colors.primary + alpha + ")");
+            gradient.addColorStop(1, colors.secondary + "0)"); // Fade to transparent
             this.ctx.fillStyle = gradient;
             this.ctx.fill();
         }

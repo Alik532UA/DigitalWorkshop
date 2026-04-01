@@ -1,6 +1,6 @@
 <script lang="ts">
     import { t } from "$lib/i18n/index.svelte";
-    import { tabs, type TabType } from "$lib/states/ui.svelte";
+    import { tabs, type TabType, tabColors } from "$lib/states/ui.svelte";
 
     let { isMobile = false } = $props<{ isMobile?: boolean }>();
 
@@ -14,6 +14,7 @@
         key?: string;
         label?: string;
         delay?: string;
+        color?: string;
         content?: string;
     }
 
@@ -33,7 +34,13 @@
                     charity: '4.5s'
                 };
 
-                return { type: 'button', key, label, delay: delays[key] || '0s' };
+                return { 
+                    type: 'button', 
+                    key, 
+                    label, 
+                    delay: delays[key] || '0s',
+                    color: tabColors[key as TabType] || 'var(--accent-primary)'
+                };
             }
             return { type: 'text', content: part };
         });
@@ -50,7 +57,7 @@
                     <button 
                         class="pulse-btn glass" 
                         onclick={() => selectTab(part.key as TabType)} 
-                        style="--delay: {part.delay}"
+                        style="--delay: {part.delay}; --btn-color: {part.color};"
                     >
                         {part.label}
                     </button>
@@ -96,15 +103,15 @@
 
     .pulse-btn {
         display: inline-block;
-        background: var(--card-bg);
-        border: 1px solid var(--border-color);
+        background: color-mix(in srgb, var(--btn-color), transparent 90%);
+        border: 1px solid color-mix(in srgb, var(--btn-color), transparent 80%);
         padding: 8px 24px;
         margin: 6px 4px;
         font-size: 2.2rem;
         font-weight: 600;
-        color: var(--accent-primary);
+        color: var(--btn-color);
         cursor: pointer;
-        border-radius: 16px;
+        border-radius: 40px;
         transition: var(--transition);
         animation: slow-pulse 6s infinite ease-in-out;
         animation-delay: var(--delay);
@@ -113,23 +120,23 @@
     }
 
     .pulse-btn:hover {
-        background: rgba(var(--accent-primary-rgb), 0.1);
-        border-color: var(--accent-primary);
-        color: var(--accent-primary);
+        background: color-mix(in srgb, var(--btn-color), transparent 80%);
+        border-color: var(--btn-color);
+        color: var(--btn-color);
         transform: scale(1.05) translateY(-2px);
-        box-shadow: 0 8px 20px rgba(var(--accent-primary-rgb), 0.25);
+        box-shadow: 0 8px 20px color-mix(in srgb, var(--btn-color), transparent 75%);
     }
 
     @keyframes slow-pulse {
         0%, 100% { 
             transform: scale(1);
-            box-shadow: 0 0 0 rgba(var(--accent-primary-rgb), 0);
-            border-color: var(--border-color);
+            box-shadow: 0 0 0 transparent;
+            border-color: color-mix(in srgb, var(--btn-color), transparent 80%);
         }
         50% { 
             transform: scale(1.02);
-            box-shadow: 0 0 8px rgba(var(--accent-primary-rgb), 0.12);
-            border-color: rgba(var(--accent-primary-rgb), 0.3);
+            box-shadow: 0 0 12px color-mix(in srgb, var(--btn-color), transparent 80%);
+            border-color: color-mix(in srgb, var(--btn-color), transparent 60%);
         }
     }
 
@@ -142,14 +149,14 @@
     }
 
     :global([data-theme="colorful"]) .pulse-btn {
-        background: rgba(255, 255, 255, 0.5);
-        border-color: rgba(0, 0, 0, 0.15);
+        background: color-mix(in srgb, var(--btn-color), transparent 85%);
+        border-color: color-mix(in srgb, var(--btn-color), transparent 70%);
         color: #1a1a1a;
     }
 
     :global([data-theme="colorful"]) .pulse-btn:hover {
         background: rgba(255, 255, 255, 0.8);
-        border-color: var(--accent-primary);
+        border-color: var(--btn-color);
     }
 
     @media (max-width: 1024px) {

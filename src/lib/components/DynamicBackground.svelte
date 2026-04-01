@@ -4,6 +4,7 @@
     import FloatingShapes from "./backgrounds/FloatingShapes.svelte";
     import { fade } from "svelte/transition";
     import { onMount } from "svelte";
+    import { tabs } from "$lib/states/ui.svelte";
 
     let { backgroundType = 1, theme = "dark" } = $props<{
         backgroundType?: 0 | 1 | 2 | 3;
@@ -40,6 +41,8 @@
             }
         };
     });
+    // Reactive color based on current tab
+    let currentColor = $derived(tabs.currentColor);
 </script>
 
 {#if backgroundType === 1}
@@ -48,7 +51,7 @@
         style="height: {fixedHeight}"
         transition:fade={{ duration: 800 }}
     >
-        <Particles {theme} />
+        <Particles {theme} color={currentColor} />
     </div>
 {:else if backgroundType === 2}
     <div
@@ -56,7 +59,7 @@
         style="height: {fixedHeight}"
         transition:fade={{ duration: 800 }}
     >
-        <Waves {theme} />
+        <Waves {theme} color={currentColor} />
     </div>
 {:else if backgroundType === 3}
     <div
@@ -64,7 +67,7 @@
         style="height: {fixedHeight}"
         transition:fade={{ duration: 800 }}
     >
-        <FloatingShapes {theme} />
+        <FloatingShapes {theme} color={currentColor} />
     </div>
 {/if}
 

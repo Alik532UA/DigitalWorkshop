@@ -1,6 +1,11 @@
 <script lang="ts">
     import { language, type Language } from "$lib/i18n/index.svelte";
-    import { theme, tabs, type TabType } from "$lib/states/ui.svelte";
+    import {
+        theme,
+        tabs,
+        type TabType,
+        tabColors,
+    } from "$lib/states/ui.svelte";
     import { t } from "$lib/i18n/index.svelte";
 
     function selectTab(tab: TabType) {
@@ -40,7 +45,7 @@
 
         // Вектор нормалі (перпендикуляр вглиб дуги, тобто вгору)
         const length = Math.sqrt(dx_px * dx_px + dy_px * dy_px);
-        const offset = 30;
+        const offset = 40;
 
         // Тангенс T = (dx, dy). Внутрішня нормаль (вгору) N = (dy, -dx)
         // Оскільки dx завжди позитивний (~1100), -dx буде негативним, що підніме Y вгору.
@@ -67,13 +72,32 @@
             styles: getHeaderLinkParams(link.left),
         })),
     );
+
+    let windowHeight = $state(0);
+    let mouseY = $state(9999);
+
+    let progress = $derived.by(() => {
+        if (!windowHeight) return 0;
+        const start = windowHeight * 0.8;
+        const end = windowHeight * 0.3;
+        if (mouseY > start) return 0;
+        if (mouseY < end) return 1;
+        return (start - mouseY) / (start - end);
+    });
+
+    function handleMouseMove(e: MouseEvent) {
+        mouseY = e.clientY;
+    }
 </script>
+
+<svelte:window onmousemove={handleMouseMove} bind:innerHeight={windowHeight} />
 
 <header
     class="arc-header"
     style="--dynamic-bg: {theme.current === 'colorful'
         ? `color-mix(in srgb, ${tabs.currentColor}, transparent 20%)`
-        : 'var(--header-bg)'}"
+        : 'var(--header-bg)'};
+        transform: translateY(calc((1 - {progress}) * (-100% + 95px)));"
     bind:clientWidth={w}
     bind:clientHeight={h}
 >
@@ -139,7 +163,9 @@
                 class:active={tabs.current === link.id}
                 onclick={() => selectTab(link.id)}
                 style="left: {link.styles.left}; top: {link.styles
-                    .top}; --rot: {link.styles.rot};"
+                    .top}; --rot: {link.styles.rot}; --tab-color: {tabColors[
+                    link.id
+                ]};"
             >
                 {link.label()}
             </button>
@@ -190,35 +216,50 @@
 
     .arc-btn {
         position: absolute;
-        background: transparent;
-        border: none;
-        color: var(--text-primary);
-        font-size: 1.2rem;
-        font-weight: 500;
+        background: var(--tab-color);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        color: #1a1a1a;
+        font-size: 1.1rem;
+        font-weight: 600;
         cursor: pointer;
-        padding: 10px 20px;
+        padding: 8px 20px;
         border-radius: 20px;
         pointer-events: auto;
         transition:
             left 0.1s ease,
             top 0.1s ease,
-            transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+            background 0.3s ease,
+            box-shadow 0.3s ease;
+        text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
         white-space: nowrap;
         transform: translate(-50%, -50%) rotate(var(--rot));
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
 
     .arc-btn:hover {
-        transform: translate(-50%, -55%) scale(1.03) rotate(var(--rot));
-        background: rgba(255, 255, 255, 0.1);
+        transform: translate(-50%, -55%) scale(1.05) rotate(var(--rot));
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        background: var(--tab-color);
+        filter: brightness(1.05);
     }
 
     .arc-btn.active {
-        background: rgba(0, 0, 0, 0.1);
-        font-weight: 700;
+        background: var(--tab-color);
+        font-weight: 800;
+        box-shadow:
+            0 0 0 4px rgba(255, 255, 255, 0.3),
+            0 8px 20px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+        border-color: white;
     }
 
-    :global([data-theme="colorful"]) .arc-btn {
+    :global([data-theme="dark"]) .arc-btn {
+        color: #1a1a1a;
+        text-shadow: none;
+    }
+
+    :global([data-theme="light"]) .arc-btn {
         color: #1a1a1a;
     }
 

@@ -1,12 +1,12 @@
 <script lang="ts">
-    import { Heart, HelpCircle } from "lucide-svelte";
+    import { Gift, HelpCircle } from "lucide-svelte";
     import { t } from "$lib/i18n/index.svelte";
     import Section from "../../ui/Section.svelte";
 </script>
 
 <div class="page-container">
     <Section id="charity" title={t.tabs.charity.title}>
-        {#snippet icon()}<Heart size={24} />{/snippet}
+        {#snippet icon()}<Gift size={24} />{/snippet}
 
         <div class="content-wrapper">
             <p class="intro-text">{t.tabs.charity.intro}</p>
@@ -25,7 +25,7 @@
 
             <div class="cta-section">
                 <a href="https://t.me/alik532" target="_blank" class="btn-primary large-btn">
-                    {t.tabs.charity.cta} <Heart size={20} />
+                    {t.tabs.charity.cta}
                 </a>
             </div>
         </div>
