@@ -202,8 +202,8 @@
             
             {#if settingsOpen}
                 <div class="dropdown-container">
-                    <div class="dropdown-card glass">
-                        <div class="dropdown-content" in:fly={{ y: 10, duration: 200 }}>
+                    <div class="dropdown-card glass" transition:fly={{ x: -20, duration: 300, easing: cubicInOut }}>
+                        <div class="dropdown-content">
                             <div class="settings-group">
                                 <span class="label">{t.nav.language}</span>
                                 <div class="options">
@@ -258,8 +258,8 @@
 
             {#if menu.isOpen}
                 <div class="dropdown-container menu-dropdown">
-                    <div class="dropdown-card glass">
-                        <div class="dropdown-content" in:fly={{ y: 10, duration: 200 }}>
+                    <div class="dropdown-card glass" transition:fly={{ x: 20, duration: 300, easing: cubicInOut }}>
+                        <div class="dropdown-content">
                             <nav class="mobile-nav">
                                 {#each baseLinks as link}
                                     <button 

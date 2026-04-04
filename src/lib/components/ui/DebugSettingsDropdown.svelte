@@ -1,5 +1,6 @@
 <script lang="ts">
     import { fly } from "svelte/transition";
+    import { cubicInOut } from "svelte/easing";
     import { background, menu } from '$lib/states/ui.svelte';
     import { t } from '$lib/i18n/index.svelte';
 
@@ -16,8 +17,8 @@
     ];
 </script>
 
-<div class="settings-dropdown debug-dropdown glass">
-    <div class="dropdown-content" in:fly={{ y: 10, duration: 200 }}>
+<div class="settings-dropdown debug-dropdown glass" transition:fly={{ x: -20, duration: 300, easing: cubicInOut }}>
+    <div class="dropdown-content">
         <div class="settings-group">
             <span class="label">Background</span>
             <div class="options debug-options">
