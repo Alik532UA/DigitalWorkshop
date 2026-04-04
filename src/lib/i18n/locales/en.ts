@@ -11,7 +11,12 @@ export const en: Translations = {
         apps: "Apps",
         games: "Games",
         promo: "Initiative",
-        contact: "Contact"
+        contact: "Contact",
+        settings: "Settings",
+        language: "Language",
+        theme: "Theme",
+        close: "Close",
+        menu: "Menu"
     },
     hero: {
         greeting: "My name is Alik\nand I create modern [[website]], [[apps]], and even [[games]]!\n\nAnd for creative schools and charities, I have an [[promo]]!",

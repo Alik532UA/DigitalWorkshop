@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { en } from './locales/en';
 import { uk } from './locales/uk';
 import { browser } from '$app/environment';
+import { menu } from '../states/ui.svelte';
 
 export type Language = 'en' | 'uk';
 
@@ -59,6 +60,16 @@ class LanguageState {
     set(lang: Language) {
         if (this.current === lang) return;
         
+        // Якщо блюр вимкнено, міняємо мову миттєво
+        if (!menu.enableBlur) {
+            this.current = lang;
+            if (browser) {
+                localStorage.setItem('lang', lang);
+                document.documentElement.lang = lang;
+            }
+            return;
+        }
+
         this.isChanging = true;
         
         setTimeout(() => {
@@ -87,7 +98,12 @@ const TranslationSchema = z.object({
         apps: z.string(),
         games: z.string(),
         promo: z.string(),
-        contact: z.string()
+        contact: z.string(),
+        settings: z.string(),
+        language: z.string(),
+        theme: z.string(),
+        close: z.string(),
+        menu: z.string()
     }),
     hero: z.object({
         greeting: z.string(),

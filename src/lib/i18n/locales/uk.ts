@@ -11,7 +11,12 @@ export const uk: Translations = {
         apps: "Застосунки",
         games: "Ігри",
         promo: "Ініціатива",
-        contact: "Контакти"
+        contact: "Контакти",
+        settings: "Налаштування",
+        language: "Мова",
+        theme: "Тема",
+        close: "Закрити",
+        menu: "Меню"
     },
     hero: {
         greeting: "Мене звати Алік\nі я створюю сучасні [[website]], [[apps]], і навіть [[games]]!\n\nА для творчих шкіл та благодійних огранізації у мене [[promo]]!",

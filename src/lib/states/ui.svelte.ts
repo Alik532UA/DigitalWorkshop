@@ -151,9 +151,45 @@ class BackgroundState {
     }
 }
 
+class MenuState {
+    isOpen = $state(false);
+    enableBlur = $state(true);
+
+    constructor() {
+        if (browser) {
+            const savedBlur = localStorage.getItem("enableBlur");
+            if (savedBlur !== null) {
+                this.enableBlur = savedBlur === "true";
+            }
+        }
+    }
+
+    toggle() {
+        this.isOpen = !this.isOpen;
+        if (browser) {
+            document.body.style.overflow = this.isOpen ? "hidden" : "";
+        }
+    }
+
+    close() {
+        this.isOpen = false;
+        if (browser) {
+            document.body.style.overflow = "";
+        }
+    }
+
+    toggleBlur() {
+        this.enableBlur = !this.enableBlur;
+        if (browser) {
+            localStorage.setItem("enableBlur", this.enableBlur.toString());
+        }
+    }
+}
+
 export const theme = new ThemeState();
 export const background = new BackgroundState();
 export const tabs = new TabState();
+export const menu = new MenuState();
 
 // Централізована синхронізація URL
 if (browser) {

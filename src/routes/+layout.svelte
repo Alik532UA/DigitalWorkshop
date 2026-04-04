@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { fade } from "svelte/transition";
-    import { theme, background, tabs } from "$lib/states/ui.svelte";
+    import { theme, background, tabs, menu } from "$lib/states/ui.svelte";
     import { language } from "$lib/i18n/index.svelte";
     import Header from "$lib/components/Header.svelte";
     import Footer from "$lib/components/Footer.svelte";
@@ -55,7 +55,7 @@
     ></div>
 {/key}
 
-<div class="theme-transition-overlay" class:active={theme.isChanging || language.isChanging}></div>
+<div class="theme-transition-overlay" class:active={theme.isChanging || (language.isChanging && menu.enableBlur)}></div>
 
 <div class="app-wrapper" 
     style="
@@ -146,7 +146,7 @@
 
     @media (max-width: 768px) {
         .main-content {
-            padding-top: 140px;
+            padding-top: 90px;
             padding-right: 20px;
             padding-left: 20px;
         }
