@@ -194,7 +194,7 @@
             </button>
             
             {#if settingsOpen}
-                <div class="dropdown-container" style="backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); background: var(--dropdown-bg, rgba(255, 255, 255, 0.25));" in:fly={{ y: 10, duration: 200 }}>
+                <div class="dropdown-container" in:fly={{ y: 10, duration: 200 }}>
                     <div class="dropdown-card glass">
                         <div class="settings-group">
                             <span class="label">{t.nav.language}</span>
@@ -248,11 +248,7 @@
             </button>
 
             {#if menu.isOpen}
-                <div 
-                    class="dropdown-container menu-dropdown"
-                    style="backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); background: var(--dropdown-bg, rgba(255, 255, 255, 0.25));"
-                    in:fly={{ y: 10, duration: 200 }}
-                >
+                <div class="dropdown-container menu-dropdown" in:fly={{ y: 10, duration: 200 }}>
                     <div class="dropdown-card glass">
                         <nav class="mobile-nav">
                             {#each baseLinks as link}
@@ -430,16 +426,12 @@
 
     .dropdown-container {
         position: absolute;
-        top: 55px;
+        top: 65px;
         width: 220px;
         display: flex;
         flex-direction: column;
         gap: 10px;
         z-index: 2100;
-        backdrop-filter: blur(5px);
-        -webkit-backdrop-filter: blur(5px);
-        border-radius: 16px;
-        background: var(--dropdown-bg, rgba(255, 255, 255, 0.25));
     }
 
     .settings-wrapper .dropdown-container {
