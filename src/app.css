@@ -122,6 +122,15 @@ body::-webkit-scrollbar {
     border: 1px solid var(--border-color);
 }
 
+.dropdown-card.glass,
+.settings-dropdown.glass,
+.debug-dropdown.glass {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+}
+
 .glow-text {
     background: var(--gradient);
     -webkit-background-clip: text;

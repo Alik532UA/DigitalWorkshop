@@ -194,8 +194,8 @@
             </button>
             
             {#if settingsOpen}
-                <div class="dropdown-container" in:fly={{ y: 10, duration: 200 }}>
-                    <div class="dropdown-card">
+                <div class="dropdown-container" style="backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); background: rgba(255, 255, 255, 0.05);" in:fly={{ y: 10, duration: 200 }}>
+                    <div class="dropdown-card glass">
                         <div class="settings-group">
                             <span class="label">{t.nav.language}</span>
                             <div class="options">
@@ -250,9 +250,10 @@
             {#if menu.isOpen}
                 <div 
                     class="dropdown-container menu-dropdown"
+                    style="backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); background: rgba(255, 255, 255, 0.05);"
                     in:fly={{ y: 10, duration: 200 }}
                 >
-                    <div class="dropdown-card">
+                    <div class="dropdown-card glass">
                         <nav class="mobile-nav">
                             {#each baseLinks as link}
                                 <button 
@@ -378,11 +379,21 @@
         height: 70px;
         z-index: 2000;
         padding: 0 15px;
+        border-bottom: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+    }
+
+    .mobile-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         background: color-mix(in srgb, var(--header-bg), transparent 15%);
         backdrop-filter: var(--glass-blur-dynamic);
         -webkit-backdrop-filter: var(--glass-blur-dynamic);
-        border-bottom: 1px solid var(--border-color);
-        transition: all 0.3s ease;
+        z-index: -1;
     }
 
     .mobile-header__content {
@@ -425,6 +436,10 @@
         flex-direction: column;
         gap: 10px;
         z-index: 2100;
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.05);
     }
 
     .settings-wrapper .dropdown-container {
@@ -439,13 +454,9 @@
         width: 100% !important;
         padding: 15px;
         border-radius: 16px;
-        border: 1px solid var(--border-color);
         display: flex;
         flex-direction: column;
         gap: 15px;
-        background: color-mix(in srgb, var(--card-bg), transparent 15%);
-        backdrop-filter: var(--glass-blur);
-        -webkit-backdrop-filter: var(--glass-blur);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
 
