@@ -201,36 +201,38 @@
             </button>
             
             {#if settingsOpen}
-                <div class="dropdown-container" in:fly={{ y: 10, duration: 200 }}>
+                <div class="dropdown-container">
                     <div class="dropdown-card glass">
-                        <div class="settings-group">
-                            <span class="label">{t.nav.language}</span>
-                            <div class="options">
-                                <button 
-                                    class:active={language.current === 'uk'} 
-                                    onclick={() => language.set('uk')}
-                                >UA</button>
-                                <button 
-                                    class:active={language.current === 'en'} 
-                                    onclick={() => language.set('en')}
-                                >EN</button>
+                        <div class="dropdown-content" in:fly={{ y: 10, duration: 200 }}>
+                            <div class="settings-group">
+                                <span class="label">{t.nav.language}</span>
+                                <div class="options">
+                                    <button 
+                                        class:active={language.current === 'uk'} 
+                                        onclick={() => language.set('uk')}
+                                    >UA</button>
+                                    <button 
+                                        class:active={language.current === 'en'} 
+                                        onclick={() => language.set('en')}
+                                    >EN</button>
+                                </div>
                             </div>
-                        </div>
-                        <div class="settings-group">
-                            <span class="label">{t.nav.theme}</span>
-                            <div class="options">
-                                <button 
-                                    class:active={theme.current === 'dark'} 
-                                    onclick={() => theme.set('dark')}
-                                >Dark</button>
-                                <button 
-                                    class:active={theme.current === 'light'} 
-                                    onclick={() => theme.set('light')}
-                                >Light</button>
-                                <button 
-                                    class:active={theme.current === 'colorful'} 
-                                    onclick={() => theme.set('colorful')}
-                                >Color</button>
+                            <div class="settings-group">
+                                <span class="label">{t.nav.theme}</span>
+                                <div class="options">
+                                    <button 
+                                        class:active={theme.current === 'dark'} 
+                                        onclick={() => theme.set('dark')}
+                                    >Dark</button>
+                                    <button 
+                                        class:active={theme.current === 'light'} 
+                                        onclick={() => theme.set('light')}
+                                    >Light</button>
+                                    <button 
+                                        class:active={theme.current === 'colorful'} 
+                                        onclick={() => theme.set('colorful')}
+                                    >Color</button>
+                                </div>
                             </div>
                         </div>
                     </div>
