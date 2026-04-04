@@ -1,78 +1,99 @@
 <script lang="ts">
-    import { language, translations } from "$lib/i18n/index.svelte";
-    import {
-        User,
-        Briefcase,
-        Laptop,
-        Rocket,
-        GraduationCap,
-        Sparkles,
-    } from "lucide-svelte";
+    import { tabs, theme } from "$lib/states/ui.svelte";
+    import { t } from "$lib/i18n/index.svelte";
+    import { MessageSquare, Zap } from "lucide-svelte";
 
-    let { activeSection = "hero" } = $props<{ activeSection?: string }>();
-    
-    let t = $derived(translations[language.current]);
-
-    const navItems = [
-        { id: "about", icon: User },
-        { id: "experience", icon: Briefcase },
-        { id: "skills", icon: Laptop },
-        { id: "projects", icon: Rocket },
-        { id: "education", icon: GraduationCap },
-        { id: "other", icon: Sparkles },
-    ];
+    let orderText = $derived.by(() => {
+        if (tabs.current === "about") return t.footer.order;
+        return (
+            t.tabs[tabs.current as keyof typeof t.tabs]?.cta || t.footer.order
+        );
+    });
 </script>
 
-<nav class="bottom-nav glass">
-    {#each navItems as item}
-        <a href="#{item.id}" class:active={activeSection === item.id}>
-            <span class="icon">
-                <item.icon size={24} />
-            </span>
+<nav class="mobile-bottom-header" style="--glass-blur-dynamic: blur(20px);">
+    <div class="mobile-bottom-header__content">
+        <a href="https://t.me/alik532" target="_blank" class="bottom-btn">
+            <MessageSquare size={20} />
+            <span>{t.footer.ask}</span>
         </a>
-    {/each}
+        
+        <a href="https://t.me/alik532" target="_blank" class="bottom-btn cta">
+            <Zap size={20} />
+            <span>{orderText}</span>
+        </a>
+    </div>
 </nav>
 
 <style>
-    .bottom-nav {
+    .mobile-bottom-header {
         display: none;
         position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
-        height: 64px;
-        z-index: 1000;
-        justify-content: space-around;
-        align-items: center;
-        border-radius: 0;
-        padding: 0 10px;
-        background: var(--header-bg);
-        border: none;
+        height: 90px;
+        z-index: 2000;
+        padding: 0 15px;
         border-top: 1px solid var(--border-color);
+        transition: all 0.3s ease;
     }
 
-    a {
-        text-decoration: none;
-        color: var(--text-secondary);
-        font-size: 1.4rem;
-        width: 48px;
-        height: 48px;
+    .mobile-bottom-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: color-mix(in srgb, var(--header-bg), transparent 15%);
+        backdrop-filter: var(--glass-blur-dynamic);
+        -webkit-backdrop-filter: var(--glass-blur-dynamic);
+        z-index: -1;
+    }
+
+    .mobile-bottom-header__content {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        align-items: center;
+        height: 100%;
+        width: 100%;
+    }
+
+    .bottom-btn {
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 50%;
-        transition: var(--transition);
+        flex: 1;
+        gap: 8px;
+        padding: 12px 16px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
     }
 
-    a.active {
+    .bottom-btn:active {
+        transform: scale(0.96);
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .bottom-btn.cta {
+        background: color-mix(in srgb, var(--accent-primary), transparent 90%);
+        border-color: color-mix(in srgb, var(--accent-primary), transparent 70%);
         color: var(--accent-primary);
-        background: var(--card-bg);
-        box-shadow: 0 0 15px rgba(0, 242, 255, 0.15);
     }
 
     @media (max-width: 768px) {
-        .bottom-nav {
+        .mobile-bottom-header {
             display: flex;
         }
     }
 </style>
+

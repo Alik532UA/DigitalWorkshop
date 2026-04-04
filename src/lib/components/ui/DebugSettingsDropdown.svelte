@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { fly } from "svelte/transition";
     import { background, menu } from '$lib/states/ui.svelte';
     import { t } from '$lib/i18n/index.svelte';
 
@@ -16,31 +17,33 @@
 </script>
 
 <div class="settings-dropdown debug-dropdown glass">
-    <div class="settings-group">
-        <span class="label">Background</span>
-        <div class="options debug-options">
-            {#each backgrounds as bg}
-                <button
-                    class:active={background.type === bg.id}
-                    onclick={() => background.set(bg.id)}
-                >
-                    {bg.label()}
-                </button>
-            {/each}
+    <div class="dropdown-content" in:fly={{ y: 10, duration: 200 }}>
+        <div class="settings-group">
+            <span class="label">Background</span>
+            <div class="options debug-options">
+                {#each backgrounds as bg}
+                    <button
+                        class:active={background.type === bg.id}
+                        onclick={() => background.set(bg.id)}
+                    >
+                        {bg.label()}
+                    </button>
+                {/each}
+            </div>
         </div>
-    </div>
 
-    <div class="settings-group">
-        <span class="label">I18n Blur</span>
-        <div class="options">
-            <button
-                class:active={menu.enableBlur}
-                onclick={() => menu.toggleBlur()}
-            >On</button>
-            <button
-                class:active={!menu.enableBlur}
-                onclick={() => menu.toggleBlur()}
-            >Off</button>
+        <div class="settings-group">
+            <span class="label">I18n Blur</span>
+            <div class="options">
+                <button
+                    class:active={menu.enableBlur}
+                    onclick={() => menu.toggleBlur()}
+                >On</button>
+                <button
+                    class:active={!menu.enableBlur}
+                    onclick={() => menu.toggleBlur()}
+                >Off</button>
+            </div>
         </div>
     </div>
 </div>
@@ -51,7 +54,7 @@
     }
 
     .debug-options {
-        flex-direction: column;
+        flex-direction: column !important;
         gap: 2px !important;
     }
 

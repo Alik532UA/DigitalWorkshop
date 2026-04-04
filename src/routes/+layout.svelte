@@ -5,6 +5,7 @@
     import { language } from "$lib/i18n/index.svelte";
     import Header from "$lib/components/Header.svelte";
     import Footer from "$lib/components/Footer.svelte";
+    import BottomNav from "$lib/components/BottomNav.svelte";
     import RightSideArc from "$lib/components/RightSideArc.svelte";
     import LeftSideArc from "$lib/components/LeftSideArc.svelte";
     import DynamicBackground from "$lib/components/DynamicBackground.svelte";
@@ -75,6 +76,7 @@
     </main>
 
     <Footer />
+    <BottomNav />
 </div>
 
 <style>
@@ -99,7 +101,7 @@
         min-height: 100vh;
         position: relative;
         z-index: 1; /* Вище фонів */
-        overflow: hidden;
+        backface-visibility: hidden;
     }
 
     .main-content {
@@ -110,6 +112,7 @@
         padding-right: 160px; /* Відступ для SideArc */
         padding-left: 160px; /* Відступ для LeftSideArc */
         transform-origin: top center;
+        backface-visibility: hidden;
     }
 
     :global(::view-transition-old(main-content)),
@@ -147,6 +150,7 @@
     @media (max-width: 768px) {
         .main-content {
             padding-top: 90px;
+            padding-bottom: 100px;
             padding-right: 20px;
             padding-left: 20px;
         }

@@ -15,6 +15,13 @@
     import { fly } from "svelte/transition";
     import { cubicInOut } from "svelte/easing";
 
+    function slideY(node: HTMLElement, { duration = 200, y = 10 } = {}) {
+        return {
+            duration,
+            css: (t: number, u: number) => `transform: translateY(${u * y}px)`
+        };
+    }
+
     function selectTab(tab: TabType) {
         tabs.set(tab);
         menu.close();
@@ -248,33 +255,23 @@
             </button>
 
             {#if menu.isOpen}
-                <div class="dropdown-container menu-dropdown" in:fly={{ y: 10, duration: 200 }}>
+                <div class="dropdown-container menu-dropdown">
                     <div class="dropdown-card glass">
-                        <nav class="mobile-nav">
-                            {#each baseLinks as link}
-                                <button 
-                                    class="mobile-nav-item" 
-                                    class:active={tabs.current === link.id}
-                                    onclick={() => selectTab(link.id)}
-                                    style="--tab-color: {tabColors[link.id]}"
-                                >
-                                    <span class="dot"></span>
-                                    {link.label()}
-                                </button>
-                            {/each}
-                            
-                            <div class="mobile-nav-divider"></div>
-                            
-                            <a href="https://t.me/alik532" target="_blank" class="mobile-nav-item secondary" onclick={() => menu.close()}>
-                                <MessageSquare size={18} />
-                                <span>{t.footer.ask}</span>
-                            </a>
-                            
-                            <a href="https://t.me/alik532" target="_blank" class="mobile-nav-item secondary cta" onclick={() => menu.close()}>
-                                <Zap size={18} />
-                                <span>{orderText}</span>
-                            </a>
-                        </nav>
+                        <div class="dropdown-content" in:fly={{ y: 10, duration: 200 }}>
+                            <nav class="mobile-nav">
+                                {#each baseLinks as link}
+                                    <button 
+                                        class="mobile-nav-item" 
+                                        class:active={tabs.current === link.id}
+                                        onclick={() => selectTab(link.id)}
+                                        style="--tab-color: {tabColors[link.id]}"
+                                    >
+                                        <span class="dot"></span>
+                                        {link.label()}
+                                    </button>
+                                {/each}
+                            </nav>
+                        </div>
                     </div>
                 </div>
             {/if}
@@ -427,11 +424,17 @@
     .dropdown-container {
         position: absolute;
         top: 65px;
-        width: 220px;
+        width: 260px;
         display: flex;
         flex-direction: column;
         gap: 10px;
         z-index: 2100;
+    }
+
+    :global(.dropdown-content) {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
     }
 
     .settings-wrapper .dropdown-container {
