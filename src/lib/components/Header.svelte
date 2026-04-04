@@ -194,7 +194,7 @@
             </button>
             
             {#if settingsOpen}
-                <div class="dropdown-container" style="backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); background: rgba(255, 255, 255, 0.05);" in:fly={{ y: 10, duration: 200 }}>
+                <div class="dropdown-container" style="backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); background: var(--dropdown-bg, rgba(255, 255, 255, 0.25));" in:fly={{ y: 10, duration: 200 }}>
                     <div class="dropdown-card glass">
                         <div class="settings-group">
                             <span class="label">{t.nav.language}</span>
@@ -250,7 +250,7 @@
             {#if menu.isOpen}
                 <div 
                     class="dropdown-container menu-dropdown"
-                    style="backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); background: rgba(255, 255, 255, 0.05);"
+                    style="backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); background: var(--dropdown-bg, rgba(255, 255, 255, 0.25));"
                     in:fly={{ y: 10, duration: 200 }}
                 >
                     <div class="dropdown-card glass">
@@ -410,7 +410,7 @@
         gap: 8px;
         padding: 10px 16px;
         border-radius: 12px;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--dropdown-bg, rgba(255, 255, 255, 0.25));
         border: 1px solid var(--border-color);
         color: var(--text-primary);
         cursor: pointer;
@@ -439,7 +439,7 @@
         backdrop-filter: blur(5px);
         -webkit-backdrop-filter: blur(5px);
         border-radius: 16px;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--dropdown-bg, rgba(255, 255, 255, 0.25));
     }
 
     .settings-wrapper .dropdown-container {
