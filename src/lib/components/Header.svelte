@@ -481,7 +481,7 @@
 
     :global(.settings-group .options button) {
         flex: 1;
-        padding: 6px;
+        padding: 12px 6px;
         font-size: 0.8rem;
         border-radius: 6px;
         color: var(--text-secondary);

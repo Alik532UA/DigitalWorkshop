@@ -61,6 +61,6 @@
 
     .debug-options button {
         text-align: left !important;
-        padding: 8px 12px !important;
+        padding: 16px 12px !important;
     }
 </style>
