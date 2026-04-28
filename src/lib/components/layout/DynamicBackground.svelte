@@ -1,10 +1,10 @@
 <script lang="ts">
-    import Particles from "./backgrounds/Particles.svelte";
-    import Waves from "./backgrounds/Waves.svelte";
-    import FloatingShapes from "./backgrounds/FloatingShapes.svelte";
+    import Particles from "../backgrounds/Particles.svelte";
+    import Waves from "../backgrounds/Waves.svelte";
+    import FloatingShapes from "../backgrounds/FloatingShapes.svelte";
     import { fade } from "svelte/transition";
     import { onMount } from "svelte";
-    import { tabs } from "$lib/states/ui.svelte";
+    import { tabs } from "$lib/states/UiState.svelte";
 
     let { backgroundType = 1, theme = "dark" } = $props<{
         backgroundType?: 0 | 1 | 2 | 3;

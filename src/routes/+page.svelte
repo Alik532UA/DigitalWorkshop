@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { cubicOut, cubicIn } from "svelte/easing";
-    import { tabs, tabOrder } from "$lib/states/ui.svelte";
+    import { tabs, tabOrder } from "$lib/states/UiState.svelte";
 
     // Pages
     import HeroSection from "$lib/components/sections/HeroSection.svelte";

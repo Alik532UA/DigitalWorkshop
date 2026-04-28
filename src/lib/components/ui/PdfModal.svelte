@@ -1,7 +1,7 @@
 <script lang="ts">
     import BaseModal from "./BaseModal.svelte";
     import { base } from "$app/paths";
-    import { t } from "$lib/i18n/index.svelte";
+    import { t } from "$lib/i18n/LanguageState.svelte";
 
     let { show = $bindable() } = $props<{
         show: boolean;

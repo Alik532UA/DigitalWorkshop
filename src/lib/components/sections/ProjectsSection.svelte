@@ -10,7 +10,7 @@
     } from "lucide-svelte";
     import { base } from "$app/paths";
     import Section from "../ui/Section.svelte";
-    import { t } from "$lib/i18n/index.svelte";
+    import { t } from "$lib/i18n/LanguageState.svelte";
 
     const projects = [
         { id: 'slovko', img: 'slovko.jpg', icon: Globe, link: 'https://alik532ua.github.io/Slovko/' },

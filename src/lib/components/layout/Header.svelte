@@ -1,15 +1,15 @@
 <script lang="ts">
-    import { language } from "$lib/i18n/index.svelte";
+    import { language } from "$lib/i18n/LanguageState.svelte";
     import {
         theme,
         tabs,
         menu,
         type TabType,
         tabColors,
-    } from "$lib/states/ui.svelte";
-    import { t } from "$lib/i18n/index.svelte";
-    import HeaderArcSvg from "./ui/arcs/HeaderArcSvg.svelte";
-    import DebugSettingsDropdown from "./ui/DebugSettingsDropdown.svelte";
+    } from "$lib/states/UiState.svelte";
+    import { t } from "$lib/i18n/LanguageState.svelte";
+    import HeaderArcSvg from "../ui/arcs/HeaderArcSvg.svelte";
+    import DebugSettingsDropdown from "../ui/DebugSettingsDropdown.svelte";
     import { spring } from "svelte/motion";
     import { Menu, X, Settings, MessageSquare, Zap } from "lucide-svelte";
     import { fly } from "svelte/transition";

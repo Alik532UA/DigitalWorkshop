@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { language, translations } from "$lib/i18n/index.svelte";
+    import { language, translations } from "$lib/i18n/LanguageState.svelte";
     import { page } from "$app/state";
     import { base } from "$app/paths";
     

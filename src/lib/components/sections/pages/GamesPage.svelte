@@ -1,6 +1,6 @@
 <script lang="ts">
     import { ChevronRight, CircleHelp, Gamepad2 } from "lucide-svelte";
-    import { t } from "$lib/i18n/index.svelte";
+    import { t } from "$lib/i18n/LanguageState.svelte";
     import Section from "../../ui/Section.svelte";
 </script>
 <div class="page-container" data-testid="page-games">

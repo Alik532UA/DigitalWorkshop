@@ -1,14 +1,14 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { fade } from "svelte/transition";
-    import { theme, background, tabs, menu } from "$lib/states/ui.svelte";
-    import { language } from "$lib/i18n/index.svelte";
-    import Header from "$lib/components/Header.svelte";
-    import Footer from "$lib/components/Footer.svelte";
-    import BottomNav from "$lib/components/BottomNav.svelte";
-    import RightSideArc from "$lib/components/RightSideArc.svelte";
-    import LeftSideArc from "$lib/components/LeftSideArc.svelte";
-    import DynamicBackground from "$lib/components/DynamicBackground.svelte";
+    import { theme, background, tabs, menu } from "$lib/states/UiState.svelte";
+    import { language } from "$lib/i18n/LanguageState.svelte";
+    import Header from "$lib/components/layout/Header.svelte";
+    import Footer from "$lib/components/layout/Footer.svelte";
+    import BottomNav from "$lib/components/layout/BottomNav.svelte";
+    import RightSideArc from "$lib/components/ui/arcs/RightSideArc.svelte";
+    import LeftSideArc from "$lib/components/ui/arcs/LeftSideArc.svelte";
+    import DynamicBackground from "$lib/components/layout/DynamicBackground.svelte";
     import "../app.css";
 
     let { children } = $props();

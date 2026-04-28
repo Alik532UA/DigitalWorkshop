@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { en } from './locales/en';
 import { uk } from './locales/uk';
 import { browser } from '$app/environment';
-import { menu } from '../states/ui.svelte';
+import { menu } from '../states/UiState.svelte';
 
 export type Language = 'en' | 'uk';
 

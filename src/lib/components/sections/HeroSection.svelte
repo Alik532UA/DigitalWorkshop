@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { t } from "$lib/i18n/index.svelte";
-    import { tabs, type TabType, tabColors } from "$lib/states/ui.svelte";
+    import { t } from "$lib/i18n/LanguageState.svelte";
+    import { tabs, type TabType, tabColors } from "$lib/states/UiState.svelte";
     import { base } from "$app/paths";
 
     let { isMobile = false } = $props<{ isMobile?: boolean }>();
