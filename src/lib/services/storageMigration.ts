@@ -1,4 +1,5 @@
 import { browser } from '$app/environment';
+import { logService } from '$lib/services/logService.svelte';
 
 const PREFIX = 'digitalworkshop_';
 const MIGRATION_KEY = 'migrated_to_v5';
@@ -22,5 +23,5 @@ export function migrateStorage(): void {
     });
 
     localStorage.setItem(PREFIX + MIGRATION_KEY, 'true');
-    console.log('[StorageMigration] Successfully migrated keys to namespace:', PREFIX);
+    logService.info('storage', `Successfully migrated keys to namespace: ${PREFIX}`);
 }

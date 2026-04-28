@@ -44,3 +44,32 @@ export const storage = {
         this.set(key, JSON.stringify(value));
     }
 };
+
+export const sessionStorage = {
+    get(key: string): string | null {
+        if (!browser) return null;
+        return window.sessionStorage.getItem(PREFIX + key);
+    },
+
+    set(key: string, value: string): void {
+        if (!browser) return;
+        window.sessionStorage.setItem(PREFIX + key, value);
+    },
+
+    remove(key: string): void {
+        if (!browser) return;
+        window.sessionStorage.removeItem(PREFIX + key);
+    },
+
+    clear(): void {
+        if (!browser) return;
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < window.sessionStorage.length; i++) {
+            const key = window.sessionStorage.key(i);
+            if (key?.startsWith(PREFIX)) {
+                keysToRemove.push(key);
+            }
+        }
+        keysToRemove.forEach((k) => window.sessionStorage.removeItem(k));
+    }
+};

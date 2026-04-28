@@ -4,17 +4,21 @@
     import { theme, background, tabs, menu } from "$lib/controllers/UiState.svelte";
     import { language } from "$lib/i18n/LanguageState.svelte";
     import { migrateStorage } from "$lib/services/storageMigration";
+    import { logService } from "$lib/services/logService.svelte";
     import Header from "$lib/components/layout/Header.svelte";
     import Footer from "$lib/components/layout/Footer.svelte";
     import BottomNav from "$lib/components/layout/BottomNav.svelte";
     import RightSideArc from "$lib/components/ui/arcs/RightSideArc.svelte";
     import LeftSideArc from "$lib/components/ui/arcs/LeftSideArc.svelte";
     import DynamicBackground from "$lib/components/layout/DynamicBackground.svelte";
+    import LogCopyButton from "$lib/components/ui/LogCopyButton.svelte";
+    import { dev } from "$app/environment";
     import "../app.css";
 
     let { children } = $props();
 
     onMount(() => {
+        logService.info('app', `App initialized in ${dev ? 'development' : 'production'} mode`);
         migrateStorage();
         tabs.init();
         theme.init();
@@ -79,6 +83,7 @@
 
     <Footer />
     <BottomNav />
+    <LogCopyButton />
 </div>
 
 <style>
