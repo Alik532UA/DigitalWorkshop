@@ -3,7 +3,7 @@
     import { tabs, type TabType, tabColors } from "$lib/controllers/UiState.svelte";
     import { base } from "$app/paths";
 
-    let { isMobile: _isMobile = false } = $props<{ isMobile?: boolean }>();
+    let { isMobile = false } = $props<{ isMobile?: boolean }>();
 
     function selectTab(tab: TabType) {
         tabs.set(tab);
