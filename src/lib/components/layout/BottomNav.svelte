@@ -52,6 +52,7 @@
         background: color-mix(in srgb, var(--header-bg), transparent 15%);
         backdrop-filter: var(--glass-blur-dynamic);
         -webkit-backdrop-filter: var(--glass-blur-dynamic);
+        animation: blur-in-20 3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
         z-index: -1;
     }
 

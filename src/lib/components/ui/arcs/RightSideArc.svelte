@@ -222,6 +222,7 @@
         width: 100%; height: 100%;
         backdrop-filter: var(--glass-blur);
         -webkit-backdrop-filter: var(--glass-blur);
+        animation: blur-in 3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
         mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 220 1000" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M 220 -50 L 220 1050 L 120 1050 Q -120 500 120 -50 Z" /></svg>');
         mask-size: 100% 100%;
         -webkit-mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 220 1000" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M 220 -50 L 220 1050 L 120 1050 Q -120 500 120 -50 Z" /></svg>');

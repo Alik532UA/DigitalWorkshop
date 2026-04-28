@@ -300,6 +300,7 @@
         width: 100%; height: 100%;
         backdrop-filter: var(--glass-blur-dynamic);
         -webkit-backdrop-filter: var(--glass-blur-dynamic);
+        animation: blur-in-20 3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
         mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1000 180" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M -50 -50 L 1050 -50 L 1050 50 Q 500 150 -50 50 Z" /></svg>');
         mask-size: 100% 100%;
         -webkit-mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1000 180" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path d="M -50 -50 L 1050 -50 L 1050 50 Q 500 150 -50 50 Z" /></svg>');
@@ -379,6 +380,7 @@
         background: color-mix(in srgb, var(--header-bg), transparent 15%);
         backdrop-filter: var(--glass-blur-dynamic);
         -webkit-backdrop-filter: var(--glass-blur-dynamic);
+        animation: blur-in-20 3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
         z-index: -1;
     }
 
