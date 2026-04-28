@@ -1,8 +1,12 @@
 <script lang="ts">
-    import { theme, background, tabs } from "$lib/controllers/UiState.svelte";
+    import { getTheme, getBackground, getTabs } from "$lib/controllers/UiState.svelte";
     import { EyeOff, Sparkles, Waves, Shapes } from "lucide-svelte";
     import LeftSideArcSvg from "./LeftSideArcSvg.svelte";
     import { spring } from "svelte/motion";
+
+    const theme = getTheme();
+    const background = getBackground();
+    const tabs = getTabs();
 
     function selectBackground(type: 0 | 1 | 2 | 3) {
         background.set(type);

@@ -12,6 +12,7 @@
     import LeftSideArc from "$lib/components/ui/arcs/LeftSideArc.svelte";
     import DynamicBackground from "$lib/components/layout/DynamicBackground.svelte";
     import LogCopyButton from "$lib/components/ui/LogCopyButton.svelte";
+    import ErrorFallback from "$lib/components/ui/ErrorFallback.svelte";
     import { dev } from "$app/environment";
     import "../app.css";
 
@@ -89,7 +90,17 @@
 
     <main class="main-content">
         <div class="page-scroll-area">
-            {@render children()}
+            <svelte:boundary onerror={(e) => {
+                logService.error('app', 'Runtime error in main content', e);
+                console.error('Runtime error:', e);
+            }}>
+                {@render children()}
+                {#snippet failed(error, reset)}
+                    <div class="content-centering" style="padding: 40px 20px;">
+                        <ErrorFallback {error} {reset} componentName="Main Content" />
+                    </div>
+                {/snippet}
+            </svelte:boundary>
         </div>
     </main>
 

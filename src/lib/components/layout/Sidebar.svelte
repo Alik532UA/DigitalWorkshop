@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { language, translations } from "$lib/i18n/LanguageState.svelte";
+    import { getLanguage, translations } from "$lib/i18n/LanguageState.svelte";
     import {
         User,
         Rocket,
@@ -9,6 +9,7 @@
 
     let { activeSection = "hero" } = $props<{ activeSection?: string }>();
     
+    const language = getLanguage();
     let t = $derived(translations[language.current]);
 
     let navItems = $derived([

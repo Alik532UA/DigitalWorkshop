@@ -1,8 +1,9 @@
 <script lang="ts">
-    import { language, translations } from "$lib/i18n/LanguageState.svelte";
+    import { getLanguage, translations } from "$lib/i18n/LanguageState.svelte";
     import { page } from "$app/state";
     import { base } from "$app/paths";
     
+    const language = getLanguage();
     let t = $derived(translations[language.current]);
     let title = $derived(t.hero.greeting);
     let description = $derived(t.hero.description);

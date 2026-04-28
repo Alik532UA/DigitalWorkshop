@@ -1,14 +1,14 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { FloatingShapesEngine } from "./engine/FloatingShapesEngine";
-
-    import { tabs } from "$lib/controllers/UiState.svelte";
+    import { getTabs } from "$lib/controllers/UiState.svelte";
 
     let { theme = "dark", color = "#00f2ff" } = $props<{ 
         theme?: string;
         color?: string;
     }>();
 
+    const tabs = getTabs();
     let canvas: HTMLCanvasElement;
     let engine: FloatingShapesEngine;
 // Reactive theme/color/tab update

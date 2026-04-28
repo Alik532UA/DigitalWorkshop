@@ -1,14 +1,14 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte";
     import { ParticlesEngine } from "./engine/ParticlesEngine";
-
-    import { tabs } from "$lib/controllers/UiState.svelte";
+    import { getTabs } from "$lib/controllers/UiState.svelte";
 
     let { theme = "dark", color = "#00f2ff" } = $props<{ 
         theme?: string;
         color?: string;
     }>();
 
+    const tabs = getTabs();
     let canvas: HTMLCanvasElement;
     let engine: ParticlesEngine;
 

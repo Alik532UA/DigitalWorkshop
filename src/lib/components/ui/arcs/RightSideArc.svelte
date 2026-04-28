@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { theme, background, tabs } from "$lib/controllers/UiState.svelte";
-    import { language } from "$lib/i18n/LanguageState.svelte";
+    import { getTheme, getBackground, getTabs } from "$lib/controllers/UiState.svelte";
+    import { getLanguage } from "$lib/i18n/LanguageState.svelte";
     import {
         Sun,
         Moon,
@@ -10,6 +10,11 @@
     import FlagUK from "$lib/components/flags/FlagUK.svelte";
     import FlagEN from "$lib/components/flags/FlagEN.svelte";
     import { spring } from "svelte/motion";
+
+    const theme = getTheme();
+    const background = getBackground();
+    const tabs = getTabs();
+    const language = getLanguage();
 
     function selectBackground(type: 0 | 1 | 2 | 3) {
         background.set(type);

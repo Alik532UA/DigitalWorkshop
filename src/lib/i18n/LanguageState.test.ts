@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { language } from './LanguageState.svelte';
-import { menu } from '../controllers/UiState.svelte';
+import { LanguageState } from './LanguageState.svelte';
+import { MenuState } from '../controllers/UiState.svelte';
 
 // Mock SvelteKit modules
 vi.mock('$app/navigation', () => ({
@@ -12,9 +12,13 @@ vi.mock('$app/environment', () => ({
 }));
 
 describe('LanguageState', () => {
+    let language: LanguageState;
+    let menu: MenuState;
+
     beforeEach(() => {
         vi.clearAllMocks();
-        // Reset singleton state
+        language = new LanguageState();
+        menu = new MenuState();
         language.current = 'uk';
         language.isChanging = false;
         menu.enableBlur = true;
@@ -26,14 +30,14 @@ describe('LanguageState', () => {
 
     it('should change language instantly if blur is disabled', () => {
         menu.enableBlur = false;
-        language.set('en');
+        language.set('en', menu);
         expect(language.current).toBe('en');
     });
 
     it('should change language with delay if blur is enabled', async () => {
         menu.enableBlur = true;
-        language.set('uk'); // back to uk
-        language.set('en');
+        language.set('uk', menu); // back to uk
+        language.set('en', menu);
         
         // Still 'uk' because of delay
         expect(language.current).toBe('uk');
