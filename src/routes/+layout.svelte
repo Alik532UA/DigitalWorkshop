@@ -1,8 +1,9 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { fade } from "svelte/transition";
-    import { theme, background, tabs, menu } from "$lib/states/UiState.svelte";
+    import { theme, background, tabs, menu } from "$lib/controllers/UiState.svelte";
     import { language } from "$lib/i18n/LanguageState.svelte";
+    import { migrateStorage } from "$lib/services/storageMigration";
     import Header from "$lib/components/layout/Header.svelte";
     import Footer from "$lib/components/layout/Footer.svelte";
     import BottomNav from "$lib/components/layout/BottomNav.svelte";
@@ -14,6 +15,7 @@
     let { children } = $props();
 
     onMount(() => {
+        migrateStorage();
         tabs.init();
         theme.init();
         background.init();

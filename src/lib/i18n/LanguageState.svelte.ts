@@ -3,7 +3,8 @@ import { z } from 'zod';
 import { en } from './locales/en';
 import { uk } from './locales/uk';
 import { browser } from '$app/environment';
-import { menu } from '../states/UiState.svelte';
+import { menu } from '../controllers/UiState.svelte';
+import { storage } from '$lib/services/storage';
 
 export type Language = 'en' | 'uk';
 
@@ -20,7 +21,7 @@ class LanguageState {
             if (lang === 'en' || lang === 'uk') {
                 this.current = lang;
             } else {
-                const saved = localStorage.getItem('lang') as Language;
+                const saved = storage.get('lang') as Language;
                 if (saved === 'en' || saved === 'uk') {
                     this.current = saved;
                 }
@@ -44,13 +45,15 @@ class LanguageState {
                         }
 
                         url.searchParams.set('lang', lang);
-                        setTimeout(() => {
+                        const timer = setTimeout(() => {
                             try {
+                                // eslint-disable-next-line svelte/no-navigation-without-resolve
                                 replaceState(url.toString(), {});
-                            } catch (e) {
+                            } catch {
                                 window.history.replaceState(null, '', url.toString());
                             }
                         }, 0);
+                        return () => clearTimeout(timer);
                     }
                 });
             });
@@ -64,7 +67,7 @@ class LanguageState {
         if (!menu.enableBlur) {
             this.current = lang;
             if (browser) {
-                localStorage.setItem('lang', lang);
+                storage.set('lang', lang);
                 document.documentElement.lang = lang;
             }
             return;
@@ -75,7 +78,7 @@ class LanguageState {
         setTimeout(() => {
             this.current = lang;
             if (browser) {
-                localStorage.setItem('lang', lang);
+                storage.set('lang', lang);
                 document.documentElement.lang = lang;
             }
             setTimeout(() => {

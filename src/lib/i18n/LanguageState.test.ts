@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { language } from './LanguageState.svelte';
-import { menu } from '../states/UiState.svelte';
+import { menu } from '../controllers/UiState.svelte';
 
 // Mock SvelteKit modules
 vi.mock('$app/navigation', () => ({

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { theme, background, tabs } from "$lib/states/UiState.svelte";
+    import { theme, background, tabs } from "$lib/controllers/UiState.svelte";
     import { language } from "$lib/i18n/LanguageState.svelte";
     import {
         Sun,

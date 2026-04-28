@@ -1,5 +1,6 @@
 import { browser } from "$app/environment";
 import { replaceState } from "$app/navigation";
+import { storage } from "$lib/services/storage";
 
 export type TabType = 'about' | 'website' | 'apps' | 'games' | 'promo';
 export type ThemeType = 'dark' | 'light' | 'colorful';
@@ -77,7 +78,7 @@ class ThemeState {
         if (browser) {
             const params = new URLSearchParams(window.location.search);
             const themeParam = params.get('theme') as ThemeType;
-            const saved = themeParam || localStorage.getItem("theme") as ThemeType || "dark";
+            const saved = themeParam || storage.get("theme") as ThemeType || "dark";
             this.set(saved);
         }
     }
@@ -111,7 +112,7 @@ class ThemeState {
         if (browser) {
             document.documentElement.setAttribute("data-theme", theme);
             document.documentElement.style.colorScheme = theme === 'light' ? 'light' : 'dark';
-            localStorage.setItem("theme", theme);
+            storage.set("theme", theme);
         }
     }
 }
@@ -129,7 +130,7 @@ class BackgroundState {
             if (bgParam && bgUrlMap[bgParam]) {
                 this.type = bgUrlMap[bgParam];
             } else {
-                const saved = localStorage.getItem("backgroundType");
+                const saved = storage.get("backgroundType");
                 if (saved && ["1", "2", "3"].includes(saved)) {
                     this.type = parseInt(saved) as 1 | 2 | 3;
                 } else {
@@ -142,7 +143,7 @@ class BackgroundState {
     set(type: 0 | 1 | 2 | 3) {
         this.type = type;
         if (browser && type !== 0) {
-            localStorage.setItem("backgroundType", type.toString());
+            storage.set("backgroundType", type.toString());
         }
     }
 
@@ -157,7 +158,7 @@ class MenuState {
 
     constructor() {
         if (browser) {
-            const savedBlur = localStorage.getItem("enableBlur");
+            const savedBlur = storage.get("enableBlur");
             if (savedBlur !== null) {
                 this.enableBlur = savedBlur === "true";
             }
@@ -181,7 +182,7 @@ class MenuState {
     toggleBlur() {
         this.enableBlur = !this.enableBlur;
         if (browser) {
-            localStorage.setItem("enableBlur", this.enableBlur.toString());
+            storage.set("enableBlur", this.enableBlur.toString());
         }
     }
 }
@@ -244,14 +245,15 @@ if (browser) {
                     return;
                 }
 
-                setTimeout(() => {
+                const timer = setTimeout(() => {
                     try {
                         // eslint-disable-next-line svelte/no-navigation-without-resolve
                         replaceState(url.toString(), {});
-                    } catch (_e) {
+                    } catch {
                         window.history.replaceState(null, '', url.toString());
                     }
                 }, 0);
+                return () => clearTimeout(timer);
             }
             
             isFirstRun = false;

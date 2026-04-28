@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { tabs, theme } from "$lib/states/UiState.svelte";
+    import { tabs, theme } from "$lib/controllers/UiState.svelte";
     import { t } from "$lib/i18n/LanguageState.svelte";
     import { MessageSquare, Zap } from "lucide-svelte";
 

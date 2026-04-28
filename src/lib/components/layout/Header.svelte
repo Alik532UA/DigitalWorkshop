@@ -6,7 +6,7 @@
         menu,
         type TabType,
         tabColors,
-    } from "$lib/states/UiState.svelte";
+    } from "$lib/controllers/UiState.svelte";
     import { t } from "$lib/i18n/LanguageState.svelte";
     import HeaderArcSvg from "../ui/arcs/HeaderArcSvg.svelte";
     import DebugSettingsDropdown from "../ui/DebugSettingsDropdown.svelte";

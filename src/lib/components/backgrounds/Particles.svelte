@@ -2,7 +2,7 @@
     import { onMount, onDestroy } from "svelte";
     import { ParticlesEngine } from "./engine/ParticlesEngine";
 
-    import { tabs } from "$lib/states/UiState.svelte";
+    import { tabs } from "$lib/controllers/UiState.svelte";
 
     let { theme = "dark", color = "#00f2ff" } = $props<{ 
         theme?: string;
