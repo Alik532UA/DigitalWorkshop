@@ -14,7 +14,10 @@ vi.mock('$app/environment', () => ({
 describe('LanguageState', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        // Reset state if possible, or handle singleton
+        // Reset singleton state
+        language.current = 'uk';
+        language.isChanging = false;
+        menu.enableBlur = true;
     });
 
     it('should have "uk" as default language', () => {

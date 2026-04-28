@@ -3,7 +3,7 @@
     import { tabs, type TabType, tabColors } from "$lib/states/UiState.svelte";
     import { base } from "$app/paths";
 
-    let { isMobile = false } = $props<{ isMobile?: boolean }>();
+    let { isMobile: _isMobile = false } = $props<{ isMobile?: boolean }>();
 
     function selectTab(tab: TabType) {
         tabs.set(tab);
@@ -11,6 +11,7 @@
 
     // Інтерфейс для розпарсених частин привітання
     interface ParsedPart {
+        id: string;
         type: 'button' | 'text';
         key?: string;
         label?: string;
@@ -22,7 +23,8 @@
     // Парсер для перетворення [[marker]] у компоненти кнопок
     function parseGreeting(text: string): ParsedPart[] {
         const parts = text.split(/(\[\[.*?\]\])/g);
-        return parts.map(part => {
+        return parts.map((part, index) => {
+            const id = `part-${index}`;
             if (part.startsWith('[[') && part.endsWith(']]')) {
                 const key = part.slice(2, -2) as keyof typeof t.hero.buttons;
                 const label = t.hero.buttons[key];
@@ -37,6 +39,7 @@
                 };
 
                 return { 
+                    id,
                     type: 'button', 
                     key, 
                     label, 
@@ -44,7 +47,7 @@
                     color: tabColors[key as TabType] || 'var(--accent-primary)'
                 };
             }
-            return { type: 'text', content: part };
+            return { id, type: 'text', content: part };
         });
     }
 
@@ -59,7 +62,7 @@
         <div class="hero-text-container">
             <div class="hero-top-row">
                 <h1 class="main-title first-part" data-testid="hero-title-1">
-                    {#each parsedPart1 as part}
+                    {#each parsedPart1 as part (part.id)}
                         {#if part.type === 'button'}
                             <button 
                                 class="pulse-btn glass" 
@@ -70,6 +73,7 @@
                                 {part.label}
                             </button>
                         {:else if part.content}
+                            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                             {@html part.content.replace(/\n/g, '<br />')}
                         {/if}
                     {/each}
@@ -81,7 +85,7 @@
             </div>
 
             <h1 class="main-title second-part" data-testid="hero-title-2">
-                {#each parsedPart2 as part}
+                {#each parsedPart2 as part (part.id)}
                     {#if part.type === 'button'}
                         <button 
                             class="pulse-btn glass" 
@@ -92,6 +96,7 @@
                             {part.label}
                         </button>
                     {:else if part.content}
+                        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                         {@html part.content.replace(/\n/g, '<br />')}
                     {/if}
                 {/each}

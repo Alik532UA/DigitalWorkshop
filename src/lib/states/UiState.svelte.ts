@@ -83,7 +83,7 @@ class ThemeState {
     }
 
     async toggle() {
-        let next: ThemeType = "colorful";
+        let next: ThemeType;
         if (this.current === "colorful") next = "dark";
         else if (this.current === "dark") next = "light";
         else next = "colorful";
@@ -246,8 +246,9 @@ if (browser) {
 
                 setTimeout(() => {
                     try {
+                        // eslint-disable-next-line svelte/no-navigation-without-resolve
                         replaceState(url.toString(), {});
-                    } catch (e) {
+                    } catch (_e) {
                         window.history.replaceState(null, '', url.toString());
                     }
                 }, 0);

@@ -11,16 +11,9 @@
     import HeaderArcSvg from "../ui/arcs/HeaderArcSvg.svelte";
     import DebugSettingsDropdown from "../ui/DebugSettingsDropdown.svelte";
     import { spring } from "svelte/motion";
-    import { Menu, X, Settings, MessageSquare, Zap } from "lucide-svelte";
+    import { Menu, X, Settings } from "lucide-svelte";
     import { fly } from "svelte/transition";
     import { cubicInOut } from "svelte/easing";
-
-    function slideY(node: HTMLElement, { duration = 200, y = 10 } = {}) {
-        return {
-            duration,
-            css: (t: number, u: number) => `transform: translateY(${u * y}px)`
-        };
-    }
 
     function selectTab(tab: TabType) {
         tabs.set(tab);
@@ -134,13 +127,6 @@
             return () => document.removeEventListener('mousedown', handleClickOutside);
         }
     });
-
-    let orderText = $derived.by(() => {
-        if (tabs.current === "about") return t.footer.order;
-        return (
-            t.tabs[tabs.current as keyof typeof t.tabs]?.cta || t.footer.order
-        );
-    });
 </script>
 
 <svelte:window
@@ -167,7 +153,7 @@
     </div>
 
     <nav class="arc-nav">
-        {#each navLinks as link}
+        {#each navLinks as link (link.id)}
             <button
                 class="arc-btn"
                 class:active={tabs.current === link.id}
@@ -261,7 +247,7 @@
                     <div class="dropdown-card glass" transition:fly={{ x: 20, duration: 300, easing: cubicInOut }}>
                         <div class="dropdown-content">
                             <nav class="mobile-nav">
-                                {#each baseLinks as link}
+                                {#each baseLinks as link (link.id)}
                                     <button 
                                         class="mobile-nav-item" 
                                         class:active={tabs.current === link.id}
