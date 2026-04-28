@@ -80,7 +80,15 @@
                 </h1>
                 
                 <div class="photo-wrapper glass">
-                    <img src="{base}/images/profile.jpg" alt="Alik" class="profile-photo" />
+                    <img 
+                        src="{base}/images/profile.jpg" 
+                        alt="Alik" 
+                        class="profile-photo" 
+                        width="280" 
+                        height="280"
+                        loading="eager"
+                        decoding="async"
+                    />
                 </div>
             </div>
 

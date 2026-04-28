@@ -32,7 +32,14 @@
             {@const data = t.portfolio.projects[p.id]}
             <div class="project-card glass card">
                 <div class="project-img">
-                    <img src="{base}/images/{p.img}" alt={data.title} loading="lazy" />
+                    <img 
+                        src="{base}/images/{p.img}" 
+                        alt={data.title} 
+                        loading="lazy" 
+                        width="400" 
+                        height="220"
+                        decoding="async"
+                    />
                     <div class="project-overlay">
                         <span class="tech-badge">{data.tech}</span>
                     </div>

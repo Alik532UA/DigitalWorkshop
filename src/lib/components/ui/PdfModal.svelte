@@ -54,6 +54,8 @@
                     alt="Light Theme DigitalWorkshop Preview"
                     loading="lazy"
                     decoding="async"
+                    width="210"
+                    height="297"
                 />
             </div>
             <span>{t.pdf_modal?.light || "Light Theme"}</span>

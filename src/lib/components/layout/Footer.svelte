@@ -92,6 +92,7 @@
                 progressSpring.set(target);
             }, 200);
         }
+        return () => clearTimeout(collapseTimeout);
     });
 
     function handleMouseMove(e: MouseEvent) {
