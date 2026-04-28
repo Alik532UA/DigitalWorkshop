@@ -80,6 +80,15 @@ class ThemeState {
             const themeParam = params.get('theme') as ThemeType;
             const saved = themeParam || storage.get("theme") as ThemeType || "dark";
             this.set(saved);
+
+            // Sync with OS preferences if not manually set
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            const handler = (e: MediaQueryListEvent) => {
+                if (!storage.get('theme')) {
+                    this.set(e.matches ? 'dark' : 'light');
+                }
+            };
+            mediaQuery.addEventListener('change', handler);
         }
     }
 
@@ -88,13 +97,13 @@ class ThemeState {
         if (this.current === "colorful") next = "dark";
         else if (this.current === "dark") next = "light";
         else next = "colorful";
-        
+
         await this.setWithAnimation(next);
     }
 
     async setWithAnimation(theme: ThemeType) {
         if (this.current === theme) return;
-        
+
         this.isChanging = true;
         // Даємо час на початок анімації блюру
         await new Promise((r) => setTimeout(r, 150));
@@ -111,7 +120,14 @@ class ThemeState {
         this.current = theme;
         if (browser) {
             document.documentElement.setAttribute("data-theme", theme);
+
+            // Sync color-scheme meta tag
+            const meta = document.querySelector('meta[name="color-scheme"]');
+            if (meta) {
+                meta.setAttribute('content', theme === 'dark' ? 'dark' : 'light dark');
+            }
             document.documentElement.style.colorScheme = theme === 'light' ? 'light' : 'dark';
+
             storage.set("theme", theme);
         }
     }
@@ -126,7 +142,7 @@ class BackgroundState {
         if (browser) {
             const params = new URLSearchParams(window.location.search);
             const bgParam = params.get('bg');
-            
+
             if (bgParam && bgUrlMap[bgParam]) {
                 this.type = bgUrlMap[bgParam];
             } else {
@@ -196,15 +212,15 @@ export const menu = new MenuState();
 if (browser) {
     $effect.root(() => {
         let isFirstRun = true;
-        
+
         $effect(() => {
             const currentTab = tabs.current;
             const currentTheme = theme.current;
             const currentBg = background.type;
-            
+
             const url = new URL(window.location.href);
             const params = url.searchParams;
-            
+
             let changed = false;
 
             // Синхронізація Tab
@@ -227,7 +243,7 @@ if (browser) {
             // Синхронізація Background
             const bgName = invBgUrlMap[currentBg];
             const defaultBgForTab = tabDefaultBackgrounds[currentTab];
-            
+
             // Відображаємо bg в URL тільки якщо він відрізняється від дефолту вкладки
             if (currentBg !== 0 && currentBg !== defaultBgForTab) {
                 if (params.get('bg') !== bgName) {
@@ -255,7 +271,7 @@ if (browser) {
                 }, 0);
                 return () => clearTimeout(timer);
             }
-            
+
             isFirstRun = false;
         });
     });
