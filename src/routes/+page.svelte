@@ -13,6 +13,7 @@
     import GamesPage from "$lib/components/sections/pages/GamesPage.svelte";
     import PromoPage from "$lib/components/sections/pages/PromoPage.svelte";
 
+    let { data } = $props<{ data: any }>();
     let isMobile = $state(false);
 
     onMount(() => {
