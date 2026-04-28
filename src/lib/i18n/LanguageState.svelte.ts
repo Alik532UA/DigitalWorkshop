@@ -3,12 +3,13 @@ import { z } from 'zod';
 import { en } from './locales/en';
 import { uk } from './locales/uk';
 import { browser } from '$app/environment';
-import { menu } from '../controllers/UiState.svelte';
 import { storage } from '$lib/services/storage';
+import { getContext, setContext } from 'svelte';
+import type { MenuState } from '../controllers/UiState.svelte';
 
 export type Language = 'en' | 'uk';
 
-class LanguageState {
+export class LanguageState {
     current = $state<Language>('uk');
     isChanging = $state(false);
 
@@ -29,7 +30,7 @@ class LanguageState {
             
             document.documentElement.lang = this.current;
 
-            $effect.root(() => {
+            const cleanup = $effect.root(() => {
                 let isFirstRun = true;
                 $effect(() => {
                     const lang = this.current;
@@ -47,7 +48,6 @@ class LanguageState {
                         url.searchParams.set('lang', lang);
                         const timer = setTimeout(() => {
                             try {
-                                // eslint-disable-next-line svelte/no-navigation-without-resolve
                                 replaceState(url.toString(), {});
                             } catch {
                                 window.history.replaceState(null, '', url.toString());
@@ -57,14 +57,16 @@ class LanguageState {
                     }
                 });
             });
+
+            return () => cleanup();
         }
     }
     
-    set(lang: Language) {
+    set(lang: Language, menuState?: MenuState) {
         if (this.current === lang) return;
         
         // Якщо блюр вимкнено, міняємо мову миттєво
-        if (!menu.enableBlur) {
+        if (menuState && !menuState.enableBlur) {
             this.current = lang;
             if (browser) {
                 storage.set('lang', lang);
@@ -88,7 +90,17 @@ class LanguageState {
     }
 }
 
-export const language = new LanguageState();
+const LANGUAGE_KEY = Symbol('language');
+
+export function setLanguageState() {
+    const state = new LanguageState();
+    setContext(LANGUAGE_KEY, state);
+    return state;
+}
+
+export function getLanguage() {
+    return getContext<LanguageState>(LANGUAGE_KEY);
+}
 
 /**
  * Pluralization function for Slavic languages (Ukrainian, Russian)
@@ -247,18 +259,19 @@ export type Translations = z.infer<typeof TranslationSchema>;
 export const translations: Record<Language, Translations> = { en, uk };
 
 export const t = {
-    get lastUpdate() { return translations[language.current].lastUpdate; },
-    get title() { return translations[language.current].title; },
-    get title_mobile() { return translations[language.current].title_mobile; },
-    get nav() { return translations[language.current].nav; },
-    get hero() { return translations[language.current].hero; },
-    get portfolio() { return translations[language.current].portfolio; },
-    get tabs() { return translations[language.current].tabs; },
-    get pdf_modal() { return translations[language.current].pdf_modal; },
-    get education() { return translations[language.current].education; },
-    get experience() { return translations[language.current].experience; },
-    get skills() { return translations[language.current].skills; },
-    get other() { return translations[language.current].other; },
-    get about() { return translations[language.current].about; },
-    get footer() { return translations[language.current].footer; }
+    get current() { return getLanguage(); },
+    get lastUpdate() { return translations[this.current.current].lastUpdate; },
+    get title() { return translations[this.current.current].title; },
+    get title_mobile() { return translations[this.current.current].title_mobile; },
+    get nav() { return translations[this.current.current].nav; },
+    get hero() { return translations[this.current.current].hero; },
+    get portfolio() { return translations[this.current.current].portfolio; },
+    get tabs() { return translations[this.current.current].tabs; },
+    get pdf_modal() { return translations[this.current.current].pdf_modal; },
+    get education() { return translations[this.current.current].education; },
+    get experience() { return translations[this.current.current].experience; },
+    get skills() { return translations[this.current.current].skills; },
+    get other() { return translations[this.current.current].other; },
+    get about() { return translations[this.current.current].about; },
+    get footer() { return translations[this.current.current].footer; }
 };

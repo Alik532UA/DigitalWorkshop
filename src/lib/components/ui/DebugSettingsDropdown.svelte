@@ -1,8 +1,11 @@
 <script lang="ts">
     import { fly } from "svelte/transition";
     import { cubicInOut } from "svelte/easing";
-    import { background, menu } from '$lib/controllers/UiState.svelte';
+    import { getBackground, getMenu } from '$lib/controllers/UiState.svelte';
     import { t } from '$lib/i18n/LanguageState.svelte';
+
+    const background = getBackground();
+    const menu = getMenu();
 
     type BackgroundOption = {
         id: 0 | 1 | 2 | 3;

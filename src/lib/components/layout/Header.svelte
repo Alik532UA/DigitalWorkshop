@@ -1,19 +1,23 @@
 <script lang="ts">
-    import { language } from "$lib/i18n/LanguageState.svelte";
+    import { getLanguage, t } from "$lib/i18n/LanguageState.svelte";
     import {
-        theme,
-        tabs,
-        menu,
+        getTheme,
+        getTabs,
+        getMenu,
         type TabType,
         tabColors,
     } from "$lib/controllers/UiState.svelte";
-    import { t } from "$lib/i18n/LanguageState.svelte";
     import HeaderArcSvg from "../ui/arcs/HeaderArcSvg.svelte";
     import DebugSettingsDropdown from "../ui/DebugSettingsDropdown.svelte";
     import { spring } from "svelte/motion";
     import { Menu, X, Settings } from "lucide-svelte";
     import { fly } from "svelte/transition";
     import { cubicInOut } from "svelte/easing";
+
+    const language = getLanguage();
+    const theme = getTheme();
+    const tabs = getTabs();
+    const menu = getMenu();
 
     function selectTab(tab: TabType) {
         tabs.set(tab);

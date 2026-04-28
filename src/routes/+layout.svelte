@@ -1,8 +1,8 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { fade } from "svelte/transition";
-    import { theme, background, tabs, menu } from "$lib/controllers/UiState.svelte";
-    import { language } from "$lib/i18n/LanguageState.svelte";
+    import { setUiState, getTabs, getTheme, getBackground, getMenu } from "$lib/controllers/UiState.svelte";
+    import { setLanguageState } from "$lib/i18n/LanguageState.svelte";
     import { migrateStorage } from "$lib/services/storageMigration";
     import { logService } from "$lib/services/logService.svelte";
     import Header from "$lib/components/layout/Header.svelte";
@@ -15,15 +15,27 @@
     import { dev } from "$app/environment";
     import "../app.css";
 
+    const language = setLanguageState();
+    const { tabs, theme, background, menu } = setUiState();
+
     let { children } = $props();
 
     onMount(() => {
         logService.info('app', `App initialized in ${dev ? 'development' : 'production'} mode`);
         migrateStorage();
-        tabs.init();
-        theme.init();
-        background.init();
-        language.init();
+        
+        const cleanups = [
+            tabs.init(),
+            theme.init(),
+            background.init(tabs),
+            language.init()
+        ];
+
+        return () => {
+            cleanups.forEach(cleanup => {
+                if (typeof cleanup === 'function') cleanup();
+            });
+        };
     });
 
     function stay(node: HTMLElement, { duration = 800 }) {

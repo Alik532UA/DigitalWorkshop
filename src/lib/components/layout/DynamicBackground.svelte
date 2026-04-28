@@ -4,7 +4,9 @@
     import FloatingShapes from "../backgrounds/FloatingShapes.svelte";
     import { fade } from "svelte/transition";
     import { onMount } from "svelte";
-    import { tabs } from "$lib/controllers/UiState.svelte";
+    import { getTabs } from "$lib/controllers/UiState.svelte";
+
+    const tabs = getTabs();
 
     let { backgroundType = 1, theme = "dark" } = $props<{
         backgroundType?: 0 | 1 | 2 | 3;

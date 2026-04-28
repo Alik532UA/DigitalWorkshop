@@ -1,7 +1,9 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { cubicOut, cubicIn } from "svelte/easing";
-    import { tabs, tabOrder } from "$lib/controllers/UiState.svelte";
+    import { getTabs, tabOrder } from "$lib/controllers/UiState.svelte";
+
+    const tabs = getTabs();
 
     // Pages
     import HeroSection from "$lib/components/sections/HeroSection.svelte";
@@ -20,7 +22,6 @@
         const handler = (e: MediaQueryListEvent) => {
             isMobile = e.matches;
         };
-
         mediaQuery.addEventListener("change", handler);
         return () => mediaQuery.removeEventListener("change", handler);
     });

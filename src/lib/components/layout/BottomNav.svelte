@@ -1,7 +1,10 @@
 <script lang="ts">
-    import { tabs, theme } from "$lib/controllers/UiState.svelte";
+    import { getTabs, getTheme } from "$lib/controllers/UiState.svelte";
     import { t } from "$lib/i18n/LanguageState.svelte";
     import { MessageSquare, Zap } from "lucide-svelte";
+
+    const tabs = getTabs();
+    const theme = getTheme();
 
     let orderText = $derived.by(() => {
         if (tabs.current === "about") return t.footer.order;

@@ -1,8 +1,9 @@
 <script lang="ts">
     import { t } from "$lib/i18n/LanguageState.svelte";
-    import { tabs, type TabType, tabColors } from "$lib/controllers/UiState.svelte";
+    import { getTabs, type TabType, tabColors } from "$lib/controllers/UiState.svelte";
     import { base } from "$app/paths";
 
+    const tabs = getTabs();
     let { isMobile = false } = $props<{ isMobile?: boolean }>();
 
     function selectTab(tab: TabType) {

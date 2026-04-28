@@ -1,8 +1,11 @@
 <script lang="ts">
-    import { theme, tabs } from "$lib/controllers/UiState.svelte";
+    import { getTheme, getTabs } from "$lib/controllers/UiState.svelte";
     import { t } from "$lib/i18n/LanguageState.svelte";
     import FooterArcSvg from "../ui/arcs/FooterArcSvg.svelte";
     import { spring } from "svelte/motion";
+
+    const theme = getTheme();
+    const tabs = getTabs();
 
     let w = $state(0);
     let h = $state(0);

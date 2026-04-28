@@ -1,6 +1,7 @@
 import { browser } from "$app/environment";
 import { replaceState } from "$app/navigation";
 import { storage } from "$lib/services/storage";
+import { getContext, setContext } from "svelte";
 
 export type TabType = 'about' | 'website' | 'apps' | 'games' | 'promo';
 export type ThemeType = 'dark' | 'light' | 'colorful';
@@ -35,7 +36,7 @@ const invBgUrlMap: Record<number, string> = {
     3: 'shapes'
 };
 
-class TabState {
+export class TabState {
     current = $state<TabType>('about');
     previous = $state<TabType>('about');
     currentColor = $derived(tabColors[this.current]);
@@ -53,14 +54,16 @@ class TabState {
         }
     }
 
-    set(tab: TabType) {
+    set(tab: TabType, backgroundState?: BackgroundState) {
         if (this.current === tab) return;
         this.previous = this.current;
         this.current = tab;
 
         // Автоматично змінюємо фон на дефолтний для нової вкладки
-        const defaultBg = tabDefaultBackgrounds[tab];
-        background.setQuiet(defaultBg);
+        if (backgroundState) {
+            const defaultBg = tabDefaultBackgrounds[tab];
+            backgroundState.setQuiet(defaultBg);
+        }
 
         if (browser) {
             window.scrollTo({ top: 0 });
@@ -68,7 +71,7 @@ class TabState {
     }
 }
 
-class ThemeState {
+export class ThemeState {
     current = $state<ThemeType>("dark");
     isChanging = $state(false);
 
@@ -89,6 +92,7 @@ class ThemeState {
                 }
             };
             mediaQuery.addEventListener('change', handler);
+            return () => mediaQuery.removeEventListener('change', handler);
         }
     }
 
@@ -133,12 +137,12 @@ class ThemeState {
     }
 }
 
-class BackgroundState {
+export class BackgroundState {
     type = $state<0 | 1 | 2 | 3>(0);
 
     constructor() {}
 
-    init() {
+    init(tabState: TabState) {
         if (browser) {
             const params = new URLSearchParams(window.location.search);
             const bgParam = params.get('bg');
@@ -150,7 +154,7 @@ class BackgroundState {
                 if (saved && ["1", "2", "3"].includes(saved)) {
                     this.type = parseInt(saved) as 1 | 2 | 3;
                 } else {
-                    this.type = tabDefaultBackgrounds[tabs.current] || 3;
+                    this.type = tabDefaultBackgrounds[tabState.current] || 3;
                 }
             }
         }
@@ -168,7 +172,7 @@ class BackgroundState {
     }
 }
 
-class MenuState {
+export class MenuState {
     isOpen = $state(false);
     enableBlur = $state(true);
 
@@ -203,76 +207,97 @@ class MenuState {
     }
 }
 
-export const theme = new ThemeState();
-export const background = new BackgroundState();
-export const tabs = new TabState();
-export const menu = new MenuState();
+// Context keys
+const TABS_KEY = Symbol('tabs');
+const THEME_KEY = Symbol('theme');
+const BACKGROUND_KEY = Symbol('background');
+const MENU_KEY = Symbol('menu');
 
-// Централізована синхронізація URL
-if (browser) {
-    $effect.root(() => {
-        let isFirstRun = true;
+export function setUiState() {
+    const tabs = new TabState();
+    const theme = new ThemeState();
+    const background = new BackgroundState();
+    const menu = new MenuState();
 
+    setContext(TABS_KEY, tabs);
+    setContext(THEME_KEY, theme);
+    setContext(BACKGROUND_KEY, background);
+    setContext(MENU_KEY, menu);
+
+    // URL Sync Effect
+    if (browser) {
         $effect(() => {
-            const currentTab = tabs.current;
-            const currentTheme = theme.current;
-            const currentBg = background.type;
+            let isFirstRun = true;
+            
+            const cleanup = $effect.root(() => {
+                $effect(() => {
+                    const currentTab = tabs.current;
+                    const currentTheme = theme.current;
+                    const currentBg = background.type;
 
-            const url = new URL(window.location.href);
-            const params = url.searchParams;
+                    const url = new URL(window.location.href);
+                    const params = url.searchParams;
 
-            let changed = false;
+                    let changed = false;
 
-            // Синхронізація Tab
-            if (params.get('tab') !== currentTab) {
-                params.set('tab', currentTab);
-                changed = true;
-            }
-
-            // Синхронізація Theme (тільки якщо не Dark)
-            if (currentTheme !== 'dark') {
-                if (params.get('theme') !== currentTheme) {
-                    params.set('theme', currentTheme);
-                    changed = true;
-                }
-            } else if (params.has('theme')) {
-                params.delete('theme');
-                changed = true;
-            }
-
-            // Синхронізація Background
-            const bgName = invBgUrlMap[currentBg];
-            const defaultBgForTab = tabDefaultBackgrounds[currentTab];
-
-            // Відображаємо bg в URL тільки якщо він відрізняється від дефолту вкладки
-            if (currentBg !== 0 && currentBg !== defaultBgForTab) {
-                if (params.get('bg') !== bgName) {
-                    params.set('bg', bgName);
-                    changed = true;
-                }
-            } else if (params.has('bg')) {
-                params.delete('bg');
-                changed = true;
-            }
-
-            if (changed) {
-                if (isFirstRun) {
-                    isFirstRun = false;
-                    return;
-                }
-
-                const timer = setTimeout(() => {
-                    try {
-                        // eslint-disable-next-line svelte/no-navigation-without-resolve
-                        replaceState(url.toString(), {});
-                    } catch {
-                        window.history.replaceState(null, '', url.toString());
+                    // Tab Sync
+                    if (params.get('tab') !== currentTab) {
+                        params.set('tab', currentTab);
+                        changed = true;
                     }
-                }, 0);
-                return () => clearTimeout(timer);
-            }
 
-            isFirstRun = false;
+                    // Theme Sync
+                    if (currentTheme !== 'dark') {
+                        if (params.get('theme') !== currentTheme) {
+                            params.set('theme', currentTheme);
+                            changed = true;
+                        }
+                    } else if (params.has('theme')) {
+                        params.delete('theme');
+                        changed = true;
+                    }
+
+                    // Background Sync
+                    const bgName = invBgUrlMap[currentBg];
+                    const defaultBgForTab = tabDefaultBackgrounds[currentTab];
+
+                    if (currentBg !== 0 && currentBg !== defaultBgForTab) {
+                        if (params.get('bg') !== bgName) {
+                            params.set('bg', bgName);
+                            changed = true;
+                        }
+                    } else if (params.has('bg')) {
+                        params.delete('bg');
+                        changed = true;
+                    }
+
+                    if (changed) {
+                        if (isFirstRun) {
+                            isFirstRun = false;
+                            return;
+                        }
+
+                        const timer = setTimeout(() => {
+                            try {
+                                replaceState(url.toString(), {});
+                            } catch {
+                                window.history.replaceState(null, '', url.toString());
+                            }
+                        }, 0);
+                        return () => clearTimeout(timer);
+                    }
+
+                    isFirstRun = false;
+                });
+            });
+            return () => cleanup();
         });
-    });
+    }
+
+    return { tabs, theme, background, menu };
 }
+
+export function getTabs() { return getContext<TabState>(TABS_KEY); }
+export function getTheme() { return getContext<ThemeState>(THEME_KEY); }
+export function getBackground() { return getContext<BackgroundState>(BACKGROUND_KEY); }
+export function getMenu() { return getContext<MenuState>(MENU_KEY); }
