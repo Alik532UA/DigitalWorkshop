@@ -1,4 +1,4 @@
-import type { Translations } from "../index.svelte";
+import type { Translations } from "../LanguageState.svelte";
 
 export const en: Translations = {
     lastUpdate: "Last update: March 31, 2026",

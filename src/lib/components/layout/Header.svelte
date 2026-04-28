@@ -534,25 +534,6 @@
         transform: scale(1.02);
     }
 
-    .mobile-nav-divider {
-        height: 1px;
-        background: var(--border-color);
-        margin: 5px 0;
-        opacity: 0.5;
-    }
-
-    .mobile-nav-item.secondary {
-        font-size: 0.95rem;
-        padding: 10px 16px;
-        opacity: 0.9;
-    }
-
-    .mobile-nav-item.cta {
-        background: color-mix(in srgb, var(--accent-primary), transparent 90%);
-        border-color: color-mix(in srgb, var(--accent-primary), transparent 70%);
-        color: var(--accent-primary);
-    }
-
     @media (max-width: 768px) {
         .arc-header {
             display: none;

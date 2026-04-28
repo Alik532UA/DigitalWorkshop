@@ -2,7 +2,7 @@
     import { onMount } from "svelte";
     import { FloatingShapesEngine } from "./engine/FloatingShapesEngine";
 
-    import { tabs } from "$lib/states/ui.svelte";
+    import { tabs } from "$lib/states/UiState.svelte";
 
     let { theme = "dark", color = "#00f2ff" } = $props<{ 
         theme?: string;
