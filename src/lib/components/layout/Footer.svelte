@@ -149,7 +149,7 @@
         >
             {orderText}
         </a>
-        <div class="version-label">v{__APP_VERSION__}</div>
+        <!-- <div class="version-label">v{__APP_VERSION__}</div> -->
     </div>
 </footer>
 

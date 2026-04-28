@@ -3,6 +3,7 @@
     import {
         getTheme,
         getTabs,
+        getBackground,
         getMenu,
         type TabType,
         tabColors,
@@ -17,10 +18,11 @@
     const language = getLanguage();
     const theme = getTheme();
     const tabs = getTabs();
+    const background = getBackground();
     const menu = getMenu();
 
     function selectTab(tab: TabType) {
-        tabs.set(tab);
+        tabs.set(tab, background);
         menu.close();
     }
 

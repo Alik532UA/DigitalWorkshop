@@ -1,13 +1,14 @@
 <script lang="ts">
     import { t } from "$lib/i18n/LanguageState.svelte";
-    import { getTabs, type TabType, tabColors } from "$lib/controllers/UiState.svelte";
+    import { getTabs, getBackground, type TabType, tabColors } from "$lib/controllers/UiState.svelte";
     import { base } from "$app/paths";
 
     const tabs = getTabs();
+    const background = getBackground();
     let { isMobile = false } = $props<{ isMobile?: boolean }>();
 
     function selectTab(tab: TabType) {
-        tabs.set(tab);
+        tabs.set(tab, background);
     }
 
     // Інтерфейс для розпарсених частин привітання

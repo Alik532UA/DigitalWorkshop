@@ -150,12 +150,9 @@ export class BackgroundState {
             if (bgParam && bgUrlMap[bgParam]) {
                 this.type = bgUrlMap[bgParam];
             } else {
-                const saved = storage.get("backgroundType");
-                if (saved && ["1", "2", "3"].includes(saved)) {
-                    this.type = parseInt(saved) as 1 | 2 | 3;
-                } else {
-                    this.type = tabDefaultBackgrounds[tabState.current] || 3;
-                }
+                // Пріоритет віддаємо дефолтному фону вкладки при першому завантаженні.
+                // Це гарантує, що на вкладці 'about' (за замовчуванням) будуть 'waves' (2).
+                this.type = tabDefaultBackgrounds[tabState.current] || 3;
             }
         }
     }
