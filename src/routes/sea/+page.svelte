@@ -5,6 +5,7 @@
 	import { fly } from 'svelte/transition';
 	import { cubicOut, cubicIn } from 'svelte/easing';
 	import { ExternalLink, Globe, Gamepad2, Box, FileUser } from 'lucide-svelte';
+	import { config } from '$lib/config';
 
 	import iconAnchor from '$lib/assets/tabler/anchor.svg?raw';
 	import iconWorld from '$lib/assets/tabler/world-www.svg?raw';
@@ -17,6 +18,7 @@
 	import iconMusicOn from '$lib/assets/tabler/music.svg?raw';
 	import iconMusicOff from '$lib/assets/tabler/music-off.svg?raw';
 	import iconLanguage from '$lib/assets/tabler/language.svg?raw';
+	import iconMessage from '$lib/assets/tabler/message.svg?raw';
 
 	const tabIcons = [
 		{ id: 'anchor', icon: iconAnchor },
@@ -423,7 +425,7 @@
 							<h2 class="tab-title">{tabData.title}</h2>
 							<p class="tab-intro">{@html tabData.intro.replace(/\n/g, '<br />')}</p>
 							<a
-								href="https://t.me/alik532"
+								href={config.telegramUrl}
 								target="_blank"
 								class="btn-primary project-btn"
 								style="margin-top: 2rem; display: inline-flex;"
@@ -473,6 +475,13 @@
 				{@html tab.icon}
 			</button>
 		{/each}
+	</div>
+
+	<!-- Нижні праві кнопки (Контакти) -->
+	<div class="bottom-right-controls">
+		<a href={config.telegramUrl} target="_blank" class="icon-btn" aria-label="Contact via Telegram">
+			{@html iconMessage}
+		</a>
 	</div>
 </div>
 
@@ -1037,6 +1046,15 @@
 		display: none;
 	}
 
+	.bottom-right-controls {
+		position: absolute;
+		bottom: 2rem; /* Було 2.5rem */
+		right: 3rem; /* Було 4rem */
+		display: flex;
+		gap: 1.25rem; /* Було 1.5rem */
+		z-index: 10001;
+	}
+
 	@media (max-width: 768px) {
 		.desktop-text {
 			display: none;
@@ -1054,6 +1072,11 @@
 			transform: translateX(50%);
 			flex-direction: row; /* Горизонтально */
 			gap: 1rem;
+		}
+
+		.bottom-right-controls {
+			bottom: 1rem;
+			right: 1rem;
 		}
 
 		/* Зменшуємо іконки внизу */

@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { config } from '$lib/config';
     import { ChevronRight, CircleHelp, Smartphone } from "lucide-svelte";
     import { t } from "$lib/i18n/LanguageState.svelte";
     import Section from "../../ui/Section.svelte";
@@ -23,7 +24,7 @@
             </div>
 
             <div class="cta-section">
-                <a href="https://t.me/alik532" target="_blank" class="btn-primary large-btn glass" data-testid="apps-cta-button">
+                <a href={config.telegramUrl} target="_blank" class="btn-primary large-btn glass" data-testid="apps-cta-button">
                     {t.tabs.apps.cta} <ChevronRight size={20} />
                 </a>
             </div>

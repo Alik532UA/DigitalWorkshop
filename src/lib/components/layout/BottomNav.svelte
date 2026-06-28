@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { config } from '$lib/config';
     import { getTabs, getTheme } from "$lib/controllers/UiState.svelte";
     import { t } from "$lib/i18n/LanguageState.svelte";
     import { MessageSquare, Zap } from "lucide-svelte";
@@ -16,12 +17,12 @@
 
 <nav class="mobile-bottom-header" style="--glass-blur-dynamic: blur(20px);">
     <div class="mobile-bottom-header__content">
-        <a href="https://t.me/alik532" target="_blank" class="bottom-btn">
+        <a href={config.telegramUrl} target="_blank" class="bottom-btn">
             <MessageSquare size={20} />
             <span>{t.footer.ask}</span>
         </a>
         
-        <a href="https://t.me/alik532" target="_blank" class="bottom-btn cta">
+        <a href={config.telegramUrl} target="_blank" class="bottom-btn cta">
             <Zap size={20} />
             <span>{orderText}</span>
         </a>

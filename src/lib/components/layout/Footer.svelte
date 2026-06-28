@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { config } from '$lib/config';
     import { getTheme, getTabs } from "$lib/controllers/UiState.svelte";
     import { t } from "$lib/i18n/LanguageState.svelte";
     import FooterArcSvg from "../ui/arcs/FooterArcSvg.svelte";
@@ -132,7 +133,7 @@
 
     <div class="footer-content">
         <a
-            href="https://t.me/alik532"
+            href={config.telegramUrl}
             target="_blank"
             class="footer-btn"
             style="left: {leftBtnStyles.left}; bottom: {leftBtnStyles.bottom}; --rot: {leftBtnStyles.rot};"
@@ -141,7 +142,7 @@
             {t.footer.ask}
         </a>
         <a
-            href="https://t.me/alik532"
+            href={config.telegramUrl}
             target="_blank"
             class="footer-btn"
             style="left: {rightBtnStyles.left}; bottom: {rightBtnStyles.bottom}; --rot: {rightBtnStyles.rot};"
