@@ -372,6 +372,10 @@
 		if (target.closest('.audio-control-wrapper')) {
 			let newVol = audioVolume - Math.sign(e.deltaY) * 0.05;
 			audioVolume = Math.max(0, Math.min(1, newVol));
+			
+			if (audioVolume > 0 && !isAudioPlaying && audioRef) {
+				audioRef.play().catch(err => console.error('Audio playback failed:', err));
+			}
 			return;
 		}
 
@@ -609,6 +613,11 @@
 						max="1"
 						step="0.01"
 						bind:value={audioVolume}
+						oninput={() => {
+							if (audioVolume > 0 && !isAudioPlaying && audioRef) {
+								audioRef.play().catch(err => console.error('Audio playback failed:', err));
+							}
+						}}
 						class="volume-slider"
 						aria-label="Volume"
 					/>
