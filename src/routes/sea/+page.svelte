@@ -352,34 +352,56 @@
 	}
 
 	function handleKeyDown(e: KeyboardEvent) {
+		// Гарячі клавіші для керування
+		if (e.code === 'KeyM') {
+			toggleAudio();
+			return;
+		}
+
+		if (e.code === 'KeyT') {
+			toggleLanguage();
+			return;
+		}
+
+		if (e.code === 'Enter' || e.code === 'NumpadEnter') {
+			window.open(config.telegramUrl, '_blank');
+			return;
+		}
+
+		// 1-5 (звичайна клавіатура або Numpad)
+		let digitMatch = e.code.match(/^(?:Digit|Numpad)([1-5])$/);
+		if (digitMatch) {
+			const tabIndex = parseInt(digitMatch[1], 10) - 1;
+			if (tabIndex >= 0 && tabIndex < tabsList.length) {
+				setTab(tabsList[tabIndex]);
+			}
+			return;
+		}
+
 		if (isScrolling) return;
 
-		switch (e.key) {
+		switch (e.code) {
 			case 'ArrowDown':
-			case 's':
-			case 'S':
+			case 'KeyS':
 				if (currentIndex < totalSlides - 1) {
 					currentIndex++;
 					lockScroll();
 				}
 				break;
 			case 'ArrowUp':
-			case 'w':
-			case 'W':
+			case 'KeyW':
 				if (currentIndex > 0) {
 					currentIndex--;
 					lockScroll();
 				}
 				break;
 			case 'ArrowRight':
-			case 'd':
-			case 'D':
+			case 'KeyD':
 				nextTab();
 				lockScroll();
 				break;
 			case 'ArrowLeft':
-			case 'a':
-			case 'A':
+			case 'KeyA':
 				prevTab();
 				lockScroll();
 				break;
