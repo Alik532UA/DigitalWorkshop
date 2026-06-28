@@ -4,7 +4,7 @@
 	import { t } from '$lib/i18n/LanguageState.svelte';
 	import { ExternalLink, Globe, Gamepad2, Box, FileUser } from 'lucide-svelte';
 
-	import iconHome from '$lib/assets/tabler/home.svg?raw';
+	import iconAnchor from '$lib/assets/tabler/anchor.svg?raw';
 	import iconWorld from '$lib/assets/tabler/world-www.svg?raw';
 	import iconMobile from '$lib/assets/tabler/device-mobile.svg?raw';
 	import iconGamepad from '$lib/assets/tabler/device-gamepad-2.svg?raw';
@@ -16,7 +16,15 @@
 	import iconMusicOff from '$lib/assets/tabler/music-off.svg?raw';
 	import iconLanguage from '$lib/assets/tabler/language.svg?raw';
 
-	const icons = [iconHome, iconWorld, iconMobile, iconGamepad, iconHeart];
+	const tabIcons = [
+		{ id: 'anchor', icon: iconAnchor },
+		{ id: 'website', icon: iconWorld },
+		{ id: 'apps', icon: iconMobile },
+		{ id: 'games', icon: iconGamepad },
+		{ id: 'promo', icon: iconHeart }
+	];
+	
+	let currentTab = $state('anchor');
 
 	const projects = [
 		{ id: 'slovko', img: 'slovko.jpg', icon: Globe, link: 'https://alik532ua.github.io/Slovko/' },
@@ -89,8 +97,24 @@
 	let isScrolling = false;
 	let touchStartY = 0;
 
-	// Герой + всі проєкти
-	const totalSlides = projects.length + 1;
+	// Герой + всі проєкти або контент вкладок
+	let totalSlides = $derived.by(() => {
+		if (currentTab === 'anchor') {
+			return projects.length + 1;
+		} else {
+			const tabData = t.tabs[currentTab as keyof typeof t.tabs];
+			const items = (tabData as any).benefits || (tabData as any).faq || [];
+			return Math.ceil(items.length / 2) + 1; // 1 for intro slide
+		}
+	});
+
+	function getChunks(items: any[]) {
+		const result = [];
+		for (let i = 0; i < items.length; i += 2) {
+			result.push(items.slice(i, i + 2));
+		}
+		return result;
+	}
 
 	function lockScroll() {
 		isScrolling = true;
@@ -183,54 +207,98 @@
 	>
 		<!-- Трек для слайдів -->
 		<div class="slides-track" style="transform: translateY(calc(-85vh * {currentIndex}));">
-			<!-- Слайд 1: Герой -->
-			<div class="slide-wrapper">
-				<div class="info-slide glass-panel info-block slide-hero">
-					<div class="photo-wrapper">
-						<img src="{base}/images/profile.jpg" alt="Alik" class="profile-photo" />
-					</div>
-					<div class="hero-text">
-						<p>
-							{@html formattedGreeting}<br /><br />
-							<span class="desktop-text">{t.hero.description_sea_desktop}</span>
-							<span class="mobile-text">{t.hero.description_sea_mobile}</span>
-						</p>
+			{#if currentTab === 'anchor'}
+				<!-- Слайд 1: Герой -->
+				<div class="slide-wrapper">
+					<div class="info-slide glass-panel info-block slide-hero">
+						<div class="photo-wrapper">
+							<img src="{base}/images/profile.jpg" alt="Alik" class="profile-photo" />
+						</div>
+						<div class="hero-text">
+							<p>
+								{@html formattedGreeting}<br /><br />
+								<span class="desktop-text">{t.hero.description_sea_desktop}</span>
+								<span class="mobile-text">{t.hero.description_sea_mobile}</span>
+							</p>
+						</div>
 					</div>
 				</div>
-			</div>
 
-			<!-- Слайди з проєктами -->
-			{#each projects as p}
-				{@const data = t.portfolio.projects[p.id]}
-				{@const Icon = p.icon}
-				<div class="slide-wrapper">
-					<div class="info-slide glass-panel info-block slide-project">
-						<div class="project-img">
-							<img src="{base}/images/{p.img}" alt={data.title} />
-							<span class="tech-badge">{data.tech}</span>
-						</div>
-						<div class="project-content">
-							<div class="title-row">
-								<Icon size={32} class="accent-icon" />
-								<h3>{data.title}</h3>
+				<!-- Слайди з проєктами -->
+				{#each projects as p}
+					{@const data = t.portfolio.projects[p.id as keyof typeof t.portfolio.projects]}
+					{@const Icon = p.icon}
+					<div class="slide-wrapper">
+						<div class="info-slide glass-panel info-block slide-project">
+							<div class="project-img">
+								<img src="{base}/images/{p.img}" alt={data.title} />
+								<span class="tech-badge">{data.tech}</span>
 							</div>
-							<p class="project-desc">{data.description}</p>
-							<p class="project-feature"><strong>Фішка:</strong> {data.feature}</p>
-							<a href={p.link} target="_blank" class="btn-primary project-btn">
-								{data.linkText}
-								<ExternalLink size={20} />
+							<div class="project-content">
+								<div class="title-row">
+									<Icon size={32} class="accent-icon" />
+									<h3>{data.title}</h3>
+								</div>
+								<p class="project-desc">{data.description}</p>
+								<p class="project-feature"><strong>Фішка:</strong> {data.feature}</p>
+								<a href={p.link} target="_blank" class="btn-primary project-btn">
+									{data.linkText}
+									<ExternalLink size={20} />
+								</a>
+							</div>
+						</div>
+					</div>
+				{/each}
+			{:else}
+				{@const tabData = t.tabs[currentTab as keyof typeof t.tabs]}
+				{@const items = (tabData as any).benefits || (tabData as any).faq || []}
+				{@const chunks = getChunks(items)}
+
+				<!-- Вступний слайд вкладки -->
+				<div class="slide-wrapper">
+					<div class="info-slide glass-panel info-block slide-hero">
+						<div class="hero-text">
+							<h2 class="tab-title">{tabData.title}</h2>
+							<p class="tab-intro">{@html tabData.intro.replace(/\n/g, '<br />')}</p>
+							<a href="https://t.me/alik532" target="_blank" class="btn-primary project-btn" style="margin-top: 2rem; display: inline-flex;">
+								{tabData.cta}
 							</a>
 						</div>
 					</div>
 				</div>
-			{/each}
+
+				<!-- Слайди з деталями (FAQ / Переваги) -->
+				{#each chunks as chunk}
+					<div class="slide-wrapper">
+						<div class="info-slide glass-panel info-block">
+							<div class="chunk-content">
+								{#each chunk as item}
+									<div class="content-item">
+										<h3 class="item-title">{item.h || item.q}</h3>
+										<p class="item-desc">{@html (item.p || item.a).replace(/\n/g, '<br />')}</p>
+									</div>
+								{/each}
+							</div>
+						</div>
+					</div>
+				{/each}
+			{/if}
 		</div>
 	</div>
 
 	<div class="sidebar-icons">
-		{#each icons as icon}
-			<button class="glass-icon" style="--mask-url: url({squircleUrl});" aria-label="Icon">
-				{@html icon}
+		{#each tabIcons as tab}
+			<button 
+				class="glass-icon" 
+				class:active={currentTab === tab.id}
+				style="--mask-url: url({squircleUrl});" 
+				aria-label={tab.id}
+				onclick={() => {
+					currentTab = tab.id;
+					currentIndex = 0;
+				}}
+			>
+				{@html tab.icon}
 			</button>
 		{/each}
 	</div>
@@ -596,6 +664,13 @@
 			inset 0 0 15px rgba(255, 255, 255, 0.3);
 	}
 
+	.glass-icon.active {
+		background: rgba(255, 255, 255, 0.3);
+		box-shadow:
+			0 8px 16px rgba(0, 0, 0, 0.2),
+			inset 0 0 15px rgba(255, 255, 255, 0.5);
+	}
+
 	.glass-icon:active {
 		transform: scale(0.95);
 	}
@@ -609,10 +684,51 @@
 		transition: all 0.3s ease;
 	}
 
-	.glass-icon:hover :global(svg) {
+	.glass-icon:hover :global(svg),
+	.glass-icon.active :global(svg) {
 		stroke: white;
 		filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
 		transform: scale(1.1);
+	}
+
+	/* Таб контент */
+	.tab-title {
+		font-size: 2.5rem;
+		margin-bottom: 1.5rem;
+		color: white;
+	}
+
+	.tab-intro {
+		font-size: 1.25rem;
+		color: rgba(255, 255, 255, 0.9);
+		line-height: 1.6;
+	}
+
+	.chunk-content {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+		justify-content: center;
+		height: 100%;
+	}
+
+	.content-item {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.item-title {
+		font-size: 1.5rem;
+		color: var(--accent-primary, #0284c7);
+		margin: 0;
+	}
+
+	.item-desc {
+		font-size: 1.15rem;
+		color: rgba(255, 255, 255, 0.85);
+		line-height: 1.5;
+		margin: 0;
 	}
 
 	.mobile-text {
