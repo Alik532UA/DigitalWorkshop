@@ -225,22 +225,26 @@
 	function handleWheel(e: WheelEvent) {
 		if (isScrolling) return;
 
+		const isHorizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey;
+		const delta = isHorizontal ? (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) : e.deltaY;
+
 		// Горизонтальний скрол (переключення вкладок)
-		if (e.deltaX > 20) {
-			nextTab();
-			lockScroll();
-			return;
-		} else if (e.deltaX < -20) {
-			prevTab();
-			lockScroll();
+		if (isHorizontal) {
+			if (delta > 20) {
+				nextTab();
+				lockScroll();
+			} else if (delta < -20) {
+				prevTab();
+				lockScroll();
+			}
 			return;
 		}
 
 		// Вертикальний скрол (переключення слайдів всередині вкладки)
-		if (e.deltaY > 15 && currentIndex < totalSlides - 1) {
+		if (delta > 15 && currentIndex < totalSlides - 1) {
 			currentIndex++;
 			lockScroll();
-		} else if (e.deltaY < -15 && currentIndex > 0) {
+		} else if (delta < -15 && currentIndex > 0) {
 			currentIndex--;
 			lockScroll();
 		}
@@ -279,13 +283,51 @@
 			}
 		}
 	}
+
+	function handleKeyDown(e: KeyboardEvent) {
+		if (isScrolling) return;
+		
+		switch (e.key) {
+			case 'ArrowDown':
+			case 's':
+			case 'S':
+				if (currentIndex < totalSlides - 1) {
+					currentIndex++;
+					lockScroll();
+				}
+				break;
+			case 'ArrowUp':
+			case 'w':
+			case 'W':
+				if (currentIndex > 0) {
+					currentIndex--;
+					lockScroll();
+				}
+				break;
+			case 'ArrowRight':
+			case 'd':
+			case 'D':
+				nextTab();
+				lockScroll();
+				break;
+			case 'ArrowLeft':
+			case 'a':
+			case 'A':
+				prevTab();
+				lockScroll();
+				break;
+		}
+	}
 </script>
 
 <svelte:head>
 	<title>Sea View</title>
 </svelte:head>
 
-<svelte:window onfullscreenchange={() => (isFullscreen = !!document.fullscreenElement)} />
+<svelte:window 
+	onfullscreenchange={() => (isFullscreen = !!document.fullscreenElement)} 
+	onkeydown={handleKeyDown}
+/>
 
 <div class="sea-container" data-hovered-tab={hoveredTab || ''} class:lang-changing={langState.isChanging}>
 	<video autoplay loop muted playsinline class="background-video">
@@ -339,8 +381,8 @@
 			<div 
 				class="slides-track" 
 				style="transform: translateY(calc(-75vh * {currentIndex}));"
-				in:fly={{ x: slideDirection * 100, duration: 600, easing: cubicOut }}
-				out:fly={{ x: slideDirection * -100, duration: 600, easing: cubicIn }}
+				in:fly={{ x: slideDirection * 100, duration: 400, delay: 400, easing: cubicOut }}
+				out:fly={{ x: slideDirection * -100, duration: 400, easing: cubicIn }}
 			>
 				{#if currentTab === 'anchor'}
 					<!-- Слайд 1: Герой -->
@@ -378,6 +420,14 @@
 								<span class="desktop-text">{t.hero.description_sea_desktop}</span>
 								<span class="mobile-text">{t.hero.description_sea_mobile}</span>
 							</p>
+							<a
+								href={config.telegramUrl}
+								target="_blank"
+								class="btn-primary project-btn glass"
+								style="margin-top: 2rem; display: inline-flex;"
+							>
+								{t.footer.ask}
+							</a>
 						</div>
 					</div>
 				</div>
@@ -427,7 +477,7 @@
 							<a
 								href={config.telegramUrl}
 								target="_blank"
-								class="btn-primary project-btn"
+								class="btn-primary project-btn glass"
 								style="margin-top: 2rem; display: inline-flex;"
 							>
 								{tabData.cta}
@@ -479,7 +529,14 @@
 
 	<!-- Нижні праві кнопки (Контакти) -->
 	<div class="bottom-right-controls">
-		<a href={config.telegramUrl} target="_blank" class="icon-btn" aria-label="Contact via Telegram">
+		<a 
+			href={config.telegramUrl} 
+			target="_blank" 
+			class="glass-icon" 
+			class:bg-blue={currentIndex > 0}
+			style="--mask-url: url({squircleUrl});"
+			aria-label="Contact via Telegram"
+		>
 			{@html iconMessage}
 		</a>
 	</div>
@@ -612,12 +669,24 @@
 
 	/* Блюр накладається тільки на активний слайд і з затримкою, 
 	   щоб не було різких стрибків під час скролу */
+	@keyframes blurIn {
+		0% {
+			backdrop-filter: blur(0px);
+			-webkit-backdrop-filter: blur(0px);
+		}
+		100% {
+			backdrop-filter: blur(20px);
+			-webkit-backdrop-filter: blur(20px);
+		}
+	}
+
 	.slide-wrapper.active .info-block {
 		backdrop-filter: blur(20px);
 		-webkit-backdrop-filter: blur(20px);
 		transition:
 			backdrop-filter 2s ease 1s,
 			-webkit-backdrop-filter 2s ease 1s;
+		animation: blurIn 2s ease 1s backwards;
 	}
 
 	.info-block {
@@ -643,7 +712,12 @@
 	/* Блюр вмісту контейнера під час зміни мови */
 	.sea-container.lang-changing .info-block {
 		filter: blur(15px);
-		opacity: 0; /* Плавно зникає в 0 під час зміни тексту, потім плавно повертається */
+		opacity: 1; /* Контейнер залишається видимим, адаптуючи розмір */
+	}
+	
+	.sea-container.lang-changing .info-block > * {
+		opacity: 0; /* Плавно зникає тільки вміст */
+		transition: opacity 0.25s ease-out;
 	}
 
 	.chunk-content {
@@ -669,6 +743,28 @@
 		transform: translateX(-50%);
 		margin-top: 0 !important;
 		width: max-content;
+		opacity: 1;
+		transition: opacity 0.4s ease, transform 0.4s ease;
+	}
+	
+	.slide-wrapper:not(.active) .slide-hero .project-btn {
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	.project-btn.glass {
+		background: rgba(2, 132, 199, 0.5) !important;
+		backdrop-filter: blur(12px) !important;
+		-webkit-backdrop-filter: blur(12px) !important;
+		border: 1px solid rgba(255, 255, 255, 0.2) !important;
+	}
+
+	.project-btn.glass::before {
+		display: none !important;
+	}
+
+	.project-btn.glass:hover {
+		background: rgba(2, 132, 199, 0.7) !important;
 	}
 	
 	.slide-hero .project-btn:hover {
@@ -980,6 +1076,14 @@
 		transform: scale(0.95);
 	}
 
+	.glass-icon.bg-blue {
+		background: rgba(2, 132, 199, 0.5);
+	}
+
+	.glass-icon.bg-blue:hover {
+		background: rgba(2, 132, 199, 0.7);
+	}
+
 	.glass-icon :global(svg) {
 		width: 1.9rem; /* Було 2.25rem */
 		height: 1.9rem; /* Було 2.25rem */
@@ -1049,10 +1153,11 @@
 	.bottom-right-controls {
 		position: absolute;
 		bottom: 2rem; /* Було 2.5rem */
-		right: 3rem; /* Було 4rem */
+		right: 2rem;
 		display: flex;
 		gap: 1.25rem; /* Було 1.5rem */
 		z-index: 10001;
+		pointer-events: auto;
 	}
 
 	@media (max-width: 768px) {
