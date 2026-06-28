@@ -125,6 +125,12 @@
 		}, 150);
 	}
 
+	function goToSlide(index: number) {
+		if (isScrolling || currentIndex === index) return;
+		lockScroll();
+		currentIndex = index;
+	}
+
 	function handleWheel(e: WheelEvent) {
 		if (isScrolling) return;
 
@@ -206,10 +212,11 @@
 		role="presentation"
 	>
 		<!-- Трек для слайдів -->
-		<div class="slides-track" style="transform: translateY(calc(-85vh * {currentIndex}));">
+		<div class="slides-track" style="transform: translateY(calc(-75vh * {currentIndex}));">
 			{#if currentTab === 'anchor'}
 				<!-- Слайд 1: Герой -->
-				<div class="slide-wrapper">
+				<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+				<div class="slide-wrapper" class:active={currentIndex === 0} onclick={() => goToSlide(0)}>
 					<div class="info-slide glass-panel info-block slide-hero">
 						<div class="photo-wrapper">
 							<img src="{base}/images/profile.jpg" alt="Alik" class="profile-photo" />
@@ -225,10 +232,11 @@
 				</div>
 
 				<!-- Слайди з проєктами -->
-				{#each projects as p}
+				{#each projects as p, i}
 					{@const data = t.portfolio.projects[p.id as keyof typeof t.portfolio.projects]}
 					{@const Icon = p.icon}
-					<div class="slide-wrapper">
+					<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+					<div class="slide-wrapper" class:active={currentIndex === i + 1} onclick={() => goToSlide(i + 1)}>
 						<div class="info-slide glass-panel info-block slide-project">
 							<div class="project-img">
 								<img src="{base}/images/{p.img}" alt={data.title} />
@@ -255,7 +263,8 @@
 				{@const chunks = getChunks(items)}
 
 				<!-- Вступний слайд вкладки -->
-				<div class="slide-wrapper">
+				<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+				<div class="slide-wrapper" class:active={currentIndex === 0} onclick={() => goToSlide(0)}>
 					<div class="info-slide glass-panel info-block slide-hero">
 						<div class="hero-text">
 							<h2 class="tab-title">{tabData.title}</h2>
@@ -268,8 +277,9 @@
 				</div>
 
 				<!-- Слайди з деталями (FAQ / Переваги) -->
-				{#each chunks as chunk}
-					<div class="slide-wrapper">
+				{#each chunks as chunk, i}
+					<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+					<div class="slide-wrapper" class:active={currentIndex === i + 1} onclick={() => goToSlide(i + 1)}>
 						<div class="chunk-content">
 							{#each chunk as item}
 								<div class="info-slide glass-panel info-block content-item">
@@ -348,21 +358,39 @@
 		display: flex;
 		flex-direction: column;
 		width: 100%;
-		/* Додаємо відступ зверху, щоб відцентрувати зменшені слайди в контейнері 100vh */
-		padding: 7.5vh 0;
+		/* Відступ зверху і знизу, щоб ідеально центрувати слайд 75vh у контейнері 100vh */
+		padding: 12.5vh 0;
 		/* Плавна і кінематографічна анімація на 1.2 секунд (1200ms) */
 		transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
 	}
 
 	.slide-wrapper {
 		width: 100%;
-		height: 85vh; /* Зменшили з 100vh до 85vh, щоб було видно шматочки інших слайдів */
+		height: 75vh; /* Менша висота для слайдів */
 		flex-shrink: 0;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		padding: 40px 100px; /* Великий відступ для тіней */
+		padding: 40px 10px; /* Менший горизонтальний відступ */
 		box-sizing: border-box;
+		
+		/* Візуальне зменшення неактивних слайдів */
+		transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.8s ease;
+		transform: scale(0.9); /* Збільшили з 0.85 до 0.9 щоб більше стирчали */
+		opacity: 0.4;
+		cursor: pointer; /* Вказує що на них можна клікнути */
+	}
+
+	/* Вимикаємо кліки всередині неактивних слайдів (щоб лінки не натискались випадково) */
+	.slide-wrapper:not(.active) .info-slide {
+		pointer-events: none;
+	}
+
+	.slide-wrapper.active {
+		transform: scale(1);
+		opacity: 1;
+		cursor: default;
+		pointer-events: auto; /* Вмикаємо кліки для активного слайду */
 	}
 
 	.info-slide {
@@ -421,7 +449,7 @@
 		color: rgba(255, 255, 255, 0.9);
 	}
 
-	.inline-badge {
+	:global(.inline-badge) {
 		background: rgba(255, 255, 255, 0.15);
 		padding: 2px 10px;
 		border-radius: 12px;
