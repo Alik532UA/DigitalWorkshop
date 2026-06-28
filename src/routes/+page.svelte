@@ -1457,10 +1457,10 @@
 	}
 
 	.glass-icon.active {
-		background: rgba(255, 255, 255, 0.3);
+		background: rgba(109, 177, 240, 0.694); /* Трохи бірюзовий фон для вибраної вкладки */
 		box-shadow:
 			0 8px 16px rgba(0, 0, 0, 0.2),
-			inset 0 0 15px rgba(255, 255, 255, 0.5);
+			inset 0 0 15px rgba(73, 164, 220, 0.452);
 	}
 
 	.glass-icon:active {
