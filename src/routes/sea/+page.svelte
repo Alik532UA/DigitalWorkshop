@@ -1,9 +1,9 @@
 <script>
 	import { base } from '$app/paths';
 	import squircleUrl from '$lib/assets/squircle.svg';
-	import { t } from "$lib/i18n/LanguageState.svelte";
-	import { ExternalLink, Globe, Gamepad2, Box, FileUser } from "lucide-svelte";
-	
+	import { t } from '$lib/i18n/LanguageState.svelte';
+	import { ExternalLink, Globe, Gamepad2, Box, FileUser } from 'lucide-svelte';
+
 	import iconHome from '$lib/assets/tabler/home.svg?raw';
 	import iconWorld from '$lib/assets/tabler/world-www.svg?raw';
 	import iconMobile from '$lib/assets/tabler/device-mobile.svg?raw';
@@ -14,11 +14,21 @@
 	import iconMinimize from '$lib/assets/tabler/arrows-minimize.svg?raw';
 
 	const icons = [iconHome, iconWorld, iconMobile, iconGamepad, iconHeart];
-	
+
 	const projects = [
 		{ id: 'slovko', img: 'slovko.jpg', icon: Globe, link: 'https://alik532ua.github.io/Slovko/' },
-		{ id: 'mindstep', img: 'mindstep.jpg', icon: Gamepad2, link: 'https://alik532ua.github.io/MindStep/' },
-		{ id: 'cv3d', img: 'cv_3d.jpg', icon: Box, link: 'https://alik532ua.itch.io/alik-cv-interactive-3d-experience' },
+		{
+			id: 'mindstep',
+			img: 'mindstep.jpg',
+			icon: Gamepad2,
+			link: 'https://alik532ua.github.io/MindStep/'
+		},
+		{
+			id: 'cv3d',
+			img: 'cv_3d.jpg',
+			icon: Box,
+			link: 'https://alik532ua.itch.io/alik-cv-interactive-3d-experience'
+		},
 		{ id: 'cv_web', img: 'cv_web.jpg', icon: FileUser, link: 'https://alik532ua.github.io/CV/' }
 	];
 
@@ -26,11 +36,14 @@
 
 	function toggleFullscreen() {
 		if (!document.fullscreenElement) {
-			document.documentElement.requestFullscreen().then(() => {
-				isFullscreen = true;
-			}).catch(err => {
-				console.error(`Error attempting to enable fullscreen: ${err.message}`);
-			});
+			document.documentElement
+				.requestFullscreen()
+				.then(() => {
+					isFullscreen = true;
+				})
+				.catch((err) => {
+					console.error(`Error attempting to enable fullscreen: ${err.message}`);
+				});
 		} else {
 			if (document.exitFullscreen) {
 				document.exitFullscreen().then(() => {
@@ -45,7 +58,7 @@
 	<title>Sea View</title>
 </svelte:head>
 
-<svelte:window onfullscreenchange={() => isFullscreen = !!document.fullscreenElement} />
+<svelte:window onfullscreenchange={() => (isFullscreen = !!document.fullscreenElement)} />
 
 <div class="sea-container">
 	<video autoplay loop muted playsinline class="background-video">
@@ -65,9 +78,12 @@
 			</div>
 			<div class="hero-text">
 				<p>
-					Мене звати Алік<br>
-					і я створюю сучасні <span class="inline-badge">сайти</span>, <span class="inline-badge">застосунки</span>, і навіть <span class="inline-badge">ігри</span>!<br><br>
-					А для творчих шкіл та благодійних організацій у мене <span class="inline-badge">спеціальна пропозиція</span>!<br><br>
+					Мене звати Алік<br />
+					і я створюю сучасні <span class="inline-badge">сайти</span>,
+					<span class="inline-badge">застосунки</span>, і навіть
+					<span class="inline-badge">ігри</span>!<br /><br />
+					А для творчих шкіл та благодійних організацій у мене
+					<span class="inline-badge">спеціальна пропозиція</span>!<br /><br />
 					Вибери який продукт тебе цікавить щоб дізнатися більше і подивитися вже існуючі мої роботи
 				</p>
 			</div>
@@ -89,7 +105,8 @@
 					<p class="project-desc">{data.description}</p>
 					<p class="project-feature"><strong>Фішка:</strong> {data.feature}</p>
 					<a href={p.link} target="_blank" class="btn-primary project-btn">
-						{data.linkText} <ExternalLink size={20} />
+						{data.linkText}
+						<ExternalLink size={20} />
 					</a>
 				</div>
 			</div>
@@ -134,7 +151,7 @@
 	.info-layout {
 		position: absolute;
 		/* Зміщуємо контейнер правіше на 60px, щоб компенсувати збільшений правий padding */
-		right: calc(9rem - 60px); 
+		right: calc(9rem - 60px);
 		top: 0;
 		height: 100vh;
 		width: calc(100vw - 12rem + 120px);
@@ -144,13 +161,13 @@
 		display: flex;
 		flex-direction: column;
 		/* Величезний горизонтальний padding (100px), щоб тіні ніколи не обрізались */
-		padding: 40px 100px; 
+		padding: 40px 100px;
 		box-sizing: border-box;
-		/* Scroll snapping - м'якіший режим proximity */
-		scroll-snap-type: y proximity;
+		/* Scroll snapping - жорстке прилипання, але з плавною анімацією */
+		scroll-snap-type: y mandatory;
 		scroll-behavior: smooth;
 	}
-	
+
 	/* Сховати стандартний скролбар для слайдів, оскільки вони самі скроляться */
 	.info-layout::-webkit-scrollbar {
 		display: none;
@@ -158,6 +175,7 @@
 
 	.info-slide {
 		scroll-snap-align: center;
+		scroll-snap-stop: always;
 		margin: 30px 0; /* Трохи більший відступ між слайдами */
 	}
 
@@ -168,19 +186,21 @@
 		display: flex;
 		flex-direction: column;
 		gap: 20px;
-		
+
 		/* Glassmorphism без обводки */
 		background: rgba(0, 0, 0, 0.25);
 		backdrop-filter: blur(20px);
 		-webkit-backdrop-filter: blur(20px);
-		box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.1);
+		box-shadow:
+			0 20px 50px rgba(0, 0, 0, 0.5),
+			inset 0 0 20px rgba(255, 255, 255, 0.1);
 	}
 
 	/* Hero Slide */
 	.slide-hero {
 		align-items: center;
 		text-align: center;
-		margin-top: 130px; /* Опускаємо перший слайд нижче */
+		margin-top: 130px; /* Опускаємо перший слайд ще нижче */
 	}
 
 	.photo-wrapper {
@@ -188,12 +208,12 @@
 		height: 150px;
 		border-radius: 50%;
 		padding: 8px;
-		background: rgba(255,255,255,0.1);
-		border: 2px solid rgba(255,255,255,0.3);
+		background: rgba(255, 255, 255, 0.1);
+		border: 2px solid rgba(255, 255, 255, 0.3);
 		box-shadow: 0 4px 25px rgba(0, 0, 0, 0.2);
 		overflow: hidden;
 		flex-shrink: 0;
-		margin-top: -110px; /* Менше перекриває контейнер зверху */
+		margin-top: -150px; /* Ще більше перекриває контейнер зверху */
 		z-index: 10;
 	}
 
@@ -216,7 +236,7 @@
 		border-radius: 12px;
 		font-weight: 600;
 		color: white;
-		border: 1px solid rgba(255,255,255,0.3);
+		border: 1px solid rgba(255, 255, 255, 0.3);
 		white-space: nowrap;
 	}
 
@@ -248,7 +268,7 @@
 		border-radius: 12px;
 		font-size: 0.9rem;
 		font-weight: 600;
-		box-shadow: 0 0 10px rgba(0,0,0,0.3);
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 	}
 
 	.project-content {
@@ -284,7 +304,7 @@
 	.project-feature {
 		font-size: 1.1rem; /* Збільшений текст для портфоліо */
 		padding: 12px;
-		background: rgba(255,255,255,0.05);
+		background: rgba(255, 255, 255, 0.05);
 		border-radius: 12px;
 		border-left: 3px solid var(--accent-primary, #646cff);
 		color: white;
@@ -311,8 +331,6 @@
 		transform: translateY(-2px);
 		box-shadow: 0 5px 15px rgba(100, 108, 255, 0.4);
 	}
-	
-	
 
 	.sidebar-icons {
 		position: absolute;
@@ -324,7 +342,7 @@
 		gap: 1.5rem;
 		z-index: 10001;
 		/* Дозволяємо клікати по іконках, незважаючи на pointer-events: none у контейнері */
-		pointer-events: auto; 
+		pointer-events: auto;
 	}
 
 	.fullscreen-btn {
@@ -333,39 +351,30 @@
 		right: 2rem;
 		z-index: 10002;
 		pointer-events: auto;
-		
-		/* Новий мінімалістичний стиль */
-		background: rgba(255, 255, 255, 0.05);
-		backdrop-filter: blur(8px);
-		-webkit-backdrop-filter: blur(8px);
-		border: 1px solid rgba(255, 255, 255, 0.1);
-		border-radius: 50%;
-		width: 2.75rem;
-		height: 2.75rem;
+
+		/* Без кола, лише чистий клікабельний елемент */
+		background: transparent;
+		border: none;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		cursor: pointer;
-		transition: all 0.3s ease;
-		padding: 0;
-	}
-
-	.fullscreen-btn:hover {
-		background: rgba(255, 255, 255, 0.15);
-		transform: scale(1.1);
-		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+		padding: 10px; /* Зона кліку */
 	}
 
 	.fullscreen-btn :global(svg) {
-		width: 1.35rem;
-		height: 1.35rem;
-		stroke: rgba(255, 255, 255, 0.75);
+		width: 2rem;
+		height: 2rem;
+		stroke: rgba(255, 255, 255, 0.85);
 		stroke-width: 1.5;
+		filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 		transition: all 0.3s ease;
 	}
 
 	.fullscreen-btn:hover :global(svg) {
 		stroke: white;
+		filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+		transform: scale(1.15);
 	}
 
 	.glass-icon {
@@ -386,7 +395,9 @@
 		-webkit-mask-repeat: no-repeat;
 		mask-repeat: no-repeat;
 		border: none;
-		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), inset 0 0 10px rgba(255, 255, 255, 0.1);
+		box-shadow:
+			0 4px 6px rgba(0, 0, 0, 0.1),
+			inset 0 0 10px rgba(255, 255, 255, 0.1);
 		cursor: pointer;
 		transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 		padding: 0;
@@ -396,9 +407,11 @@
 	.glass-icon:hover {
 		background: rgba(255, 255, 255, 0.2);
 		transform: scale(1.1);
-		box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2), inset 0 0 15px rgba(255, 255, 255, 0.3);
+		box-shadow:
+			0 8px 16px rgba(0, 0, 0, 0.2),
+			inset 0 0 15px rgba(255, 255, 255, 0.3);
 	}
-	
+
 	.glass-icon:active {
 		transform: scale(0.95);
 	}
