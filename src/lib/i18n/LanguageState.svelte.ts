@@ -139,6 +139,8 @@ const TranslationSchema = z.object({
     hero: z.object({
         greeting: z.string(),
         description: z.string(),
+        description_sea_desktop: z.string(),
+        description_sea_mobile: z.string(),
         buttons: z.object({
             website: z.string(),
             apps: z.string(),

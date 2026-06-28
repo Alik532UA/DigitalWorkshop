@@ -75,6 +75,15 @@
 		langState.set(langState.current === 'uk' ? 'en' : 'uk');
 	}
 
+	let formattedGreeting = $derived(
+		t.hero.greeting
+			.replace(/\n/g, '<br />')
+			.replace(
+				/\[\[(.*?)\]\]/g, 
+				(match, key) => `<span class="inline-badge">${t.hero.buttons[key as keyof typeof t.hero.buttons]}</span>`
+			)
+	);
+
 	// Стан для кастомного скролу
 	let currentIndex = $state(0);
 	let isScrolling = false;
@@ -182,13 +191,9 @@
 					</div>
 					<div class="hero-text">
 						<p>
-							Мене звати Алік<br />
-							і я створюю сучасні <span class="inline-badge">сайти</span>,
-							<span class="inline-badge">застосунки</span>, і навіть
-							<span class="inline-badge">ігри</span>!<br /><br />
-							А для творчих шкіл та благодійних організацій у мене
-							<span class="inline-badge">спеціальна пропозиція</span>!<br /><br />
-							Вибери який продукт тебе цікавить щоб дізнатися більше і подивитися вже існуючі мої роботи
+							{@html formattedGreeting}<br /><br />
+							<span class="desktop-text">{t.hero.description_sea_desktop}</span>
+							<span class="mobile-text">{t.hero.description_sea_mobile}</span>
 						</p>
 					</div>
 				</div>
@@ -471,7 +476,7 @@
 		right: 2rem;
 		z-index: 10002;
 		display: flex;
-		gap: 1.5rem; /* Відстань між іконками */
+		gap: 0.75rem; /* Зменшено відстань між іконками */
 		pointer-events: none; /* Щоб кліки проходили крізь порожнечу */
 	}
 
@@ -483,20 +488,24 @@
 	}
 
 	.volume-slider-container {
-		width: 0;
+		position: absolute;
+		top: 100%;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 90px;
 		opacity: 0;
-		overflow: hidden;
+		visibility: hidden;
 		transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 		display: flex;
 		align-items: center;
-		margin-left: 0;
+		justify-content: center;
+		padding-top: 15px; /* Відступ від кнопки до повзунка */
 	}
 
 	.audio-control-wrapper:hover .volume-slider-container,
 	.volume-slider-container:focus-within {
-		width: 80px; /* Ширина повзунка */
 		opacity: 1;
-		margin-left: 10px;
+		visibility: visible;
 	}
 
 	.volume-slider {
@@ -534,12 +543,12 @@
 		align-items: center;
 		justify-content: center;
 		cursor: pointer;
-		padding: 10px; /* Зона кліку */
+		padding: 8px; /* Менша зона кліку */
 	}
 
 	.icon-btn :global(svg) {
-		width: 2rem;
-		height: 2rem;
+		width: 1.5rem; /* Менша іконка */
+		height: 1.5rem;
 		stroke: rgba(255, 255, 255, 0.85);
 		stroke-width: 1.5;
 		filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
@@ -604,5 +613,75 @@
 		stroke: white;
 		filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
 		transform: scale(1.1);
+	}
+
+	.mobile-text {
+		display: none;
+	}
+
+	@media (max-width: 768px) {
+		.desktop-text {
+			display: none;
+		}
+		
+		.mobile-text {
+			display: inline;
+		}
+
+		/* Зміщуємо бокову панель іконок вниз */
+		.sidebar-icons {
+			right: 50%;
+			top: auto;
+			bottom: 1rem;
+			transform: translateX(50%);
+			flex-direction: row; /* Горизонтально */
+			gap: 1rem;
+		}
+
+		/* Зменшуємо іконки внизу */
+		.glass-icon {
+			width: 3.5rem;
+			height: 3.5rem;
+		}
+
+		.glass-icon :global(svg) {
+			width: 1.8rem;
+			height: 1.8rem;
+		}
+
+		/* Адаптуємо головний блок щоб звільнити місце знизу */
+		.info-layout {
+			right: 0;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 95vw;
+			max-width: 100%;
+			height: calc(100vh - 6.5rem); /* Місце для іконок знизу */
+		}
+
+		.slide-wrapper {
+			padding: 20px; /* Менші відступи по боках */
+		}
+
+		.info-block {
+			padding: 1.5rem; /* Менший внутрішній padding */
+		}
+
+		.project-img {
+			height: 160px; /* Трохи менші картинки */
+		}
+
+		/* Зменшуємо заголовок щоб влазив на мобільному */
+		.hero-text {
+			font-size: 0.95rem;
+		}
+		
+		.project-content h3 {
+			font-size: 1.5rem;
+		}
+
+		.project-desc {
+			font-size: 1.1rem;
+		}
 	}
 </style>
