@@ -753,7 +753,7 @@
 						>
 							<div class="info-slide glass-panel info-block slide-project">
 								<div class="project-img">
-									<img src="{base}/images/{p.img}" alt={data.title} />
+									<img src="{base}/images/{p.img}" alt={data.title} class="img-{p.id}" />
 									<span class="tech-badge">{data.tech}</span>
 								</div>
 								<div class="project-content">
@@ -1203,6 +1203,10 @@
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
+	}
+
+	.project-img img.img-cv_web {
+		object-position: center 22%; /* Зсуваємо зображення трохи вниз, щоб взяти вищу частину кадру */
 	}
 
 	.tech-badge {
