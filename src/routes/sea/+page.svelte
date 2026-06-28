@@ -196,6 +196,25 @@
 	let touchStartY = 0;
 	let touchStartX = 0;
 
+	// Стан для видимості контролів при активності миші
+	let isMouseActive = $state(true);
+	let mouseTimeout: ReturnType<typeof setTimeout> | undefined;
+
+	function handleMouseMove() {
+		isMouseActive = true;
+		if (mouseTimeout) clearTimeout(mouseTimeout);
+		mouseTimeout = setTimeout(() => {
+			isMouseActive = false;
+		}, 3000); // 3 seconds of inactivity
+	}
+
+	$effect(() => {
+		handleMouseMove();
+		return () => {
+			if (mouseTimeout) clearTimeout(mouseTimeout);
+		};
+	});
+
 	// Герой + всі проєкти або контент вкладок
 	let totalSlides = $derived.by(() => {
 		if (currentTab === 'anchor') {
@@ -339,6 +358,9 @@
 <svelte:window
 	onfullscreenchange={() => (isFullscreen = !!document.fullscreenElement)}
 	onkeydown={handleKeyDown}
+	onmousemove={handleMouseMove}
+	ontouchstart={handleMouseMove}
+	onmouseleave={() => (isMouseActive = false)}
 />
 
 <div
@@ -360,30 +382,32 @@
 	></audio>
 
 	<!-- Кнопки керування (мова, звук, повноекранний режим) -->
-	<div class="top-controls">
-		<button class="icon-btn" onclick={toggleLanguage} aria-label="Toggle Language">
-			{@html iconLanguage}
-		</button>
-		<div class="audio-control-wrapper">
-			<button class="icon-btn" onclick={toggleAudio} aria-label="Toggle Audio">
-				{@html isAudioPlaying ? iconMusicOn : iconMusicOff}
+	{#if isMouseActive}
+		<div class="top-controls" transition:fade={{ duration: 300 }}>
+			<button class="icon-btn" onclick={toggleLanguage} aria-label="Toggle Language">
+				{@html iconLanguage}
 			</button>
-			<div class="volume-slider-container">
-				<input
-					type="range"
-					min="0"
-					max="1"
-					step="0.01"
-					bind:value={audioVolume}
-					class="volume-slider"
-					aria-label="Volume"
-				/>
+			<div class="audio-control-wrapper">
+				<button class="icon-btn" onclick={toggleAudio} aria-label="Toggle Audio">
+					{@html isAudioPlaying ? iconMusicOn : iconMusicOff}
+				</button>
+				<div class="volume-slider-container">
+					<input
+						type="range"
+						min="0"
+						max="1"
+						step="0.01"
+						bind:value={audioVolume}
+						class="volume-slider"
+						aria-label="Volume"
+					/>
+				</div>
 			</div>
+			<button class="icon-btn" onclick={toggleFullscreen} aria-label="Toggle Fullscreen">
+				{@html isFullscreen ? iconMinimize : iconMaximize}
+			</button>
 		</div>
-		<button class="icon-btn" onclick={toggleFullscreen} aria-label="Toggle Fullscreen">
-			{@html isFullscreen ? iconMinimize : iconMaximize}
-		</button>
-	</div>
+	{/if}
 
 	<div
 		class="info-layout"
@@ -393,7 +417,7 @@
 		role="presentation"
 	>
 		<!-- Навігаційні стрілки (Вертикальні) -->
-		{#if currentIndex > 0}
+		{#if currentIndex > 0 && isMouseActive}
 			<button 
 				class="slide-nav-arrow arrow-up"
 				transition:fade={{ duration: 200 }}
@@ -404,7 +428,7 @@
 			</button>
 		{/if}
 
-		{#if currentIndex < totalSlides - 1}
+		{#if currentIndex < totalSlides - 1 && isMouseActive}
 			<button 
 				class="slide-nav-arrow arrow-down"
 				transition:fade={{ duration: 200 }}
@@ -1050,7 +1074,13 @@
 		z-index: 10002;
 		display: flex;
 		gap: 0.75rem; /* Зменшено відстань між іконками */
-		pointer-events: none; /* Щоб кліки проходили крізь порожнечу */
+		pointer-events: auto; /* Дозволяємо ховер на весь контейнер */
+		opacity: 0.5;
+		transition: opacity 0.3s ease;
+	}
+
+	.top-controls:hover {
+		opacity: 1;
 	}
 
 	.audio-control-wrapper {
@@ -1249,33 +1279,31 @@
 		position: absolute;
 		left: 50%;
 		z-index: 1000;
-		background: rgba(255, 255, 255, 0.1);
-		border: 1px solid rgba(255, 255, 255, 0.2);
-		border-radius: 50%;
+		background: transparent;
+		border: none;
 		width: 44px;
 		height: 44px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		cursor: pointer;
-		backdrop-filter: blur(8px);
-		-webkit-backdrop-filter: blur(8px);
-		transition: background 0.3s ease, border-color 0.3s ease;
+		transition: opacity 0.3s ease, transform 0.3s ease;
 		pointer-events: auto;
 		padding: 0;
+		opacity: 0.5;
 	}
 
 	.slide-nav-arrow :global(svg) {
-		width: 24px;
-		height: 24px;
-		stroke: rgba(255, 255, 255, 0.8);
+		width: 40px;
+		height: 40px;
+		stroke: rgba(255, 255, 255, 0.9);
 		stroke-width: 1.5;
-		transition: stroke 0.3s ease;
+		filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+		transition: stroke 0.3s ease, transform 0.3s ease;
 	}
 
 	.slide-nav-arrow:hover {
-		background: rgba(255, 255, 255, 0.25);
-		border-color: rgba(255, 255, 255, 0.4);
+		opacity: 1;
 	}
 
 	.slide-nav-arrow:hover :global(svg) {
