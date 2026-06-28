@@ -105,7 +105,7 @@
 	$effect(() => {
 		if (audioRef && !isFadingIn) {
 			isFadingIn = true;
-			
+
 			const startFadeIn = () => {
 				clearInterval(fadeInterval);
 				audioVolume = 0;
@@ -132,28 +132,34 @@
 				}
 				if (audioRef) {
 					audioVolume = 0;
-					audioRef.play().then(() => {
-						startFadeIn();
-						removeListeners(); // Видаляємо слухачів ТІЛЬКИ після успішного старту
-					}).catch(() => {
-						// Браузер заблокував цю взаємодію (наприклад, скрол). Чекаємо на наступну (клік/свайп)
-					});
+					audioRef
+						.play()
+						.then(() => {
+							startFadeIn();
+							removeListeners(); // Видаляємо слухачів ТІЛЬКИ після успішного старту
+						})
+						.catch(() => {
+							// Браузер заблокував цю взаємодію (наприклад, скрол). Чекаємо на наступну (клік/свайп)
+						});
 				}
 			};
 
 			audioVolume = 0; // Завжди починаємо з 0
-			audioRef.play().then(() => {
-				// Якщо браузер дозволив автоплей (наприклад, перехід з іншої сторінки)
-				startFadeIn();
-			}).catch((err) => {
-				console.error('Audio playback failed (Autoplay Policy):', err);
-				
-				// Якщо браузер заблокував автоматичний запуск, чекаємо на валідну взаємодію
-				document.addEventListener('click', startAudio);
-				document.addEventListener('touchstart', startAudio);
-				document.addEventListener('touchend', startAudio); // Надійніше для Safari
-				document.addEventListener('keydown', startAudio);
-			});
+			audioRef
+				.play()
+				.then(() => {
+					// Якщо браузер дозволив автоплей (наприклад, перехід з іншої сторінки)
+					startFadeIn();
+				})
+				.catch((err) => {
+					console.error('Audio playback failed (Autoplay Policy):', err);
+
+					// Якщо браузер заблокував автоматичний запуск, чекаємо на валідну взаємодію
+					document.addEventListener('click', startAudio);
+					document.addEventListener('touchstart', startAudio);
+					document.addEventListener('touchend', startAudio); // Надійніше для Safari
+					document.addEventListener('keydown', startAudio);
+				});
 		}
 	});
 
@@ -226,7 +232,11 @@
 		if (isScrolling) return;
 
 		const isHorizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey;
-		const delta = isHorizontal ? (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) : e.deltaY;
+		const delta = isHorizontal
+			? Math.abs(e.deltaX) > Math.abs(e.deltaY)
+				? e.deltaX
+				: e.deltaY
+			: e.deltaY;
 
 		// Горизонтальний скрол (переключення вкладок)
 		if (isHorizontal) {
@@ -286,7 +296,7 @@
 
 	function handleKeyDown(e: KeyboardEvent) {
 		if (isScrolling) return;
-		
+
 		switch (e.key) {
 			case 'ArrowDown':
 			case 's':
@@ -324,12 +334,16 @@
 	<title>Sea View</title>
 </svelte:head>
 
-<svelte:window 
-	onfullscreenchange={() => (isFullscreen = !!document.fullscreenElement)} 
+<svelte:window
+	onfullscreenchange={() => (isFullscreen = !!document.fullscreenElement)}
 	onkeydown={handleKeyDown}
 />
 
-<div class="sea-container" data-hovered-tab={hoveredTab || ''} class:lang-changing={langState.isChanging}>
+<div
+	class="sea-container"
+	data-hovered-tab={hoveredTab || ''}
+	class:lang-changing={langState.isChanging}
+>
 	<video autoplay loop muted playsinline class="background-video">
 		<source src="{base}/sea.webm" type="video/webm" />
 	</video>
@@ -378,133 +392,136 @@
 	>
 		<!-- Трек для слайдів -->
 		{#key currentTab}
-			<div 
-				class="slides-track" 
+			<div
+				class="slides-track"
 				style="transform: translateY(calc(-75vh * {currentIndex}));"
 				in:fly={{ x: slideDirection * 100, duration: 400, delay: 400, easing: cubicOut }}
 				out:fly={{ x: slideDirection * -100, duration: 400, easing: cubicIn }}
 			>
 				{#if currentTab === 'anchor'}
 					<!-- Слайд 1: Герой -->
-				<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-				<div class="slide-wrapper" class:active={currentIndex === 0} onclick={() => goToSlide(0)}>
-					<div class="info-slide glass-panel info-block slide-hero">
-						<div class="photo-wrapper">
-							<img src="{base}/images/profile.jpg" alt="Alik" class="profile-photo" />
-						</div>
-						<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions, a11y_mouse_events_have_key_events -->
-						<div class="hero-text" onclick={(e) => {
-							const target = e.target as HTMLElement;
-							if (target.tagName === 'BUTTON' && target.classList.contains('inline-badge')) {
-								e.stopPropagation();
-								const tabId = target.dataset.tab;
-								if (tabId) {
-									setTab(tabId);
-								}
-							}
-						}}
-						onmouseover={(e) => {
-							const target = e.target as HTMLElement;
-							if (target.tagName === 'BUTTON' && target.classList.contains('inline-badge')) {
-								hoveredTab = target.dataset.tab || null;
-							}
-						}}
-						onmouseout={(e) => {
-							const target = e.target as HTMLElement;
-							if (target.tagName === 'BUTTON' && target.classList.contains('inline-badge')) {
-								hoveredTab = null;
-							}
-						}}>
-							<p>
-								{@html formattedGreeting}<br /><br />
-								<span class="desktop-text">{t.hero.description_sea_desktop}</span>
-								<span class="mobile-text">{t.hero.description_sea_mobile}</span>
-							</p>
-							<a
-								href={config.telegramUrl}
-								target="_blank"
-								class="btn-primary project-btn glass"
-								style="margin-top: 2rem; display: inline-flex;"
-							>
-								{t.footer.ask}
-							</a>
-						</div>
-					</div>
-				</div>
-
-				<!-- Слайди з проєктами -->
-				{#each projects as p, i}
-					{@const data = t.portfolio.projects[p.id as keyof typeof t.portfolio.projects]}
-					{@const Icon = p.icon}
 					<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-					<div
-						class="slide-wrapper"
-						class:active={currentIndex === i + 1}
-						onclick={() => goToSlide(i + 1)}
-					>
-						<div class="info-slide glass-panel info-block slide-project">
-							<div class="project-img">
-								<img src="{base}/images/{p.img}" alt={data.title} />
-								<span class="tech-badge">{data.tech}</span>
+					<div class="slide-wrapper" class:active={currentIndex === 0} onclick={() => goToSlide(0)}>
+						<div class="info-slide glass-panel info-block slide-hero">
+							<div class="photo-wrapper">
+								<img src="{base}/images/profile.jpg" alt="Alik" class="profile-photo" />
 							</div>
-							<div class="project-content">
-								<div class="title-row">
-									<Icon size={32} class="accent-icon" />
-									<h3>{data.title}</h3>
-								</div>
-								<p class="project-desc">{data.description}</p>
-								<p class="project-feature"><strong>Фішка:</strong> {data.feature}</p>
-								<a href={p.link} target="_blank" class="btn-primary project-btn">
-									{data.linkText}
-									<ExternalLink size={20} />
+							<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions, a11y_mouse_events_have_key_events -->
+							<div
+								class="hero-text"
+								onclick={(e) => {
+									const target = e.target as HTMLElement;
+									if (target.tagName === 'BUTTON' && target.classList.contains('inline-badge')) {
+										e.stopPropagation();
+										const tabId = target.dataset.tab;
+										if (tabId) {
+											setTab(tabId);
+										}
+									}
+								}}
+								onmouseover={(e) => {
+									const target = e.target as HTMLElement;
+									if (target.tagName === 'BUTTON' && target.classList.contains('inline-badge')) {
+										hoveredTab = target.dataset.tab || null;
+									}
+								}}
+								onmouseout={(e) => {
+									const target = e.target as HTMLElement;
+									if (target.tagName === 'BUTTON' && target.classList.contains('inline-badge')) {
+										hoveredTab = null;
+									}
+								}}
+							>
+								<p>
+									{@html formattedGreeting}<br /><br />
+									<span class="desktop-text">{t.hero.description_sea_desktop}</span>
+									<span class="mobile-text">{t.hero.description_sea_mobile}</span>
+								</p>
+								<a
+									href={config.telegramUrl}
+									target="_blank"
+									class="btn-primary project-btn glass"
+									style="margin-top: 2rem; display: inline-flex;"
+								>
+									{t.footer.ask}
 								</a>
 							</div>
 						</div>
 					</div>
-				{/each}
-			{:else}
-				{@const tabData = t.tabs[currentTab as keyof typeof t.tabs]}
-				{@const items = (tabData as any).benefits || (tabData as any).faq || []}
-				{@const chunks = getChunks(items)}
 
-				<!-- Вступний слайд вкладки -->
-				<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-				<div class="slide-wrapper" class:active={currentIndex === 0} onclick={() => goToSlide(0)}>
-					<div class="info-slide glass-panel info-block slide-hero">
-						<div class="hero-text">
-							<h2 class="tab-title">{tabData.title}</h2>
-							<p class="tab-intro">{@html tabData.intro.replace(/\n/g, '<br />')}</p>
-							<a
-								href={config.telegramUrl}
-								target="_blank"
-								class="btn-primary project-btn glass"
-								style="margin-top: 2rem; display: inline-flex;"
-							>
-								{tabData.cta}
-							</a>
-						</div>
-					</div>
-				</div>
-
-				<!-- Слайди з деталями (FAQ / Переваги) -->
-				{#each chunks as chunk, i}
-					<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-					<div
-						class="slide-wrapper"
-						class:active={currentIndex === i + 1}
-						onclick={() => goToSlide(i + 1)}
-					>
-						<div class="chunk-content">
-							{#each chunk as item}
-								<div class="info-slide glass-panel info-block content-item">
-									<h3 class="item-title">{item.h || item.q}</h3>
-									<p class="item-desc">{@html (item.p || item.a).replace(/\n/g, '<br />')}</p>
+					<!-- Слайди з проєктами -->
+					{#each projects as p, i}
+						{@const data = t.portfolio.projects[p.id as keyof typeof t.portfolio.projects]}
+						{@const Icon = p.icon}
+						<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+						<div
+							class="slide-wrapper"
+							class:active={currentIndex === i + 1}
+							onclick={() => goToSlide(i + 1)}
+						>
+							<div class="info-slide glass-panel info-block slide-project">
+								<div class="project-img">
+									<img src="{base}/images/{p.img}" alt={data.title} />
+									<span class="tech-badge">{data.tech}</span>
 								</div>
-							{/each}
+								<div class="project-content">
+									<div class="title-row">
+										<Icon size={32} class="accent-icon" />
+										<h3>{data.title}</h3>
+									</div>
+									<p class="project-desc">{data.description}</p>
+									<p class="project-feature"><strong>Фішка:</strong> {data.feature}</p>
+									<a href={p.link} target="_blank" class="btn-primary project-btn">
+										{data.linkText}
+										<ExternalLink size={20} />
+									</a>
+								</div>
+							</div>
+						</div>
+					{/each}
+				{:else}
+					{@const tabData = t.tabs[currentTab as keyof typeof t.tabs]}
+					{@const items = (tabData as any).benefits || (tabData as any).faq || []}
+					{@const chunks = getChunks(items)}
+
+					<!-- Вступний слайд вкладки -->
+					<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+					<div class="slide-wrapper" class:active={currentIndex === 0} onclick={() => goToSlide(0)}>
+						<div class="info-slide glass-panel info-block slide-hero">
+							<div class="hero-text">
+								<h2 class="tab-title">{tabData.title}</h2>
+								<p class="tab-intro">{@html tabData.intro.replace(/\n/g, '<br />')}</p>
+								<a
+									href={config.telegramUrl}
+									target="_blank"
+									class="btn-primary project-btn glass"
+									style="margin-top: 2rem; display: inline-flex;"
+								>
+									{tabData.cta}
+								</a>
+							</div>
 						</div>
 					</div>
-				{/each}
-			{/if}
+
+					<!-- Слайди з деталями (FAQ / Переваги) -->
+					{#each chunks as chunk, i}
+						<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+						<div
+							class="slide-wrapper"
+							class:active={currentIndex === i + 1}
+							onclick={() => goToSlide(i + 1)}
+						>
+							<div class="chunk-content">
+								{#each chunk as item}
+									<div class="info-slide glass-panel info-block content-item">
+										<h3 class="item-title">{item.h || item.q}</h3>
+										<p class="item-desc">{@html (item.p || item.a).replace(/\n/g, '<br />')}</p>
+									</div>
+								{/each}
+							</div>
+						</div>
+					{/each}
+				{/if}
 			</div>
 		{/key}
 	</div>
@@ -513,10 +530,17 @@
 		{#each tabIcons as tab}
 			<div class="sidebar-item">
 				{#if currentTab === tab.id}
-					<div class="slide-dots" transition:fade={{ duration: 200 }}>
+					<div
+						class="slide-dots"
+						transition:fade={{ duration: 200 }}
+						style="--dot-size: {Math.max(3, 8 - totalSlides * 0.4)}px; --dot-gap: {Math.max(
+							4,
+							10 - totalSlides * 0.5
+						)}px;"
+					>
 						{#each Array(totalSlides) as _, i}
-							<button 
-								class="slide-dot" 
+							<button
+								class="slide-dot"
 								class:active={currentIndex === i}
 								onclick={() => goToSlide(i)}
 								aria-label="Go to slide {i + 1}"
@@ -543,10 +567,10 @@
 
 	<!-- Нижні праві кнопки (Контакти) -->
 	<div class="bottom-right-controls">
-		<a 
-			href={config.telegramUrl} 
-			target="_blank" 
-			class="glass-icon" 
+		<a
+			href={config.telegramUrl}
+			target="_blank"
+			class="glass-icon"
 			class:bg-blue={currentIndex > 0}
 			style="--mask-url: url({squircleUrl});"
 			aria-label="Contact via Telegram"
@@ -640,12 +664,12 @@
 		left: 50%;
 		width: calc(100% - 20px);
 		max-width: 510px; /* Було 600px */
-		
+
 		/* За замовчуванням (наступні слайди): притискаємо до верху (з відступом 40px) */
 		top: 40px;
 		transform: translate(-50%, 0);
-		
-		transition: 
+
+		transition:
 			top 0.8s cubic-bezier(0.25, 1, 0.5, 1),
 			transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
 	}
@@ -720,7 +744,11 @@
 		/* За замовчуванням блюру немає (прибирається швидко при скролі) */
 		backdrop-filter: blur(0px);
 		-webkit-backdrop-filter: blur(0px);
-		transition: backdrop-filter 0.2s ease, -webkit-backdrop-filter 0.2s ease, filter 0.25s ease-out, opacity 0.25s ease-out;
+		transition:
+			backdrop-filter 0.2s ease,
+			-webkit-backdrop-filter 0.2s ease,
+			filter 0.25s ease-out,
+			opacity 0.25s ease-out;
 	}
 
 	/* Блюр вмісту контейнера під час зміни мови */
@@ -728,7 +756,7 @@
 		filter: blur(15px);
 		opacity: 1; /* Контейнер залишається видимим, адаптуючи розмір */
 	}
-	
+
 	.sea-container.lang-changing .info-block > * {
 		opacity: 0; /* Плавно зникає тільки вміст */
 		transition: opacity 0.25s ease-out;
@@ -758,9 +786,11 @@
 		margin-top: 0 !important;
 		width: max-content;
 		opacity: 1;
-		transition: opacity 0.4s ease, transform 0.4s ease;
+		transition:
+			opacity 0.4s ease,
+			transform 0.4s ease;
 	}
-	
+
 	.slide-wrapper:not(.active) .slide-hero .project-btn {
 		opacity: 0;
 		pointer-events: none;
@@ -780,7 +810,7 @@
 	.project-btn.glass:hover {
 		background: rgba(2, 132, 199, 0.7) !important;
 	}
-	
+
 	.slide-hero .project-btn:hover {
 		transform: translateX(-50%) scale(1.05);
 	}
@@ -795,7 +825,7 @@
 		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 		overflow: hidden;
 		flex-shrink: 0;
-		
+
 		/* Повертаємо у нормальний потік, але з від'ємним відступом, 
 		   щоб воно стирчало на ~63px (97px - 34px padding) */
 		margin-top: -98px; /* Було -115px */
@@ -832,13 +862,13 @@
 	}
 
 	:global(button.inline-badge:hover),
-	.sea-container[data-hovered-tab="website"] :global(button.inline-badge[data-tab="website"]),
-	.sea-container[data-hovered-tab="apps"] :global(button.inline-badge[data-tab="apps"]),
-	.sea-container[data-hovered-tab="games"] :global(button.inline-badge[data-tab="games"]),
-	.sea-container[data-hovered-tab="promo"] :global(button.inline-badge[data-tab="promo"]) {
+	.sea-container[data-hovered-tab='website'] :global(button.inline-badge[data-tab='website']),
+	.sea-container[data-hovered-tab='apps'] :global(button.inline-badge[data-tab='apps']),
+	.sea-container[data-hovered-tab='games'] :global(button.inline-badge[data-tab='games']),
+	.sea-container[data-hovered-tab='promo'] :global(button.inline-badge[data-tab='promo']) {
 		background: rgba(255, 255, 255, 0.25);
 		transform: scale(1.1);
-		box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 	}
 
 	:global(button.inline-badge:active) {
@@ -961,14 +991,14 @@
 		right: calc(100% + 15px);
 		display: flex;
 		flex-direction: column;
-		gap: 8px;
+		gap: var(--dot-gap, 8px);
 		align-items: center;
 		justify-content: center;
 	}
 
 	.slide-dot {
-		width: 8px;
-		height: 8px;
+		width: var(--dot-size, 8px);
+		height: var(--dot-size, 8px);
 		border-radius: 50%;
 		background: rgba(255, 255, 255, 0.3);
 		border: none;
@@ -1107,10 +1137,10 @@
 	}
 
 	.glass-icon:hover,
-	.sea-container[data-hovered-tab="website"] .glass-icon[aria-label="website"],
-	.sea-container[data-hovered-tab="apps"] .glass-icon[aria-label="apps"],
-	.sea-container[data-hovered-tab="games"] .glass-icon[aria-label="games"],
-	.sea-container[data-hovered-tab="promo"] .glass-icon[aria-label="promo"] {
+	.sea-container[data-hovered-tab='website'] .glass-icon[aria-label='website'],
+	.sea-container[data-hovered-tab='apps'] .glass-icon[aria-label='apps'],
+	.sea-container[data-hovered-tab='games'] .glass-icon[aria-label='games'],
+	.sea-container[data-hovered-tab='promo'] .glass-icon[aria-label='promo'] {
 		background: rgba(255, 255, 255, 0.2);
 		transform: scale(1.1);
 		box-shadow:
@@ -1148,10 +1178,10 @@
 
 	.glass-icon:hover :global(svg),
 	.glass-icon.active :global(svg),
-	.sea-container[data-hovered-tab="website"] .glass-icon[aria-label="website"] :global(svg),
-	.sea-container[data-hovered-tab="apps"] .glass-icon[aria-label="apps"] :global(svg),
-	.sea-container[data-hovered-tab="games"] .glass-icon[aria-label="games"] :global(svg),
-	.sea-container[data-hovered-tab="promo"] .glass-icon[aria-label="promo"] :global(svg) {
+	.sea-container[data-hovered-tab='website'] .glass-icon[aria-label='website'] :global(svg),
+	.sea-container[data-hovered-tab='apps'] .glass-icon[aria-label='apps'] :global(svg),
+	.sea-container[data-hovered-tab='games'] .glass-icon[aria-label='games'] :global(svg),
+	.sea-container[data-hovered-tab='promo'] .glass-icon[aria-label='promo'] :global(svg) {
 		stroke: white;
 		filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
 		transform: scale(1.1);
