@@ -934,9 +934,11 @@
 		/* Візуальне зменшення неактивних слайдів */
 		transition:
 			transform 0.8s cubic-bezier(0.25, 1, 0.5, 1),
-			opacity 0.8s ease;
+			opacity 0.8s ease,
+			filter 0.8s ease;
 		transform: scale(0.9); /* Збільшили з 0.85 до 0.9 щоб більше стирчали */
 		opacity: 0.4;
+		filter: blur(2px);
 		cursor: pointer; /* Вказує що на них можна клікнути */
 	}
 
@@ -979,6 +981,7 @@
 	.slide-wrapper.active {
 		transform: scale(1);
 		opacity: 1;
+		filter: blur(0px);
 		cursor: default;
 		pointer-events: auto; /* Вмикаємо кліки для активного слайду */
 	}
@@ -1061,7 +1064,7 @@
 	}
 
 	/* Виносимо кнопку за межі контейнера на перших слайдах */
-	.slide-hero .project-btn {
+	.slide-hero :global(.contact-dropdown-wrapper) {
 		position: absolute;
 		bottom: -68px; /* Було -80px */
 		left: 50%;
@@ -1074,7 +1077,7 @@
 			transform 0.4s ease;
 	}
 
-	.slide-wrapper:not(.active) .slide-hero .project-btn {
+	.slide-wrapper:not(.active) .slide-hero :global(.contact-dropdown-wrapper) {
 		opacity: 0;
 		pointer-events: none;
 	}
