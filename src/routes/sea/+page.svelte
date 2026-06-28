@@ -1,8 +1,8 @@
 <script>
 	import { base } from '$app/paths';
 	import squircleUrl from '$lib/assets/squircle.svg';
-	import HeroSection from '$lib/components/sections/HeroSection.svelte';
-	import ProjectsSection from '$lib/components/sections/ProjectsSection.svelte';
+	import { t } from "$lib/i18n/LanguageState.svelte";
+	import { ExternalLink, Globe, Gamepad2, Box, FileUser } from "lucide-svelte";
 	
 	import iconHome from '$lib/assets/tabler/home.svg?raw';
 	import iconWorld from '$lib/assets/tabler/world-www.svg?raw';
@@ -11,6 +11,13 @@
 	import iconHeart from '$lib/assets/tabler/heart-handshake.svg?raw';
 
 	const icons = [iconHome, iconWorld, iconMobile, iconGamepad, iconHeart];
+	
+	const projects = [
+		{ id: 'slovko', img: 'slovko.jpg', icon: Globe, link: 'https://alik532ua.github.io/Slovko/' },
+		{ id: 'mindstep', img: 'mindstep.jpg', icon: Gamepad2, link: 'https://alik532ua.github.io/MindStep/' },
+		{ id: 'cv3d', img: 'cv_3d.jpg', icon: Box, link: 'https://alik532ua.itch.io/alik-cv-interactive-3d-experience' },
+		{ id: 'cv_web', img: 'cv_web.jpg', icon: FileUser, link: 'https://alik532ua.github.io/CV/' }
+	];
 </script>
 
 <svelte:head>
@@ -22,9 +29,43 @@
 		<source src="{base}/sea.webm" type="video/webm" />
 	</video>
 
-	<div class="glass-panel info-block">
-		<HeroSection />
-		<ProjectsSection />
+	<div class="info-layout">
+		<!-- Слайд 1: Герой -->
+		<div class="info-slide glass-panel info-block slide-hero">
+			<div class="photo-wrapper">
+				<img src="{base}/images/profile.jpg" alt="Alik" class="profile-photo" />
+			</div>
+			<div class="hero-text">
+				<p>
+					Мене звати Алік<br>
+					і я створюю сучасні <span class="inline-badge">сайти</span>, <span class="inline-badge">застосунки</span>, і навіть <span class="inline-badge">ігри</span>!<br><br>
+					А для творчих шкіл та благодійних організацій у мене <span class="inline-badge">спеціальна пропозиція</span>!<br><br>
+					Вибери який продукт тебе цікавить щоб дізнатися більше і подивитися вже існуючі мої роботи
+				</p>
+			</div>
+		</div>
+
+		<!-- Слайди з проєктами -->
+		{#each projects as p}
+			{@const data = t.portfolio.projects[p.id]}
+			<div class="info-slide glass-panel info-block slide-project">
+				<div class="project-img">
+					<img src="{base}/images/{p.img}" alt={data.title} />
+					<span class="tech-badge">{data.tech}</span>
+				</div>
+				<div class="project-content">
+					<div class="title-row">
+						<svelte:component this={p.icon} size={32} class="accent-icon" />
+						<h3>{data.title}</h3>
+					</div>
+					<p class="project-desc">{data.description}</p>
+					<p class="project-feature"><strong>Фішка:</strong> {data.feature}</p>
+					<a href={p.link} target="_blank" class="btn-primary project-btn">
+						{data.linkText} <ExternalLink size={20} />
+					</a>
+				</div>
+			</div>
+		{/each}
 	</div>
 
 	<div class="sidebar-icons">
@@ -62,42 +103,186 @@
 		object-fit: cover;
 	}
 
-	.info-block {
+	.info-layout {
 		position: absolute;
 		right: 9rem; /* Розташовано лівіше від іконок */
-		top: 50%;
-		transform: translateY(-50%);
+		top: 0;
+		height: 100vh;
 		width: calc(100vw - 12rem);
 		max-width: 450px;
-		max-height: 85vh;
 		overflow-y: auto;
-		border-radius: 24px;
-		padding: 2rem;
-		pointer-events: auto; /* Дозволяємо взаємодію (скрол, кліки) */
-		
-		/* Glassmorphism */
-		background: rgba(0, 0, 0, 0.2);
-		backdrop-filter: blur(16px);
-		-webkit-backdrop-filter: blur(16px);
-		border: 1px solid rgba(255, 255, 255, 0.15);
-		box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.05);
+		pointer-events: auto;
+		display: flex;
+		flex-direction: column;
+		/* Padding fix for shadows */
+		padding: 40px; 
+		box-sizing: border-box;
+		/* Scroll snapping */
+		scroll-snap-type: y mandatory;
+		scroll-behavior: smooth;
 	}
 	
-	/* Кастомізація скролбару для glass-панелі */
-	.info-block::-webkit-scrollbar {
-		width: 8px;
+	/* Сховати стандартний скролбар для слайдів, оскільки вони самі скроляться */
+	.info-layout::-webkit-scrollbar {
+		display: none;
 	}
-	.info-block::-webkit-scrollbar-track {
-		background: rgba(255, 255, 255, 0.05);
-		border-radius: 10px;
+
+	.info-slide {
+		scroll-snap-align: center;
+		scroll-snap-stop: always;
+		margin: 20px 0; /* Extra margin to ensure shadows are fully visible without cropping */
 	}
-	.info-block::-webkit-scrollbar-thumb {
-		background: rgba(255, 255, 255, 0.2);
-		border-radius: 10px;
+
+	.info-block {
+		border-radius: 24px;
+		padding: 2.5rem;
+		flex-shrink: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+		
+		/* Glassmorphism */
+		background: rgba(0, 0, 0, 0.25);
+		backdrop-filter: blur(20px);
+		-webkit-backdrop-filter: blur(20px);
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.1);
 	}
-	.info-block::-webkit-scrollbar-thumb:hover {
-		background: rgba(255, 255, 255, 0.3);
+
+	/* Hero Slide */
+	.slide-hero {
+		align-items: center;
+		text-align: center;
 	}
+
+	.photo-wrapper {
+		width: 150px;
+		height: 150px;
+		border-radius: 50%;
+		padding: 8px;
+		background: rgba(255,255,255,0.1);
+		border: 2px solid rgba(255,255,255,0.3);
+		box-shadow: 0 4px 25px rgba(0, 0, 0, 0.2);
+		overflow: hidden;
+		flex-shrink: 0;
+	}
+
+	.profile-photo {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		border-radius: 50%;
+	}
+
+	.hero-text {
+		font-size: 1.05rem; /* Текст зробити меншим, як просив користувач */
+		line-height: 1.6;
+		color: rgba(255, 255, 255, 0.9);
+	}
+
+	.inline-badge {
+		background: rgba(255, 255, 255, 0.15);
+		padding: 2px 10px;
+		border-radius: 12px;
+		font-weight: 600;
+		color: white;
+		border: 1px solid rgba(255,255,255,0.3);
+		white-space: nowrap;
+	}
+
+	/* Project Slide */
+	.slide-project {
+		padding: 0; /* Remove padding to let image reach edges at top */
+		overflow: hidden;
+	}
+
+	.project-img {
+		height: 220px;
+		width: 100%;
+		position: relative;
+	}
+
+	.project-img img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.tech-badge {
+		position: absolute;
+		top: 15px;
+		right: 15px;
+		background: var(--accent-primary, #646cff);
+		color: white;
+		padding: 6px 14px;
+		border-radius: 12px;
+		font-size: 0.9rem;
+		font-weight: 600;
+		box-shadow: 0 0 10px rgba(0,0,0,0.3);
+	}
+
+	.project-content {
+		padding: 25px;
+		display: flex;
+		flex-direction: column;
+		gap: 15px;
+	}
+
+	.title-row {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+	}
+
+	:global(.accent-icon) {
+		color: var(--accent-primary, #646cff);
+		flex-shrink: 0;
+	}
+
+	.project-content h3 {
+		font-size: 1.8rem; /* Збільшений текст для портфоліо */
+		margin: 0;
+		color: white;
+	}
+
+	.project-desc {
+		font-size: 1.25rem; /* Збільшений текст для портфоліо */
+		color: rgba(255, 255, 255, 0.85);
+		line-height: 1.5;
+	}
+
+	.project-feature {
+		font-size: 1.1rem; /* Збільшений текст для портфоліо */
+		padding: 12px;
+		background: rgba(255,255,255,0.05);
+		border-radius: 12px;
+		border-left: 3px solid var(--accent-primary, #646cff);
+		color: white;
+	}
+
+	.project-btn {
+		margin-top: 10px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		background: var(--accent-primary, #646cff);
+		color: white;
+		padding: 12px 24px;
+		border-radius: 16px;
+		text-decoration: none;
+		font-size: 1.1rem;
+		font-weight: 600;
+		transition: all 0.3s ease;
+		border: none;
+	}
+
+	.project-btn:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 5px 15px rgba(100, 108, 255, 0.4);
+	}
+	
+	
 
 	.sidebar-icons {
 		position: absolute;
