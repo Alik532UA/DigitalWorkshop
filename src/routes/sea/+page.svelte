@@ -2,7 +2,7 @@
 	import { base } from '$app/paths';
 	import squircleUrl from '$lib/assets/squircle.svg';
 	import { t } from '$lib/i18n/LanguageState.svelte';
-	import { fly } from 'svelte/transition';
+	import { fly, fade } from 'svelte/transition';
 	import { cubicOut, cubicIn } from 'svelte/easing';
 	import { ExternalLink, Globe, Gamepad2, Box, FileUser } from 'lucide-svelte';
 	import { config } from '$lib/config';
@@ -511,19 +511,33 @@
 
 	<div class="sidebar-icons">
 		{#each tabIcons as tab}
-			<button
-				class="glass-icon"
-				class:active={currentTab === tab.id}
-				style="--mask-url: url({squircleUrl});"
-				aria-label={tab.id}
-				onmouseenter={() => (hoveredTab = tab.id)}
-				onmouseleave={() => (hoveredTab = null)}
-				onclick={() => {
-					setTab(tab.id);
-				}}
-			>
-				{@html tab.icon}
-			</button>
+			<div class="sidebar-item">
+				{#if currentTab === tab.id}
+					<div class="slide-dots" transition:fade={{ duration: 200 }}>
+						{#each Array(totalSlides) as _, i}
+							<button 
+								class="slide-dot" 
+								class:active={currentIndex === i}
+								onclick={() => goToSlide(i)}
+								aria-label="Go to slide {i + 1}"
+							></button>
+						{/each}
+					</div>
+				{/if}
+				<button
+					class="glass-icon"
+					class:active={currentTab === tab.id}
+					style="--mask-url: url({squircleUrl});"
+					aria-label={tab.id}
+					onmouseenter={() => (hoveredTab = tab.id)}
+					onmouseleave={() => (hoveredTab = null)}
+					onclick={() => {
+						setTab(tab.id);
+					}}
+				>
+					{@html tab.icon}
+				</button>
+			</div>
 		{/each}
 	</div>
 
@@ -935,6 +949,45 @@
 		pointer-events: auto;
 	}
 
+	.sidebar-item {
+		display: flex;
+		align-items: center;
+		position: relative;
+		justify-content: center;
+	}
+
+	.slide-dots {
+		position: absolute;
+		right: calc(100% + 15px);
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.slide-dot {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: rgba(255, 255, 255, 0.3);
+		border: none;
+		cursor: pointer;
+		padding: 0;
+		transition: all 0.3s ease;
+	}
+
+	.slide-dot:hover {
+		background: rgba(255, 255, 255, 0.6);
+		transform: scale(1.2);
+	}
+
+	.slide-dot.active {
+		background: white;
+		transform: scale(1.3);
+		box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+	}
+
 	.top-controls {
 		position: absolute;
 		top: 2rem;
@@ -1177,6 +1230,13 @@
 			transform: translateX(50%);
 			flex-direction: row; /* Горизонтально */
 			gap: 1rem;
+		}
+
+		.slide-dots {
+			right: 50%;
+			transform: translateX(50%);
+			bottom: calc(100% + 10px);
+			flex-direction: row;
 		}
 
 		.bottom-right-controls {
