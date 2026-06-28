@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { base } from '$app/paths';
 	import squircleUrl from '$lib/assets/squircle.svg';
 	import { t } from '$lib/i18n/LanguageState.svelte';
@@ -52,6 +52,55 @@
 			}
 		}
 	}
+
+	// Стан для кастомного скролу
+	let currentIndex = $state(0);
+	let isScrolling = false;
+	let touchStartY = 0;
+	
+	// Герой + всі проєкти
+	const totalSlides = projects.length + 1;
+
+	function lockScroll() {
+		isScrolling = true;
+		// Блокуємо скрол на час анімації (800ms)
+		setTimeout(() => {
+			isScrolling = false;
+		}, 800);
+	}
+
+	function handleWheel(e: WheelEvent) {
+		if (isScrolling) return;
+		
+		// Поріг 15px для фільтрації випадкових мікро-рухів тачпаду
+		if (e.deltaY > 15 && currentIndex < totalSlides - 1) {
+			currentIndex++;
+			lockScroll();
+		} else if (e.deltaY < -15 && currentIndex > 0) {
+			currentIndex--;
+			lockScroll();
+		}
+	}
+
+	function handleTouchStart(e: TouchEvent) {
+		touchStartY = e.touches[0].clientY;
+	}
+
+	function handleTouchEnd(e: TouchEvent) {
+		if (isScrolling) return;
+		
+		const touchEndY = e.changedTouches[0].clientY;
+		const diff = touchStartY - touchEndY;
+		
+		// Поріг 50px для свайпу
+		if (diff > 50 && currentIndex < totalSlides - 1) {
+			currentIndex++;
+			lockScroll();
+		} else if (diff < -50 && currentIndex > 0) {
+			currentIndex--;
+			lockScroll();
+		}
+	}
 </script>
 
 <svelte:head>
@@ -70,47 +119,62 @@
 		{@html isFullscreen ? iconMinimize : iconMaximize}
 	</button>
 
-	<div class="info-layout">
-		<!-- Слайд 1: Герой -->
-		<div class="info-slide glass-panel info-block slide-hero">
-			<div class="photo-wrapper">
-				<img src="{base}/images/profile.jpg" alt="Alik" class="profile-photo" />
-			</div>
-			<div class="hero-text">
-				<p>
-					Мене звати Алік<br />
-					і я створюю сучасні <span class="inline-badge">сайти</span>,
-					<span class="inline-badge">застосунки</span>, і навіть
-					<span class="inline-badge">ігри</span>!<br /><br />
-					А для творчих шкіл та благодійних організацій у мене
-					<span class="inline-badge">спеціальна пропозиція</span>!<br /><br />
-					Вибери який продукт тебе цікавить щоб дізнатися більше і подивитися вже існуючі мої роботи
-				</p>
-			</div>
-		</div>
-
-		<!-- Слайди з проєктами -->
-		{#each projects as p}
-			{@const data = t.portfolio.projects[p.id]}
-			<div class="info-slide glass-panel info-block slide-project">
-				<div class="project-img">
-					<img src="{base}/images/{p.img}" alt={data.title} />
-					<span class="tech-badge">{data.tech}</span>
-				</div>
-				<div class="project-content">
-					<div class="title-row">
-						<svelte:component this={p.icon} size={32} class="accent-icon" />
-						<h3>{data.title}</h3>
+	<div 
+		class="info-layout"
+		onwheel={handleWheel}
+		ontouchstart={handleTouchStart}
+		ontouchend={handleTouchEnd}
+		role="presentation"
+	>
+		<!-- Трек для слайдів -->
+		<div class="slides-track" style="transform: translateY(calc(-100vh * {currentIndex}));">
+			
+			<!-- Слайд 1: Герой -->
+			<div class="slide-wrapper">
+				<div class="info-slide glass-panel info-block slide-hero">
+					<div class="photo-wrapper">
+						<img src="{base}/images/profile.jpg" alt="Alik" class="profile-photo" />
 					</div>
-					<p class="project-desc">{data.description}</p>
-					<p class="project-feature"><strong>Фішка:</strong> {data.feature}</p>
-					<a href={p.link} target="_blank" class="btn-primary project-btn">
-						{data.linkText}
-						<ExternalLink size={20} />
-					</a>
+					<div class="hero-text">
+						<p>
+							Мене звати Алік<br />
+							і я створюю сучасні <span class="inline-badge">сайти</span>,
+							<span class="inline-badge">застосунки</span>, і навіть
+							<span class="inline-badge">ігри</span>!<br /><br />
+							А для творчих шкіл та благодійних організацій у мене
+							<span class="inline-badge">спеціальна пропозиція</span>!<br /><br />
+							Вибери який продукт тебе цікавить щоб дізнатися більше і подивитися вже існуючі мої роботи
+						</p>
+					</div>
 				</div>
 			</div>
-		{/each}
+
+			<!-- Слайди з проєктами -->
+			{#each projects as p}
+				{@const data = t.portfolio.projects[p.id]}
+				{@const Icon = p.icon}
+				<div class="slide-wrapper">
+					<div class="info-slide glass-panel info-block slide-project">
+						<div class="project-img">
+							<img src="{base}/images/{p.img}" alt={data.title} />
+							<span class="tech-badge">{data.tech}</span>
+						</div>
+						<div class="project-content">
+							<div class="title-row">
+								<Icon size={32} class="accent-icon" />
+								<h3>{data.title}</h3>
+							</div>
+							<p class="project-desc">{data.description}</p>
+							<p class="project-feature"><strong>Фішка:</strong> {data.feature}</p>
+							<a href={p.link} target="_blank" class="btn-primary project-btn">
+								{data.linkText}
+								<ExternalLink size={20} />
+							</a>
+						</div>
+					</div>
+				</div>
+			{/each}
+		</div>
 	</div>
 
 	<div class="sidebar-icons">
@@ -150,33 +214,39 @@
 
 	.info-layout {
 		position: absolute;
-		/* Зміщуємо контейнер правіше на 60px, щоб компенсувати збільшений правий padding */
 		right: calc(9rem - 60px);
 		top: 0;
 		height: 100vh;
 		width: calc(100vw - 12rem + 120px);
-		max-width: 800px; /* 600px контенту + 200px padding */
-		overflow-y: auto;
+		max-width: 800px;
+		overflow: hidden; /* Вимикаємо нативний скрол */
 		pointer-events: auto;
-		display: flex;
-		flex-direction: column;
-		/* Величезний горизонтальний padding (100px), щоб тіні ніколи не обрізались */
-		padding: 40px 100px;
 		box-sizing: border-box;
-		/* Scroll snapping - жорстке прилипання, але з плавною анімацією */
-		scroll-snap-type: y mandatory;
-		scroll-behavior: smooth;
+		touch-action: none; /* Забороняємо нативний скрол пальцем, щоб працювали наші свайпи */
 	}
 
-	/* Сховати стандартний скролбар для слайдів, оскільки вони самі скроляться */
-	.info-layout::-webkit-scrollbar {
-		display: none;
+	.slides-track {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		/* Плавна і кінематографічна анімація на 0.8 секунд */
+		transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+	}
+
+	.slide-wrapper {
+		width: 100%;
+		height: 100vh; /* Кожен слайд займає рівно 1 екран */
+		flex-shrink: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 40px 100px; /* Великий відступ для тіней */
+		box-sizing: border-box;
 	}
 
 	.info-slide {
-		scroll-snap-align: center;
-		scroll-snap-stop: always;
-		margin: 30px 0; /* Трохи більший відступ між слайдами */
+		width: 100%;
+		max-width: 600px; /* Обмежуємо ширину самої картки */
 	}
 
 	.info-block {

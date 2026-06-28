@@ -225,17 +225,6 @@
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
     }
 
-    .version-label {
-        position: absolute;
-        bottom: 8px;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 0.75rem;
-        color: rgba(255, 255, 255, 0.5);
-        pointer-events: none;
-        z-index: 10;
-    }
-
     @media (max-width: 768px) {
         .arc-footer {
             display: none;
