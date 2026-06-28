@@ -2,6 +2,8 @@
 	import { base } from '$app/paths';
 	import squircleUrl from '$lib/assets/squircle.svg';
 	import { t } from '$lib/i18n/LanguageState.svelte';
+	import { fly } from 'svelte/transition';
+	import { cubicOut, cubicIn } from 'svelte/easing';
 	import { ExternalLink, Globe, Gamepad2, Box, FileUser } from 'lucide-svelte';
 
 	import iconAnchor from '$lib/assets/tabler/anchor.svg?raw';
@@ -24,8 +26,34 @@
 		{ id: 'promo', icon: iconHeart }
 	];
 
+	const tabsList = ['anchor', 'website', 'apps', 'games', 'promo'];
+
 	let currentTab = $state('anchor');
 	let hoveredTab = $state<string | null>(null);
+	let slideDirection = $state(1);
+
+	function setTab(newTabId: string) {
+		if (newTabId === currentTab) return;
+		const oldIdx = tabsList.indexOf(currentTab);
+		const newIdx = tabsList.indexOf(newTabId);
+		slideDirection = newIdx > oldIdx ? 1 : -1;
+		currentTab = newTabId;
+		currentIndex = 0;
+	}
+
+	function nextTab() {
+		const idx = tabsList.indexOf(currentTab);
+		if (idx < tabsList.length - 1) {
+			setTab(tabsList[idx + 1]);
+		}
+	}
+
+	function prevTab() {
+		const idx = tabsList.indexOf(currentTab);
+		if (idx > 0) {
+			setTab(tabsList[idx - 1]);
+		}
+	}
 
 	const projects = [
 		{ id: 'slovko', img: 'slovko.jpg', icon: Globe, link: 'https://alik532ua.github.io/Slovko/' },
@@ -156,6 +184,7 @@
 	let currentIndex = $state(0);
 	let isScrolling = false;
 	let touchStartY = 0;
+	let touchStartX = 0;
 
 	// Герой + всі проєкти або контент вкладок
 	let totalSlides = $derived.by(() => {
@@ -194,7 +223,18 @@
 	function handleWheel(e: WheelEvent) {
 		if (isScrolling) return;
 
-		// Поріг 15px для фільтрації випадкових мікро-рухів тачпаду
+		// Горизонтальний скрол (переключення вкладок)
+		if (e.deltaX > 20) {
+			nextTab();
+			lockScroll();
+			return;
+		} else if (e.deltaX < -20) {
+			prevTab();
+			lockScroll();
+			return;
+		}
+
+		// Вертикальний скрол (переключення слайдів всередині вкладки)
 		if (e.deltaY > 15 && currentIndex < totalSlides - 1) {
 			currentIndex++;
 			lockScroll();
@@ -206,21 +246,35 @@
 
 	function handleTouchStart(e: TouchEvent) {
 		touchStartY = e.touches[0].clientY;
+		touchStartX = e.touches[0].clientX;
 	}
 
 	function handleTouchEnd(e: TouchEvent) {
 		if (isScrolling) return;
 
 		const touchEndY = e.changedTouches[0].clientY;
-		const diff = touchStartY - touchEndY;
+		const touchEndX = e.changedTouches[0].clientX;
+		const diffY = touchStartY - touchEndY;
+		const diffX = touchStartX - touchEndX;
 
-		// Поріг 50px для свайпу
-		if (diff > 50 && currentIndex < totalSlides - 1) {
-			currentIndex++;
-			lockScroll();
-		} else if (diff < -50 && currentIndex > 0) {
-			currentIndex--;
-			lockScroll();
+		// Якщо свайп більше горизонтальний, ніж вертикальний
+		if (Math.abs(diffX) > Math.abs(diffY)) {
+			if (diffX > 50) {
+				nextTab();
+				lockScroll();
+			} else if (diffX < -50) {
+				prevTab();
+				lockScroll();
+			}
+		} else {
+			// Вертикальний свайп
+			if (diffY > 50 && currentIndex < totalSlides - 1) {
+				currentIndex++;
+				lockScroll();
+			} else if (diffY < -50 && currentIndex > 0) {
+				currentIndex--;
+				lockScroll();
+			}
 		}
 	}
 </script>
@@ -231,7 +285,7 @@
 
 <svelte:window onfullscreenchange={() => (isFullscreen = !!document.fullscreenElement)} />
 
-<div class="sea-container" data-hovered-tab={hoveredTab || ''}>
+<div class="sea-container" data-hovered-tab={hoveredTab || ''} class:lang-changing={langState.isChanging}>
 	<video autoplay loop muted playsinline class="background-video">
 		<source src="{base}/sea.webm" type="video/webm" />
 	</video>
@@ -279,9 +333,15 @@
 		role="presentation"
 	>
 		<!-- Трек для слайдів -->
-		<div class="slides-track" style="transform: translateY(calc(-75vh * {currentIndex}));">
-			{#if currentTab === 'anchor'}
-				<!-- Слайд 1: Герой -->
+		{#key currentTab}
+			<div 
+				class="slides-track" 
+				style="transform: translateY(calc(-75vh * {currentIndex}));"
+				in:fly={{ x: slideDirection * 100, duration: 600, easing: cubicOut }}
+				out:fly={{ x: slideDirection * -100, duration: 600, easing: cubicIn }}
+			>
+				{#if currentTab === 'anchor'}
+					<!-- Слайд 1: Герой -->
 				<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 				<div class="slide-wrapper" class:active={currentIndex === 0} onclick={() => goToSlide(0)}>
 					<div class="info-slide glass-panel info-block slide-hero">
@@ -295,8 +355,7 @@
 								e.stopPropagation();
 								const tabId = target.dataset.tab;
 								if (tabId) {
-									currentTab = tabId;
-									currentIndex = 0;
+									setTab(tabId);
 								}
 							}
 						}}
@@ -394,7 +453,8 @@
 					</div>
 				{/each}
 			{/if}
-		</div>
+			</div>
+		{/key}
 	</div>
 
 	<div class="sidebar-icons">
@@ -407,8 +467,7 @@
 				onmouseenter={() => (hoveredTab = tab.id)}
 				onmouseleave={() => (hoveredTab = null)}
 				onclick={() => {
-					currentTab = tab.id;
-					currentIndex = 0;
+					setTab(tab.id);
 				}}
 			>
 				{@html tab.icon}
@@ -418,6 +477,11 @@
 </div>
 
 <style>
+	/* Вимикаємо глобальний блюр при зміні мови для цієї сторінки */
+	:global(.theme-transition-overlay) {
+		display: none !important;
+	}
+
 	.sea-container {
 		position: fixed;
 		top: 0;
@@ -463,6 +527,10 @@
 		display: flex;
 		flex-direction: column;
 		width: 100%;
+		height: 100%;
+		position: absolute;
+		top: 0;
+		left: 0;
 		/* Відступ зверху і знизу, щоб ідеально центрувати слайд 75vh у контейнері 100vh */
 		padding: 12.5vh 0;
 		/* Плавна і кінематографічна анімація на 1.2 секунд (1200ms) */
@@ -560,7 +628,13 @@
 		/* За замовчуванням блюру немає (прибирається швидко при скролі) */
 		backdrop-filter: blur(0px);
 		-webkit-backdrop-filter: blur(0px);
-		transition: backdrop-filter 0.2s ease, -webkit-backdrop-filter 0.2s ease;
+		transition: backdrop-filter 0.2s ease, -webkit-backdrop-filter 0.2s ease, filter 0.25s ease-out, opacity 0.25s ease-out;
+	}
+
+	/* Блюр вмісту контейнера під час зміни мови */
+	.sea-container.lang-changing .info-block {
+		filter: blur(15px);
+		opacity: 0; /* Плавно зникає в 0 під час зміни тексту, потім плавно повертається */
 	}
 
 	.chunk-content {
