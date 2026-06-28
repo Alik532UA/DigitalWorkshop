@@ -25,6 +25,7 @@
 	];
 
 	let currentTab = $state('anchor');
+	let hoveredTab = $state<string | null>(null);
 
 	const projects = [
 		{ id: 'slovko', img: 'slovko.jpg', icon: Globe, link: 'https://alik532ua.github.io/Slovko/' },
@@ -230,7 +231,7 @@
 
 <svelte:window onfullscreenchange={() => (isFullscreen = !!document.fullscreenElement)} />
 
-<div class="sea-container">
+<div class="sea-container" data-hovered-tab={hoveredTab || ''}>
 	<video autoplay loop muted playsinline class="background-video">
 		<source src="{base}/sea.webm" type="video/webm" />
 	</video>
@@ -287,7 +288,7 @@
 						<div class="photo-wrapper">
 							<img src="{base}/images/profile.jpg" alt="Alik" class="profile-photo" />
 						</div>
-						<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+						<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions, a11y_mouse_events_have_key_events -->
 						<div class="hero-text" onclick={(e) => {
 							const target = e.target as HTMLElement;
 							if (target.tagName === 'BUTTON' && target.classList.contains('inline-badge')) {
@@ -297,6 +298,18 @@
 									currentTab = tabId;
 									currentIndex = 0;
 								}
+							}
+						}}
+						onmouseover={(e) => {
+							const target = e.target as HTMLElement;
+							if (target.tagName === 'BUTTON' && target.classList.contains('inline-badge')) {
+								hoveredTab = target.dataset.tab || null;
+							}
+						}}
+						onmouseout={(e) => {
+							const target = e.target as HTMLElement;
+							if (target.tagName === 'BUTTON' && target.classList.contains('inline-badge')) {
+								hoveredTab = null;
 							}
 						}}>
 							<p>
@@ -391,6 +404,8 @@
 				class:active={currentTab === tab.id}
 				style="--mask-url: url({squircleUrl});"
 				aria-label={tab.id}
+				onmouseenter={() => (hoveredTab = tab.id)}
+				onmouseleave={() => (hoveredTab = null)}
 				onclick={() => {
 					currentTab = tab.id;
 					currentIndex = 0;
@@ -623,14 +638,18 @@
 		vertical-align: baseline;
 	}
 
-	:global(button.inline-badge:hover) {
+	:global(button.inline-badge:hover),
+	.sea-container[data-hovered-tab="website"] :global(button.inline-badge[data-tab="website"]),
+	.sea-container[data-hovered-tab="apps"] :global(button.inline-badge[data-tab="apps"]),
+	.sea-container[data-hovered-tab="games"] :global(button.inline-badge[data-tab="games"]),
+	.sea-container[data-hovered-tab="promo"] :global(button.inline-badge[data-tab="promo"]) {
 		background: rgba(255, 255, 255, 0.25);
-		transform: translateY(-2px);
+		transform: scale(1.1);
 		box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 	}
 
 	:global(button.inline-badge:active) {
-		transform: translateY(0);
+		transform: scale(0.95);
 	}
 
 	/* Project Slide */
@@ -855,7 +874,11 @@
 		outline: none;
 	}
 
-	.glass-icon:hover {
+	.glass-icon:hover,
+	.sea-container[data-hovered-tab="website"] .glass-icon[aria-label="website"],
+	.sea-container[data-hovered-tab="apps"] .glass-icon[aria-label="apps"],
+	.sea-container[data-hovered-tab="games"] .glass-icon[aria-label="games"],
+	.sea-container[data-hovered-tab="promo"] .glass-icon[aria-label="promo"] {
 		background: rgba(255, 255, 255, 0.2);
 		transform: scale(1.1);
 		box-shadow:
@@ -884,7 +907,11 @@
 	}
 
 	.glass-icon:hover :global(svg),
-	.glass-icon.active :global(svg) {
+	.glass-icon.active :global(svg),
+	.sea-container[data-hovered-tab="website"] .glass-icon[aria-label="website"] :global(svg),
+	.sea-container[data-hovered-tab="apps"] .glass-icon[aria-label="apps"] :global(svg),
+	.sea-container[data-hovered-tab="games"] .glass-icon[aria-label="games"] :global(svg),
+	.sea-container[data-hovered-tab="promo"] .glass-icon[aria-label="promo"] :global(svg) {
 		stroke: white;
 		filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
 		transform: scale(1.1);
