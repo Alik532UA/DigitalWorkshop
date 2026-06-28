@@ -237,7 +237,7 @@
 		if (initialTab && tabsList.includes(initialTab)) {
 			currentTab = initialTab;
 		}
-		
+
 		const initialSlide = parseInt(params.get('slide') || '0', 10);
 		if (!isNaN(initialSlide) && initialSlide > 0) {
 			currentIndex = initialSlide;
@@ -256,7 +256,7 @@
 	$effect(() => {
 		const tab = currentTab;
 		const idx = currentIndex;
-		
+
 		untrack(() => {
 			if (isInitializingUrl) {
 				isInitializingUrl = false;
@@ -278,15 +278,15 @@
 		if (currentTab === 'anchor') return [];
 		const tabData = t.tabs[currentTab as keyof typeof t.tabs];
 		const items = (tabData as any).benefits || (tabData as any).faq || [];
-		
+
 		const result = [];
 		let currentChunk = [];
-		
+
 		for (const item of items) {
 			const text = (item.h || item.q || '') + (item.p || item.a || '');
 			// На мобільному, якщо текст довгий (> 250 символів), він займає весь слайд
 			const isLong = isMobile && text.length > 250;
-			
+
 			if (isLong) {
 				if (currentChunk.length > 0) {
 					result.push([...currentChunk]);
@@ -318,16 +318,16 @@
 
 	function parseMarkdown(text: string) {
 		if (!text) return '';
-		
+
 		let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 		const lines = html.split('\n');
 		let inList = false;
 		let result = '';
-		
+
 		for (let i = 0; i < lines.length; i++) {
 			let line = lines[i];
 			let trimmed = line.trim();
-			
+
 			if (trimmed.startsWith('* ')) {
 				if (!inList) {
 					result += '<ul class="custom-list">';
@@ -348,7 +348,7 @@
 		if (inList) {
 			result += '</ul>';
 		}
-		
+
 		return result;
 	}
 
@@ -372,9 +372,9 @@
 		if (target.closest('.audio-control-wrapper')) {
 			let newVol = audioVolume - Math.sign(e.deltaY) * 0.05;
 			audioVolume = Math.max(0, Math.min(1, newVol));
-			
+
 			if (audioVolume > 0 && !isAudioPlaying && audioRef) {
-				audioRef.play().catch(err => console.error('Audio playback failed:', err));
+				audioRef.play().catch((err) => console.error('Audio playback failed:', err));
 			}
 			return;
 		}
@@ -572,7 +572,10 @@
 	onfullscreenchange={() => (isFullscreen = !!document.fullscreenElement)}
 	onkeydown={handleKeyDown}
 	onmousemove={handleMouseMove}
-	ontouchstart={(e) => { handleMouseMove(); handleTouchStart(e); }}
+	ontouchstart={(e) => {
+		handleMouseMove();
+		handleTouchStart(e);
+	}}
 	ontouchend={handleTouchEnd}
 	onwheel={handleWheel}
 	onmouseleave={() => (isMouseActive = false)}
@@ -584,7 +587,7 @@
 	class:lang-changing={langState.isChanging}
 >
 	<video autoplay loop muted playsinline class="background-video">
-		<source src="{base}/sea.webm" type="video/webm" />
+		<source src="{base}/sea_4_av1.webm" type="video/webm" />
 	</video>
 
 	<audio
@@ -615,7 +618,7 @@
 						bind:value={audioVolume}
 						oninput={() => {
 							if (audioVolume > 0 && !isAudioPlaying && audioRef) {
-								audioRef.play().catch(err => console.error('Audio playback failed:', err));
+								audioRef.play().catch((err) => console.error('Audio playback failed:', err));
 							}
 						}}
 						class="volume-slider"
@@ -631,13 +634,10 @@
 		</div>
 	{/if}
 
-	<div
-		class="info-layout"
-		role="presentation"
-	>
+	<div class="info-layout" role="presentation">
 		<!-- Навігаційні стрілки (Вертикальні) -->
 		{#if currentIndex > 0 && (isMouseActive || isMobile)}
-			<button 
+			<button
 				class="slide-nav-arrow arrow-up"
 				transition:fade={{ duration: 200 }}
 				onclick={() => goToSlide(currentIndex - 1)}
@@ -648,7 +648,7 @@
 		{/if}
 
 		{#if currentIndex < totalSlides - 1 && (isMouseActive || isMobile)}
-			<button 
+			<button
 				class="slide-nav-arrow arrow-down"
 				in:fade={{ duration: 200, delay: 200 }}
 				out:fade={{ duration: 200 }}
@@ -658,7 +658,7 @@
 				{@html iconArrowDown}
 			</button>
 		{:else if currentIndex === totalSlides - 1 && (isMouseActive || isMobile)}
-			<button 
+			<button
 				class="slide-nav-arrow arrow-next-tab"
 				in:fade={{ duration: 200, delay: 200 }}
 				out:fade={{ duration: 200 }}
@@ -1512,16 +1512,31 @@
 
 	/* Навігаційні стрілки */
 	@keyframes bounceArrowUp {
-		0%, 100% { transform: translate(-50%, 0); }
-		50% { transform: translate(-50%, -5px); }
+		0%,
+		100% {
+			transform: translate(-50%, 0);
+		}
+		50% {
+			transform: translate(-50%, -5px);
+		}
 	}
 	@keyframes bounceArrowDown {
-		0%, 100% { transform: translate(-50%, 0); }
-		50% { transform: translate(-50%, 5px); }
+		0%,
+		100% {
+			transform: translate(-50%, 0);
+		}
+		50% {
+			transform: translate(-50%, 5px);
+		}
 	}
 	@keyframes bounceArrowRight {
-		0%, 100% { transform: translate(-50%, 0); }
-		50% { transform: translate(calc(-50% + 5px), 0); }
+		0%,
+		100% {
+			transform: translate(-50%, 0);
+		}
+		50% {
+			transform: translate(calc(-50% + 5px), 0);
+		}
 	}
 
 	.slide-nav-arrow {
@@ -1536,7 +1551,9 @@
 		align-items: center;
 		justify-content: center;
 		cursor: pointer;
-		transition: opacity 0.3s ease, transform 0.3s ease;
+		transition:
+			opacity 0.3s ease,
+			transform 0.3s ease;
 		pointer-events: auto;
 		padding: 0;
 		opacity: 0.5;
@@ -1548,7 +1565,9 @@
 		stroke: rgba(255, 255, 255, 0.9);
 		stroke-width: 1.5;
 		filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
-		transition: stroke 0.3s ease, transform 0.3s ease;
+		transition:
+			stroke 0.3s ease,
+			transform 0.3s ease;
 	}
 
 	.slide-nav-arrow:hover {
@@ -1701,16 +1720,31 @@
 
 		/* Стрілки перемикання слайдів на мобільному справа */
 		@keyframes bounceArrowUpMobile {
-			0%, 100% { transform: translateY(0); }
-			50% { transform: translateY(-5px); }
+			0%,
+			100% {
+				transform: translateY(0);
+			}
+			50% {
+				transform: translateY(-5px);
+			}
 		}
 		@keyframes bounceArrowDownMobile {
-			0%, 100% { transform: translateY(0); }
-			50% { transform: translateY(5px); }
+			0%,
+			100% {
+				transform: translateY(0);
+			}
+			50% {
+				transform: translateY(5px);
+			}
 		}
 		@keyframes bounceArrowRightMobile {
-			0%, 100% { transform: translateX(0); }
-			50% { transform: translateX(5px); }
+			0%,
+			100% {
+				transform: translateX(0);
+			}
+			50% {
+				transform: translateX(5px);
+			}
 		}
 
 		.slide-nav-arrow {
@@ -1734,7 +1768,7 @@
 		.slide-nav-arrow.arrow-down:hover {
 			transform: translateY(2px) scale(1.1);
 		}
-		
+
 		.slide-nav-arrow.arrow-next-tab {
 			top: 65dvh; /* Та ж позиція що й у arrow-down */
 			bottom: auto;
