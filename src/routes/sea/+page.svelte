@@ -147,7 +147,7 @@
 			.replace(
 				/\[\[(.*?)\]\]/g,
 				(match, key) =>
-					`<span class="inline-badge">${t.hero.buttons[key as keyof typeof t.hero.buttons]}</span>`
+					`<button class="inline-badge" data-tab="${key}">${t.hero.buttons[key as keyof typeof t.hero.buttons]}</button>`
 			)
 	);
 
@@ -287,7 +287,18 @@
 						<div class="photo-wrapper">
 							<img src="{base}/images/profile.jpg" alt="Alik" class="profile-photo" />
 						</div>
-						<div class="hero-text">
+						<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+						<div class="hero-text" onclick={(e) => {
+							const target = e.target as HTMLElement;
+							if (target.tagName === 'BUTTON' && target.classList.contains('inline-badge')) {
+								e.stopPropagation();
+								const tabId = target.dataset.tab;
+								if (tabId) {
+									currentTab = tabId;
+									currentIndex = 0;
+								}
+							}
+						}}>
 							<p>
 								{@html formattedGreeting}<br /><br />
 								<span class="desktop-text">{t.hero.description_sea_desktop}</span>
@@ -596,7 +607,7 @@
 		color: rgba(255, 255, 255, 0.9);
 	}
 
-	:global(.inline-badge) {
+	:global(button.inline-badge) {
 		background: rgba(255, 255, 255, 0.15);
 		padding: 2px 8px; /* Було 2px 10px */
 		border-radius: 10px; /* Було 12px */
@@ -604,6 +615,22 @@
 		color: white;
 		border: 1px solid rgba(255, 255, 255, 0.3);
 		white-space: nowrap;
+		cursor: pointer;
+		font-family: inherit;
+		font-size: inherit;
+		transition: all 0.3s ease;
+		display: inline-block;
+		vertical-align: baseline;
+	}
+
+	:global(button.inline-badge:hover) {
+		background: rgba(255, 255, 255, 0.25);
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+	}
+
+	:global(button.inline-badge:active) {
+		transform: translateY(0);
 	}
 
 	/* Project Slide */
