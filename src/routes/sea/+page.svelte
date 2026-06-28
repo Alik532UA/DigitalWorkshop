@@ -23,7 +23,7 @@
 		{ id: 'games', icon: iconGamepad },
 		{ id: 'promo', icon: iconHeart }
 	];
-	
+
 	let currentTab = $state('anchor');
 
 	const projects = [
@@ -66,14 +66,14 @@
 
 	let isAudioPlaying = $state(false);
 	let audioRef: HTMLAudioElement;
-	let audioVolume = $state(0.5);
+	let audioVolume = $state(0.1);
 
 	function toggleAudio() {
 		if (!audioRef) return;
 		if (isAudioPlaying) {
 			audioRef.pause();
 		} else {
-			audioRef.play().catch(err => console.error("Audio playback failed:", err));
+			audioRef.play().catch((err) => console.error('Audio playback failed:', err));
 		}
 	}
 
@@ -87,8 +87,9 @@
 		t.hero.greeting
 			.replace(/\n/g, '<br />')
 			.replace(
-				/\[\[(.*?)\]\]/g, 
-				(match, key) => `<span class="inline-badge">${t.hero.buttons[key as keyof typeof t.hero.buttons]}</span>`
+				/\[\[(.*?)\]\]/g,
+				(match, key) =>
+					`<span class="inline-badge">${t.hero.buttons[key as keyof typeof t.hero.buttons]}</span>`
 			)
 	);
 
@@ -176,14 +177,14 @@
 		<source src="{base}/sea.webm" type="video/webm" />
 	</video>
 
-	<audio 
-		bind:this={audioRef} 
-		src="{base}/sea.ogg" 
-		loop 
+	<audio
+		bind:this={audioRef}
+		src="{base}/sea.ogg"
+		loop
 		autoplay
 		bind:volume={audioVolume}
-		onplay={() => isAudioPlaying = true}
-		onpause={() => isAudioPlaying = false}
+		onplay={() => (isAudioPlaying = true)}
+		onpause={() => (isAudioPlaying = false)}
 	></audio>
 
 	<!-- Кнопки керування (мова, звук, повноекранний режим) -->
@@ -196,7 +197,15 @@
 				{@html isAudioPlaying ? iconMusicOn : iconMusicOff}
 			</button>
 			<div class="volume-slider-container">
-				<input type="range" min="0" max="1" step="0.01" bind:value={audioVolume} class="volume-slider" aria-label="Volume" />
+				<input
+					type="range"
+					min="0"
+					max="1"
+					step="0.01"
+					bind:value={audioVolume}
+					class="volume-slider"
+					aria-label="Volume"
+				/>
 			</div>
 		</div>
 		<button class="icon-btn" onclick={toggleFullscreen} aria-label="Toggle Fullscreen">
@@ -236,7 +245,11 @@
 					{@const data = t.portfolio.projects[p.id as keyof typeof t.portfolio.projects]}
 					{@const Icon = p.icon}
 					<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-					<div class="slide-wrapper" class:active={currentIndex === i + 1} onclick={() => goToSlide(i + 1)}>
+					<div
+						class="slide-wrapper"
+						class:active={currentIndex === i + 1}
+						onclick={() => goToSlide(i + 1)}
+					>
 						<div class="info-slide glass-panel info-block slide-project">
 							<div class="project-img">
 								<img src="{base}/images/{p.img}" alt={data.title} />
@@ -269,7 +282,12 @@
 						<div class="hero-text">
 							<h2 class="tab-title">{tabData.title}</h2>
 							<p class="tab-intro">{@html tabData.intro.replace(/\n/g, '<br />')}</p>
-							<a href="https://t.me/alik532" target="_blank" class="btn-primary project-btn" style="margin-top: 2rem; display: inline-flex;">
+							<a
+								href="https://t.me/alik532"
+								target="_blank"
+								class="btn-primary project-btn"
+								style="margin-top: 2rem; display: inline-flex;"
+							>
 								{tabData.cta}
 							</a>
 						</div>
@@ -279,7 +297,11 @@
 				<!-- Слайди з деталями (FAQ / Переваги) -->
 				{#each chunks as chunk, i}
 					<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-					<div class="slide-wrapper" class:active={currentIndex === i + 1} onclick={() => goToSlide(i + 1)}>
+					<div
+						class="slide-wrapper"
+						class:active={currentIndex === i + 1}
+						onclick={() => goToSlide(i + 1)}
+					>
 						<div class="chunk-content">
 							{#each chunk as item}
 								<div class="info-slide glass-panel info-block content-item">
@@ -296,10 +318,10 @@
 
 	<div class="sidebar-icons">
 		{#each tabIcons as tab}
-			<button 
-				class="glass-icon" 
+			<button
+				class="glass-icon"
 				class:active={currentTab === tab.id}
-				style="--mask-url: url({squircleUrl});" 
+				style="--mask-url: url({squircleUrl});"
 				aria-label={tab.id}
 				onclick={() => {
 					currentTab = tab.id;
@@ -324,9 +346,9 @@
 		overflow: hidden;
 		/* Повністю вимикаємо можливість клікнути по відео (навіть праву кнопку миші) */
 		pointer-events: none;
-		
+
 		/* Перевизначаємо акцентний колір суто для сторінки моря (океанський синій) */
-		--accent-primary: #0284c7; 
+		--accent-primary: #0284c7;
 	}
 
 	.background-video {
@@ -373,9 +395,11 @@
 		justify-content: center;
 		padding: 40px 10px; /* Менший горизонтальний відступ */
 		box-sizing: border-box;
-		
+
 		/* Візуальне зменшення неактивних слайдів */
-		transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.8s ease;
+		transition:
+			transform 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+			opacity 0.8s ease;
 		transform: scale(0.9); /* Збільшили з 0.85 до 0.9 щоб більше стирчали */
 		opacity: 0.4;
 		cursor: pointer; /* Вказує що на них можна клікнути */
@@ -621,7 +645,7 @@
 		border-radius: 50%;
 		background: white;
 		cursor: pointer;
-		box-shadow: 0 0 5px rgba(0,0,0,0.5);
+		box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 		transition: transform 0.2s;
 	}
 
@@ -767,7 +791,7 @@
 		.desktop-text {
 			display: none;
 		}
-		
+
 		.mobile-text {
 			display: inline;
 		}
@@ -819,7 +843,7 @@
 		.hero-text {
 			font-size: 0.95rem;
 		}
-		
+
 		.project-content h3 {
 			font-size: 1.5rem;
 		}
