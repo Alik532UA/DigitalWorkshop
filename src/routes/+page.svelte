@@ -575,7 +575,7 @@
 		{#key currentTab}
 			<div
 				class="slides-track"
-				style="transform: translateY(calc(-75vh * {currentIndex}));"
+				style="transform: translateY(calc(-75dvh * {currentIndex}));"
 				in:fly={{ x: slideDirection * 100, duration: 400, delay: 400, easing: cubicOut }}
 				out:fly={{ x: slideDirection * -100, duration: 400, easing: cubicIn }}
 			>
@@ -774,7 +774,7 @@
 		top: 0;
 		left: 0;
 		width: 100vw;
-		height: 100vh;
+		height: 100dvh;
 		z-index: 10000;
 		background-color: black;
 		overflow: hidden;
@@ -790,7 +790,7 @@
 		top: 50%;
 		left: 50%;
 		width: 100vw;
-		height: 100vh;
+		height: 100dvh;
 		transform: translate(-50%, -50%);
 		/* object-fit: cover гарантує, що відео ідеально заповнить весь екран, 
            обрізаючи зайве, але не спотворюючи пропорції */
@@ -801,7 +801,7 @@
 		position: absolute;
 		right: calc(9rem - 60px);
 		top: 0;
-		height: 100vh;
+		height: 100dvh;
 		width: calc(100vw - 12rem + 120px);
 		max-width: 680px; /* Було 800px (-15%) */
 		overflow: hidden; /* Вимикаємо нативний скрол */
@@ -818,15 +818,15 @@
 		position: absolute;
 		top: 0;
 		left: 0;
-		/* Відступ зверху і знизу, щоб ідеально центрувати слайд 75vh у контейнері 100vh */
-		padding: 12.5vh 0;
+		/* Відступ зверху і знизу, щоб ідеально центрувати слайд 75dvh у контейнері 100dvh */
+		padding: 12.5dvh 0;
 		/* Плавна і кінематографічна анімація на 1.2 секунд (1200ms) */
 		transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
 	}
 
 	.slide-wrapper {
 		width: 100%;
-		height: 75vh; /* Менша висота для слайдів */
+		height: 75dvh; /* Менша висота для слайдів */
 		flex-shrink: 0;
 		position: relative; /* Додано для абсолютного позиціонування */
 		box-sizing: border-box;
@@ -1449,7 +1449,7 @@
 	}
 
 	.slide-nav-arrow.arrow-up {
-		top: 8vh; /* Зроблено ближче до центру (слайд починається на 12.5vh) */
+		top: 8dvh; /* Зроблено ближче до центру (слайд починається на 12.5dvh) */
 		animation: bounceArrowUp 2s infinite ease-in-out;
 	}
 	.slide-nav-arrow.arrow-up:hover {
@@ -1458,7 +1458,7 @@
 	}
 
 	.slide-nav-arrow.arrow-down {
-		bottom: 8vh;
+		bottom: 8dvh;
 		animation: bounceArrowDown 2s infinite ease-in-out;
 	}
 	.slide-nav-arrow.arrow-down:hover {
@@ -1467,7 +1467,7 @@
 	}
 
 	.slide-nav-arrow.arrow-next-tab {
-		bottom: 8vh;
+		bottom: 8dvh;
 		animation: bounceArrowRight 2s infinite ease-in-out;
 	}
 	.slide-nav-arrow.arrow-next-tab:hover {
@@ -1573,7 +1573,7 @@
 			width: 100vw;
 			overflow: visible; /* Щоб не відрізати тіні слайдів */
 			max-width: 100%;
-			height: calc(100vh - 6.5rem); /* Місце для іконок знизу */
+			height: calc(100dvh - 6.5rem); /* Місце для іконок знизу */
 		}
 
 		.slide-wrapper {
@@ -1608,7 +1608,7 @@
 			opacity: 1 !important; /* На мобільному стрілки завжди повністю видимі */
 		}
 		.slide-nav-arrow.arrow-up {
-			top: 55vh; /* Трохи нижче центру (який на 50vh) */
+			top: 55dvh; /* Трохи нижче центру (який на 50dvh) */
 			bottom: auto;
 			animation: bounceArrowUpMobile 2s infinite ease-in-out;
 		}
@@ -1616,7 +1616,7 @@
 			transform: translateY(-2px) scale(1.1);
 		}
 		.slide-nav-arrow.arrow-down {
-			top: 65vh; /* Під верхньою стрілкою */
+			top: 65dvh; /* Під верхньою стрілкою */
 			bottom: auto;
 			animation: bounceArrowDownMobile 2s infinite ease-in-out;
 		}
@@ -1625,7 +1625,7 @@
 		}
 		
 		.slide-nav-arrow.arrow-next-tab {
-			top: 65vh; /* Та ж позиція що й у arrow-down */
+			top: 65dvh; /* Та ж позиція що й у arrow-down */
 			bottom: auto;
 			animation: bounceArrowRightMobile 2s infinite ease-in-out;
 		}
