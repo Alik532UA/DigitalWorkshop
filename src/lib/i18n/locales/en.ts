@@ -133,11 +133,11 @@ export const en: Translations = {
                     a: "I want creative schools in Ukraine to have modern and stylish websites instead of outdated and slow pages from the 2010s."
                 },
                 {
-                    q: "What's my benefit if website creation and launch are free?",
+                    q: "What is my personal interest?",
                     a: "I really don't make money from developing these sites. My main goal is a high-quality live portfolio and word-of-mouth. Your cool site will become my business card. I expect that someone will see my work, and thanks to this, I will receive commercial projects where I can earn fair money.\nThe only condition is a small 'Order a website' button at the bottom. Thanks to this button, those who like your resource will be able to find me and order commercial development."
                 },
                 {
-                    q: "Why so cheap?",
+                    q: "What inspired me to start this project?",
                     a: "For me, this is a social and creative initiative. I myself graduated from the 'Children's Theater School of Odesa' and perfectly understand the realities of state funding for creative institutions. There is no extra money there, and having a modern, stylish, fast website can help attract new students."
                 },
                 {
@@ -149,11 +149,11 @@ export const en: Translations = {
                     a: "5 update packages per year (change of schedule, list of teachers, etc.). You pass the data — I publish."
                 },
                 {
-                    q: "Why not free forever?",
+                    q: "Why is technical support paid?",
                     a: "I expect to help hundreds of schools. To have the resources to regularly update all these sites (publish news, change schedules, add photos), I need time. This minimum symbolic payment is a guarantee that your site will live and be updated, rather than being abandoned after a month."
                 },
                 {
-                    q: "Why pay 50 euros per year then?",
+                    q: "Why is this 50 euros a better deal than regular hosting?",
                     a: "Usually schools pay third-party services just for 'hosting' (renting space on the internet) for an old site that no one updates. I suggest redirecting this money to a real result: you pay the same (or less) money, but get a modern resource, and I take over its technical support and publication of your news."
                 },
                 {
@@ -161,7 +161,7 @@ export const en: Translations = {
                     a: "Yes! I have a partner program. If you recommend me to another school or foundation:\n* **For them:** they get a discounted price for the first year of the site's operation (35 euros instead of 50).\n* **For you:** you get a -10 euro discount on your subscription fee for each referred initiative.\n5 recommendations = free support for a year!"
                 },
                 {
-                    q: "Can I order only the website?",
+                    q: "What other services do I provide besides website development?",
                     a: "The website is just the tip of the iceberg! I can also help with the development of logos, posters for performances, certificates, banners, and the general style of the organization. Contact me with any creative request — I will provide a consultation."
                 }
             ],
