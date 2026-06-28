@@ -281,6 +281,16 @@
 		}
 	}
 
+	function handleAudioWheel(e: WheelEvent) {
+		e.stopPropagation();
+		// Не викликаємо preventDefault, щоб не викликати помилку passive listener
+		if (e.deltaY < 0) {
+			audioVolume = Math.min(1, audioVolume + 0.05);
+		} else if (e.deltaY > 0) {
+			audioVolume = Math.max(0, audioVolume - 0.05);
+		}
+	}
+
 	function handleTouchStart(e: TouchEvent) {
 		touchStartY = e.touches[0].clientY;
 		touchStartX = e.touches[0].clientX;
@@ -359,7 +369,9 @@
 	onfullscreenchange={() => (isFullscreen = !!document.fullscreenElement)}
 	onkeydown={handleKeyDown}
 	onmousemove={handleMouseMove}
-	ontouchstart={handleMouseMove}
+	ontouchstart={(e) => { handleMouseMove(); handleTouchStart(e); }}
+	ontouchend={handleTouchEnd}
+	onwheel={handleWheel}
 	onmouseleave={() => (isMouseActive = false)}
 />
 
@@ -387,7 +399,7 @@
 			<button class="icon-btn" onclick={toggleLanguage} aria-label="Toggle Language">
 				{@html iconLanguage}
 			</button>
-			<div class="audio-control-wrapper">
+			<div class="audio-control-wrapper" onwheel={handleAudioWheel}>
 				<button class="icon-btn" onclick={toggleAudio} aria-label="Toggle Audio">
 					{@html isAudioPlaying ? iconMusicOn : iconMusicOff}
 				</button>
@@ -411,9 +423,6 @@
 
 	<div
 		class="info-layout"
-		onwheel={handleWheel}
-		ontouchstart={handleTouchStart}
-		ontouchend={handleTouchEnd}
 		role="presentation"
 	>
 		<!-- Навігаційні стрілки (Вертикальні) -->
