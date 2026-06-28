@@ -64,7 +64,7 @@
 
     let accentRgb = $derived(hexToRgb(tabs.currentColor));
     
-    let isArchive = $derived($page.url.pathname.startsWith('/2026-04'));
+    let isArchive = $derived($page.url.pathname.includes('/2026-04'));
 </script>
 
 {#if isArchive}
