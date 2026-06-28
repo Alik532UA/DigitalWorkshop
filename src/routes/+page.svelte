@@ -6,7 +6,18 @@
 	import squircleUrl from '$lib/assets/squircle.svg';
 	import { t } from '$lib/i18n/LanguageState.svelte';
 	import { fly, fade } from 'svelte/transition';
-	import { cubicOut, cubicIn } from 'svelte/easing';
+	import {
+		cubicOut,
+		cubicIn,
+		expoOut,
+		expoIn,
+		backOut,
+		backIn,
+		elasticOut,
+		elasticIn,
+		quintOut,
+		quintIn
+	} from 'svelte/easing';
 	import { ExternalLink, Globe, Gamepad2, Box, FileUser } from 'lucide-svelte';
 	import { config } from '$lib/config';
 	import ContactDropdown from '$lib/components/ui/ContactDropdown.svelte';
@@ -676,7 +687,7 @@
 				class="slides-track"
 				style="transform: translateY(calc(-75dvh * {currentIndex}));"
 				in:fly={{ x: slideDirection * 100, duration: 400, delay: 400, easing: cubicOut }}
-				out:fly={{ x: slideDirection * -100, duration: 400, easing: cubicIn }}
+				out:fly={{ x: slideDirection * -100, duration: 400, easing: backIn }}
 			>
 				{#if currentTab === 'anchor'}
 					<!-- Слайд 1: Герой -->
@@ -1013,10 +1024,10 @@
 		box-shadow:
 			0 20px 50px rgba(0, 0, 0, 0.5),
 			inset 0 0 20px rgba(255, 255, 255, 0.1);
-		
+
 		/* Використовуємо animation замість transition для блюру, щоб воно працювало при монтуванні (зміна вкладки) */
 		animation: blurIn 1.2s ease 0.8s backwards;
-		
+
 		/* Фон з'являється одразу (без затримки) */
 		transition:
 			background 0.4s ease,
