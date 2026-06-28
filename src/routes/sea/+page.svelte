@@ -63,10 +63,11 @@
 
 	function lockScroll() {
 		isScrolling = true;
-		// Блокуємо скрол на час анімації (800ms)
+		// Блокуємо скрол лише на 400ms (короткий кулдаун),
+		// щоб користувач міг гортати далі ще до завершення довгої анімації (1200ms)
 		setTimeout(() => {
 			isScrolling = false;
-		}, 800);
+		}, 400);
 	}
 
 	function handleWheel(e: WheelEvent) {
@@ -127,7 +128,7 @@
 		role="presentation"
 	>
 		<!-- Трек для слайдів -->
-		<div class="slides-track" style="transform: translateY(calc(-100vh * {currentIndex}));">
+		<div class="slides-track" style="transform: translateY(calc(-85vh * {currentIndex}));">
 			
 			<!-- Слайд 1: Герой -->
 			<div class="slide-wrapper">
@@ -229,13 +230,15 @@
 		display: flex;
 		flex-direction: column;
 		width: 100%;
-		/* Плавна і кінематографічна анімація на 0.8 секунд */
-		transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+		/* Додаємо відступ зверху, щоб відцентрувати зменшені слайди в контейнері 100vh */
+		padding: 7.5vh 0;
+		/* Плавна і кінематографічна анімація на 1.2 секунд (1200ms) */
+		transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
 	}
 
 	.slide-wrapper {
 		width: 100%;
-		height: 100vh; /* Кожен слайд займає рівно 1 екран */
+		height: 85vh; /* Зменшили з 100vh до 85vh, щоб було видно шматочки інших слайдів */
 		flex-shrink: 0;
 		display: flex;
 		align-items: center;
