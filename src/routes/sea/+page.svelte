@@ -591,7 +591,7 @@
 	}
 
 	.hero-text {
-		font-size: 0.9rem; /* Було 1.05rem */
+		font-size: 1rem;
 		line-height: 1.6;
 		color: rgba(255, 255, 255, 0.9);
 	}
@@ -662,7 +662,7 @@
 	}
 
 	.project-desc {
-		font-size: 1.05rem; /* Було 1.25rem */
+		font-size: 1rem;
 		color: rgba(255, 255, 255, 0.85);
 		line-height: 1.5;
 	}
@@ -871,7 +871,7 @@
 	}
 
 	.tab-intro {
-		font-size: 1.05rem; /* Було 1.25rem */
+		font-size: 1rem;
 		color: rgba(255, 255, 255, 0.9);
 		line-height: 1.6;
 	}
@@ -899,7 +899,7 @@
 	}
 
 	.item-desc {
-		font-size: 1rem; /* Було 1.15rem */
+		font-size: 1rem;
 		color: rgba(255, 255, 255, 0.85);
 		line-height: 1.5;
 		margin: 0;
@@ -963,7 +963,7 @@
 
 		/* Зменшуємо заголовок щоб влазив на мобільному */
 		.hero-text {
-			font-size: 0.8rem; /* Було 0.95rem */
+			font-size: 0.9rem; /* На мобільному ледь менше */
 		}
 
 		.project-content h3 {
@@ -971,7 +971,7 @@
 		}
 
 		.project-desc {
-			font-size: 0.95rem; /* Було 1.1rem */
+			font-size: 0.9rem; /* На мобільному ледь менше */
 		}
 	}
 </style>
