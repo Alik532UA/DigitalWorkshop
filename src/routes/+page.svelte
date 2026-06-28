@@ -109,6 +109,7 @@
 	let audioRef: HTMLAudioElement;
 	let audioVolume = $state(0);
 	let isFadingIn = false;
+	let isPlayPending = false;
 
 	let fadeInterval: ReturnType<typeof setInterval>;
 
@@ -136,38 +137,40 @@
 			};
 
 			const startAudio = () => {
-				if (isAudioPlaying) {
-					removeListeners();
+				if (isAudioPlaying || isPlayPending) {
+					if (isAudioPlaying) removeListeners();
 					return;
 				}
 				if (audioRef) {
+					isPlayPending = true;
 					audioVolume = 0;
 					audioRef
 						.play()
 						.then(() => {
 							startFadeIn();
-							removeListeners(); // Видаляємо слухачів ТІЛЬКИ після успішного старту
+							removeListeners();
+							isPlayPending = false;
 						})
 						.catch(() => {
-							// Браузер заблокував цю взаємодію (наприклад, скрол). Чекаємо на наступну (клік/свайп)
+							isPlayPending = false;
 						});
 				}
 			};
 
 			audioVolume = 0; // Завжди починаємо з 0
+			isPlayPending = true;
 			audioRef
 				.play()
 				.then(() => {
-					// Якщо браузер дозволив автоплей (наприклад, перехід з іншої сторінки)
 					startFadeIn();
+					isPlayPending = false;
 				})
 				.catch((err) => {
 					console.error('Audio playback failed (Autoplay Policy):', err);
-
-					// Якщо браузер заблокував автоматичний запуск, чекаємо на валідну взаємодію
+					isPlayPending = false;
 					document.addEventListener('click', startAudio);
 					document.addEventListener('touchstart', startAudio);
-					document.addEventListener('touchend', startAudio); // Надійніше для Safari
+					document.addEventListener('touchend', startAudio);
 					document.addEventListener('keydown', startAudio);
 				});
 		}
@@ -208,6 +211,8 @@
 	let isMouseActive = $state(true);
 	let isMobile = $state(false);
 	let mouseTimeout: ReturnType<typeof setTimeout> | undefined;
+	let previousVolume = 0;
+	let isIOS = $state(false);
 
 	function handleMouseMove() {
 		isMouseActive = true;
@@ -244,6 +249,8 @@
 			isMobile = e.matches;
 		};
 		mediaQuery.addEventListener('change', handler);
+
+		isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
 	});
 
 	$effect(() => {
@@ -361,6 +368,13 @@
 	}
 
 	function handleWheel(e: WheelEvent) {
+		const target = e.target as HTMLElement;
+		if (target.closest('.audio-control-wrapper')) {
+			let newVol = audioVolume - Math.sign(e.deltaY) * 0.05;
+			audioVolume = Math.max(0, Math.min(1, newVol));
+			return;
+		}
+
 		if (isScrolling) return;
 
 		const isHorizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey;
@@ -540,6 +554,17 @@
 </svelte:head>
 
 <svelte:window
+	onblur={() => {
+		if (isAudioPlaying) {
+			previousVolume = audioVolume;
+			audioVolume = 0.01;
+		}
+	}}
+	onfocus={() => {
+		if (isAudioPlaying && previousVolume > 0) {
+			audioVolume = previousVolume;
+		}
+	}}
 	onfullscreenchange={() => (isFullscreen = !!document.fullscreenElement)}
 	onkeydown={handleKeyDown}
 	onmousemove={handleMouseMove}
@@ -589,9 +614,11 @@
 					/>
 				</div>
 			</div>
-			<button class="icon-btn" onclick={toggleFullscreen} aria-label="Toggle Fullscreen">
-				{@html isFullscreen ? iconMinimize : iconMaximize}
-			</button>
+			{#if !isIOS}
+				<button class="icon-btn" onclick={toggleFullscreen} aria-label="Toggle Fullscreen">
+					{@html isFullscreen ? iconMinimize : iconMaximize}
+				</button>
+			{/if}
 		</div>
 	{/if}
 
@@ -852,9 +879,8 @@
 		width: 100vw;
 		height: 100dvh;
 		transform: translate(-50%, -50%);
-		/* object-fit: cover гарантує, що відео ідеально заповнить весь екран, 
-           обрізаючи зайве, але не спотворюючи пропорції */
 		object-fit: cover;
+		background-color: #9aa0ac;
 	}
 
 	.info-layout {
