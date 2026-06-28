@@ -72,22 +72,32 @@
 	$effect(() => {
 		if (audioRef && !isFadingIn) {
 			isFadingIn = true;
-			audioRef.volume = 0;
+			
+			const startFadeIn = () => {
+				audioVolume = 0;
+				const interval = setInterval(() => {
+					if (audioVolume < 0.1) {
+						audioVolume = Number((audioVolume + 0.01).toFixed(2));
+					} else {
+						clearInterval(interval);
+					}
+				}, 100);
+			};
 
-			const interval = setInterval(() => {
-				if (audioVolume < 0.1) {
-					audioVolume = Number((audioVolume + 0.01).toFixed(2));
-				} else {
-					clearInterval(interval);
-				}
-			}, 100);
-
-			audioRef.play().catch((err) => {
+			audioVolume = 0; // Завжди починаємо з 0
+			audioRef.play().then(() => {
+				// Якщо браузер дозволив автоплей (наприклад, перехід з іншої сторінки)
+				startFadeIn();
+			}).catch((err) => {
 				console.error('Audio playback failed (Autoplay Policy):', err);
-				// Якщо браузер заблокував автоматичний запуск, додамо слухача на перший клік
+				
+				// Якщо браузер заблокував автоматичний запуск, чекаємо на перший клік
 				const startAudio = () => {
 					if (audioRef && !isAudioPlaying) {
-						audioRef.play().catch(() => {});
+						audioVolume = 0;
+						audioRef.play().then(() => {
+							startFadeIn();
+						}).catch(() => {});
 					}
 					document.removeEventListener('click', startAudio);
 					document.removeEventListener('touchstart', startAudio);
