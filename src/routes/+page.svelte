@@ -994,6 +994,18 @@
 		max-width: 510px; /* Було 600px */
 	}
 
+	/* Анімація для блюру, щоб вона спрацьовувала і при гортанні слайдів, і при зміні вкладок (монтуванні) */
+	@keyframes blurIn {
+		0% {
+			backdrop-filter: blur(0px);
+			-webkit-backdrop-filter: blur(0px);
+		}
+		100% {
+			backdrop-filter: blur(20px);
+			-webkit-backdrop-filter: blur(20px);
+		}
+	}
+
 	.slide-wrapper.active .info-block {
 		backdrop-filter: blur(20px);
 		-webkit-backdrop-filter: blur(20px);
@@ -1001,10 +1013,13 @@
 		box-shadow:
 			0 20px 50px rgba(0, 0, 0, 0.5),
 			inset 0 0 20px rgba(255, 255, 255, 0.1);
+		
+		/* Використовуємо animation замість transition для блюру, щоб воно працювало при монтуванні (зміна вкладки) */
+		animation: blurIn 1.2s ease 0.8s backwards;
+		
+		/* Фон з'являється одразу (без затримки) */
 		transition:
-			backdrop-filter 1.2s ease 0.8s, /* Блюр чекає 0.8с (поки йде виліт) і плавно наростає */
-			-webkit-backdrop-filter 1.2s ease 0.8s,
-			background 0.4s ease, /* Фон з'являється одразу (без затримки) */
+			background 0.4s ease,
 			box-shadow 0.4s ease;
 	}
 
