@@ -7,17 +7,35 @@
     let { children, isIconMode = false, customStyle = '' } = $props();
 
     let isHovered = $state(false);
+    let isTouch = $state(false);
+
+    function handleMouseEnter() {
+        if (!isTouch) isHovered = true;
+    }
+
+    function handleMouseLeave() {
+        if (!isTouch) isHovered = false;
+    }
+
+    function handleTouchStart() {
+        isTouch = true;
+    }
 </script>
+
+<svelte:window onclick={() => { if (isHovered && isTouch) isHovered = false; }} />
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div 
     class="contact-dropdown-wrapper" 
-    onmouseenter={() => isHovered = true} 
-    onmouseleave={() => isHovered = false}
+    class:is-icon-mode={isIconMode}
+    class:hovered={isHovered}
+    onmouseenter={handleMouseEnter} 
+    onmouseleave={handleMouseLeave}
+    ontouchstart={handleTouchStart}
     style={customStyle}
 >
     {#if isHovered}
-        <div class="social-options" transition:fly={{ y: isIconMode ? 0 : -10, x: isIconMode ? 10 : 0, duration: 200 }} class:icon-mode={isIconMode}>
+        <div class="social-options" transition:fly={{ y: isIconMode ? 0 : 10, x: isIconMode ? 10 : 0, duration: 200 }} class:icon-mode={isIconMode}>
             <a href="https://t.me/alik532" target="_blank" class="social-icon" aria-label="Telegram" onclick={(e) => e.stopPropagation()}>
                 <img src={telegramIcon} alt="Telegram" />
             </a>
@@ -31,7 +49,7 @@
     {/if}
 
     <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <div onclick={(e) => { e.preventDefault(); isHovered = !isHovered; }} role="button" tabindex="0" class="trigger-wrapper">
+    <div onclick={(e) => { e.preventDefault(); e.stopPropagation(); isHovered = !isHovered; }} role="button" tabindex="0" class="trigger-wrapper">
         {@render children()}
     </div>
 </div>
@@ -39,31 +57,54 @@
 <style>
     .contact-dropdown-wrapper {
         position: relative;
+    }
+
+    /* Стандартний режим (соцмережі замість кнопки) */
+    .contact-dropdown-wrapper:not(.is-icon-mode) {
+        display: inline-flex;
+    }
+
+    .contact-dropdown-wrapper.is-icon-mode {
         display: inline-flex;
     }
 
     .trigger-wrapper {
-        display: contents;
+        display: contents; /* Для icon-mode */
+    }
+
+    .contact-dropdown-wrapper:not(.is-icon-mode) .trigger-wrapper {
+        display: block;
+        transition: opacity 0.3s ease;
+    }
+
+    .contact-dropdown-wrapper.hovered:not(.is-icon-mode) .trigger-wrapper {
+        opacity: 0;
+        pointer-events: none;
     }
 
     .social-options {
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        transform: translateX(-50%);
         display: flex;
         gap: 16px;
         z-index: 100;
-        padding-top: 10px; /* Додаткова зона, щоб мишка не губила меню між кнопкою і іконками */
     }
 
+    .contact-dropdown-wrapper:not(.is-icon-mode) .social-options {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Режим іконки (збоку) */
     .social-options.icon-mode {
+        position: absolute;
         top: 50%;
-        bottom: auto;
         left: auto;
         right: 100%;
         transform: translateY(-50%);
-        padding-top: 0;
         padding-right: 15px; /* Додаткова зона для іконок збоку */
     }
 

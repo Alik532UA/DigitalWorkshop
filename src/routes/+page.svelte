@@ -717,7 +717,7 @@
 									<span class="desktop-text">{t.hero.description_sea_desktop}</span>
 									<span class="mobile-text">{t.hero.description_sea_mobile}</span>
 								</p>
-								<ContactDropdown customStyle="margin-top: 2rem; display: inline-flex;">
+								<ContactDropdown customStyle="margin-top: 2rem;">
 									<a
 										href={config.telegramUrl}
 										target="_blank"
@@ -770,7 +770,7 @@
 							<div class="hero-text">
 								<h2 class="tab-title">{tabData.title}</h2>
 								<p class="tab-intro">{@html tabData.intro.replace(/\n/g, '<br />')}</p>
-								<ContactDropdown customStyle="margin-top: 2rem; display: inline-flex;">
+								<ContactDropdown customStyle="margin-top: 2rem;">
 									<a
 										href={config.telegramUrl}
 										target="_blank"
@@ -1098,7 +1098,7 @@
 	}
 
 	.slide-hero .project-btn:hover {
-		transform: translateX(-50%) scale(1.05);
+		transform: scale(1.05);
 	}
 
 	.photo-wrapper {
