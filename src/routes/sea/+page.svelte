@@ -66,7 +66,24 @@
 
 	let isAudioPlaying = $state(false);
 	let audioRef: HTMLAudioElement;
-	let audioVolume = $state(0.1);
+	let audioVolume = $state(0);
+	let isFadingIn = false;
+
+	$effect(() => {
+		if (audioRef && !isFadingIn) {
+			isFadingIn = true;
+			audioRef.volume = 0;
+			audioRef.play().then(() => {
+				const interval = setInterval(() => {
+					if (audioVolume < 0.1) {
+						audioVolume = Number((audioVolume + 0.01).toFixed(2));
+					} else {
+						clearInterval(interval);
+					}
+				}, 100);
+			}).catch((err) => console.error('Audio playback failed:', err));
+		}
+	});
 
 	function toggleAudio() {
 		if (!audioRef) return;
@@ -181,7 +198,6 @@
 		bind:this={audioRef}
 		src="{base}/sea.ogg"
 		loop
-		autoplay
 		bind:volume={audioVolume}
 		onplay={() => (isAudioPlaying = true)}
 		onpause={() => (isAudioPlaying = false)}
@@ -434,6 +450,7 @@
 		background: rgba(0, 0, 0, 0.25);
 		backdrop-filter: blur(20px);
 		-webkit-backdrop-filter: blur(20px);
+		animation: blur-in-20 3s ease 400ms both;
 		box-shadow:
 			0 20px 50px rgba(0, 0, 0, 0.5),
 			inset 0 0 20px rgba(255, 255, 255, 0.1);
