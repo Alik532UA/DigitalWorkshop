@@ -73,7 +73,7 @@
 		if (audioRef && !isFadingIn) {
 			isFadingIn = true;
 			audioRef.volume = 0;
-			
+
 			const interval = setInterval(() => {
 				if (audioVolume < 0.1) {
 					audioVolume = Number((audioVolume + 0.01).toFixed(2));
@@ -453,7 +453,9 @@
 	.slide-wrapper.active .info-block {
 		backdrop-filter: blur(20px);
 		-webkit-backdrop-filter: blur(20px);
-		transition: backdrop-filter 2s ease 1s, -webkit-backdrop-filter 2s ease 1s;
+		transition:
+			backdrop-filter 2s ease 1s,
+			-webkit-backdrop-filter 2s ease 1s;
 	}
 
 	.info-slide {
@@ -474,18 +476,40 @@
 		box-shadow:
 			0 20px 50px rgba(0, 0, 0, 0.5),
 			inset 0 0 20px rgba(255, 255, 255, 0.1);
-			
+
 		/* За замовчуванням блюру немає (прибирається швидко при скролі) */
 		backdrop-filter: blur(0px);
 		-webkit-backdrop-filter: blur(0px);
 		transition: backdrop-filter 0.2s ease, -webkit-backdrop-filter 0.2s ease;
 	}
 
+	.chunk-content {
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+		max-width: 600px; /* Як у .info-slide */
+	}
+
 	/* Hero Slide */
 	.slide-hero {
 		align-items: center;
 		text-align: center;
-		margin-top: 130px; /* Опускаємо перший слайд ще нижче */
+		position: relative; /* Щоб абсолютно спозіціонувати фото та кнопку */
+	}
+
+	/* Виносимо кнопку за межі контейнера на перших слайдах */
+	.slide-hero .project-btn {
+		position: absolute;
+		bottom: -80px;
+		left: 50%;
+		transform: translateX(-50%);
+		margin-top: 0 !important;
+		width: max-content;
+	}
+	
+	.slide-hero .project-btn:hover {
+		transform: translateX(-50%) scale(1.05);
 	}
 
 	.photo-wrapper {
@@ -498,7 +522,11 @@
 		box-shadow: 0 4px 25px rgba(0, 0, 0, 0.2);
 		overflow: hidden;
 		flex-shrink: 0;
-		margin-top: -150px; /* Ще більше перекриває контейнер зверху */
+		
+		/* Повертаємо у нормальний потік, але з від'ємним відступом, 
+		   щоб воно стирчало на 75px (115px - 40px padding = 75px) 
+		   і при цьому відштовхувало текст вниз */
+		margin-top: -115px;
 		z-index: 10;
 	}
 
@@ -596,7 +624,6 @@
 	}
 
 	.project-btn {
-		margin-top: 10px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -613,7 +640,7 @@
 	}
 
 	.project-btn:hover {
-		transform: translateY(-2px);
+		transform: scale(1.05);
 		box-shadow: 0 5px 15px rgba(100, 108, 255, 0.4);
 	}
 
