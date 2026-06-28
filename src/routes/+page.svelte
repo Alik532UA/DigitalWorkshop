@@ -819,7 +819,7 @@
 
 	<div class="nav-controls-container">
 		<div class="sidebar-icons">
-			{#each tabIcons as tab}
+			{#each tabIcons as tab, index}
 				<div class="sidebar-item">
 					{#if currentTab === tab.id}
 						<div
@@ -841,9 +841,9 @@
 						</div>
 					{/if}
 					<button
-						class="glass-icon"
+						class="glass-icon tab-btn"
 						class:active={currentTab === tab.id}
-						style="--mask-url: url({squircleUrl});"
+						style="--mask-url: url({squircleUrl}); --animation-order: {index};"
 						aria-label={tab.id}
 						onmouseenter={() => (hoveredTab = tab.id)}
 						onmouseleave={() => (hoveredTab = null)}
@@ -1475,22 +1475,56 @@
 	.sea-container[data-hovered-tab='apps'] .glass-icon[aria-label='apps'],
 	.sea-container[data-hovered-tab='games'] .glass-icon[aria-label='games'],
 	.sea-container[data-hovered-tab='promo'] .glass-icon[aria-label='promo'] {
-		background: rgba(255, 255, 255, 0.2);
-		transform: scale(1.1);
+		background: rgba(255, 255, 255, 0.2) !important;
+		transform: scale(1.1) !important;
 		box-shadow:
 			0 8px 16px rgba(0, 0, 0, 0.2),
-			inset 0 0 15px rgba(255, 255, 255, 0.3);
+			inset 0 0 15px rgba(255, 255, 255, 0.3) !important;
 	}
 
-	.glass-icon.active {
-		background: rgba(109, 177, 240, 0.694); /* Трохи бірюзовий фон для вибраної вкладки */
+	/* Узгоджений стиль для активної вкладки (перебиває будь-які hover ефекти на мобільному/пк) */
+	.glass-icon.active,
+	.glass-icon.active:hover,
+	.sea-container[data-hovered-tab] .glass-icon.active {
+		background: rgba(
+			109,
+			177,
+			240,
+			0.694
+		) !important; /* Трохи бірюзовий фон для вибраної вкладки */
 		box-shadow:
 			0 8px 16px rgba(0, 0, 0, 0.2),
-			inset 0 0 15px rgba(73, 164, 220, 0.452);
+			inset 0 0 15px rgba(73, 164, 220, 0.452) !important;
+		transform: scale(1.1) !important; /* Завжди збільшена, коли активна */
 	}
 
 	.glass-icon:active {
-		transform: scale(0.95);
+		transform: scale(0.95) !important; /* !important щоб перебити hover/active масштабування */
+	}
+
+	/* Анімація привертання уваги "ланцюжком" кожні 7 секунд */
+	@keyframes waveScale {
+		0%,
+		8%,
+		100% {
+			transform: scale(1);
+			box-shadow:
+				0 4px 6px rgba(0, 0, 0, 0.1),
+				inset 0 0 10px rgba(255, 255, 255, 0.1);
+		}
+		4% {
+			transform: scale(1.08); /* Слабіший зум (було 1.15) */
+			box-shadow:
+				0 8px 16px rgba(0, 0, 0, 0.2),
+				inset 0 0 15px rgba(255, 255, 255, 0.3);
+		}
+	}
+
+	/* Анімація працює завжди, щоб таймер не розсинхронізувався (хаотичність).
+	   Але для :hover та .active вона візуально перекривається через !important вище */
+	.glass-icon.tab-btn {
+		animation: waveScale 7s infinite ease-in-out;
+		animation-delay: calc(var(--animation-order, 0) * 0.25s); /* Середня швидкість передачі хвилі */
 	}
 
 	.glass-icon.bg-blue {
