@@ -266,26 +266,48 @@
 		});
 	});
 
-	let itemsPerSlide = $derived(isMobile ? 1 : 2);
-
 	// Герой + всі проєкти або контент вкладок
+	let activeChunks = $derived.by(() => {
+		if (currentTab === 'anchor') return [];
+		const tabData = t.tabs[currentTab as keyof typeof t.tabs];
+		const items = (tabData as any).benefits || (tabData as any).faq || [];
+		
+		const result = [];
+		let currentChunk = [];
+		
+		for (const item of items) {
+			const text = (item.h || item.q || '') + (item.p || item.a || '');
+			// На мобільному, якщо текст довгий (> 250 символів), він займає весь слайд
+			const isLong = isMobile && text.length > 250;
+			
+			if (isLong) {
+				if (currentChunk.length > 0) {
+					result.push([...currentChunk]);
+					currentChunk = [];
+				}
+				result.push([item]);
+			} else {
+				currentChunk.push(item);
+				// На комп'ютері завжди по 2, на мобільному короткі теж по 2
+				if (currentChunk.length === 2) {
+					result.push([...currentChunk]);
+					currentChunk = [];
+				}
+			}
+		}
+		if (currentChunk.length > 0) {
+			result.push([...currentChunk]);
+		}
+		return result;
+	});
+
 	let totalSlides = $derived.by(() => {
 		if (currentTab === 'anchor') {
 			return projects.length + 1;
 		} else {
-			const tabData = t.tabs[currentTab as keyof typeof t.tabs];
-			const items = (tabData as any).benefits || (tabData as any).faq || [];
-			return Math.ceil(items.length / itemsPerSlide) + 1; // 1 for intro slide
+			return activeChunks.length + 1; // 1 for intro slide
 		}
 	});
-
-	function getChunks(items: any[], size: number) {
-		const result = [];
-		for (let i = 0; i < items.length; i += size) {
-			result.push(items.slice(i, i + size));
-		}
-		return result;
-	}
 
 	function parseMarkdown(text: string) {
 		if (!text) return '';
@@ -702,8 +724,6 @@
 					{/each}
 				{:else}
 					{@const tabData = t.tabs[currentTab as keyof typeof t.tabs]}
-					{@const items = (tabData as any).benefits || (tabData as any).faq || []}
-					{@const chunks = getChunks(items, itemsPerSlide)}
 
 					<!-- Вступний слайд вкладки -->
 					<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
@@ -725,7 +745,7 @@
 					</div>
 
 					<!-- Слайди з деталями (FAQ / Переваги) -->
-					{#each chunks as chunk, i}
+					{#each activeChunks as chunk, i}
 						<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 						<div
 							class="slide-wrapper"
