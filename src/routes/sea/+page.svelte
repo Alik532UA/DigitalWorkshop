@@ -421,10 +421,7 @@
 		width: 100%;
 		height: 75vh; /* Менша висота для слайдів */
 		flex-shrink: 0;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 40px 10px; /* Менший горизонтальний відступ */
+		position: relative; /* Додано для абсолютного позиціонування */
 		box-sizing: border-box;
 
 		/* Візуальне зменшення неактивних слайдів */
@@ -434,6 +431,37 @@
 		transform: scale(0.9); /* Збільшили з 0.85 до 0.9 щоб більше стирчали */
 		opacity: 0.4;
 		cursor: pointer; /* Вказує що на них можна клікнути */
+	}
+
+	/* Абсолютне позиціонування для динамічного вирівнювання висоти карток */
+	.slide-wrapper > .info-slide,
+	.slide-wrapper > .chunk-content {
+		position: absolute;
+		left: 50%;
+		width: calc(100% - 20px);
+		max-width: 600px;
+		
+		/* За замовчуванням (наступні слайди): притискаємо до верху (з відступом 40px) */
+		top: 40px;
+		transform: translate(-50%, 0);
+		
+		transition: 
+			top 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+			transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+	}
+
+	/* Активний слайд: по центру */
+	.slide-wrapper.active > .info-slide,
+	.slide-wrapper.active > .chunk-content {
+		top: 50%;
+		transform: translate(-50%, -50%);
+	}
+
+	/* Попередні слайди (перед активним): притискаємо до низу (з відступом 40px) */
+	.slide-wrapper:has(~ .slide-wrapper.active) > .info-slide,
+	.slide-wrapper:has(~ .slide-wrapper.active) > .chunk-content {
+		top: calc(100% - 40px);
+		transform: translate(-50%, -100%);
 	}
 
 	/* Вимикаємо кліки всередині неактивних слайдів (щоб лінки не натискались випадково) */
@@ -448,6 +476,11 @@
 		pointer-events: auto; /* Вмикаємо кліки для активного слайду */
 	}
 
+	.info-slide {
+		width: 100%;
+		max-width: 600px; /* Обмежуємо ширину самої картки */
+	}
+
 	/* Блюр накладається тільки на активний слайд і з затримкою, 
 	   щоб не було різких стрибків під час скролу */
 	.slide-wrapper.active .info-block {
@@ -456,11 +489,6 @@
 		transition:
 			backdrop-filter 2s ease 1s,
 			-webkit-backdrop-filter 2s ease 1s;
-	}
-
-	.info-slide {
-		width: 100%;
-		max-width: 600px; /* Обмежуємо ширину самої картки */
 	}
 
 	.info-block {
