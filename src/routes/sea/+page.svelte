@@ -12,6 +12,9 @@
 
 	import iconMaximize from '$lib/assets/tabler/arrows-maximize.svg?raw';
 	import iconMinimize from '$lib/assets/tabler/arrows-minimize.svg?raw';
+	import iconMusicOn from '$lib/assets/tabler/music.svg?raw';
+	import iconMusicOff from '$lib/assets/tabler/music-off.svg?raw';
+	import iconLanguage from '$lib/assets/tabler/language.svg?raw';
 
 	const icons = [iconHome, iconWorld, iconMobile, iconGamepad, iconHeart];
 
@@ -53,11 +56,30 @@
 		}
 	}
 
+	let isAudioPlaying = $state(false);
+	let audioRef: HTMLAudioElement;
+	let audioVolume = $state(0.5);
+
+	function toggleAudio() {
+		if (!audioRef) return;
+		if (isAudioPlaying) {
+			audioRef.pause();
+		} else {
+			audioRef.play().catch(err => console.error("Audio playback failed:", err));
+		}
+	}
+
+	const langState = t.current;
+
+	function toggleLanguage() {
+		langState.set(langState.current === 'uk' ? 'en' : 'uk');
+	}
+
 	// Стан для кастомного скролу
 	let currentIndex = $state(0);
 	let isScrolling = false;
 	let touchStartY = 0;
-	
+
 	// Герой + всі проєкти
 	const totalSlides = projects.length + 1;
 
@@ -67,12 +89,12 @@
 		// щоб користувач міг гортати далі ще до завершення довгої анімації (1200ms)
 		setTimeout(() => {
 			isScrolling = false;
-		}, 400);
+		}, 150);
 	}
 
 	function handleWheel(e: WheelEvent) {
 		if (isScrolling) return;
-		
+
 		// Поріг 15px для фільтрації випадкових мікро-рухів тачпаду
 		if (e.deltaY > 15 && currentIndex < totalSlides - 1) {
 			currentIndex++;
@@ -89,10 +111,10 @@
 
 	function handleTouchEnd(e: TouchEvent) {
 		if (isScrolling) return;
-		
+
 		const touchEndY = e.changedTouches[0].clientY;
 		const diff = touchStartY - touchEndY;
-		
+
 		// Поріг 50px для свайпу
 		if (diff > 50 && currentIndex < totalSlides - 1) {
 			currentIndex++;
@@ -115,12 +137,35 @@
 		<source src="{base}/sea.webm" type="video/webm" />
 	</video>
 
-	<!-- Кнопка повноекранного режиму -->
-	<button class="fullscreen-btn" onclick={toggleFullscreen} aria-label="Toggle Fullscreen">
-		{@html isFullscreen ? iconMinimize : iconMaximize}
-	</button>
+	<audio 
+		bind:this={audioRef} 
+		src="{base}/sea.ogg" 
+		loop 
+		autoplay
+		bind:volume={audioVolume}
+		onplay={() => isAudioPlaying = true}
+		onpause={() => isAudioPlaying = false}
+	></audio>
 
-	<div 
+	<!-- Кнопки керування (мова, звук, повноекранний режим) -->
+	<div class="top-controls">
+		<button class="icon-btn" onclick={toggleLanguage} aria-label="Toggle Language">
+			{@html iconLanguage}
+		</button>
+		<div class="audio-control-wrapper">
+			<button class="icon-btn" onclick={toggleAudio} aria-label="Toggle Audio">
+				{@html isAudioPlaying ? iconMusicOn : iconMusicOff}
+			</button>
+			<div class="volume-slider-container">
+				<input type="range" min="0" max="1" step="0.01" bind:value={audioVolume} class="volume-slider" aria-label="Volume" />
+			</div>
+		</div>
+		<button class="icon-btn" onclick={toggleFullscreen} aria-label="Toggle Fullscreen">
+			{@html isFullscreen ? iconMinimize : iconMaximize}
+		</button>
+	</div>
+
+	<div
 		class="info-layout"
 		onwheel={handleWheel}
 		ontouchstart={handleTouchStart}
@@ -129,7 +174,6 @@
 	>
 		<!-- Трек для слайдів -->
 		<div class="slides-track" style="transform: translateY(calc(-85vh * {currentIndex}));">
-			
 			<!-- Слайд 1: Герой -->
 			<div class="slide-wrapper">
 				<div class="info-slide glass-panel info-block slide-hero">
@@ -199,6 +243,9 @@
 		overflow: hidden;
 		/* Повністю вимикаємо можливість клікнути по відео (навіть праву кнопку миші) */
 		pointer-events: none;
+		
+		/* Перевизначаємо акцентний колір суто для сторінки моря (океанський синій) */
+		--accent-primary: #0284c7; 
 	}
 
 	.background-video {
@@ -418,14 +465,69 @@
 		pointer-events: auto;
 	}
 
-	.fullscreen-btn {
+	.top-controls {
 		position: absolute;
 		top: 2rem;
 		right: 2rem;
 		z-index: 10002;
-		pointer-events: auto;
+		display: flex;
+		gap: 1.5rem; /* Відстань між іконками */
+		pointer-events: none; /* Щоб кліки проходили крізь порожнечу */
+	}
 
-		/* Без кола, лише чистий клікабельний елемент */
+	.audio-control-wrapper {
+		display: flex;
+		align-items: center;
+		position: relative;
+		pointer-events: auto; /* Вмикаємо кліки для всього контейнера аудіо */
+	}
+
+	.volume-slider-container {
+		width: 0;
+		opacity: 0;
+		overflow: hidden;
+		transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+		display: flex;
+		align-items: center;
+		margin-left: 0;
+	}
+
+	.audio-control-wrapper:hover .volume-slider-container,
+	.volume-slider-container:focus-within {
+		width: 80px; /* Ширина повзунка */
+		opacity: 1;
+		margin-left: 10px;
+	}
+
+	.volume-slider {
+		-webkit-appearance: none;
+		appearance: none;
+		width: 100%;
+		height: 4px;
+		background: rgba(255, 255, 255, 0.3);
+		border-radius: 2px;
+		outline: none;
+		cursor: pointer;
+	}
+
+	.volume-slider::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		appearance: none;
+		width: 14px;
+		height: 14px;
+		border-radius: 50%;
+		background: white;
+		cursor: pointer;
+		box-shadow: 0 0 5px rgba(0,0,0,0.5);
+		transition: transform 0.2s;
+	}
+
+	.volume-slider::-webkit-slider-thumb:hover {
+		transform: scale(1.2);
+	}
+
+	.icon-btn {
+		pointer-events: auto; /* Вмикаємо кліки тільки для самих кнопок */
 		background: transparent;
 		border: none;
 		display: flex;
@@ -435,7 +537,7 @@
 		padding: 10px; /* Зона кліку */
 	}
 
-	.fullscreen-btn :global(svg) {
+	.icon-btn :global(svg) {
 		width: 2rem;
 		height: 2rem;
 		stroke: rgba(255, 255, 255, 0.85);
@@ -444,7 +546,7 @@
 		transition: all 0.3s ease;
 	}
 
-	.fullscreen-btn:hover :global(svg) {
+	.icon-btn:hover :global(svg) {
 		stroke: white;
 		filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
 		transform: scale(1.15);
