@@ -1311,7 +1311,7 @@
 	}
 
 	.slide-nav-arrow.arrow-up {
-		top: 4vh; /* Було 30px, але 4vh адаптивніше */
+		top: 8vh; /* Зроблено ближче до центру (слайд починається на 12.5vh) */
 		animation: bounceArrowUp 2s infinite ease-in-out;
 	}
 	.slide-nav-arrow.arrow-up:hover {
@@ -1320,7 +1320,7 @@
 	}
 
 	.slide-nav-arrow.arrow-down {
-		bottom: 4vh;
+		bottom: 8vh;
 		animation: bounceArrowDown 2s infinite ease-in-out;
 	}
 	.slide-nav-arrow.arrow-down:hover {
