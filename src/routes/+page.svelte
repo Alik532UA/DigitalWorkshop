@@ -905,6 +905,7 @@
 		height: 100dvh;
 		transform: translate(-50%, -50%);
 		object-fit: cover;
+		object-position: right center; /* Прив'язуємо відео до правого краю для всіх екранів */
 		background-color: #9aa0ac;
 	}
 
