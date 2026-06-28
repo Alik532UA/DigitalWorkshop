@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { base } from '$app/paths';
-	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
-	import { untrack } from 'svelte';
+	import { untrack, onMount } from 'svelte';
+	import { browser } from '$app/environment';
 	import squircleUrl from '$lib/assets/squircle.svg';
 	import { t } from '$lib/i18n/LanguageState.svelte';
 	import { fly, fade } from 'svelte/transition';
@@ -35,8 +35,7 @@
 
 	const tabsList = ['anchor', 'website', 'apps', 'games', 'promo'];
 
-	let initialTab = $page.url.searchParams.get('tab') || 'anchor';
-	let currentTab = $state(tabsList.includes(initialTab) ? initialTab : 'anchor');
+	let currentTab = $state('anchor');
 	let hoveredTab = $state<string | null>(null);
 	let slideDirection = $state(1);
 
@@ -195,8 +194,7 @@
 	);
 
 	// Стан для кастомного скролу
-	let initialSlide = parseInt($page.url.searchParams.get('slide') || '0', 10);
-	let currentIndex = $state(isNaN(initialSlide) ? 0 : initialSlide);
+	let currentIndex = $state(0);
 	let isScrolling = false;
 	let touchStartY = 0;
 	let touchStartX = 0;
@@ -221,6 +219,20 @@
 	});
 
 	let isInitializingUrl = true;
+
+	onMount(() => {
+		const params = new URLSearchParams(window.location.search);
+		const initialTab = params.get('tab');
+		if (initialTab && tabsList.includes(initialTab)) {
+			currentTab = initialTab;
+		}
+		
+		const initialSlide = parseInt(params.get('slide') || '0', 10);
+		if (!isNaN(initialSlide) && initialSlide > 0) {
+			currentIndex = initialSlide;
+		}
+	});
+
 	$effect(() => {
 		const tab = currentTab;
 		const idx = currentIndex;
@@ -230,14 +242,14 @@
 				isInitializingUrl = false;
 				return;
 			}
-			const url = new URL($page.url);
+			const url = new URL(window.location.href);
 			url.searchParams.set('tab', tab);
 			if (idx > 0) {
 				url.searchParams.set('slide', idx.toString());
 			} else {
 				url.searchParams.delete('slide');
 			}
-			goto(url, { replaceState: true, keepFocus: true, noScroll: true });
+			goto(url.toString(), { replaceState: true, keepFocus: true, noScroll: true });
 		});
 	});
 
