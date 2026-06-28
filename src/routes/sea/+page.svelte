@@ -363,6 +363,11 @@
 			return;
 		}
 
+		if (e.code === 'KeyH') {
+			setTab(tabsList[0]);
+			return;
+		}
+
 		if (e.code === 'Enter' || e.code === 'NumpadEnter') {
 			window.open(config.telegramUrl, '_blank');
 			return;
@@ -374,6 +379,26 @@
 			const tabIndex = parseInt(digitMatch[1], 10) - 1;
 			if (tabIndex >= 0 && tabIndex < tabsList.length) {
 				setTab(tabsList[tabIndex]);
+			}
+			return;
+		}
+
+		if (e.code === 'Space') {
+			e.preventDefault(); // Запобігаємо стандартному скролу сторінки
+			if (isScrolling) return;
+
+			if (currentIndex < totalSlides - 1) {
+				currentIndex++;
+				lockScroll();
+			} else {
+				const tabIdx = tabsList.indexOf(currentTab);
+				if (tabIdx < tabsList.length - 1) {
+					setTab(tabsList[tabIdx + 1]);
+					lockScroll();
+				} else {
+					setTab(tabsList[0]);
+					lockScroll();
+				}
 			}
 			return;
 		}
