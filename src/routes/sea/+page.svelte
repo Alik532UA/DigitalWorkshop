@@ -73,15 +73,30 @@
 		if (audioRef && !isFadingIn) {
 			isFadingIn = true;
 			audioRef.volume = 0;
-			audioRef.play().then(() => {
-				const interval = setInterval(() => {
-					if (audioVolume < 0.1) {
-						audioVolume = Number((audioVolume + 0.01).toFixed(2));
-					} else {
-						clearInterval(interval);
+			
+			const interval = setInterval(() => {
+				if (audioVolume < 0.1) {
+					audioVolume = Number((audioVolume + 0.01).toFixed(2));
+				} else {
+					clearInterval(interval);
+				}
+			}, 100);
+
+			audioRef.play().catch((err) => {
+				console.error('Audio playback failed (Autoplay Policy):', err);
+				// Якщо браузер заблокував автоматичний запуск, додамо слухача на перший клік
+				const startAudio = () => {
+					if (audioRef && !isAudioPlaying) {
+						audioRef.play().catch(() => {});
 					}
-				}, 100);
-			}).catch((err) => console.error('Audio playback failed:', err));
+					document.removeEventListener('click', startAudio);
+					document.removeEventListener('touchstart', startAudio);
+					document.removeEventListener('keydown', startAudio);
+				};
+				document.addEventListener('click', startAudio);
+				document.addEventListener('touchstart', startAudio);
+				document.addEventListener('keydown', startAudio);
+			});
 		}
 	});
 
