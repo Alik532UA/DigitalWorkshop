@@ -818,7 +818,7 @@
 	</div>
 
 	<div class="nav-controls-container">
-		<div class="sidebar-icons">
+		<div class="sidebar-icons" style="--total-tabs: {tabIcons.length};">
 			{#each tabIcons as tab, index}
 				<div class="sidebar-item">
 					{#if currentTab === tab.id}
@@ -1502,7 +1502,7 @@
 		transform: scale(0.95) !important; /* !important щоб перебити hover/active масштабування */
 	}
 
-	/* Анімація привертання уваги "ланцюжком" кожні 7 секунд */
+	/* Анімація привертання уваги "ланцюжком" кожні 15 секунд */
 	@keyframes waveScale {
 		0%,
 		8%,
@@ -1523,8 +1523,9 @@
 	/* Анімація працює завжди, щоб таймер не розсинхронізувався (хаотичність).
 	   Але для :hover та .active вона візуально перекривається через !important вище */
 	.glass-icon.tab-btn {
-		animation: waveScale 7s infinite ease-in-out;
-		animation-delay: calc(var(--animation-order, 0) * 0.25s); /* Середня швидкість передачі хвилі */
+		animation: waveScale 15s infinite ease-in-out;
+		/* На комп'ютері: з кінця в початок (знизу вгору) */
+		animation-delay: calc((var(--total-tabs, 5) - 1 - var(--animation-order, 0)) * 0.25s);
 	}
 
 	.glass-icon.bg-blue {
@@ -1717,6 +1718,11 @@
 
 		.mobile-text {
 			display: inline;
+		}
+
+		/* На мобільному напрямок "з початку в кінець" (зліва направо) */
+		.glass-icon.tab-btn {
+			animation-delay: calc(var(--animation-order, 0) * 0.25s);
 		}
 
 		.nav-controls-container {
