@@ -433,6 +433,14 @@
 		pointer-events: auto; /* Вмикаємо кліки для активного слайду */
 	}
 
+	/* Блюр накладається тільки на активний слайд і з затримкою, 
+	   щоб не було різких стрибків під час скролу */
+	.slide-wrapper.active .info-block {
+		backdrop-filter: blur(20px);
+		-webkit-backdrop-filter: blur(20px);
+		transition: backdrop-filter 2s ease 1s, -webkit-backdrop-filter 2s ease 1s;
+	}
+
 	.info-slide {
 		width: 100%;
 		max-width: 600px; /* Обмежуємо ширину самої картки */
@@ -448,12 +456,14 @@
 
 		/* Glassmorphism без обводки */
 		background: rgba(0, 0, 0, 0.25);
-		backdrop-filter: blur(20px);
-		-webkit-backdrop-filter: blur(20px);
-		animation: blur-in-20 3s ease 400ms both;
 		box-shadow:
 			0 20px 50px rgba(0, 0, 0, 0.5),
 			inset 0 0 20px rgba(255, 255, 255, 0.1);
+			
+		/* За замовчуванням блюру немає (прибирається швидко при скролі) */
+		backdrop-filter: blur(0px);
+		-webkit-backdrop-filter: blur(0px);
+		transition: backdrop-filter 0.2s ease, -webkit-backdrop-filter 0.2s ease;
 	}
 
 	/* Hero Slide */
