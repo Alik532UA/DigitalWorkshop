@@ -10,6 +10,9 @@
 	import iconGamepad from '$lib/assets/tabler/device-gamepad-2.svg?raw';
 	import iconHeart from '$lib/assets/tabler/heart-handshake.svg?raw';
 
+	import iconMaximize from '$lib/assets/tabler/arrows-maximize.svg?raw';
+	import iconMinimize from '$lib/assets/tabler/arrows-minimize.svg?raw';
+
 	const icons = [iconHome, iconWorld, iconMobile, iconGamepad, iconHeart];
 	
 	const projects = [
@@ -18,16 +21,41 @@
 		{ id: 'cv3d', img: 'cv_3d.jpg', icon: Box, link: 'https://alik532ua.itch.io/alik-cv-interactive-3d-experience' },
 		{ id: 'cv_web', img: 'cv_web.jpg', icon: FileUser, link: 'https://alik532ua.github.io/CV/' }
 	];
+
+	let isFullscreen = $state(false);
+
+	function toggleFullscreen() {
+		if (!document.fullscreenElement) {
+			document.documentElement.requestFullscreen().then(() => {
+				isFullscreen = true;
+			}).catch(err => {
+				console.error(`Error attempting to enable fullscreen: ${err.message}`);
+			});
+		} else {
+			if (document.exitFullscreen) {
+				document.exitFullscreen().then(() => {
+					isFullscreen = false;
+				});
+			}
+		}
+	}
 </script>
 
 <svelte:head>
 	<title>Sea View</title>
 </svelte:head>
 
+<svelte:window onfullscreenchange={() => isFullscreen = !!document.fullscreenElement} />
+
 <div class="sea-container">
 	<video autoplay loop muted playsinline class="background-video">
 		<source src="{base}/sea.webm" type="video/webm" />
 	</video>
+
+	<!-- Кнопка повноекранного режиму -->
+	<button class="fullscreen-btn" onclick={toggleFullscreen} aria-label="Toggle Fullscreen">
+		{@html isFullscreen ? iconMinimize : iconMaximize}
+	</button>
 
 	<div class="info-layout">
 		<!-- Слайд 1: Герой -->
@@ -105,20 +133,21 @@
 
 	.info-layout {
 		position: absolute;
-		right: 9rem; /* Розташовано лівіше від іконок */
+		/* Зміщуємо контейнер правіше на 60px, щоб компенсувати збільшений правий padding */
+		right: calc(9rem - 60px); 
 		top: 0;
 		height: 100vh;
-		width: calc(100vw - 12rem);
-		max-width: 450px;
+		width: calc(100vw - 12rem + 120px);
+		max-width: 800px; /* 600px контенту + 200px padding */
 		overflow-y: auto;
 		pointer-events: auto;
 		display: flex;
 		flex-direction: column;
-		/* Padding fix for shadows */
-		padding: 40px; 
+		/* Величезний горизонтальний padding (100px), щоб тіні ніколи не обрізались */
+		padding: 40px 100px; 
 		box-sizing: border-box;
-		/* Scroll snapping */
-		scroll-snap-type: y mandatory;
+		/* Scroll snapping - м'якіший режим proximity */
+		scroll-snap-type: y proximity;
 		scroll-behavior: smooth;
 	}
 	
@@ -129,8 +158,7 @@
 
 	.info-slide {
 		scroll-snap-align: center;
-		scroll-snap-stop: always;
-		margin: 20px 0; /* Extra margin to ensure shadows are fully visible without cropping */
+		margin: 30px 0; /* Трохи більший відступ між слайдами */
 	}
 
 	.info-block {
@@ -141,11 +169,10 @@
 		flex-direction: column;
 		gap: 20px;
 		
-		/* Glassmorphism */
+		/* Glassmorphism без обводки */
 		background: rgba(0, 0, 0, 0.25);
 		backdrop-filter: blur(20px);
 		-webkit-backdrop-filter: blur(20px);
-		border: 1px solid rgba(255, 255, 255, 0.2);
 		box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.1);
 	}
 
@@ -153,6 +180,7 @@
 	.slide-hero {
 		align-items: center;
 		text-align: center;
+		margin-top: 130px; /* Опускаємо перший слайд нижче */
 	}
 
 	.photo-wrapper {
@@ -165,6 +193,8 @@
 		box-shadow: 0 4px 25px rgba(0, 0, 0, 0.2);
 		overflow: hidden;
 		flex-shrink: 0;
+		margin-top: -110px; /* Менше перекриває контейнер зверху */
+		z-index: 10;
 	}
 
 	.profile-photo {
@@ -295,6 +325,47 @@
 		z-index: 10001;
 		/* Дозволяємо клікати по іконках, незважаючи на pointer-events: none у контейнері */
 		pointer-events: auto; 
+	}
+
+	.fullscreen-btn {
+		position: absolute;
+		top: 2rem;
+		right: 2rem;
+		z-index: 10002;
+		pointer-events: auto;
+		
+		/* Новий мінімалістичний стиль */
+		background: rgba(255, 255, 255, 0.05);
+		backdrop-filter: blur(8px);
+		-webkit-backdrop-filter: blur(8px);
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		border-radius: 50%;
+		width: 2.75rem;
+		height: 2.75rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		transition: all 0.3s ease;
+		padding: 0;
+	}
+
+	.fullscreen-btn:hover {
+		background: rgba(255, 255, 255, 0.15);
+		transform: scale(1.1);
+		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+	}
+
+	.fullscreen-btn :global(svg) {
+		width: 1.35rem;
+		height: 1.35rem;
+		stroke: rgba(255, 255, 255, 0.75);
+		stroke-width: 1.5;
+		transition: all 0.3s ease;
+	}
+
+	.fullscreen-btn:hover :global(svg) {
+		stroke: white;
 	}
 
 	.glass-icon {
