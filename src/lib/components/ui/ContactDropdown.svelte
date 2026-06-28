@@ -35,7 +35,11 @@
     style={customStyle}
 >
     {#if isHovered}
-        <div class="social-options" transition:fly={{ y: isIconMode ? 0 : 10, x: isIconMode ? 10 : 0, duration: 200 }} class:icon-mode={isIconMode}>
+        <div class="social-options" transition:fly={{ 
+            y: (isIconMode && !isTouch) ? 0 : 15, 
+            x: (isIconMode && !isTouch) ? 15 : 0, 
+            duration: 200 
+        }} class:icon-mode={isIconMode}>
             <a href="https://t.me/alik532" target="_blank" class="social-icon" aria-label="Telegram" onclick={(e) => e.stopPropagation()}>
                 <img src={telegramIcon} alt="Telegram" />
             </a>
@@ -69,15 +73,11 @@
     }
 
     .trigger-wrapper {
-        display: contents; /* Для icon-mode */
-    }
-
-    .contact-dropdown-wrapper:not(.is-icon-mode) .trigger-wrapper {
         display: block;
         transition: opacity 0.3s ease;
     }
 
-    .contact-dropdown-wrapper.hovered:not(.is-icon-mode) .trigger-wrapper {
+    .contact-dropdown-wrapper.hovered .trigger-wrapper {
         opacity: 0;
         pointer-events: none;
     }
@@ -88,6 +88,7 @@
         z-index: 100;
     }
 
+    /* Стандартний режим (соцмережі замість кнопки) */
     .contact-dropdown-wrapper:not(.is-icon-mode) .social-options {
         position: absolute;
         top: 0;
@@ -98,14 +99,16 @@
         align-items: center;
     }
 
-    /* Режим іконки (збоку) */
-    .social-options.icon-mode {
+    /* Режим іконки на комп'ютері (горизонтально, замість кнопки) */
+    .contact-dropdown-wrapper.is-icon-mode .social-options {
         position: absolute;
-        top: 50%;
-        left: auto;
-        right: 100%;
-        transform: translateY(-50%);
-        padding-right: 15px; /* Додаткова зона для іконок збоку */
+        top: 0;
+        right: 0;
+        height: 100%;
+        flex-direction: row-reverse; /* Telegram справа, решта зліва */
+        justify-content: flex-start;
+        align-items: center;
+        gap: 12px;
     }
 
     .social-icon {
@@ -116,6 +119,12 @@
         justify-content: center;
         transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
         text-decoration: none;
+        flex-shrink: 0;
+    }
+
+    .contact-dropdown-wrapper.is-icon-mode .social-icon {
+        width: 56px; /* Розмір оригінальної кнопки на десктопі */
+        height: 56px;
     }
 
     .social-icon img {
@@ -127,5 +136,22 @@
 
     .social-icon:hover {
         transform: translateY(-3px) scale(1.1);
+    }
+
+    /* Режим іконки на телефоні (вертикально вверх, замість кнопки) */
+    @media (max-width: 768px) {
+        .contact-dropdown-wrapper.is-icon-mode .social-options {
+            top: auto;
+            bottom: 0;
+            right: 0;
+            width: 100%;
+            height: auto;
+            flex-direction: column-reverse; /* Telegram знизу, решта зверху */
+        }
+        
+        .contact-dropdown-wrapper.is-icon-mode .social-icon {
+            width: 48px; /* Розмір оригінальної кнопки на мобільному */
+            height: 48px;
+        }
     }
 </style>
