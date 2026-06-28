@@ -981,9 +981,12 @@
 	.slide-wrapper.active {
 		transform: scale(1);
 		opacity: 1;
-		filter: blur(0px);
+		filter: none; /* Забираємо filter повністю, щоб запрацював backdrop-filter */
 		cursor: default;
 		pointer-events: auto; /* Вмикаємо кліки для активного слайду */
+		transition:
+			transform 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+			opacity 0.8s ease; /* Прибираємо filter з транзиції, щоб він вимикався миттєво */
 	}
 
 	.info-slide {
@@ -998,6 +1001,11 @@
 		box-shadow:
 			0 20px 50px rgba(0, 0, 0, 0.5),
 			inset 0 0 20px rgba(255, 255, 255, 0.1);
+		transition:
+			backdrop-filter 1.2s ease 0.8s, /* Блюр чекає 0.8с (поки йде виліт) і плавно наростає */
+			-webkit-backdrop-filter 1.2s ease 0.8s,
+			background 0.4s ease, /* Фон з'являється одразу (без затримки) */
+			box-shadow 0.4s ease;
 	}
 
 	.info-block {
@@ -1021,11 +1029,12 @@
 		-webkit-transform: translateZ(0);
 		will-change: transform, backdrop-filter;
 
+		/* При втраті фокусу (неактивний слайд) все зникає швидко без затримок */
 		transition:
-			backdrop-filter 0.4s ease,
-			-webkit-backdrop-filter 0.4s ease,
-			background 0.4s ease,
-			box-shadow 0.4s ease;
+			backdrop-filter 0.3s ease,
+			-webkit-backdrop-filter 0.3s ease,
+			background 0.3s ease,
+			box-shadow 0.3s ease;
 	}
 
 	/* Блюр вмісту контейнера під час зміни мови */
