@@ -9,6 +9,7 @@
 	import { cubicOut, cubicIn } from 'svelte/easing';
 	import { ExternalLink, Globe, Gamepad2, Box, FileUser } from 'lucide-svelte';
 	import { config } from '$lib/config';
+	import ContactDropdown from '$lib/components/ui/ContactDropdown.svelte';
 
 	import iconAnchor from '$lib/assets/tabler/anchor.svg?raw';
 	import iconWorld from '$lib/assets/tabler/world-www.svg?raw';
@@ -716,14 +717,15 @@
 									<span class="desktop-text">{t.hero.description_sea_desktop}</span>
 									<span class="mobile-text">{t.hero.description_sea_mobile}</span>
 								</p>
-								<a
-									href={config.telegramUrl}
-									target="_blank"
-									class="btn-primary project-btn glass"
-									style="margin-top: 2rem; display: inline-flex;"
-								>
-									{t.footer.ask}
-								</a>
+								<ContactDropdown customStyle="margin-top: 2rem; display: inline-flex;">
+									<a
+										href={config.telegramUrl}
+										target="_blank"
+										class="btn-primary project-btn glass"
+									>
+										{t.footer.ask}
+									</a>
+								</ContactDropdown>
 							</div>
 						</div>
 					</div>
@@ -768,14 +770,15 @@
 							<div class="hero-text">
 								<h2 class="tab-title">{tabData.title}</h2>
 								<p class="tab-intro">{@html tabData.intro.replace(/\n/g, '<br />')}</p>
-								<a
-									href={config.telegramUrl}
-									target="_blank"
-									class="btn-primary project-btn glass"
-									style="margin-top: 2rem; display: inline-flex;"
-								>
-									{tabData.cta}
-								</a>
+								<ContactDropdown customStyle="margin-top: 2rem; display: inline-flex;">
+									<a
+										href={config.telegramUrl}
+										target="_blank"
+										class="btn-primary project-btn glass"
+									>
+										{tabData.cta}
+									</a>
+								</ContactDropdown>
 							</div>
 						</div>
 					</div>
@@ -845,16 +848,18 @@
 
 		<!-- Нижні праві кнопки (Контакти) -->
 		<div class="bottom-right-controls">
-			<a
-				href={config.telegramUrl}
-				target="_blank"
-				class="glass-icon"
-				class:bg-blue={currentIndex > 0}
-				style="--mask-url: url({squircleUrl});"
-				aria-label="Contact via Telegram"
-			>
-				{@html iconMessage}
-			</a>
+			<ContactDropdown isIconMode={true}>
+				<a
+					href={config.telegramUrl}
+					target="_blank"
+					class="glass-icon"
+					class:bg-blue={currentIndex > 0}
+					style="--mask-url: url({squircleUrl});"
+					aria-label="Contact via Telegram"
+				>
+					{@html iconMessage}
+				</a>
+			</ContactDropdown>
 		</div>
 	</div>
 </div>
