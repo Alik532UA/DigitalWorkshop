@@ -410,7 +410,7 @@
 		top: 0;
 		height: 100vh;
 		width: calc(100vw - 12rem + 120px);
-		max-width: 800px;
+		max-width: 680px; /* Було 800px (-15%) */
 		overflow: hidden; /* Вимикаємо нативний скрол */
 		pointer-events: auto;
 		box-sizing: border-box;
@@ -449,7 +449,7 @@
 		position: absolute;
 		left: 50%;
 		width: calc(100% - 20px);
-		max-width: 600px;
+		max-width: 510px; /* Було 600px */
 		
 		/* За замовчуванням (наступні слайди): притискаємо до верху (з відступом 40px) */
 		top: 40px;
@@ -488,7 +488,7 @@
 
 	.info-slide {
 		width: 100%;
-		max-width: 600px; /* Обмежуємо ширину самої картки */
+		max-width: 510px; /* Було 600px */
 	}
 
 	/* Блюр накладається тільки на активний слайд і з затримкою, 
@@ -502,12 +502,12 @@
 	}
 
 	.info-block {
-		border-radius: 24px;
-		padding: 2.5rem;
+		border-radius: 20px; /* Було 24px */
+		padding: 2.1rem; /* Було 2.5rem */
 		flex-shrink: 0;
 		display: flex;
 		flex-direction: column;
-		gap: 20px;
+		gap: 17px; /* Було 20px */
 
 		/* Glassmorphism без обводки */
 		background: rgba(0, 0, 0, 0.25);
@@ -525,8 +525,8 @@
 		width: 100%;
 		display: flex;
 		flex-direction: column;
-		gap: 20px;
-		max-width: 600px; /* Як у .info-slide */
+		gap: 17px; /* Було 20px */
+		max-width: 510px; /* Було 600px */
 	}
 
 	/* Hero Slide */
@@ -539,7 +539,7 @@
 	/* Виносимо кнопку за межі контейнера на перших слайдах */
 	.slide-hero .project-btn {
 		position: absolute;
-		bottom: -80px;
+		bottom: -68px; /* Було -80px */
 		left: 50%;
 		transform: translateX(-50%);
 		margin-top: 0 !important;
@@ -551,20 +551,19 @@
 	}
 
 	.photo-wrapper {
-		width: 150px;
-		height: 150px;
+		width: 127px; /* Було 150px */
+		height: 127px; /* Було 150px */
 		border-radius: 50%;
-		padding: 8px;
+		padding: 7px; /* Було 8px */
 		background: rgba(255, 255, 255, 0.1);
 		border: 2px solid rgba(255, 255, 255, 0.3);
-		box-shadow: 0 4px 25px rgba(0, 0, 0, 0.2);
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 		overflow: hidden;
 		flex-shrink: 0;
 		
 		/* Повертаємо у нормальний потік, але з від'ємним відступом, 
-		   щоб воно стирчало на 75px (115px - 40px padding = 75px) 
-		   і при цьому відштовхувало текст вниз */
-		margin-top: -115px;
+		   щоб воно стирчало на ~63px (97px - 34px padding) */
+		margin-top: -98px; /* Було -115px */
 		z-index: 10;
 	}
 
@@ -576,15 +575,15 @@
 	}
 
 	.hero-text {
-		font-size: 1.05rem; /* Текст зробити меншим, як просив користувач */
+		font-size: 0.9rem; /* Було 1.05rem */
 		line-height: 1.6;
 		color: rgba(255, 255, 255, 0.9);
 	}
 
 	:global(.inline-badge) {
 		background: rgba(255, 255, 255, 0.15);
-		padding: 2px 10px;
-		border-radius: 12px;
+		padding: 2px 8px; /* Було 2px 10px */
+		border-radius: 10px; /* Було 12px */
 		font-weight: 600;
 		color: white;
 		border: 1px solid rgba(255, 255, 255, 0.3);
@@ -598,7 +597,7 @@
 	}
 
 	.project-img {
-		height: 220px;
+		height: 187px; /* Було 220px */
 		width: 100%;
 		position: relative;
 	}
@@ -611,28 +610,28 @@
 
 	.tech-badge {
 		position: absolute;
-		top: 15px;
-		right: 15px;
+		top: 13px; /* Було 15px */
+		right: 13px; /* Було 15px */
 		background: var(--accent-primary, #646cff);
 		color: white;
-		padding: 6px 14px;
-		border-radius: 12px;
-		font-size: 0.9rem;
+		padding: 5px 12px; /* Було 6px 14px */
+		border-radius: 10px; /* Було 12px */
+		font-size: 0.75rem; /* Було 0.9rem */
 		font-weight: 600;
 		box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 	}
 
 	.project-content {
-		padding: 25px;
+		padding: 21px; /* Було 25px */
 		display: flex;
 		flex-direction: column;
-		gap: 15px;
+		gap: 13px; /* Було 15px */
 	}
 
 	.title-row {
 		display: flex;
 		align-items: center;
-		gap: 12px;
+		gap: 10px; /* Було 12px */
 	}
 
 	:global(.accent-icon) {
@@ -641,22 +640,22 @@
 	}
 
 	.project-content h3 {
-		font-size: 1.8rem; /* Збільшений текст для портфоліо */
+		font-size: 1.5rem; /* Було 1.8rem */
 		margin: 0;
 		color: white;
 	}
 
 	.project-desc {
-		font-size: 1.25rem; /* Збільшений текст для портфоліо */
+		font-size: 1.05rem; /* Було 1.25rem */
 		color: rgba(255, 255, 255, 0.85);
 		line-height: 1.5;
 	}
 
 	.project-feature {
-		font-size: 1.1rem; /* Збільшений текст для портфоліо */
-		padding: 12px;
+		font-size: 0.95rem; /* Було 1.1rem */
+		padding: 10px; /* Було 12px */
 		background: rgba(255, 255, 255, 0.05);
-		border-radius: 12px;
+		border-radius: 10px; /* Було 12px */
 		border-left: 3px solid var(--accent-primary, #646cff);
 		color: white;
 	}
@@ -665,13 +664,13 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: 8px;
+		gap: 7px; /* Було 8px */
 		background: var(--accent-primary, #646cff);
 		color: white;
-		padding: 12px 24px;
-		border-radius: 16px;
+		padding: 10px 20px; /* Було 12px 24px */
+		border-radius: 14px; /* Було 16px */
 		text-decoration: none;
-		font-size: 1.1rem;
+		font-size: 0.95rem; /* Було 1.1rem */
 		font-weight: 600;
 		transition: all 0.3s ease;
 		border: none;
@@ -689,7 +688,7 @@
 		transform: translateY(-50%);
 		display: flex;
 		flex-direction: column;
-		gap: 1.5rem;
+		gap: 1.3rem; /* Було 1.5rem */
 		z-index: 10001;
 		/* Дозволяємо клікати по іконках, незважаючи на pointer-events: none у контейнері */
 		pointer-events: auto;
@@ -768,12 +767,12 @@
 		align-items: center;
 		justify-content: center;
 		cursor: pointer;
-		padding: 8px; /* Менша зона кліку */
+		padding: 7px; /* Було 8px */
 	}
 
 	.icon-btn :global(svg) {
-		width: 1.5rem; /* Менша іконка */
-		height: 1.5rem;
+		width: 1.3rem; /* Було 1.5rem */
+		height: 1.3rem; /* Було 1.5rem */
 		stroke: rgba(255, 255, 255, 0.85);
 		stroke-width: 1.5;
 		filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
@@ -787,8 +786,8 @@
 	}
 
 	.glass-icon {
-		width: 4.5rem;
-		height: 4.5rem;
+		width: 3.8rem; /* Було 4.5rem */
+		height: 3.8rem; /* Було 4.5rem */
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -833,8 +832,8 @@
 	}
 
 	.glass-icon :global(svg) {
-		width: 2.25rem;
-		height: 2.25rem;
+		width: 1.9rem; /* Було 2.25rem */
+		height: 1.9rem; /* Було 2.25rem */
 		stroke: rgba(255, 255, 255, 0.85);
 		stroke-width: 1.5;
 		filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
@@ -850,13 +849,13 @@
 
 	/* Таб контент */
 	.tab-title {
-		font-size: 2.5rem;
-		margin-bottom: 1.5rem;
+		font-size: 2.1rem; /* Було 2.5rem */
+		margin-bottom: 1.3rem; /* Було 1.5rem */
 		color: white;
 	}
 
 	.tab-intro {
-		font-size: 1.25rem;
+		font-size: 1.05rem; /* Було 1.25rem */
 		color: rgba(255, 255, 255, 0.9);
 		line-height: 1.6;
 	}
@@ -878,13 +877,13 @@
 	}
 
 	.item-title {
-		font-size: 1.5rem;
+		font-size: 1.3rem; /* Було 1.5rem */
 		color: white;
 		margin: 0;
 	}
 
 	.item-desc {
-		font-size: 1.15rem;
+		font-size: 1rem; /* Було 1.15rem */
 		color: rgba(255, 255, 255, 0.85);
 		line-height: 1.5;
 		margin: 0;
@@ -915,13 +914,13 @@
 
 		/* Зменшуємо іконки внизу */
 		.glass-icon {
-			width: 3.5rem;
-			height: 3.5rem;
+			width: 3rem; /* Було 3.5rem */
+			height: 3rem; /* Було 3.5rem */
 		}
 
 		.glass-icon :global(svg) {
-			width: 1.8rem;
-			height: 1.8rem;
+			width: 1.5rem; /* Було 1.8rem */
+			height: 1.5rem; /* Було 1.8rem */
 		}
 
 		/* Адаптуємо головний блок щоб звільнити місце знизу */
@@ -935,28 +934,28 @@
 		}
 
 		.slide-wrapper {
-			padding: 20px; /* Менші відступи по боках */
+			padding: 17px; /* Було 20px */
 		}
 
 		.info-block {
-			padding: 1.5rem; /* Менший внутрішній padding */
+			padding: 1.3rem; /* Було 1.5rem */
 		}
 
 		.project-img {
-			height: 160px; /* Трохи менші картинки */
+			height: 136px; /* Було 160px */
 		}
 
 		/* Зменшуємо заголовок щоб влазив на мобільному */
 		.hero-text {
-			font-size: 0.95rem;
+			font-size: 0.8rem; /* Було 0.95rem */
 		}
 
 		.project-content h3 {
-			font-size: 1.5rem;
+			font-size: 1.3rem; /* Було 1.5rem */
 		}
 
 		.project-desc {
-			font-size: 1.1rem;
+			font-size: 0.95rem; /* Було 1.1rem */
 		}
 	}
 </style>
