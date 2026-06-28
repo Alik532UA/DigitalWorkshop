@@ -991,26 +991,13 @@
 		max-width: 510px; /* Було 600px */
 	}
 
-	/* Блюр накладається тільки на активний слайд і з затримкою, 
-	   щоб не було різких стрибків під час скролу */
-	@keyframes blurIn {
-		0% {
-			backdrop-filter: blur(0px);
-			-webkit-backdrop-filter: blur(0px);
-		}
-		100% {
-			backdrop-filter: blur(20px);
-			-webkit-backdrop-filter: blur(20px);
-		}
-	}
-
 	.slide-wrapper.active .info-block {
 		backdrop-filter: blur(20px);
 		-webkit-backdrop-filter: blur(20px);
-		transition:
-			backdrop-filter 2s ease 1s,
-			-webkit-backdrop-filter 2s ease 1s;
-		animation: blurIn 2s ease 1s backwards;
+		background: rgba(0, 0, 0, 0.25);
+		box-shadow:
+			0 20px 50px rgba(0, 0, 0, 0.5),
+			inset 0 0 20px rgba(255, 255, 255, 0.1);
 	}
 
 	.info-block {
@@ -1021,20 +1008,24 @@
 		flex-direction: column;
 		gap: 17px; /* Було 20px */
 
-		/* Glassmorphism без обводки */
-		background: rgba(0, 0, 0, 0.25);
+		/* Початковий стан: прозорий, щоб не навантажувати неактивні слайди */
+		background: rgba(0, 0, 0, 0);
 		box-shadow:
-			0 20px 50px rgba(0, 0, 0, 0.5),
-			inset 0 0 20px rgba(255, 255, 255, 0.1);
-
-		/* За замовчуванням блюру немає (прибирається швидко при скролі) */
+			0 20px 50px rgba(0, 0, 0, 0),
+			inset 0 0 20px rgba(255, 255, 255, 0);
 		backdrop-filter: blur(0px);
 		-webkit-backdrop-filter: blur(0px);
+
+		/* Апаратне прискорення для вирішення багів браузера з блюром під час анімації */
+		transform: translateZ(0);
+		-webkit-transform: translateZ(0);
+		will-change: transform, backdrop-filter;
+
 		transition:
-			backdrop-filter 0.2s ease,
-			-webkit-backdrop-filter 0.2s ease,
-			filter 0.25s ease-out,
-			opacity 0.25s ease-out;
+			backdrop-filter 0.4s ease,
+			-webkit-backdrop-filter 0.4s ease,
+			background 0.4s ease,
+			box-shadow 0.4s ease;
 	}
 
 	/* Блюр вмісту контейнера під час зміни мови */
