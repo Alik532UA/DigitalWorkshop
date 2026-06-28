@@ -270,15 +270,13 @@
 				<!-- Слайди з деталями (FAQ / Переваги) -->
 				{#each chunks as chunk}
 					<div class="slide-wrapper">
-						<div class="info-slide glass-panel info-block">
-							<div class="chunk-content">
-								{#each chunk as item}
-									<div class="content-item">
-										<h3 class="item-title">{item.h || item.q}</h3>
-										<p class="item-desc">{@html (item.p || item.a).replace(/\n/g, '<br />')}</p>
-									</div>
-								{/each}
-							</div>
+						<div class="chunk-content">
+							{#each chunk as item}
+								<div class="info-slide glass-panel info-block content-item">
+									<h3 class="item-title">{item.h || item.q}</h3>
+									<p class="item-desc">{@html (item.p || item.a).replace(/\n/g, '<br />')}</p>
+								</div>
+							{/each}
 						</div>
 					</div>
 				{/each}
@@ -709,7 +707,9 @@
 		flex-direction: column;
 		gap: 2rem;
 		justify-content: center;
+		align-items: center;
 		height: 100%;
+		width: 100%;
 	}
 
 	.content-item {
@@ -720,7 +720,7 @@
 
 	.item-title {
 		font-size: 1.5rem;
-		color: var(--accent-primary, #0284c7);
+		color: white;
 		margin: 0;
 	}
 
