@@ -266,6 +266,8 @@
 		});
 	});
 
+	let itemsPerSlide = $derived(isMobile ? 1 : 2);
+
 	// Герой + всі проєкти або контент вкладок
 	let totalSlides = $derived.by(() => {
 		if (currentTab === 'anchor') {
@@ -273,15 +275,51 @@
 		} else {
 			const tabData = t.tabs[currentTab as keyof typeof t.tabs];
 			const items = (tabData as any).benefits || (tabData as any).faq || [];
-			return Math.ceil(items.length / 2) + 1; // 1 for intro slide
+			return Math.ceil(items.length / itemsPerSlide) + 1; // 1 for intro slide
 		}
 	});
 
-	function getChunks(items: any[]) {
+	function getChunks(items: any[], size: number) {
 		const result = [];
-		for (let i = 0; i < items.length; i += 2) {
-			result.push(items.slice(i, i + 2));
+		for (let i = 0; i < items.length; i += size) {
+			result.push(items.slice(i, i + size));
 		}
+		return result;
+	}
+
+	function parseMarkdown(text: string) {
+		if (!text) return '';
+		
+		let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+		const lines = html.split('\n');
+		let inList = false;
+		let result = '';
+		
+		for (let i = 0; i < lines.length; i++) {
+			let line = lines[i];
+			let trimmed = line.trim();
+			
+			if (trimmed.startsWith('* ')) {
+				if (!inList) {
+					result += '<ul class="custom-list">';
+					inList = true;
+				}
+				result += `<li>${trimmed.substring(2)}</li>`;
+			} else {
+				if (inList) {
+					result += '</ul>';
+					inList = false;
+				}
+				if (result.length > 0 && !result.endsWith('</ul>')) {
+					result += '<br />';
+				}
+				result += line;
+			}
+		}
+		if (inList) {
+			result += '</ul>';
+		}
+		
 		return result;
 	}
 
@@ -665,7 +703,7 @@
 				{:else}
 					{@const tabData = t.tabs[currentTab as keyof typeof t.tabs]}
 					{@const items = (tabData as any).benefits || (tabData as any).faq || []}
-					{@const chunks = getChunks(items)}
+					{@const chunks = getChunks(items, itemsPerSlide)}
 
 					<!-- Вступний слайд вкладки -->
 					<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
@@ -698,7 +736,7 @@
 								{#each chunk as item}
 									<div class="info-slide glass-panel info-block content-item">
 										<h3 class="item-title">{item.h || item.q}</h3>
-										<p class="item-desc">{@html (item.p || item.a).replace(/\n/g, '<br />')}</p>
+										<div class="item-desc">{@html parseMarkdown(item.p || item.a)}</div>
 									</div>
 								{/each}
 							</div>
@@ -1105,7 +1143,7 @@
 	}
 
 	:global(.accent-icon) {
-		color: var(--accent-primary, #646cff);
+		color: white;
 		flex-shrink: 0;
 	}
 
@@ -1115,10 +1153,26 @@
 		color: white;
 	}
 
-	.project-desc {
-		font-size: 1rem;
+	.item-desc {
+		font-size: 1.05rem; /* Було 1.2rem */
 		color: rgba(255, 255, 255, 0.85);
-		line-height: 1.5;
+		line-height: 1.6;
+		margin: 0;
+	}
+
+	.item-desc :global(ul.custom-list) {
+		margin: 0.5rem 0;
+		padding-left: 1.5rem;
+		list-style-type: disc;
+	}
+
+	.item-desc :global(ul.custom-list li) {
+		margin-bottom: 0.25rem;
+	}
+
+	.item-desc :global(strong) {
+		color: white;
+		font-weight: 600;
 	}
 
 	.project-feature {
@@ -1126,7 +1180,7 @@
 		padding: 10px; /* Було 12px */
 		background: rgba(255, 255, 255, 0.05);
 		border-radius: 10px; /* Було 12px */
-		border-left: 3px solid var(--accent-primary, #646cff);
+		border-left: 3px solid white;
 		color: white;
 	}
 
