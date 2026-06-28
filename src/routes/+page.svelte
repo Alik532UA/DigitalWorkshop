@@ -554,7 +554,8 @@
 		{#if currentIndex < totalSlides - 1 && (isMouseActive || isMobile)}
 			<button 
 				class="slide-nav-arrow arrow-down"
-				transition:fade={{ duration: 200 }}
+				in:fade={{ duration: 200, delay: 200 }}
+				out:fade={{ duration: 200 }}
 				onclick={() => goToSlide(currentIndex + 1)}
 				aria-label="Next slide"
 			>
@@ -563,7 +564,8 @@
 		{:else if currentIndex === totalSlides - 1 && (isMouseActive || isMobile)}
 			<button 
 				class="slide-nav-arrow arrow-next-tab"
-				transition:fade={{ duration: 200 }}
+				in:fade={{ duration: 200, delay: 200 }}
+				out:fade={{ duration: 200 }}
 				onclick={() => nextTab()}
 				aria-label="Next tab"
 			>
@@ -1605,7 +1607,7 @@
 		.slide-nav-arrow {
 			left: auto;
 			right: 0.5rem;
-			opacity: 1 !important; /* На мобільному стрілки завжди повністю видимі */
+			opacity: 1; /* На мобільному стрілки завжди повністю видимі */
 		}
 		.slide-nav-arrow.arrow-up {
 			top: 55dvh; /* Трохи нижче центру (який на 50dvh) */
@@ -1634,14 +1636,14 @@
 		}
 
 		.icon-btn {
-			opacity: 1 !important; /* На мобільному верхні кнопки завжди повністю видимі */
+			opacity: 1; /* На мобільному верхні кнопки завжди повністю видимі */
 		}
 		.icon-btn :global(svg) {
 			stroke: white !important;
 		}
 
 		.top-controls {
-			opacity: 1 !important;
+			opacity: 1;
 		}
 
 		/* Зменшуємо заголовок щоб влазив на мобільному */
