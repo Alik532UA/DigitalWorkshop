@@ -24,6 +24,7 @@
 	import iconMessage from '$lib/assets/tabler/message.svg?raw';
 	import iconArrowUp from '$lib/assets/tabler/arrow-big-up.svg?raw';
 	import iconArrowDown from '$lib/assets/tabler/arrow-big-down.svg?raw';
+	import iconArrowRight from '$lib/assets/tabler/arrow-big-right.svg?raw';
 
 	const tabIcons = [
 		{ id: 'anchor', icon: iconAnchor },
@@ -52,6 +53,8 @@
 		const idx = tabsList.indexOf(currentTab);
 		if (idx < tabsList.length - 1) {
 			setTab(tabsList[idx + 1]);
+		} else {
+			setTab(tabsList[0]);
 		}
 	}
 
@@ -59,6 +62,8 @@
 		const idx = tabsList.indexOf(currentTab);
 		if (idx > 0) {
 			setTab(tabsList[idx - 1]);
+		} else {
+			setTab(tabsList[tabsList.length - 1]);
 		}
 	}
 
@@ -201,6 +206,7 @@
 
 	// Стан для видимості контролів при активності миші
 	let isMouseActive = $state(true);
+	let isMobile = $state(false);
 	let mouseTimeout: ReturnType<typeof setTimeout> | undefined;
 
 	function handleMouseMove() {
@@ -231,6 +237,13 @@
 		if (!isNaN(initialSlide) && initialSlide > 0) {
 			currentIndex = initialSlide;
 		}
+
+		const mediaQuery = window.matchMedia('(max-width: 768px)');
+		isMobile = mediaQuery.matches;
+		const handler = (e: MediaQueryListEvent) => {
+			isMobile = e.matches;
+		};
+		mediaQuery.addEventListener('change', handler);
 	});
 
 	$effect(() => {
@@ -310,22 +323,22 @@
 		}
 
 		// Вертикальний скрол (переключення слайдів всередині вкладки)
-		if (delta > 15 && currentIndex < totalSlides - 1) {
-			currentIndex++;
-			lockScroll();
-		} else if (delta < -15 && currentIndex > 0) {
-			currentIndex--;
-			lockScroll();
-		}
-	}
-
-	function handleAudioWheel(e: WheelEvent) {
-		e.stopPropagation();
-		// Не викликаємо preventDefault, щоб не викликати помилку passive listener
-		if (e.deltaY < 0) {
-			audioVolume = Math.min(1, audioVolume + 0.05);
-		} else if (e.deltaY > 0) {
-			audioVolume = Math.max(0, audioVolume - 0.05);
+		if (delta > 15) {
+			if (currentIndex < totalSlides - 1) {
+				currentIndex++;
+				lockScroll();
+			} else {
+				nextTab();
+				lockScroll();
+			}
+		} else if (delta < -15) {
+			if (currentIndex > 0) {
+				currentIndex--;
+				lockScroll();
+			} else {
+				prevTab();
+				lockScroll();
+			}
 		}
 	}
 
@@ -352,13 +365,23 @@
 				lockScroll();
 			}
 		} else {
-			// Вертикальний свайп
-			if (diffY > 50 && currentIndex < totalSlides - 1) {
-				currentIndex++;
-				lockScroll();
-			} else if (diffY < -50 && currentIndex > 0) {
-				currentIndex--;
-				lockScroll();
+			// Вертикальний скрол
+			if (diffY > 50) {
+				if (currentIndex < totalSlides - 1) {
+					currentIndex++;
+					lockScroll();
+				} else {
+					nextTab();
+					lockScroll();
+				}
+			} else if (diffY < -50) {
+				if (currentIndex > 0) {
+					currentIndex--;
+					lockScroll();
+				} else {
+					prevTab();
+					lockScroll();
+				}
 			}
 		}
 	}
@@ -423,12 +446,18 @@
 				if (currentIndex < totalSlides - 1) {
 					currentIndex++;
 					lockScroll();
+				} else {
+					nextTab();
+					lockScroll();
 				}
 				break;
 			case 'ArrowUp':
 			case 'KeyW':
 				if (currentIndex > 0) {
 					currentIndex--;
+					lockScroll();
+				} else {
+					prevTab();
 					lockScroll();
 				}
 				break;
@@ -479,12 +508,12 @@
 	></audio>
 
 	<!-- Кнопки керування (мова, звук, повноекранний режим) -->
-	{#if isMouseActive}
+	{#if isMouseActive || isMobile}
 		<div class="top-controls" transition:fade={{ duration: 300 }}>
 			<button class="icon-btn" onclick={toggleLanguage} aria-label="Toggle Language">
 				{@html iconLanguage}
 			</button>
-			<div class="audio-control-wrapper" onwheel={handleAudioWheel}>
+			<div class="audio-control-wrapper">
 				<button class="icon-btn" onclick={toggleAudio} aria-label="Toggle Audio">
 					{@html isAudioPlaying ? iconMusicOn : iconMusicOff}
 				</button>
@@ -511,7 +540,7 @@
 		role="presentation"
 	>
 		<!-- Навігаційні стрілки (Вертикальні) -->
-		{#if currentIndex > 0 && isMouseActive}
+		{#if currentIndex > 0 && (isMouseActive || isMobile)}
 			<button 
 				class="slide-nav-arrow arrow-up"
 				transition:fade={{ duration: 200 }}
@@ -522,7 +551,7 @@
 			</button>
 		{/if}
 
-		{#if currentIndex < totalSlides - 1 && isMouseActive}
+		{#if currentIndex < totalSlides - 1 && (isMouseActive || isMobile)}
 			<button 
 				class="slide-nav-arrow arrow-down"
 				transition:fade={{ duration: 200 }}
@@ -530,6 +559,15 @@
 				aria-label="Next slide"
 			>
 				{@html iconArrowDown}
+			</button>
+		{:else if currentIndex === totalSlides - 1 && (isMouseActive || isMobile)}
+			<button 
+				class="slide-nav-arrow arrow-next-tab"
+				transition:fade={{ duration: 200 }}
+				onclick={() => nextTab()}
+				aria-label="Next tab"
+			>
+				{@html iconArrowRight}
 			</button>
 		{/if}
 
@@ -669,57 +707,59 @@
 		{/key}
 	</div>
 
-	<div class="sidebar-icons">
-		{#each tabIcons as tab}
-			<div class="sidebar-item">
-				{#if currentTab === tab.id}
-					<div
-						class="slide-dots"
-						transition:fade={{ duration: 200 }}
-						style="--dot-size: {Math.max(3, 8 - totalSlides * 0.4)}px; --dot-gap: {Math.max(
-							4,
-							10 - totalSlides * 0.5
-						)}px;"
+	<div class="nav-controls-container">
+		<div class="sidebar-icons">
+			{#each tabIcons as tab}
+				<div class="sidebar-item">
+					{#if currentTab === tab.id}
+						<div
+							class="slide-dots"
+							transition:fade={{ duration: 200 }}
+							style="--dot-size: {Math.max(3, 8 - totalSlides * 0.4)}px; --dot-gap: {Math.max(
+								4,
+								10 - totalSlides * 0.5
+							)}px;"
+						>
+							{#each Array(totalSlides) as _, i}
+								<button
+									class="slide-dot"
+									class:active={currentIndex === i}
+									onclick={() => goToSlide(i)}
+									aria-label="Go to slide {i + 1}"
+								></button>
+							{/each}
+						</div>
+					{/if}
+					<button
+						class="glass-icon"
+						class:active={currentTab === tab.id}
+						style="--mask-url: url({squircleUrl});"
+						aria-label={tab.id}
+						onmouseenter={() => (hoveredTab = tab.id)}
+						onmouseleave={() => (hoveredTab = null)}
+						onclick={() => {
+							setTab(tab.id);
+						}}
 					>
-						{#each Array(totalSlides) as _, i}
-							<button
-								class="slide-dot"
-								class:active={currentIndex === i}
-								onclick={() => goToSlide(i)}
-								aria-label="Go to slide {i + 1}"
-							></button>
-						{/each}
-					</div>
-				{/if}
-				<button
-					class="glass-icon"
-					class:active={currentTab === tab.id}
-					style="--mask-url: url({squircleUrl});"
-					aria-label={tab.id}
-					onmouseenter={() => (hoveredTab = tab.id)}
-					onmouseleave={() => (hoveredTab = null)}
-					onclick={() => {
-						setTab(tab.id);
-					}}
-				>
-					{@html tab.icon}
-				</button>
-			</div>
-		{/each}
-	</div>
+						{@html tab.icon}
+					</button>
+				</div>
+			{/each}
+		</div>
 
-	<!-- Нижні праві кнопки (Контакти) -->
-	<div class="bottom-right-controls">
-		<a
-			href={config.telegramUrl}
-			target="_blank"
-			class="glass-icon"
-			class:bg-blue={currentIndex > 0}
-			style="--mask-url: url({squircleUrl});"
-			aria-label="Contact via Telegram"
-		>
-			{@html iconMessage}
-		</a>
+		<!-- Нижні праві кнопки (Контакти) -->
+		<div class="bottom-right-controls">
+			<a
+				href={config.telegramUrl}
+				target="_blank"
+				class="glass-icon"
+				class:bg-blue={currentIndex > 0}
+				style="--mask-url: url({squircleUrl});"
+				aria-label="Contact via Telegram"
+			>
+				{@html iconMessage}
+			</a>
+		</div>
 	</div>
 </div>
 
@@ -1368,6 +1408,10 @@
 		0%, 100% { transform: translate(-50%, 0); }
 		50% { transform: translate(-50%, 5px); }
 	}
+	@keyframes bounceArrowRight {
+		0%, 100% { transform: translate(-50%, 0); }
+		50% { transform: translate(calc(-50% + 5px), 0); }
+	}
 
 	.slide-nav-arrow {
 		position: absolute;
@@ -1422,6 +1466,15 @@
 		transform: translate(-50%, 2px) scale(1.1);
 	}
 
+	.slide-nav-arrow.arrow-next-tab {
+		bottom: 8vh;
+		animation: bounceArrowRight 2s infinite ease-in-out;
+	}
+	.slide-nav-arrow.arrow-next-tab:hover {
+		animation-play-state: paused;
+		transform: translate(calc(-50% + 2px), 0) scale(1.1);
+	}
+
 	.content-item {
 		display: flex;
 		flex-direction: column;
@@ -1455,6 +1508,10 @@
 		pointer-events: auto;
 	}
 
+	.nav-controls-container {
+		display: contents;
+	}
+
 	@media (max-width: 768px) {
 		.desktop-text {
 			display: none;
@@ -1464,14 +1521,25 @@
 			display: inline;
 		}
 
+		.nav-controls-container {
+			display: flex;
+			position: absolute;
+			bottom: 1rem;
+			left: 50%;
+			transform: translateX(-50%);
+			gap: 0.5rem; /* Відстань між групами кнопок */
+			z-index: 1000;
+			align-items: center;
+			justify-content: center;
+			width: max-content;
+		}
+
 		/* Зміщуємо бокову панель іконок вниз */
 		.sidebar-icons {
-			right: 50%;
-			top: auto;
-			bottom: 1rem;
-			transform: translateX(50%);
+			position: static;
+			transform: none;
 			flex-direction: row; /* Горизонтально */
-			gap: 1rem;
+			gap: 0.5rem; /* Відстань між табами */
 		}
 
 		.slide-dots {
@@ -1482,8 +1550,8 @@
 		}
 
 		.bottom-right-controls {
-			bottom: 1rem;
-			right: 1rem;
+			position: static;
+			transform: none;
 		}
 
 		/* Зменшуємо іконки внизу */
@@ -1502,7 +1570,8 @@
 			right: 0;
 			left: 50%;
 			transform: translateX(-50%);
-			width: 95vw;
+			width: 100vw;
+			overflow: visible; /* Щоб не відрізати тіні слайдів */
 			max-width: 100%;
 			height: calc(100vh - 6.5rem); /* Місце для іконок знизу */
 		}
@@ -1517,6 +1586,62 @@
 
 		.project-img {
 			height: 136px; /* Було 160px */
+		}
+
+		/* Стрілки перемикання слайдів на мобільному справа */
+		@keyframes bounceArrowUpMobile {
+			0%, 100% { transform: translateY(0); }
+			50% { transform: translateY(-5px); }
+		}
+		@keyframes bounceArrowDownMobile {
+			0%, 100% { transform: translateY(0); }
+			50% { transform: translateY(5px); }
+		}
+		@keyframes bounceArrowRightMobile {
+			0%, 100% { transform: translateX(0); }
+			50% { transform: translateX(5px); }
+		}
+
+		.slide-nav-arrow {
+			left: auto;
+			right: 0.5rem;
+			opacity: 1 !important; /* На мобільному стрілки завжди повністю видимі */
+		}
+		.slide-nav-arrow.arrow-up {
+			top: 55vh; /* Трохи нижче центру (який на 50vh) */
+			bottom: auto;
+			animation: bounceArrowUpMobile 2s infinite ease-in-out;
+		}
+		.slide-nav-arrow.arrow-up:hover {
+			transform: translateY(-2px) scale(1.1);
+		}
+		.slide-nav-arrow.arrow-down {
+			top: 65vh; /* Під верхньою стрілкою */
+			bottom: auto;
+			animation: bounceArrowDownMobile 2s infinite ease-in-out;
+		}
+		.slide-nav-arrow.arrow-down:hover {
+			transform: translateY(2px) scale(1.1);
+		}
+		
+		.slide-nav-arrow.arrow-next-tab {
+			top: 65vh; /* Та ж позиція що й у arrow-down */
+			bottom: auto;
+			animation: bounceArrowRightMobile 2s infinite ease-in-out;
+		}
+		.slide-nav-arrow.arrow-next-tab:hover {
+			transform: translateX(2px) scale(1.1);
+		}
+
+		.icon-btn {
+			opacity: 1 !important; /* На мобільному верхні кнопки завжди повністю видимі */
+		}
+		.icon-btn :global(svg) {
+			stroke: white !important;
+		}
+
+		.top-controls {
+			opacity: 1 !important;
 		}
 
 		/* Зменшуємо заголовок щоб влазив на мобільному */
