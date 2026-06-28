@@ -19,6 +19,8 @@
 	import iconMusicOff from '$lib/assets/tabler/music-off.svg?raw';
 	import iconLanguage from '$lib/assets/tabler/language.svg?raw';
 	import iconMessage from '$lib/assets/tabler/message.svg?raw';
+	import iconArrowUp from '$lib/assets/tabler/arrow-big-up.svg?raw';
+	import iconArrowDown from '$lib/assets/tabler/arrow-big-down.svg?raw';
 
 	const tabIcons = [
 		{ id: 'anchor', icon: iconAnchor },
@@ -390,6 +392,29 @@
 		ontouchend={handleTouchEnd}
 		role="presentation"
 	>
+		<!-- Навігаційні стрілки (Вертикальні) -->
+		{#if currentIndex > 0}
+			<button 
+				class="slide-nav-arrow arrow-up"
+				transition:fade={{ duration: 200 }}
+				onclick={() => goToSlide(currentIndex - 1)}
+				aria-label="Previous slide"
+			>
+				{@html iconArrowUp}
+			</button>
+		{/if}
+
+		{#if currentIndex < totalSlides - 1}
+			<button 
+				class="slide-nav-arrow arrow-down"
+				transition:fade={{ duration: 200 }}
+				onclick={() => goToSlide(currentIndex + 1)}
+				aria-label="Next slide"
+			>
+				{@html iconArrowDown}
+			</button>
+		{/if}
+
 		<!-- Трек для слайдів -->
 		{#key currentTab}
 			<div
@@ -1208,6 +1233,71 @@
 		align-items: center;
 		height: 100%;
 		width: 100%;
+	}
+
+	/* Навігаційні стрілки */
+	@keyframes bounceArrowUp {
+		0%, 100% { transform: translate(-50%, 0); }
+		50% { transform: translate(-50%, -5px); }
+	}
+	@keyframes bounceArrowDown {
+		0%, 100% { transform: translate(-50%, 0); }
+		50% { transform: translate(-50%, 5px); }
+	}
+
+	.slide-nav-arrow {
+		position: absolute;
+		left: 50%;
+		z-index: 1000;
+		background: rgba(255, 255, 255, 0.1);
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		border-radius: 50%;
+		width: 44px;
+		height: 44px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		backdrop-filter: blur(8px);
+		-webkit-backdrop-filter: blur(8px);
+		transition: background 0.3s ease, border-color 0.3s ease;
+		pointer-events: auto;
+		padding: 0;
+	}
+
+	.slide-nav-arrow :global(svg) {
+		width: 24px;
+		height: 24px;
+		stroke: rgba(255, 255, 255, 0.8);
+		stroke-width: 1.5;
+		transition: stroke 0.3s ease;
+	}
+
+	.slide-nav-arrow:hover {
+		background: rgba(255, 255, 255, 0.25);
+		border-color: rgba(255, 255, 255, 0.4);
+	}
+
+	.slide-nav-arrow:hover :global(svg) {
+		stroke: white;
+	}
+
+	.slide-nav-arrow.arrow-up {
+		top: 4vh; /* Було 30px, але 4vh адаптивніше */
+		animation: bounceArrowUp 2s infinite ease-in-out;
+	}
+	.slide-nav-arrow.arrow-up:hover {
+		animation-play-state: paused;
+		transform: translate(-50%, -2px) scale(1.1);
+	}
+
+	.slide-nav-arrow.arrow-down {
+		bottom: 4vh;
+		animation: bounceArrowDown 2s infinite ease-in-out;
+	}
+	.slide-nav-arrow.arrow-down:hover {
+		animation-play-state: paused;
+		transform: translate(-50%, 2px) scale(1.1);
 	}
 
 	.content-item {
