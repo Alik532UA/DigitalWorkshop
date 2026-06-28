@@ -117,9 +117,9 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
         text-decoration: none;
         flex-shrink: 0;
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); /* Додано транзицію для зуму */
     }
 
     .contact-dropdown-wrapper.is-icon-mode .social-icon {
@@ -132,10 +132,15 @@
         height: 32px;
         object-fit: contain;
         filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        transition: filter 0.2s ease;
     }
 
     .social-icon:hover {
-        transform: translateY(-3px) scale(1.1);
+        transform: scale(1.1); /* Тільки збільшення на 10% */
+    }
+
+    .social-icon:hover img {
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)); /* Тільки посилення тіні без підняття */
     }
 
     /* Режим іконки на телефоні (вертикально вверх, замість кнопки) */
