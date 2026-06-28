@@ -3,6 +3,7 @@
     import { fade } from "svelte/transition";
     import { setUiState, getTabs, getTheme, getBackground, getMenu } from "$lib/controllers/UiState.svelte";
     import { setLanguageState } from "$lib/i18n/LanguageState.svelte";
+    import { page } from "$app/stores";
     import { migrateStorage } from "$lib/services/storageMigration";
     import { logService } from "$lib/services/logService.svelte";
     import Header from "$lib/components/layout/Header.svelte";
@@ -62,18 +63,22 @@
     }
 
     let accentRgb = $derived(hexToRgb(tabs.currentColor));
+    
+    let isArchive = $derived($page.url.pathname.startsWith('/2026-04'));
 </script>
 
-{#key tabs.current + theme.current}
-    <div
-        class="theme-background"
-        in:fade={{ duration: 800 }}
-        out:stay={{ duration: 800 }}
-        style="
-            --dynamic-bg-pastel: {theme.current === 'colorful' ? `linear-gradient(135deg, color-mix(in srgb, ${tabs.currentColor}, white 65%), color-mix(in srgb, ${tabs.currentColor}, white 95%))` : 'var(--bg-color)'};
-        "
-    ></div>
-{/key}
+{#if isArchive}
+    {#key tabs.current + theme.current}
+        <div
+            class="theme-background"
+            in:fade={{ duration: 800 }}
+            out:stay={{ duration: 800 }}
+            style="
+                --dynamic-bg-pastel: {theme.current === 'colorful' ? `linear-gradient(135deg, color-mix(in srgb, ${tabs.currentColor}, white 65%), color-mix(in srgb, ${tabs.currentColor}, white 95%))` : 'var(--bg-color)'};
+            "
+        ></div>
+    {/key}
+{/if}
 
 <div class="theme-transition-overlay" class:active={theme.isChanging || (language.isChanging && menu.enableBlur)}></div>
 
@@ -82,13 +87,15 @@
     --accent-primary: {tabs.currentColor};
     --accent-primary-rgb: {accentRgb};
 ">
-    <DynamicBackground backgroundType={background.type} theme={theme.current} />
-    
-    <Header />
-    <RightSideArc />
-    <LeftSideArc />
+    {#if isArchive}
+        <DynamicBackground backgroundType={background.type} theme={theme.current} />
+        
+        <Header />
+        <RightSideArc />
+        <LeftSideArc />
+    {/if}
 
-    <main class="main-content">
+    <main class="main-content" class:archive-padding={isArchive}>
         <div class="page-scroll-area">
             <svelte:boundary onerror={(e) => {
                 logService.error('app', 'Runtime error in main content', e);
@@ -104,8 +111,10 @@
         </div>
     </main>
 
-    <Footer />
-    <BottomNav />
+    {#if isArchive}
+        <Footer />
+        <BottomNav />
+    {/if}
     <LogCopyButton />
 </div>
 
@@ -137,12 +146,15 @@
     .main-content {
         position: relative;
         min-height: 100vh;
+        transform-origin: top center;
+        backface-visibility: hidden;
+    }
+
+    .main-content.archive-padding {
         padding-top: 180px; 
         padding-bottom: 160px;
         padding-right: 160px; /* Відступ для SideArc */
         padding-left: 160px; /* Відступ для LeftSideArc */
-        transform-origin: top center;
-        backface-visibility: hidden;
     }
 
     :global(::view-transition-old(main-content)),
@@ -171,14 +183,14 @@
     }
 
     @media (max-width: 1200px) {
-        .main-content { 
+        .main-content.archive-padding { 
             padding-right: 120px;
             padding-left: 120px;
         }
     }
 
     @media (max-width: 768px) {
-        .main-content {
+        .main-content.archive-padding {
             padding-top: 90px;
             padding-bottom: 100px;
             padding-right: 20px;
