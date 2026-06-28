@@ -69,19 +69,45 @@
 	let audioVolume = $state(0);
 	let isFadingIn = false;
 
+	let fadeInterval: ReturnType<typeof setInterval>;
+
 	$effect(() => {
 		if (audioRef && !isFadingIn) {
 			isFadingIn = true;
 			
 			const startFadeIn = () => {
+				clearInterval(fadeInterval);
 				audioVolume = 0;
-				const interval = setInterval(() => {
+				fadeInterval = setInterval(() => {
 					if (audioVolume < 0.1) {
 						audioVolume = Number((audioVolume + 0.01).toFixed(2));
 					} else {
-						clearInterval(interval);
+						clearInterval(fadeInterval);
 					}
 				}, 100);
+			};
+
+			const removeListeners = () => {
+				document.removeEventListener('click', startAudio);
+				document.removeEventListener('touchstart', startAudio);
+				document.removeEventListener('touchend', startAudio);
+				document.removeEventListener('keydown', startAudio);
+			};
+
+			const startAudio = () => {
+				if (isAudioPlaying) {
+					removeListeners();
+					return;
+				}
+				if (audioRef) {
+					audioVolume = 0;
+					audioRef.play().then(() => {
+						startFadeIn();
+						removeListeners(); // Видаляємо слухачів ТІЛЬКИ після успішного старту
+					}).catch(() => {
+						// Браузер заблокував цю взаємодію (наприклад, скрол). Чекаємо на наступну (клік/свайп)
+					});
+				}
 			};
 
 			audioVolume = 0; // Завжди починаємо з 0
@@ -91,20 +117,10 @@
 			}).catch((err) => {
 				console.error('Audio playback failed (Autoplay Policy):', err);
 				
-				// Якщо браузер заблокував автоматичний запуск, чекаємо на перший клік
-				const startAudio = () => {
-					if (audioRef && !isAudioPlaying) {
-						audioVolume = 0;
-						audioRef.play().then(() => {
-							startFadeIn();
-						}).catch(() => {});
-					}
-					document.removeEventListener('click', startAudio);
-					document.removeEventListener('touchstart', startAudio);
-					document.removeEventListener('keydown', startAudio);
-				};
+				// Якщо браузер заблокував автоматичний запуск, чекаємо на валідну взаємодію
 				document.addEventListener('click', startAudio);
 				document.addEventListener('touchstart', startAudio);
+				document.addEventListener('touchend', startAudio); // Надійніше для Safari
 				document.addEventListener('keydown', startAudio);
 			});
 		}
