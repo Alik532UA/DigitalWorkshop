@@ -533,6 +533,11 @@
 			return;
 		}
 
+		if (e.code === 'KeyF') {
+			toggleFullscreen();
+			return;
+		}
+
 		if (e.code === 'KeyH') {
 			setTab(tabsList[0]);
 			return;
