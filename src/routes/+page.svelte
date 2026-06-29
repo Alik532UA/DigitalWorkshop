@@ -6,6 +6,7 @@
 	import squircleUrl from '$lib/assets/squircle.svg';
 	import { t } from '$lib/i18n/LanguageState.svelte';
 	import { fly, fade } from 'svelte/transition';
+	import { spring } from 'svelte/motion';
 	import {
 		cubicOut,
 		cubicIn,
@@ -80,19 +81,69 @@
 	}
 
 	const projects = [
-		{ id: 'slovko', img: 'slovko.jpg', icon: Globe, link: 'https://alik532ua.github.io/Slovko/', tab: 'apps' },
-		{ id: 'mindstep', img: 'mindstep.jpg', icon: Gamepad2, link: 'https://alik532ua.github.io/MindStep/', tab: 'games' },
-		{ id: 'cv3d', img: 'cv_3d.jpg', icon: Box, link: 'https://alik532ua.itch.io/alik-cv-interactive-3d-experience', tab: 'games' },
-		{ id: 'cv_web', img: 'cv_web.jpg', icon: FileUser, link: 'https://alik532ua.github.io/CV/', tab: 'website' },
-		{ id: 'and_dvergr', img: 'AndDvergrShallSpeakAI.jpg', icon: Gamepad2, link: 'https://www.youtube.com/@AndDvergrShallSpeakAI', tab: 'games' },
-		{ id: 'teatralo4ka', img: 'teatralo4ka.jpg', icon: Globe, link: 'https://teatralo4ka.odesa.ua/', tab: 'promo' },
-		{ id: 'as5', img: 'as5_odesa_ua.jpg', icon: Globe, link: 'https://as5.odesa.ua/', tab: 'promo' },
-		{ id: 'vetcrew', img: 'VetCrewGames.jpg', icon: Gamepad2, link: 'https://alik532ua.github.io/VetCrewGames', tab: 'games' }
+		{
+			id: 'slovko',
+			img: 'slovko.jpg',
+			icon: Globe,
+			link: 'https://alik532ua.github.io/Slovko/',
+			tab: 'apps'
+		},
+		{
+			id: 'mindstep',
+			img: 'mindstep.jpg',
+			icon: Gamepad2,
+			link: 'https://alik532ua.github.io/MindStep/',
+			tab: 'games'
+		},
+		{
+			id: 'cv3d',
+			img: 'cv_3d.jpg',
+			icon: Box,
+			link: 'https://alik532ua.itch.io/alik-cv-interactive-3d-experience',
+			tab: 'games'
+		},
+		{
+			id: 'cv_web',
+			img: 'cv_web.jpg',
+			icon: FileUser,
+			link: 'https://alik532ua.github.io/CV/',
+			tab: 'website'
+		},
+		{
+			id: 'and_dvergr',
+			img: 'AndDvergrShallSpeakAI.jpg',
+			icon: Gamepad2,
+			link: 'https://www.youtube.com/@AndDvergrShallSpeakAI',
+			tab: 'games'
+		},
+		{
+			id: 'teatralo4ka',
+			img: 'teatralo4ka.jpg',
+			icon: Globe,
+			link: 'https://teatralo4ka.odesa.ua/',
+			tab: 'promo'
+		},
+		{
+			id: 'as5',
+			img: 'as5_odesa_ua.jpg',
+			icon: Globe,
+			link: 'https://as5.odesa.ua/',
+			tab: 'promo'
+		},
+		{
+			id: 'vetcrew',
+			img: 'VetCrewGames.jpg',
+			icon: Gamepad2,
+			link: 'https://alik532ua.github.io/VetCrewGames',
+			tab: 'games'
+		}
 	];
 
 	let isFullscreen = $state(false);
 
-	let activeProjects = $derived(currentTab === 'anchor' ? [] : projects.filter(p => p.tab === currentTab));
+	let activeProjects = $derived(
+		currentTab === 'anchor' ? [] : projects.filter((p) => p.tab === currentTab)
+	);
 
 	function toggleFullscreen() {
 		if (!document.fullscreenElement) {
@@ -167,20 +218,25 @@
 
 			audioVolume = 0; // Завжди починаємо з 0
 			isPlayPending = true;
-			audioRef
-				.play()
-				.then(() => {
-					startFadeIn();
-					isPlayPending = false;
-				})
-				.catch((err) => {
-					console.error('Audio playback failed (Autoplay Policy):', err);
-					isPlayPending = false;
-					document.addEventListener('click', startAudio);
-					document.addEventListener('touchstart', startAudio);
-					document.addEventListener('touchend', startAudio);
-					document.addEventListener('keydown', startAudio);
-				});
+
+			if (isMobile) {
+				isPlayPending = false;
+			} else {
+				audioRef
+					.play()
+					.then(() => {
+						startFadeIn();
+						isPlayPending = false;
+					})
+					.catch((err) => {
+						console.error('Audio playback failed (Autoplay Policy):', err);
+						isPlayPending = false;
+						document.addEventListener('click', startAudio);
+						document.addEventListener('touchstart', startAudio);
+						document.addEventListener('touchend', startAudio);
+						document.addEventListener('keydown', startAudio);
+					});
+			}
 		}
 	});
 
@@ -214,6 +270,9 @@
 	let isScrolling = false;
 	let touchStartY = 0;
 	let touchStartX = 0;
+	let lastDragY = 0;
+	let lastDragX = 0;
+	let isSwiping = false;
 
 	// Стан для видимості контролів при активності миші
 	let isMouseActive = $state(true);
@@ -228,13 +287,17 @@
 	let tooltipY = $state(0);
 	let tooltipHeight = $state(0);
 	let windowHeight = $state(0);
-	
+	let windowWidth = $state(0);
+	let mouseX = $state(0);
+	let manualCarouselOffset = spring(0, { stiffness: 0.1, damping: 0.8 });
+	let carouselHalfHeight = $state(0);
+
 	let clampedTooltipY = $derived.by(() => {
 		if (tooltipHeight === 0 || windowHeight === 0) return tooltipY;
-		
+
 		const minTarget = tooltipHeight / 2 + 20;
-		const maxTarget = windowHeight - (tooltipHeight / 2) - 20;
-		
+		const maxTarget = windowHeight - tooltipHeight / 2 - 20;
+
 		if (tooltipY < minTarget) return minTarget;
 		if (tooltipY > maxTarget) return maxTarget;
 		return tooltipY;
@@ -271,8 +334,52 @@
 		tooltipY = rect.top + rect.height / 2;
 	}
 
-	function handleMouseMove() {
+	function handleMove(e?: Event) {
 		isMouseActive = true;
+		if (e && 'clientX' in e) {
+			mouseX = (e as MouseEvent).clientX;
+		}
+
+		if (isSwiping && e && touchStartX <= windowWidth * 0.3) {
+			let currentY = 0;
+			let currentX = 0;
+			if ('touches' in e) {
+				currentY = (e as TouchEvent).touches[0].clientY;
+				currentX = (e as TouchEvent).touches[0].clientX;
+			} else if ('clientY' in e) {
+				currentY = (e as MouseEvent).clientY;
+				currentX = (e as MouseEvent).clientX;
+			}
+
+			if (currentY !== 0 || currentX !== 0) {
+				const deltaY = lastDragY - currentY;
+				const deltaX = lastDragX - currentX;
+				const scrollDelta = Math.abs(deltaX) > Math.abs(deltaY) ? deltaX : deltaY;
+
+				let newOffset = $manualCarouselOffset - scrollDelta * 2.5; // Drag multiplier
+				let hardJump = false;
+
+				if (carouselHalfHeight > 0) {
+					if (newOffset > 0) {
+						newOffset -= carouselHalfHeight;
+						hardJump = true;
+					} else if (newOffset <= -carouselHalfHeight) {
+						newOffset += carouselHalfHeight;
+						hardJump = true;
+					}
+				}
+
+				if (hardJump) {
+					manualCarouselOffset.set(newOffset, { hard: true });
+				} else {
+					$manualCarouselOffset = newOffset;
+				}
+
+				lastDragY = currentY;
+				lastDragX = currentX;
+			}
+		}
+
 		if (mouseTimeout) clearTimeout(mouseTimeout);
 		mouseTimeout = setTimeout(() => {
 			isMouseActive = false;
@@ -280,7 +387,7 @@
 	}
 
 	$effect(() => {
-		handleMouseMove();
+		handleMove();
 		return () => {
 			if (mouseTimeout) clearTimeout(mouseTimeout);
 		};
@@ -438,6 +545,32 @@
 
 		if (isScrolling) return;
 
+		// Розподіл зон скролу по ширині екрану: Ліва панель (0% - 30%)
+		if (mouseX <= windowWidth * 0.3) {
+			const scrollDelta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+			let currentVal = $manualCarouselOffset;
+			let newOffset = currentVal - scrollDelta;
+			let hardJump = false;
+
+			if (carouselHalfHeight > 0) {
+				if (newOffset > 0) {
+					newOffset -= carouselHalfHeight;
+					hardJump = true;
+				} else if (newOffset <= -carouselHalfHeight) {
+					newOffset += carouselHalfHeight;
+					hardJump = true;
+				}
+			}
+
+			if (hardJump) {
+				manualCarouselOffset.set(newOffset, { hard: true });
+			} else {
+				$manualCarouselOffset = newOffset;
+			}
+			return;
+		}
+
+		// Центральна та права зона (30% - 100%) - стандартний скрол вкладок/слайдів
 		const isHorizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey;
 		const delta = isHorizontal
 			? Math.abs(e.deltaX) > Math.abs(e.deltaY)
@@ -457,7 +590,8 @@
 			return;
 		}
 
-		// Вертикальний скрол (переключення слайдів всередині вкладки)
+		// Вертикальний скрол (переключення слайдів всередині вкладки) для правої частини
+
 		if (delta > 15) {
 			if (currentIndex < totalSlides - 1) {
 				currentIndex++;
@@ -477,18 +611,32 @@
 		}
 	}
 
-	function handleTouchStart(e: TouchEvent) {
-		touchStartY = e.touches[0].clientY;
-		touchStartX = e.touches[0].clientX;
+	function handleTouchStart(e: TouchEvent | MouseEvent) {
+		if ('touches' in e) {
+			touchStartY = e.touches[0].clientY;
+			touchStartX = e.touches[0].clientX;
+		} else {
+			touchStartY = e.clientY;
+			touchStartX = e.clientX;
+		}
+		lastDragY = touchStartY;
+		lastDragX = touchStartX;
+		isSwiping = true;
 	}
 
-	function handleTouchEnd(e: TouchEvent) {
-		if (isScrolling) return;
+	function handleTouchEnd(e: TouchEvent | MouseEvent) {
+		if (isScrolling || !isSwiping) return;
+		isSwiping = false;
 
-		const touchEndY = e.changedTouches[0].clientY;
-		const touchEndX = e.changedTouches[0].clientX;
+		const touchEndY = 'changedTouches' in e ? e.changedTouches[0].clientY : e.clientY;
+		const touchEndX = 'changedTouches' in e ? e.changedTouches[0].clientX : e.clientX;
 		const diffY = touchStartY - touchEndY;
 		const diffX = touchStartX - touchEndX;
+
+		// Розподіл зон свайпу по ширині екрану
+		if (touchStartX <= windowWidth * 0.3) {
+			return; // We already handled real-time dragging in handleMove
+		}
 
 		// Якщо свайп більше горизонтальний, ніж вертикальний
 		if (Math.abs(diffX) > Math.abs(diffY)) {
@@ -621,6 +769,7 @@
 
 <svelte:window
 	bind:innerHeight={windowHeight}
+	bind:innerWidth={windowWidth}
 	onblur={() => {
 		if (isAudioPlaying) {
 			previousVolume = audioVolume;
@@ -634,19 +783,24 @@
 	}}
 	onfullscreenchange={() => (isFullscreen = !!document.fullscreenElement)}
 	onkeydown={(e) => {
-		handleMouseMove();
+		handleMove();
 		handleKeyDown(e);
 	}}
-	onmousemove={handleMouseMove}
-	onmousedown={handleMouseMove}
-	onclick={handleMouseMove}
+	onmousemove={handleMove}
+	ontouchmove={handleMove}
+	onmousedown={(e) => {
+		handleMove();
+		handleTouchStart(e);
+	}}
+	onmouseup={handleTouchEnd}
+	onclick={handleMove}
 	ontouchstart={(e) => {
-		handleMouseMove();
+		handleMove();
 		handleTouchStart(e);
 	}}
 	ontouchend={handleTouchEnd}
 	onwheel={(e) => {
-		handleMouseMove();
+		handleMove();
 		handleWheel(e);
 	}}
 	onmouseleave={() => (isMouseActive = false)}
@@ -665,52 +819,68 @@
 	{#if !isMobile}
 		<!-- Backdrop for closing -->
 
-
-		<div class="left-carousel-wrapper" 
+		<div
+			class="left-carousel-wrapper"
 			onmouseenter={handleCarouselWrapperEnter}
 			onmouseleave={handleCarouselWrapperLeave}
 			role="presentation"
 		>
-			<div class="left-carousel-track" class:paused={isCarouselPaused} class:has-hovered-item={!!hoveredCarouselProject}>
-				<!-- Group 1 -->
-				<div class="carousel-half">
-					{#each [1, 2, 3, 4] as _}
-						{#each projects as p}
-							<a href={p.link} target="_blank" class="carousel-item" 
-								onmouseenter={(e) => handleCarouselItemEnter(e, p.id)}
-								class:hovered-state={hoveredCarouselProject === p.id}
-							>
-								<img src="{base}/images/{p.img}" alt={p.id} class="carousel-img" />
-							</a>
+			<div
+				class="manual-scroll-wrapper"
+				style="transform: translateY({$manualCarouselOffset}px); width: 100%; height: 100%;"
+			>
+				<div
+					class="left-carousel-track"
+					class:paused={isCarouselPaused}
+					class:has-hovered-item={!!hoveredCarouselProject}
+				>
+					<!-- Group 1 -->
+					<div class="carousel-half" bind:clientHeight={carouselHalfHeight}>
+						{#each [1, 2, 3, 4] as _}
+							{#each projects as p}
+								<a
+									href={p.link}
+									target="_blank"
+									class="carousel-item"
+									onmouseenter={(e) => handleCarouselItemEnter(e, p.id)}
+									class:hovered-state={hoveredCarouselProject === p.id}
+								>
+									<img src="{base}/images/{p.img}" alt={p.id} class="carousel-img" />
+								</a>
+							{/each}
 						{/each}
-					{/each}
-				</div>
-				<!-- Group 2 -->
-				<div class="carousel-half">
-					{#each [1, 2, 3, 4] as _}
-						{#each projects as p}
-							<a href={p.link} target="_blank" class="carousel-item" 
-								onmouseenter={(e) => handleCarouselItemEnter(e, p.id)}
-								class:hovered-state={hoveredCarouselProject === p.id}
-							>
-								<img src="{base}/images/{p.img}" alt={p.id} class="carousel-img" />
-							</a>
+					</div>
+					<!-- Group 2 -->
+					<div class="carousel-half">
+						{#each [1, 2, 3, 4] as _}
+							{#each projects as p}
+								<a
+									href={p.link}
+									target="_blank"
+									class="carousel-item"
+									onmouseenter={(e) => handleCarouselItemEnter(e, p.id)}
+									class:hovered-state={hoveredCarouselProject === p.id}
+								>
+									<img src="{base}/images/{p.img}" alt={p.id} class="carousel-img" />
+								</a>
+							{/each}
 						{/each}
-					{/each}
+					</div>
 				</div>
 			</div>
 		</div>
 
 		<!-- Hover Tooltip -->
 		{#if hoveredCarouselProject}
-			{@const p = projects.find(proj => proj.id === hoveredCarouselProject)!}
-			{@const data = t.portfolio.projects[hoveredCarouselProject as keyof typeof t.portfolio.projects]}
+			{@const p = projects.find((proj) => proj.id === hoveredCarouselProject)!}
+			{@const data =
+				t.portfolio.projects[hoveredCarouselProject as keyof typeof t.portfolio.projects]}
 			{@const Icon = p.icon}
-			<div 
-				class="carousel-tooltip slide-project" 
+			<div
+				class="carousel-tooltip slide-project"
 				style="top: {clampedTooltipY}px;"
 				bind:clientHeight={tooltipHeight}
-				transition:fade={{duration: 150}}
+				transition:fade={{ duration: 150 }}
 				onmouseenter={handleTooltipEnter}
 				onmouseleave={handleTooltipLeave}
 				role="presentation"
@@ -719,7 +889,11 @@
 					<div class="title-row">
 						<Icon size={32} class="accent-icon" />
 						<h3>{data.title}</h3>
-						<span class="tech-badge" style="position: relative; top: auto; right: auto; margin-left: auto;">{data.tech}</span>
+						<span
+							class="tech-badge"
+							style="position: relative; top: auto; right: auto; margin-left: auto;"
+							>{data.tech}</span
+						>
 					</div>
 					<p class="project-desc">{data.description}</p>
 					<p class="project-feature"><strong>Фішка:</strong> {data.feature}</p>
@@ -730,8 +904,6 @@
 				</div>
 			</div>
 		{/if}
-
-
 	{/if}
 
 	<audio
@@ -1023,6 +1195,7 @@
 		z-index: 10000;
 		background-color: black;
 		overflow: hidden;
+		user-select: none;
 		/* Повністю вимикаємо можливість клікнути по відео (навіть праву кнопку миші) */
 		pointer-events: none;
 
@@ -1898,7 +2071,10 @@
 		aspect-ratio: 16 / 9;
 		border-radius: 12px;
 		cursor: pointer;
-		transition: transform 0.3s ease, filter 0.3s ease, opacity 0.3s ease;
+		transition:
+			transform 0.3s ease,
+			filter 0.3s ease,
+			opacity 0.3s ease;
 		pointer-events: auto;
 	}
 
@@ -1907,7 +2083,9 @@
 		opacity: 0.5;
 	}
 
-	.carousel-item:hover, .carousel-item.active, .carousel-item.hovered-state {
+	.carousel-item:hover,
+	.carousel-item.active,
+	.carousel-item.hovered-state {
 		transform: scale(1.05);
 	}
 
@@ -1920,8 +2098,8 @@
 		transition: border 0.3s ease;
 		border: 3px solid transparent;
 	}
-	
-	.carousel-item.active .carousel-img, .carousel-item.hovered-state .carousel-img {
+
+	.carousel-item.hovered-state .carousel-img {
 		border-color: rgba(255, 255, 255, 0.8);
 	}
 
@@ -1932,14 +2110,16 @@
 		width: 400px;
 		z-index: 1005;
 		pointer-events: auto;
-		
+
 		/* Glass panel styles */
 		backdrop-filter: blur(20px);
 		-webkit-backdrop-filter: blur(20px);
 		background: rgba(0, 0, 0, 0.25);
-		box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.1);
+		box-shadow:
+			0 20px 50px rgba(0, 0, 0, 0.5),
+			inset 0 0 20px rgba(255, 255, 255, 0.1);
 		border-radius: 20px;
-		
+
 		/* Reset padding since inner elements provide it */
 		padding: 0;
 		overflow: hidden;
@@ -1956,14 +2136,14 @@
 		z-index: 1010;
 		padding: 2rem;
 	}
-	
+
 	.carousel-backdrop {
 		position: absolute;
 		top: 0;
 		left: 0;
 		right: 0;
 		bottom: 0;
-		background: rgba(0,0,0,0.4);
+		background: rgba(0, 0, 0, 0.4);
 		backdrop-filter: blur(2px);
 		z-index: 1009;
 	}
