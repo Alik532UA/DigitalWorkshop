@@ -24,6 +24,9 @@
 	import ContactDropdown from '$lib/components/ui/ContactDropdown.svelte';
 
 	import iconAnchor from '$lib/assets/tabler/anchor.svg?raw';
+
+	// Налаштування зон екрану для скролу/свайпів (наприклад: 0.4 означає 40% ширини зліва)
+	const LEFT_PANEL_SCROLL_RATIO = 0.4;
 	import iconWorld from '$lib/assets/tabler/world-www.svg?raw';
 	import iconMobile from '$lib/assets/tabler/device-mobile.svg?raw';
 	import iconGamepad from '$lib/assets/tabler/device-gamepad-2.svg?raw';
@@ -340,7 +343,7 @@
 			mouseX = (e as MouseEvent).clientX;
 		}
 
-		if (isSwiping && e && touchStartX <= windowWidth * 0.3) {
+		if (isSwiping && e && touchStartX <= windowWidth * LEFT_PANEL_SCROLL_RATIO) {
 			let currentY = 0;
 			let currentX = 0;
 			if ('touches' in e) {
@@ -545,8 +548,8 @@
 
 		if (isScrolling) return;
 
-		// Розподіл зон скролу по ширині екрану: Ліва панель (0% - 30%)
-		if (mouseX <= windowWidth * 0.3) {
+		// Розподіл зон скролу по ширині екрану: Ліва панель
+		if (mouseX <= windowWidth * LEFT_PANEL_SCROLL_RATIO) {
 			const scrollDelta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
 			let currentVal = $manualCarouselOffset;
 			let newOffset = currentVal - scrollDelta;
@@ -634,7 +637,7 @@
 		const diffX = touchStartX - touchEndX;
 
 		// Розподіл зон свайпу по ширині екрану
-		if (touchStartX <= windowWidth * 0.3) {
+		if (touchStartX <= windowWidth * LEFT_PANEL_SCROLL_RATIO) {
 			return; // We already handled real-time dragging in handleMove
 		}
 

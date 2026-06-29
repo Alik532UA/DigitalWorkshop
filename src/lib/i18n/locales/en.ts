@@ -80,7 +80,7 @@ export const en: Translations = {
                 title: "Odesa Art School No. 5",
                 tech: "Svelte",
                 description: "A wonderful school! We have many joint projects outside the site. By the way, this is my first client under the special offer for creative and charitable organizations.",
-                feature: "A modern, fast website tailored to the needs of an art school.",
+                feature: "A modern, fast website tailored to the needs of a music school.",
                 linkText: "Visit Website"
             },
             vetcrew: {
