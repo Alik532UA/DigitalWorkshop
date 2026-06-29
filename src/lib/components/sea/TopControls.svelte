@@ -186,7 +186,8 @@
 
 	/* On mobile the top controls are always fully visible (no mouse-idle dimming) and icons are solid white */
 	@media (max-width: 768px) {
-		.top-controls {
+		.top-controls,
+		.top-controls.inactive {
 			opacity: 1;
 		}
 
