@@ -19,7 +19,7 @@ export const en: Translations = {
         menu: "Menu"
     },
     hero: {
-        greeting: "My name is Alik\nand I create modern [[website]], [[apps]], and even [[games]]!\n\nAnd for creative schools and charities, I have an [[promo]]!",
+        greeting: "My name is Alik\nand I create modern [[website]], [[apps]], and even [[games]]!\n\nAnd for creative schools and charities, I have a [[promo]]!",
         description: "Select which product interests you to learn more and see my existing work",
         description_sea_desktop: "Select a product on the right to learn more, or look below for my existing work",
         description_sea_mobile: "Select a product below to learn more, or look below for my existing work",
@@ -154,7 +154,7 @@ export const en: Translations = {
                 },
                 {
                     q: "Why is this 50 euros a better deal than regular hosting?",
-                    a: "Usually schools pay third-party services just for 'hosting' (renting space on the internet) for an old site that no one updates. I suggest redirecting this money to a real result: you pay the same (or less) money, but get a modern resource, and I take over its technical support and publication of your news."
+                    a: "Usually, schools pay third-party services just for 'hosting' (renting space on the internet) for an old site that no one updates. I suggest redirecting this money to a real result: you pay the same (or less) money, but get a modern resource, and I take over its technical support and publication of your news."
                 },
                 {
                     q: "Can it be even cheaper?",
