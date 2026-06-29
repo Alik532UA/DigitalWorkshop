@@ -223,7 +223,7 @@
 	let isIOS = $state(false);
 
 	let hoveredCarouselProject = $state<string | null>(null);
-	let clickedCarouselProject = $state<string | null>(null);
+
 	let isCarouselPaused = $state(false);
 	let tooltipY = $state(0);
 	let tooltipHeight = $state(0);
@@ -659,30 +659,24 @@
 	<!-- Vertical Carousel (Left Side) -->
 	{#if !isMobile}
 		<!-- Backdrop for closing -->
-		{#if clickedCarouselProject}
-			<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-			<div class="carousel-backdrop" onclick={() => clickedCarouselProject = null} transition:fade={{duration: 200}}></div>
-		{/if}
+
 
 		<div class="left-carousel-wrapper" 
 			onmouseenter={handleCarouselWrapperEnter}
 			onmouseleave={handleCarouselWrapperLeave}
 			role="presentation"
 		>
-			<div class="left-carousel-track" class:paused={isCarouselPaused || clickedCarouselProject} class:has-hovered-item={!!hoveredCarouselProject}>
+			<div class="left-carousel-track" class:paused={isCarouselPaused} class:has-hovered-item={!!hoveredCarouselProject}>
 				<!-- Group 1 -->
 				<div class="carousel-half">
 					{#each [1, 2, 3, 4] as _}
 						{#each projects as p}
-							<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-							<div class="carousel-item" 
+							<a href={p.link} target="_blank" class="carousel-item" 
 								onmouseenter={(e) => handleCarouselItemEnter(e, p.id)}
-								onclick={() => clickedCarouselProject = p.id}
-								class:active={clickedCarouselProject === p.id}
 								class:hovered-state={hoveredCarouselProject === p.id}
 							>
 								<img src="{base}/images/{p.img}" alt={p.id} class="carousel-img" />
-							</div>
+							</a>
 						{/each}
 					{/each}
 				</div>
@@ -690,15 +684,12 @@
 				<div class="carousel-half">
 					{#each [1, 2, 3, 4] as _}
 						{#each projects as p}
-							<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-							<div class="carousel-item" 
+							<a href={p.link} target="_blank" class="carousel-item" 
 								onmouseenter={(e) => handleCarouselItemEnter(e, p.id)}
-								onclick={() => clickedCarouselProject = p.id}
-								class:active={clickedCarouselProject === p.id}
 								class:hovered-state={hoveredCarouselProject === p.id}
 							>
 								<img src="{base}/images/{p.img}" alt={p.id} class="carousel-img" />
-							</div>
+							</a>
 						{/each}
 					{/each}
 				</div>
@@ -706,7 +697,7 @@
 		</div>
 
 		<!-- Hover Tooltip -->
-		{#if hoveredCarouselProject && !clickedCarouselProject}
+		{#if hoveredCarouselProject}
 			{@const p = projects.find(proj => proj.id === hoveredCarouselProject)!}
 			{@const data = t.portfolio.projects[hoveredCarouselProject as keyof typeof t.portfolio.projects]}
 			{@const Icon = p.icon}
@@ -735,31 +726,7 @@
 			</div>
 		{/if}
 
-		<!-- Clicked Project Slide -->
-		{#if clickedCarouselProject}
-			{@const p = projects.find(proj => proj.id === clickedCarouselProject)!}
-			{@const data = t.portfolio.projects[clickedCarouselProject as keyof typeof t.portfolio.projects]}
-			{@const Icon = p.icon}
-			<div class="carousel-clicked-slide glass-panel info-block" transition:fly={{x: -50, duration: 300, easing: quintOut}}>
-				<button class="close-slide-btn" onclick={() => clickedCarouselProject = null}>✕</button>
-				<div class="project-img">
-					<img src="{base}/images/{p.img}" alt={data.title} />
-					<span class="tech-badge">{data.tech}</span>
-				</div>
-				<div class="project-content">
-					<div class="title-row">
-						<Icon size={32} class="accent-icon" />
-						<h3>{data.title}</h3>
-					</div>
-					<p class="project-desc">{data.description}</p>
-					<p class="project-feature"><strong>Фішка:</strong> {data.feature}</p>
-					<a href={p.link} target="_blank" class="btn-primary project-btn">
-						{data.linkText}
-						<ExternalLink size={20} />
-					</a>
-				</div>
-			</div>
-		{/if}
+
 	{/if}
 
 	<audio
