@@ -6,448 +6,38 @@
 	import squircleUrl from '$lib/assets/squircle.svg';
 	import { t } from '$lib/i18n/LanguageState.svelte';
 	import { fly, fade } from 'svelte/transition';
-	import { spring } from 'svelte/motion';
-	import {
-		cubicOut,
-		cubicIn,
-		expoOut,
-		expoIn,
-		backOut,
-		backIn,
-		elasticOut,
-		elasticIn,
-		quintOut,
-		quintIn
-	} from 'svelte/easing';
-	import { ExternalLink, Globe, Gamepad2, Box, FileUser } from 'lucide-svelte';
+	import { cubicOut, backIn } from 'svelte/easing';
+	import { ExternalLink } from 'lucide-svelte';
 	import { config } from '$lib/config';
 	import ContactDropdown from '$lib/components/ui/ContactDropdown.svelte';
 
-	import iconAnchor from '$lib/assets/tabler/anchor.svg?raw';
+	import { SeaPageState } from '$lib/controllers/SeaPageState.svelte';
+	import { AudioState } from '$lib/controllers/AudioState.svelte';
+	import { ClockState } from '$lib/controllers/ClockState.svelte';
 
-	// Налаштування зон екрану для скролу/свайпів (наприклад: 0.4 означає 40% ширини зліва)
-	const LEFT_PANEL_SCROLL_RATIO = 0.4;
-	import iconWorld from '$lib/assets/tabler/world-www.svg?raw';
-	import iconMobile from '$lib/assets/tabler/device-mobile.svg?raw';
-	import iconGamepad from '$lib/assets/tabler/device-gamepad-2.svg?raw';
-	import iconHeart from '$lib/assets/tabler/heart-handshake.svg?raw';
+	import TopControls from '$lib/components/sea/TopControls.svelte';
+	import ClockOverlay from '$lib/components/sea/ClockOverlay.svelte';
+	import LeftCarousel from '$lib/components/sea/LeftCarousel.svelte';
 
-	import iconMaximize from '$lib/assets/tabler/arrows-maximize.svg?raw';
-	import iconMinimize from '$lib/assets/tabler/arrows-minimize.svg?raw';
-	import iconMusicOn from '$lib/assets/tabler/music.svg?raw';
-	import iconMusicOff from '$lib/assets/tabler/music-off.svg?raw';
-	import iconLanguage from '$lib/assets/tabler/language.svg?raw';
-	import iconClock from '$lib/assets/tabler/clock.svg?raw';
 	import iconMessage from '$lib/assets/tabler/message.svg?raw';
 	import iconArrowUp from '$lib/assets/tabler/arrow-big-up.svg?raw';
 	import iconArrowDown from '$lib/assets/tabler/arrow-big-down.svg?raw';
 	import iconArrowRight from '$lib/assets/tabler/arrow-big-right.svg?raw';
 
-	const tabIcons = [
-		{ id: 'anchor', icon: iconAnchor },
-		{ id: 'website', icon: iconWorld },
-		{ id: 'apps', icon: iconMobile },
-		{ id: 'games', icon: iconGamepad },
-		{ id: 'promo', icon: iconHeart }
-	];
+	const state = new SeaPageState();
+	const audioState = new AudioState();
+	const clockState = new ClockState();
 
-	const tabsList = ['anchor', 'website', 'apps', 'games', 'promo'];
-
-	let currentTab = $state('anchor');
-	let hoveredTab = $state<string | null>(null);
-	let slideDirection = $state(1);
-
-	function setTab(newTabId: string) {
-		if (newTabId === currentTab) return;
-		const oldIdx = tabsList.indexOf(currentTab);
-		const newIdx = tabsList.indexOf(newTabId);
-		slideDirection = newIdx > oldIdx ? 1 : -1;
-		currentTab = newTabId;
-		currentIndex = 0;
-	}
-
-	function nextTab() {
-		const idx = tabsList.indexOf(currentTab);
-		if (idx < tabsList.length - 1) {
-			setTab(tabsList[idx + 1]);
-		} else {
-			setTab(tabsList[0]);
-		}
-	}
-
-	function prevTab() {
-		const idx = tabsList.indexOf(currentTab);
-		if (idx > 0) {
-			setTab(tabsList[idx - 1]);
-		} else {
-			setTab(tabsList[tabsList.length - 1]);
-		}
-	}
-
-	const projects = [
-		{
-			id: 'slovko',
-			img: 'slovko.jpg',
-			icon: Globe,
-			link: 'https://alik532ua.github.io/Slovko/',
-			tab: 'apps'
-		},
-		{
-			id: 'mindstep',
-			img: 'mindstep.jpg',
-			icon: Gamepad2,
-			link: 'https://alik532ua.github.io/MindStep/',
-			tab: 'games'
-		},
-		{
-			id: 'cv3d',
-			img: 'cv_3d.jpg',
-			icon: Box,
-			link: 'https://alik532ua.itch.io/alik-cv-interactive-3d-experience',
-			tab: 'games'
-		},
-		{
-			id: 'cv_web',
-			img: 'cv_web.jpg',
-			icon: FileUser,
-			link: 'https://alik532ua.github.io/CV/',
-			tab: 'website'
-		},
-		{
-			id: 'and_dvergr',
-			img: 'AndDvergrShallSpeakAI.jpg',
-			icon: Gamepad2,
-			link: 'https://www.youtube.com/@AndDvergrShallSpeakAI',
-			tab: 'games'
-		},
-		{
-			id: 'teatralo4ka',
-			img: 'teatralo4ka.jpg',
-			icon: Globe,
-			link: 'https://teatralo4ka.odesa.ua/',
-			tab: 'promo'
-		},
-		{
-			id: 'as5',
-			img: 'as5_odesa_ua.jpg',
-			icon: Globe,
-			link: 'https://as5.odesa.ua/',
-			tab: 'promo'
-		},
-		{
-			id: 'vetcrew',
-			img: 'VetCrewGames.jpg',
-			icon: Gamepad2,
-			link: 'https://alik532ua.github.io/VetCrewGames',
-			tab: 'games'
-		}
-	];
-
-	let isFullscreen = $state(false);
-
-	let activeProjects = $derived(
-		currentTab === 'anchor' ? [] : projects.filter((p) => p.tab === currentTab)
-	);
-
-	function toggleFullscreen() {
-		if (!document.fullscreenElement) {
-			document.documentElement
-				.requestFullscreen()
-				.then(() => {
-					isFullscreen = true;
-				})
-				.catch((err) => {
-					console.error(`Error attempting to enable fullscreen: ${err.message}`);
-				});
-		} else {
-			if (document.exitFullscreen) {
-				document.exitFullscreen().then(() => {
-					isFullscreen = false;
-				});
-			}
-		}
-	}
-
-	let isAudioPlaying = $state(false);
 	let audioRef: HTMLAudioElement;
-	let audioVolume = $state(0);
-	let isFadingIn = false;
-	let isPlayPending = false;
 
-	let fadeInterval: ReturnType<typeof setInterval>;
-
+	// URL sync effect
 	$effect(() => {
-		if (audioRef && !isFadingIn) {
-			isFadingIn = true;
-
-			const startFadeIn = () => {
-				clearInterval(fadeInterval);
-				audioVolume = 0;
-				fadeInterval = setInterval(() => {
-					if (audioVolume < 0.1) {
-						audioVolume = Number((audioVolume + 0.01).toFixed(2));
-					} else {
-						clearInterval(fadeInterval);
-					}
-				}, 100);
-			};
-
-			const removeListeners = () => {
-				document.removeEventListener('click', startAudio);
-				document.removeEventListener('touchstart', startAudio);
-				document.removeEventListener('touchend', startAudio);
-				document.removeEventListener('keydown', startAudio);
-			};
-
-			const startAudio = () => {
-				if (isAudioPlaying || isPlayPending) {
-					if (isAudioPlaying) removeListeners();
-					return;
-				}
-				if (audioRef) {
-					isPlayPending = true;
-					audioVolume = 0;
-					audioRef
-						.play()
-						.then(() => {
-							startFadeIn();
-							removeListeners();
-							isPlayPending = false;
-						})
-						.catch(() => {
-							isPlayPending = false;
-						});
-				}
-			};
-
-			audioVolume = 0; // Завжди починаємо з 0
-			isPlayPending = true;
-
-			if (isMobile) {
-				isPlayPending = false;
-			} else {
-				audioRef
-					.play()
-					.then(() => {
-						startFadeIn();
-						isPlayPending = false;
-					})
-					.catch((err) => {
-						console.error('Audio playback failed (Autoplay Policy):', err);
-						isPlayPending = false;
-						document.addEventListener('click', startAudio);
-						document.addEventListener('touchstart', startAudio);
-						document.addEventListener('touchend', startAudio);
-						document.addEventListener('keydown', startAudio);
-					});
-			}
-		}
-	});
-
-	function toggleAudio() {
-		if (!audioRef) return;
-		if (isAudioPlaying) {
-			audioRef.pause();
-		} else {
-			audioRef.play().catch((err) => console.error('Audio playback failed:', err));
-		}
-	}
-
-	const langState = t.current;
-
-	function toggleLanguage() {
-		langState.set(langState.current === 'uk' ? 'en' : 'uk');
-	}
-
-	let formattedGreeting = $derived(
-		t.hero.greeting
-			.replace(/\n/g, '<br />')
-			.replace(
-				/\[\[(.*?)\]\]/g,
-				(match, key) =>
-					`<button class="inline-badge" data-tab="${key}">${t.hero.buttons[key as keyof typeof t.hero.buttons]}</button>`
-			)
-	);
-
-	// Стан для кастомного скролу
-	let currentIndex = $state(0);
-	let isScrolling = false;
-	let touchStartY = 0;
-	let touchStartX = 0;
-	let lastDragY = 0;
-	let lastDragX = 0;
-	let isSwiping = false;
-
-	// Стан для видимості контролів при активності миші
-	let isMouseActive = $state(true);
-	let isMobile = $state(false);
-	let mouseTimeout: ReturnType<typeof setTimeout> | undefined;
-	let previousVolume = 0;
-	let isIOS = $state(false);
-
-	let hoveredCarouselProject = $state<string | null>(null);
-
-	let isCarouselPaused = $state(false);
-	let tooltipY = $state(0);
-	let tooltipHeight = $state(0);
-	let windowHeight = $state(0);
-	let windowWidth = $state(0);
-	let mouseX = $state(0);
-	let manualCarouselOffset = spring(0, { stiffness: 0.1, damping: 0.8 });
-	let carouselHalfHeight = $state(0);
-
-	// Режим годинника
-	let isClockMode = $state(false);
-	let clockTime = $state({ h: '', m: '', s: '' });
-
-	let clampedTooltipY = $derived.by(() => {
-		if (tooltipHeight === 0 || windowHeight === 0) return tooltipY;
-
-		const minTarget = tooltipHeight / 2 + 20;
-		const maxTarget = windowHeight - tooltipHeight / 2 - 20;
-
-		if (tooltipY < minTarget) return minTarget;
-		if (tooltipY > maxTarget) return maxTarget;
-		return tooltipY;
-	});
-	let carouselHoverTimeout: ReturnType<typeof setTimeout>;
-
-	function handleCarouselWrapperLeave() {
-		carouselHoverTimeout = setTimeout(() => {
-			isCarouselPaused = false;
-			hoveredCarouselProject = null;
-		}, 100);
-	}
-
-	function handleCarouselWrapperEnter() {
-		clearTimeout(carouselHoverTimeout);
-		isCarouselPaused = true;
-	}
-
-	function handleTooltipEnter() {
-		clearTimeout(carouselHoverTimeout);
-		isCarouselPaused = true;
-	}
-
-	function handleTooltipLeave() {
-		handleCarouselWrapperLeave();
-	}
-
-	function handleCarouselItemEnter(e: MouseEvent, projectId: string) {
-		clearTimeout(carouselHoverTimeout);
-		isCarouselPaused = true;
-		hoveredCarouselProject = projectId;
-		const target = e.currentTarget as HTMLElement;
-		const rect = target.getBoundingClientRect();
-		tooltipY = rect.top + rect.height / 2;
-	}
-
-	function handleMove(e?: Event) {
-		isMouseActive = true;
-		if (e && 'clientX' in e) {
-			mouseX = (e as MouseEvent).clientX;
-		}
-
-		if (isSwiping && e && touchStartX <= windowWidth * LEFT_PANEL_SCROLL_RATIO) {
-			let currentY = 0;
-			let currentX = 0;
-			if ('touches' in e) {
-				currentY = (e as TouchEvent).touches[0].clientY;
-				currentX = (e as TouchEvent).touches[0].clientX;
-			} else if ('clientY' in e) {
-				currentY = (e as MouseEvent).clientY;
-				currentX = (e as MouseEvent).clientX;
-			}
-
-			if (currentY !== 0 || currentX !== 0) {
-				const deltaY = lastDragY - currentY;
-				const deltaX = lastDragX - currentX;
-				const scrollDelta = Math.abs(deltaX) > Math.abs(deltaY) ? deltaX : deltaY;
-
-				let newOffset = $manualCarouselOffset - scrollDelta * 2.5; // Drag multiplier
-				let hardJump = false;
-
-				if (carouselHalfHeight > 0) {
-					if (newOffset > 0) {
-						newOffset -= carouselHalfHeight;
-						hardJump = true;
-					} else if (newOffset <= -carouselHalfHeight) {
-						newOffset += carouselHalfHeight;
-						hardJump = true;
-					}
-				}
-
-				if (hardJump) {
-					manualCarouselOffset.set(newOffset, { hard: true });
-				} else {
-					$manualCarouselOffset = newOffset;
-				}
-
-				lastDragY = currentY;
-				lastDragX = currentX;
-			}
-		}
-
-		if (mouseTimeout) clearTimeout(mouseTimeout);
-		mouseTimeout = setTimeout(() => {
-			isMouseActive = false;
-		}, 3000); // 3 seconds of inactivity
-	}
-
-	$effect(() => {
-		handleMove();
-		return () => {
-			if (mouseTimeout) clearTimeout(mouseTimeout);
-		};
-	});
-
-	// Оновлення годинника
-	$effect(() => {
-		if (!isClockMode) return;
-		function tick() {
-			const now = new Date();
-			clockTime = {
-				h: String(now.getHours()).padStart(2, '0'),
-				m: String(now.getMinutes()).padStart(2, '0'),
-				s: String(now.getSeconds()).padStart(2, '0')
-			};
-		}
-		tick();
-		const interval = setInterval(tick, 1000);
-		return () => clearInterval(interval);
-	});
-
-	let isInitializingUrl = true;
-
-	onMount(() => {
-		const params = new URLSearchParams(window.location.search);
-		const initialTab = params.get('tab');
-		if (initialTab && tabsList.includes(initialTab)) {
-			currentTab = initialTab;
-		}
-
-		const initialSlide = parseInt(params.get('slide') || '0', 10);
-		if (!isNaN(initialSlide) && initialSlide > 0) {
-			currentIndex = initialSlide;
-		}
-
-		const mediaQuery = window.matchMedia('(max-width: 768px)');
-		isMobile = mediaQuery.matches;
-		const handler = (e: MediaQueryListEvent) => {
-			isMobile = e.matches;
-		};
-		mediaQuery.addEventListener('change', handler);
-
-		isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-	});
-
-	$effect(() => {
-		const tab = currentTab;
-		const idx = currentIndex;
+		const tab = state.currentTab;
+		const idx = state.currentIndex;
 
 		untrack(() => {
-			if (isInitializingUrl) {
-				isInitializingUrl = false;
+			if (state.isInitializingUrl) {
+				state.isInitializingUrl = false;
 				return;
 			}
 			const url = new URL(window.location.href);
@@ -461,335 +51,35 @@
 		});
 	});
 
-	// Герой + всі проєкти або контент вкладок
-	let activeChunks = $derived.by(() => {
-		if (currentTab === 'anchor') return [];
-		const tabData = t.tabs[currentTab as keyof typeof t.tabs];
-		const items = (tabData as any).benefits || (tabData as any).faq || [];
-
-		const result = [];
-		let currentChunk = [];
-
-		for (const item of items) {
-			const text = (item.h || item.q || '') + (item.p || item.a || '');
-			// На мобільному, якщо текст довгий (> 250 символів), він займає весь слайд
-			const isLong = isMobile && text.length > 250;
-
-			if (isLong) {
-				if (currentChunk.length > 0) {
-					result.push([...currentChunk]);
-					currentChunk = [];
-				}
-				result.push([item]);
-			} else {
-				currentChunk.push(item);
-				// На комп'ютері завжди по 2, на мобільному короткі теж по 2
-				if (currentChunk.length === 2) {
-					result.push([...currentChunk]);
-					currentChunk = [];
-				}
-			}
-		}
-		if (currentChunk.length > 0) {
-			result.push([...currentChunk]);
-		}
-		return result;
+	// Interaction effect
+	$effect(() => {
+		state.handleMove();
+		return () => {
+			if (state.mouseTimeout) clearTimeout(state.mouseTimeout);
+		};
 	});
 
-	let totalSlides = $derived.by(() => {
-		if (currentTab === 'anchor') {
-			return 1;
-		} else {
-			return activeChunks.length + activeProjects.length + 1; // 1 for intro slide
+	onMount(() => {
+		const params = new URLSearchParams(window.location.search);
+		const initialTab = params.get('tab');
+		if (initialTab && state.tabsList.includes(initialTab)) {
+			state.currentTab = initialTab;
 		}
+
+		const initialSlide = parseInt(params.get('slide') || '0', 10);
+		if (!isNaN(initialSlide) && initialSlide > 0) {
+			state.currentIndex = initialSlide;
+		}
+
+		const mediaQuery = window.matchMedia('(max-width: 768px)');
+		state.isMobile = mediaQuery.matches;
+		const handler = (e: MediaQueryListEvent) => {
+			state.isMobile = e.matches;
+		};
+		mediaQuery.addEventListener('change', handler);
+
+		state.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
 	});
-
-	function parseMarkdown(text: string) {
-		if (!text) return '';
-
-		let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-		const lines = html.split('\n');
-		let inList = false;
-		let result = '';
-
-		for (let i = 0; i < lines.length; i++) {
-			let line = lines[i];
-			let trimmed = line.trim();
-
-			if (trimmed.startsWith('* ')) {
-				if (!inList) {
-					result += '<ul class="custom-list">';
-					inList = true;
-				}
-				result += `<li>${trimmed.substring(2)}</li>`;
-			} else {
-				if (inList) {
-					result += '</ul>';
-					inList = false;
-				}
-				if (result.length > 0 && !result.endsWith('</ul>')) {
-					result += '<br />';
-				}
-				result += line;
-			}
-		}
-		if (inList) {
-			result += '</ul>';
-		}
-
-		return result;
-	}
-
-	function lockScroll() {
-		isScrolling = true;
-		// Блокуємо скрол лише на 400ms (короткий кулдаун),
-		// щоб користувач міг гортати далі ще до завершення довгої анімації (1200ms)
-		setTimeout(() => {
-			isScrolling = false;
-		}, 150);
-	}
-
-	function goToSlide(index: number) {
-		if (isScrolling || currentIndex === index) return;
-		lockScroll();
-		currentIndex = index;
-	}
-
-	function handleWheel(e: WheelEvent) {
-		const target = e.target as HTMLElement;
-		if (target.closest('.audio-control-wrapper')) {
-			let newVol = audioVolume - Math.sign(e.deltaY) * 0.05;
-			audioVolume = Math.max(0, Math.min(1, newVol));
-
-			if (audioVolume > 0 && !isAudioPlaying && audioRef) {
-				audioRef.play().catch((err) => console.error('Audio playback failed:', err));
-			}
-			return;
-		}
-
-		if (isScrolling) return;
-
-		// Розподіл зон скролу по ширині екрану: Ліва панель
-		if (mouseX <= windowWidth * LEFT_PANEL_SCROLL_RATIO) {
-			const scrollDelta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-			let currentVal = $manualCarouselOffset;
-			let newOffset = currentVal - scrollDelta;
-			let hardJump = false;
-
-			if (carouselHalfHeight > 0) {
-				if (newOffset > 0) {
-					newOffset -= carouselHalfHeight;
-					hardJump = true;
-				} else if (newOffset <= -carouselHalfHeight) {
-					newOffset += carouselHalfHeight;
-					hardJump = true;
-				}
-			}
-
-			if (hardJump) {
-				manualCarouselOffset.set(newOffset, { hard: true });
-			} else {
-				$manualCarouselOffset = newOffset;
-			}
-			return;
-		}
-
-		// Центральна та права зона (30% - 100%) - стандартний скрол вкладок/слайдів
-		const isHorizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey;
-		const delta = isHorizontal
-			? Math.abs(e.deltaX) > Math.abs(e.deltaY)
-				? e.deltaX
-				: e.deltaY
-			: e.deltaY;
-
-		// Горизонтальний скрол (переключення вкладок)
-		if (isHorizontal) {
-			if (delta > 20) {
-				nextTab();
-				lockScroll();
-			} else if (delta < -20) {
-				prevTab();
-				lockScroll();
-			}
-			return;
-		}
-
-		// Вертикальний скрол (переключення слайдів всередині вкладки) для правої частини
-
-		if (delta > 15) {
-			if (currentIndex < totalSlides - 1) {
-				currentIndex++;
-				lockScroll();
-			} else {
-				nextTab();
-				lockScroll();
-			}
-		} else if (delta < -15) {
-			if (currentIndex > 0) {
-				currentIndex--;
-				lockScroll();
-			} else {
-				prevTab();
-				lockScroll();
-			}
-		}
-	}
-
-	function handleTouchStart(e: TouchEvent | MouseEvent) {
-		if ('touches' in e) {
-			touchStartY = e.touches[0].clientY;
-			touchStartX = e.touches[0].clientX;
-		} else {
-			touchStartY = e.clientY;
-			touchStartX = e.clientX;
-		}
-		lastDragY = touchStartY;
-		lastDragX = touchStartX;
-		isSwiping = true;
-	}
-
-	function handleTouchEnd(e: TouchEvent | MouseEvent) {
-		if (isScrolling || !isSwiping) return;
-		isSwiping = false;
-
-		const touchEndY = 'changedTouches' in e ? e.changedTouches[0].clientY : e.clientY;
-		const touchEndX = 'changedTouches' in e ? e.changedTouches[0].clientX : e.clientX;
-		const diffY = touchStartY - touchEndY;
-		const diffX = touchStartX - touchEndX;
-
-		// Розподіл зон свайпу по ширині екрану
-		if (touchStartX <= windowWidth * LEFT_PANEL_SCROLL_RATIO) {
-			return; // We already handled real-time dragging in handleMove
-		}
-
-		// Якщо свайп більше горизонтальний, ніж вертикальний
-		if (Math.abs(diffX) > Math.abs(diffY)) {
-			if (diffX > 50) {
-				nextTab();
-				lockScroll();
-			} else if (diffX < -50) {
-				prevTab();
-				lockScroll();
-			}
-		} else {
-			// Вертикальний скрол
-			if (diffY > 50) {
-				if (currentIndex < totalSlides - 1) {
-					currentIndex++;
-					lockScroll();
-				} else {
-					nextTab();
-					lockScroll();
-				}
-			} else if (diffY < -50) {
-				if (currentIndex > 0) {
-					currentIndex--;
-					lockScroll();
-				} else {
-					prevTab();
-					lockScroll();
-				}
-			}
-		}
-	}
-
-	function handleKeyDown(e: KeyboardEvent) {
-		// Гарячі клавіші для керування
-		if (e.code === 'KeyM') {
-			toggleAudio();
-			return;
-		}
-
-		if (e.code === 'KeyC') {
-			isClockMode = !isClockMode;
-			return;
-		}
-
-		if (e.code === 'KeyT') {
-			toggleLanguage();
-			return;
-		}
-
-		if (e.code === 'KeyF') {
-			toggleFullscreen();
-			return;
-		}
-
-		if (e.code === 'KeyH') {
-			setTab(tabsList[0]);
-			return;
-		}
-
-		if (e.code === 'Enter' || e.code === 'NumpadEnter') {
-			window.open(config.telegramUrl, '_blank');
-			return;
-		}
-
-		// 1-5 (звичайна клавіатура або Numpad)
-		let digitMatch = e.code.match(/^(?:Digit|Numpad)([1-5])$/);
-		if (digitMatch) {
-			const tabIndex = parseInt(digitMatch[1], 10) - 1;
-			if (tabIndex >= 0 && tabIndex < tabsList.length) {
-				setTab(tabsList[tabIndex]);
-			}
-			return;
-		}
-
-		if (e.code === 'Space') {
-			e.preventDefault(); // Запобігаємо стандартному скролу сторінки
-			if (isScrolling) return;
-
-			if (currentIndex < totalSlides - 1) {
-				currentIndex++;
-				lockScroll();
-			} else {
-				const tabIdx = tabsList.indexOf(currentTab);
-				if (tabIdx < tabsList.length - 1) {
-					setTab(tabsList[tabIdx + 1]);
-					lockScroll();
-				} else {
-					setTab(tabsList[0]);
-					lockScroll();
-				}
-			}
-			return;
-		}
-
-		if (isScrolling) return;
-
-		switch (e.code) {
-			case 'ArrowDown':
-			case 'KeyS':
-				if (currentIndex < totalSlides - 1) {
-					currentIndex++;
-					lockScroll();
-				} else {
-					nextTab();
-					lockScroll();
-				}
-				break;
-			case 'ArrowUp':
-			case 'KeyW':
-				if (currentIndex > 0) {
-					currentIndex--;
-					lockScroll();
-				} else {
-					prevTab();
-					lockScroll();
-				}
-				break;
-			case 'ArrowRight':
-			case 'KeyD':
-				nextTab();
-				lockScroll();
-				break;
-			case 'ArrowLeft':
-			case 'KeyA':
-				prevTab();
-				lockScroll();
-				break;
-		}
-	}
 </script>
 
 <svelte:head>
@@ -797,252 +87,146 @@
 </svelte:head>
 
 <svelte:window
-	bind:innerHeight={windowHeight}
-	bind:innerWidth={windowWidth}
-	onblur={() => {
-		if (isAudioPlaying) {
-			previousVolume = audioVolume;
-			audioVolume = 0.01;
-		}
-	}}
-	onfocus={() => {
-		if (isAudioPlaying && previousVolume > 0) {
-			audioVolume = previousVolume;
-		}
-	}}
-	onfullscreenchange={() => (isFullscreen = !!document.fullscreenElement)}
+	bind:innerHeight={state.windowHeight}
+	bind:innerWidth={state.windowWidth}
+	onblur={() => audioState.onWindowBlur()}
+	onfocus={() => audioState.onWindowFocus()}
+	onfullscreenchange={() => (state.isFullscreen = !!document.fullscreenElement)}
 	onkeydown={(e) => {
-		handleMove();
-		handleKeyDown(e);
+		state.handleMove();
+		state.handleKeyDown(e, {
+			toggleAudio: () => audioState.toggle(),
+			toggleClock: () => clockState.toggle(),
+			toggleLanguage: () => t.current.set(t.current.current === 'uk' ? 'en' : 'uk'),
+			openTelegram: () => window.open(config.telegramUrl, '_blank')
+		});
 	}}
-	onmousemove={handleMove}
-	ontouchmove={handleMove}
+	onmousemove={(e) => state.handleMove(e)}
+	ontouchmove={(e) => state.handleMove(e)}
 	onmousedown={(e) => {
-		handleMove();
-		handleTouchStart(e);
+		state.handleMove(e);
+		state.handleTouchStart(e);
 	}}
-	onmouseup={handleTouchEnd}
-	onclick={handleMove}
+	onmouseup={(e) => state.handleTouchEnd(e)}
+	onclick={(e) => state.handleMove(e)}
 	ontouchstart={(e) => {
-		handleMove();
-		handleTouchStart(e);
+		state.handleMove(e);
+		state.handleTouchStart(e);
 	}}
-	ontouchend={handleTouchEnd}
+	ontouchend={(e) => state.handleTouchEnd(e)}
 	onwheel={(e) => {
-		handleMove();
-		handleWheel(e);
+		state.handleMove(e);
+		state.handleWheel(e, (deltaY) => audioState.adjustVolumeByWheel(deltaY));
 	}}
-	onmouseleave={() => (isMouseActive = false)}
+	onmouseleave={() => (state.isMouseActive = false)}
 />
 
 <div
 	class="sea-container"
-	class:clock-active={isClockMode}
-	data-hovered-tab={hoveredTab || ''}
-	class:lang-changing={langState.isChanging}
+	class:clock-active={clockState.isActive}
+	data-hovered-tab={state.hoveredTab || ''}
+	class:lang-changing={t.current.isChanging}
 >
 	<video autoplay loop muted playsinline class="background-video">
 		<source src="{base}/sea_4_av1.webm" type="video/webm" />
 	</video>
 
-	<!-- Vertical Carousel (Left Side) -->
-	{#if !isMobile}
-		<!-- Backdrop for closing -->
-
-		<div
-			class="left-carousel-wrapper"
-			onmouseenter={handleCarouselWrapperEnter}
-			onmouseleave={handleCarouselWrapperLeave}
-			role="presentation"
-		>
-			<div
-				class="manual-scroll-wrapper"
-				style="transform: translateY({$manualCarouselOffset}px); width: 100%; height: 100%;"
-			>
-				<div
-					class="left-carousel-track"
-					class:paused={isCarouselPaused}
-					class:has-hovered-item={!!hoveredCarouselProject}
-				>
-					<!-- Group 1 -->
-					<div class="carousel-half" bind:clientHeight={carouselHalfHeight}>
-						{#each [1, 2, 3, 4] as _}
-							{#each projects as p}
-								<a
-									href={p.link}
-									target="_blank"
-									class="carousel-item"
-									onmouseenter={(e) => handleCarouselItemEnter(e, p.id)}
-									class:hovered-state={hoveredCarouselProject === p.id}
-								>
-									<img src="{base}/images/{p.img}" alt={p.id} class="carousel-img" />
-								</a>
-							{/each}
-						{/each}
-					</div>
-					<!-- Group 2 -->
-					<div class="carousel-half">
-						{#each [1, 2, 3, 4] as _}
-							{#each projects as p}
-								<a
-									href={p.link}
-									target="_blank"
-									class="carousel-item"
-									onmouseenter={(e) => handleCarouselItemEnter(e, p.id)}
-									class:hovered-state={hoveredCarouselProject === p.id}
-								>
-									<img src="{base}/images/{p.img}" alt={p.id} class="carousel-img" />
-								</a>
-							{/each}
-						{/each}
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- Hover Tooltip -->
-		{#if hoveredCarouselProject}
-			{@const p = projects.find((proj) => proj.id === hoveredCarouselProject)!}
-			{@const data =
-				t.portfolio.projects[hoveredCarouselProject as keyof typeof t.portfolio.projects]}
-			{@const Icon = p.icon}
-			<div
-				class="carousel-tooltip slide-project"
-				style="top: {clampedTooltipY}px;"
-				bind:clientHeight={tooltipHeight}
-				transition:fade={{ duration: 150 }}
-				onmouseenter={handleTooltipEnter}
-				onmouseleave={handleTooltipLeave}
-				role="presentation"
-			>
-				<div class="project-content">
-					<div class="title-row">
-						<Icon size={32} class="accent-icon" />
-						<h3>{data.title}</h3>
-						<span
-							class="tech-badge"
-							style="position: relative; top: auto; right: auto; margin-left: auto;"
-							>{data.tech}</span
-						>
-					</div>
-					<p class="project-desc">{data.description}</p>
-					<p class="project-feature"><strong>Фішка:</strong> {data.feature}</p>
-					<a href={p.link} target="_blank" class="btn-primary project-btn">
-						{data.linkText}
-						<ExternalLink size={20} />
-					</a>
-				</div>
-			</div>
-		{/if}
+	{#if !state.isMobile}
+		<LeftCarousel
+			projects={state.projects}
+			manualCarouselOffset={state.manualCarouselOffset.current}
+			isCarouselPaused={state.isCarouselPaused}
+			hoveredCarouselProject={state.hoveredCarouselProject}
+			bind:carouselHalfHeight={state.carouselHalfHeight}
+			clampedTooltipY={state.clampedTooltipY}
+			bind:tooltipHeight={state.tooltipHeight}
+			onCarouselWrapperEnter={() => state.handleCarouselWrapperEnter()}
+			onCarouselWrapperLeave={() => state.handleCarouselWrapperLeave()}
+			onCarouselItemEnter={(e, id) => state.handleCarouselItemEnter(e, id)}
+			onTooltipEnter={() => state.handleTooltipEnter()}
+			onTooltipLeave={() => state.handleTooltipLeave()}
+		/>
 	{/if}
 
 	<audio
 		bind:this={audioRef}
 		src="{base}/sea.ogg"
 		loop
-		bind:volume={audioVolume}
-		onplay={() => (isAudioPlaying = true)}
-		onpause={() => (isAudioPlaying = false)}
+		bind:volume={audioState.volume}
+		onplay={() => (audioState.isPlaying = true)}
+		onpause={() => (audioState.isPlaying = false)}
+		use:audioState.bindAudio={state.isMobile}
 	></audio>
 
-	<!-- Кнопки керування (годинник, мова, звук, повноекранний режим) -->
-	<div class="top-controls" class:inactive={!isMouseActive && !isMobile}>
-		<button class="icon-btn" class:active={isClockMode} onclick={() => { isClockMode = !isClockMode; }} aria-label="Toggle Clock">
-			{@html iconClock}
-		</button>
-		<button class="icon-btn" onclick={toggleLanguage} aria-label="Toggle Language">
-			{@html iconLanguage}
-		</button>
-		<div class="audio-control-wrapper">
-			<button class="icon-btn" onclick={toggleAudio} aria-label="Toggle Audio">
-				{@html isAudioPlaying ? iconMusicOn : iconMusicOff}
-			</button>
-			<div class="volume-slider-container">
-				<input
-					type="range"
-					min="0"
-					max="1"
-					step="0.01"
-					bind:value={audioVolume}
-					oninput={() => {
-						if (audioVolume > 0 && !isAudioPlaying && audioRef) {
-							audioRef.play().catch((err) => console.error('Audio playback failed:', err));
-						}
-					}}
-					class="volume-slider"
-					aria-label="Volume"
-				/>
-			</div>
-		</div>
-		{#if !isIOS}
-			<button class="icon-btn" onclick={toggleFullscreen} aria-label="Toggle Fullscreen">
-				{@html isFullscreen ? iconMinimize : iconMaximize}
-			</button>
-		{/if}
-	</div>
+	<TopControls
+		isMouseActive={state.isMouseActive}
+		isMobile={state.isMobile}
+		isClockActive={clockState.isActive}
+		isAudioPlaying={audioState.isPlaying}
+		bind:audioVolume={audioState.volume}
+		isFullscreen={state.isFullscreen}
+		isIOS={state.isIOS}
+		onToggleClock={() => clockState.toggle()}
+		onToggleLanguage={() => t.current.set(t.current.current === 'uk' ? 'en' : 'uk')}
+		onToggleAudio={() => audioState.toggle()}
+		onToggleFullscreen={() => state.toggleFullscreen()}
+		onVolumeInput={() => audioState.onSliderInput()}
+	/>
 
-	{#if isClockMode}
-		<div class="clock-overlay" transition:fade={{ duration: 300 }}>
-			<div class="clock-display">
-				<span class="clock-digit">{clockTime.h}</span>
-				<span class="clock-separator">:</span>
-				<span class="clock-digit">{clockTime.m}</span>
-				<span class="clock-separator clock-separator-sec">:</span>
-				<span class="clock-digit clock-seconds">{clockTime.s}</span>
-			</div>
-		</div>
+	{#if clockState.isActive}
+		<ClockOverlay time={clockState.time} />
 	{/if}
 
 	<div class="info-layout" role="presentation">
-		<!-- Навігаційні стрілки (Вертикальні) -->
-		{#if currentIndex > 0}
+		<!-- Navigation arrows (Vertical) -->
+		{#if state.currentIndex > 0}
 			<button
 				class="slide-nav-arrow arrow-up"
-				class:inactive={!isMouseActive && !isMobile}
+				class:inactive={!state.isMouseActive && !state.isMobile}
 				transition:fade={{ duration: 200 }}
-				onclick={() => goToSlide(currentIndex - 1)}
+				onclick={() => state.goToSlide(state.currentIndex - 1)}
 				aria-label="Previous slide"
 			>
 				{@html iconArrowUp}
 			</button>
 		{/if}
 
-		{#if currentIndex < totalSlides - 1}
+		{#if state.currentIndex < state.totalSlides - 1}
 			<button
 				class="slide-nav-arrow arrow-down"
-				class:inactive={!isMouseActive && !isMobile}
+				class:inactive={!state.isMouseActive && !state.isMobile}
 				in:fade={{ duration: 200, delay: 200 }}
 				out:fade={{ duration: 200 }}
-				onclick={() => goToSlide(currentIndex + 1)}
+				onclick={() => state.goToSlide(state.currentIndex + 1)}
 				aria-label="Next slide"
 			>
 				{@html iconArrowDown}
 			</button>
-		{:else if currentIndex === totalSlides - 1}
+		{:else if state.currentIndex === state.totalSlides - 1}
 			<button
 				class="slide-nav-arrow arrow-next-tab"
-				class:inactive={!isMouseActive && !isMobile}
+				class:inactive={!state.isMouseActive && !state.isMobile}
 				in:fade={{ duration: 200, delay: 200 }}
 				out:fade={{ duration: 200 }}
-				onclick={() => nextTab()}
+				onclick={() => state.nextTab()}
 				aria-label="Next tab"
 			>
 				{@html iconArrowRight}
 			</button>
 		{/if}
 
-		<!-- Трек для слайдів -->
-		{#key currentTab}
+		<!-- Slides track -->
+		{#key state.currentTab}
 			<div
 				class="slides-track"
-				style="transform: translateY(calc(-75dvh * {currentIndex}));"
-				in:fly={{ x: slideDirection * 100, duration: 400, delay: 400, easing: cubicOut }}
-				out:fly={{ x: slideDirection * -100, duration: 400, easing: backIn }}
+				style="transform: translateY(calc(-75dvh * {state.currentIndex}));"
+				in:fly={{ x: state.slideDirection * 100, duration: 400, delay: 400, easing: cubicOut }}
+				out:fly={{ x: state.slideDirection * -100, duration: 400, easing: backIn }}
 			>
-				{#if currentTab === 'anchor'}
-					<!-- Слайд 1: Герой -->
+				{#if state.currentTab === 'anchor'}
+					<!-- Slide 1: Hero -->
 					<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-					<div class="slide-wrapper" class:active={currentIndex === 0} onclick={() => goToSlide(0)}>
+					<div class="slide-wrapper" class:active={state.currentIndex === 0} onclick={() => state.goToSlide(0)}>
 						<div class="info-slide glass-panel info-block slide-hero">
 							<div class="photo-wrapper">
 								<img src="{base}/images/profile.jpg" alt="Alik" class="profile-photo" />
@@ -1056,34 +240,30 @@
 										e.stopPropagation();
 										const tabId = target.dataset.tab;
 										if (tabId) {
-											setTab(tabId);
+											state.setTab(tabId);
 										}
 									}
 								}}
 								onmouseover={(e) => {
 									const target = e.target as HTMLElement;
 									if (target.tagName === 'BUTTON' && target.classList.contains('inline-badge')) {
-										hoveredTab = target.dataset.tab || null;
+										state.hoveredTab = target.dataset.tab || null;
 									}
 								}}
 								onmouseout={(e) => {
 									const target = e.target as HTMLElement;
 									if (target.tagName === 'BUTTON' && target.classList.contains('inline-badge')) {
-										hoveredTab = null;
+										state.hoveredTab = null;
 									}
 								}}
 							>
 								<p>
-									{@html formattedGreeting}<br /><br />
+									{@html state.formattedGreeting}<br /><br />
 									<span class="desktop-text">{t.hero.description_sea_desktop}</span>
 									<span class="mobile-text">{t.hero.description_sea_mobile}</span>
 								</p>
 								<ContactDropdown customStyle="margin-top: 2rem;">
-									<a
-										href={config.telegramUrl}
-										target="_blank"
-										class="btn-primary project-btn glass"
-									>
+									<a href={config.telegramUrl} target="_blank" class="btn-primary project-btn glass">
 										{t.footer.ask}
 									</a>
 								</ContactDropdown>
@@ -1091,21 +271,17 @@
 						</div>
 					</div>
 				{:else}
-					{@const tabData = t.tabs[currentTab as keyof typeof t.tabs]}
+					{@const tabData = t.tabs[state.currentTab as keyof typeof t.tabs]}
 
-					<!-- Вступний слайд вкладки -->
+					<!-- Tab intro slide -->
 					<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-					<div class="slide-wrapper" class:active={currentIndex === 0} onclick={() => goToSlide(0)}>
+					<div class="slide-wrapper" class:active={state.currentIndex === 0} onclick={() => state.goToSlide(0)}>
 						<div class="info-slide glass-panel info-block slide-hero">
 							<div class="hero-text">
 								<h2 class="tab-title">{tabData.title}</h2>
 								<p class="tab-intro">{@html tabData.intro.replace(/\n/g, '<br />')}</p>
 								<ContactDropdown customStyle="margin-top: 2rem;">
-									<a
-										href={config.telegramUrl}
-										target="_blank"
-										class="btn-primary project-btn glass"
-									>
+									<a href={config.telegramUrl} target="_blank" class="btn-primary project-btn glass">
 										{tabData.cta}
 									</a>
 								</ContactDropdown>
@@ -1113,34 +289,30 @@
 						</div>
 					</div>
 
-					<!-- Слайди з деталями (FAQ / Переваги) -->
-					{#each activeChunks as chunk, i}
+					<!-- Details slides (FAQ / Benefits) -->
+					{#each state.activeChunks as chunk, i}
 						<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-						<div
-							class="slide-wrapper"
-							class:active={currentIndex === i + 1}
-							onclick={() => goToSlide(i + 1)}
-						>
+						<div class="slide-wrapper" class:active={state.currentIndex === i + 1} onclick={() => state.goToSlide(i + 1)}>
 							<div class="chunk-content">
 								{#each chunk as item}
 									<div class="info-slide glass-panel info-block content-item">
 										<h3 class="item-title">{item.h || item.q}</h3>
-										<div class="item-desc">{@html parseMarkdown(item.p || item.a)}</div>
+										<div class="item-desc">{@html state.parseMarkdown(item.p || item.a)}</div>
 									</div>
 								{/each}
 							</div>
 						</div>
 					{/each}
 
-					<!-- Слайди з проєктами (якщо є для цієї вкладки) -->
-					{#each activeProjects as p, i}
+					<!-- Project slides -->
+					{#each state.activeProjects as p, i}
 						{@const data = t.portfolio.projects[p.id as keyof typeof t.portfolio.projects]}
 						{@const Icon = p.icon}
 						<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 						<div
 							class="slide-wrapper"
-							class:active={currentIndex === activeChunks.length + 1 + i}
-							onclick={() => goToSlide(activeChunks.length + 1 + i)}
+							class:active={state.currentIndex === state.activeChunks.length + 1 + i}
+							onclick={() => state.goToSlide(state.activeChunks.length + 1 + i)}
 						>
 							<div class="info-slide glass-panel info-block slide-project">
 								<div class="project-img">
@@ -1168,23 +340,20 @@
 	</div>
 
 	<div class="nav-controls-container">
-		<div class="sidebar-icons" style="--total-tabs: {tabIcons.length};">
-			{#each tabIcons as tab, index}
+		<div class="sidebar-icons" style="--total-tabs: {state.tabsList.length};">
+			{#each state.tabIcons as tab, index}
 				<div class="sidebar-item">
-					{#if currentTab === tab.id && totalSlides > 1}
+					{#if state.currentTab === tab.id && state.totalSlides > 1}
 						<div
 							class="slide-dots"
 							transition:fade={{ duration: 200 }}
-							style="--dot-size: {Math.max(3, 8 - totalSlides * 0.4)}px; --dot-gap: {Math.max(
-								4,
-								10 - totalSlides * 0.5
-							)}px;"
+							style="--dot-size: {Math.max(3, 8 - state.totalSlides * 0.4)}px; --dot-gap: {Math.max(4, 10 - state.totalSlides * 0.5)}px;"
 						>
-							{#each Array(totalSlides) as _, i}
+							{#each Array(state.totalSlides) as _, i}
 								<button
 									class="slide-dot"
-									class:active={currentIndex === i}
-									onclick={() => goToSlide(i)}
+									class:active={state.currentIndex === i}
+									onclick={() => state.goToSlide(i)}
 									aria-label="Go to slide {i + 1}"
 								></button>
 							{/each}
@@ -1192,14 +361,12 @@
 					{/if}
 					<button
 						class="glass-icon tab-btn"
-						class:active={currentTab === tab.id}
+						class:active={state.currentTab === tab.id}
 						style="--mask-url: url({squircleUrl}); --animation-order: {index};"
 						aria-label={tab.id}
-						onmouseenter={() => (hoveredTab = tab.id)}
-						onmouseleave={() => (hoveredTab = null)}
-						onclick={() => {
-							setTab(tab.id);
-						}}
+						onmouseenter={() => (state.hoveredTab = tab.id)}
+						onmouseleave={() => (state.hoveredTab = null)}
+						onclick={() => state.setTab(tab.id)}
 					>
 						{@html tab.icon}
 					</button>
@@ -1207,14 +374,14 @@
 			{/each}
 		</div>
 
-		<!-- Нижні праві кнопки (Контакти) -->
+		<!-- Bottom right buttons -->
 		<div class="bottom-right-controls">
 			<ContactDropdown isIconMode={true}>
 				<a
 					href={config.telegramUrl}
 					target="_blank"
 					class="glass-icon"
-					class:bg-blue={currentIndex > 0}
+					class:bg-blue={state.currentIndex > 0}
 					style="--mask-url: url({squircleUrl});"
 					aria-label="Contact via Telegram"
 				>
@@ -1249,67 +416,12 @@
 	}
 
 	.sea-container.clock-active .info-layout,
-	.sea-container.clock-active .left-carousel-wrapper,
-	.sea-container.clock-active .carousel-tooltip,
-	.sea-container.clock-active .bottom-bar,
+	.sea-container.clock-active :global(.left-carousel-wrapper),
+	.sea-container.clock-active :global(.carousel-tooltip),
 	.sea-container.clock-active .slide-nav-arrow {
 		opacity: 0 !important;
 		pointer-events: none !important;
 		transition: opacity 0.3s ease;
-	}
-
-	.clock-overlay {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		z-index: 10001;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		pointer-events: none;
-	}
-
-	.clock-display {
-		display: flex;
-		align-items: baseline;
-		gap: 0.25rem;
-		color: rgba(255, 255, 255, 0.85);
-		text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
-		font-family: 'Inter', system-ui, sans-serif;
-		font-weight: 200;
-		letter-spacing: 0.05em;
-	}
-
-	.clock-digit {
-		font-size: clamp(4rem, 12vw, 10rem);
-		min-width: 2ch;
-		text-align: center;
-	}
-
-	.clock-separator {
-		font-size: clamp(3rem, 10vw, 8rem);
-		opacity: 0.5;
-		animation: clock-blink 1s step-end infinite;
-	}
-
-	.clock-separator-sec {
-		font-size: clamp(2rem, 6vw, 5rem);
-	}
-
-	.clock-seconds {
-		font-size: clamp(2.5rem, 7vw, 5.5rem);
-		opacity: 0.6;
-	}
-
-	@keyframes clock-blink {
-		0%, 49% { opacity: 0.5; }
-		50%, 100% { opacity: 0.15; }
-	}
-
-	.icon-btn.active {
-		color: var(--accent-primary, #0284c7);
 	}
 
 	.background-video {
@@ -1782,106 +894,8 @@
 		box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
 	}
 
-	.top-controls {
-		position: absolute;
-		top: 2rem;
-		right: 2rem;
-		z-index: 10002;
-		display: flex;
-		gap: 0.75rem; /* Зменшено відстань між іконками */
-		pointer-events: auto; /* Дозволяємо ховер на весь контейнер */
-		opacity: 0.5;
-		transition: opacity 0.3s ease;
-	}
-
-	.top-controls:hover {
-		opacity: 1;
-	}
-
-	.top-controls.inactive,
 	.slide-nav-arrow.inactive {
 		opacity: 0.1;
-	}
-
-	.audio-control-wrapper {
-		display: flex;
-		align-items: center;
-		position: relative;
-		pointer-events: auto; /* Вмикаємо кліки для всього контейнера аудіо */
-	}
-
-	.volume-slider-container {
-		position: absolute;
-		top: 100%;
-		left: 50%;
-		transform: translateX(-50%);
-		width: 90px;
-		opacity: 0;
-		visibility: hidden;
-		transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding-top: 15px; /* Відступ від кнопки до повзунка */
-	}
-
-	.audio-control-wrapper:hover .volume-slider-container,
-	.volume-slider-container:focus-within {
-		opacity: 1;
-		visibility: visible;
-	}
-
-	.volume-slider {
-		-webkit-appearance: none;
-		appearance: none;
-		width: 100%;
-		height: 4px;
-		background: rgba(255, 255, 255, 0.3);
-		border-radius: 2px;
-		outline: none;
-		cursor: pointer;
-	}
-
-	.volume-slider::-webkit-slider-thumb {
-		-webkit-appearance: none;
-		appearance: none;
-		width: 14px;
-		height: 14px;
-		border-radius: 50%;
-		background: white;
-		cursor: pointer;
-		box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-		transition: transform 0.2s;
-	}
-
-	.volume-slider::-webkit-slider-thumb:hover {
-		transform: scale(1.2);
-	}
-
-	.icon-btn {
-		pointer-events: auto; /* Вмикаємо кліки тільки для самих кнопок */
-		background: transparent;
-		border: none;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		cursor: pointer;
-		padding: 7px; /* Було 8px */
-	}
-
-	.icon-btn :global(svg) {
-		width: 1.3rem; /* Було 1.5rem */
-		height: 1.3rem; /* Було 1.5rem */
-		stroke: rgba(255, 255, 255, 0.85);
-		stroke-width: 1.5;
-		filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-		transition: all 0.3s ease;
-	}
-
-	.icon-btn:hover :global(svg) {
-		stroke: white;
-		filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
-		transform: scale(1.15);
 	}
 
 	.glass-icon {
@@ -2152,148 +1166,6 @@
 		display: contents;
 	}
 
-	/* --- LEFT CAROUSEL STYLES --- */
-	.left-carousel-wrapper {
-		position: absolute;
-		left: 1rem;
-		top: 0;
-		height: 100dvh;
-		width: calc(250px + 2rem);
-		padding: 0 1rem;
-		overflow: hidden;
-		z-index: 1000;
-	}
-
-	.left-carousel-track {
-		display: flex;
-		flex-direction: column;
-		gap: 1.5rem;
-		animation: scroll-vertical 120s linear infinite;
-	}
-
-	.left-carousel-track.paused {
-		animation-play-state: paused;
-	}
-
-	.carousel-half {
-		display: flex;
-		flex-direction: column;
-		gap: 1.5rem;
-	}
-
-	@keyframes scroll-vertical {
-		0% {
-			transform: translateY(0);
-		}
-		100% {
-			transform: translateY(calc(-50% - 0.75rem));
-		}
-	}
-
-	.carousel-item {
-		position: relative;
-		width: 100%;
-		aspect-ratio: 16 / 9;
-		border-radius: 12px;
-		cursor: pointer;
-		transition:
-			transform 0.3s ease,
-			filter 0.3s ease,
-			opacity 0.3s ease;
-		pointer-events: auto;
-	}
-
-	.left-carousel-track.has-hovered-item .carousel-item:not(.hovered-state) {
-		filter: blur(4px);
-		opacity: 0.5;
-	}
-
-	.carousel-item:hover,
-	.carousel-item.active,
-	.carousel-item.hovered-state {
-		transform: scale(1.05);
-	}
-
-	.carousel-img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		border-radius: 12px;
-		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-		transition: border 0.3s ease;
-		border: 3px solid transparent;
-	}
-
-	.carousel-item.hovered-state .carousel-img {
-		border-color: rgba(255, 255, 255, 0.8);
-	}
-
-	.carousel-tooltip {
-		position: absolute;
-		left: calc(1rem + 250px + 2rem + 1.5rem);
-		transform: translateY(-50%);
-		width: 400px;
-		z-index: 1005;
-		pointer-events: auto;
-
-		/* Glass panel styles */
-		backdrop-filter: blur(20px);
-		-webkit-backdrop-filter: blur(20px);
-		background: rgba(0, 0, 0, 0.25);
-		box-shadow:
-			0 20px 50px rgba(0, 0, 0, 0.5),
-			inset 0 0 20px rgba(255, 255, 255, 0.1);
-		border-radius: 20px;
-
-		/* Reset padding since inner elements provide it */
-		padding: 0;
-		overflow: hidden;
-	}
-
-	.carousel-clicked-slide {
-		position: absolute;
-		left: calc(2rem + 250px + 2rem);
-		top: 50%;
-		transform: translateY(-50%);
-		width: 450px;
-		max-height: 85dvh;
-		overflow-y: auto;
-		z-index: 1010;
-		padding: 2rem;
-	}
-
-	.carousel-backdrop {
-		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		background: rgba(0, 0, 0, 0.4);
-		backdrop-filter: blur(2px);
-		z-index: 1009;
-	}
-
-	.close-slide-btn {
-		position: absolute;
-		top: 1rem;
-		right: 1rem;
-		background: rgba(255, 255, 255, 0.1);
-		border: 1px solid rgba(255, 255, 255, 0.2);
-		color: white;
-		width: 32px;
-		height: 32px;
-		border-radius: 50%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		cursor: pointer;
-		z-index: 10;
-		transition: background 0.2s ease;
-	}
-	.close-slide-btn:hover {
-		background: rgba(255, 255, 255, 0.3);
-	}
-
 	@media (max-width: 768px) {
 		.desktop-text {
 			display: none;
@@ -2433,17 +1305,6 @@
 		}
 		.slide-nav-arrow.arrow-next-tab:hover {
 			transform: translateX(2px) scale(1.1);
-		}
-
-		.icon-btn {
-			opacity: 1; /* На мобільному верхні кнопки завжди повністю видимі */
-		}
-		.icon-btn :global(svg) {
-			stroke: white !important;
-		}
-
-		.top-controls {
-			opacity: 1;
 		}
 
 		/* Зменшуємо заголовок щоб влазив на мобільному */
