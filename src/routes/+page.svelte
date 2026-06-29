@@ -1519,6 +1519,22 @@
 		object-position: center 22%; /* Зсуваємо зображення трохи вниз, щоб взяти вищу частину кадру */
 	}
 
+	.project-img img.img-teatralo4ka {
+		object-position: center 30%; /* Зсуваємо зображення трохи вниз, щоб взяти вищу частину кадру */
+	}
+
+	.project-img img.img-and_dvergr {
+		object-position: center 10%; /* Зсуваємо зображення трохи вниз, щоб взяти вищу частину кадру */
+	}
+
+	.project-img img.img-as5 {
+		object-position: center 40%; /* Зсуваємо зображення трохи вниз, щоб взяти вищу частину кадру */
+	}
+
+	.project-img img.img-slovko {
+		object-position: center 45%; /* Зсуваємо зображення трохи вниз, щоб взяти вищу частину кадру */
+	}
+
 	.tech-badge {
 		position: absolute;
 		top: 13px; /* Було 15px */
