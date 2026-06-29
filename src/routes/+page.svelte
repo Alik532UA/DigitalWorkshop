@@ -226,7 +226,19 @@
 	let clickedCarouselProject = $state<string | null>(null);
 	let isCarouselPaused = $state(false);
 	let tooltipY = $state(0);
-
+	let tooltipHeight = $state(0);
+	let windowHeight = $state(0);
+	
+	let clampedTooltipY = $derived.by(() => {
+		if (tooltipHeight === 0 || windowHeight === 0) return tooltipY;
+		
+		const minTarget = tooltipHeight / 2 + 20;
+		const maxTarget = windowHeight - (tooltipHeight / 2) - 20;
+		
+		if (tooltipY < minTarget) return minTarget;
+		if (tooltipY > maxTarget) return maxTarget;
+		return tooltipY;
+	});
 	let carouselHoverTimeout: ReturnType<typeof setTimeout>;
 
 	function handleCarouselWrapperLeave() {
@@ -603,6 +615,7 @@
 </svelte:head>
 
 <svelte:window
+	bind:innerHeight={windowHeight}
 	onblur={() => {
 		if (isAudioPlaying) {
 			previousVolume = audioVolume;
@@ -699,7 +712,8 @@
 			{@const Icon = p.icon}
 			<div 
 				class="carousel-tooltip slide-project" 
-				style="top: {tooltipY}px;"
+				style="top: {clampedTooltipY}px;"
+				bind:clientHeight={tooltipHeight}
 				transition:fade={{duration: 150}}
 				onmouseenter={handleTooltipEnter}
 				onmouseleave={handleTooltipLeave}
@@ -1872,15 +1886,12 @@
 	.left-carousel-wrapper {
 		position: absolute;
 		left: 1rem;
-		top: 50%;
-		transform: translateY(-50%);
-		height: 80dvh;
+		top: 0;
+		height: 100dvh;
 		width: calc(250px + 2rem);
 		padding: 0 1rem;
 		overflow: hidden;
 		z-index: 1000;
-		mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
-		-webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
 	}
 
 	.left-carousel-track {
