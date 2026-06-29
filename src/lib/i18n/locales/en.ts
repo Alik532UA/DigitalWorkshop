@@ -21,8 +21,8 @@ export const en: Translations = {
     hero: {
         greeting: "My name is Alik\nand I create modern [[website]], [[apps]], and even [[games]]!\n\nAnd for creative schools and charities, I have a [[promo]]!",
         description: "Select which product interests you to learn more and see my existing work",
-        description_sea_desktop: "Select a product on the right to learn more, or look below for my existing work",
-        description_sea_mobile: "Select a product below to learn more, or look below for my existing work",
+        description_sea_desktop: "Select a product on the right to learn more, or look to the left for examples of my work",
+        description_sea_mobile: "Select a product below to learn more, or scroll to see more",
         buttons: {
             website: "websites",
             apps: "apps",
