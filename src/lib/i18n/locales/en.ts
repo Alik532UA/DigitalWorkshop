@@ -231,7 +231,7 @@ export const en: Translations = {
             intellias_desc: "Developed enterprise-level web applications using modern JS frameworks.",
             absoft_desc: "Focused on frontend development and UI components library.",
             singree_desc: "Learned basics of web development and CMS integration.",
-            unicorn_role: "Managed content strategy and hosted video programs for YouTube.",
+            unicorn_desc: "Managed content strategy and hosted video programs for YouTube.",
             nutduet_desc: "Professional event management and entertainment.",
             channel7_desc: "Created and hosted weekly TV shows about technology and city life.",
             krug_desc: "Reported on local news and social issues.",
