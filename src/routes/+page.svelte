@@ -582,14 +582,22 @@
 		}
 	}}
 	onfullscreenchange={() => (isFullscreen = !!document.fullscreenElement)}
-	onkeydown={handleKeyDown}
+	onkeydown={(e) => {
+		handleMouseMove();
+		handleKeyDown(e);
+	}}
 	onmousemove={handleMouseMove}
+	onmousedown={handleMouseMove}
+	onclick={handleMouseMove}
 	ontouchstart={(e) => {
 		handleMouseMove();
 		handleTouchStart(e);
 	}}
 	ontouchend={handleTouchEnd}
-	onwheel={handleWheel}
+	onwheel={(e) => {
+		handleMouseMove();
+		handleWheel(e);
+	}}
 	onmouseleave={() => (isMouseActive = false)}
 />
 
@@ -612,45 +620,44 @@
 	></audio>
 
 	<!-- Кнопки керування (мова, звук, повноекранний режим) -->
-	{#if isMouseActive || isMobile}
-		<div class="top-controls" transition:fade={{ duration: 300 }}>
-			<button class="icon-btn" onclick={toggleLanguage} aria-label="Toggle Language">
-				{@html iconLanguage}
+	<div class="top-controls" class:inactive={!isMouseActive && !isMobile}>
+		<button class="icon-btn" onclick={toggleLanguage} aria-label="Toggle Language">
+			{@html iconLanguage}
+		</button>
+		<div class="audio-control-wrapper">
+			<button class="icon-btn" onclick={toggleAudio} aria-label="Toggle Audio">
+				{@html isAudioPlaying ? iconMusicOn : iconMusicOff}
 			</button>
-			<div class="audio-control-wrapper">
-				<button class="icon-btn" onclick={toggleAudio} aria-label="Toggle Audio">
-					{@html isAudioPlaying ? iconMusicOn : iconMusicOff}
-				</button>
-				<div class="volume-slider-container">
-					<input
-						type="range"
-						min="0"
-						max="1"
-						step="0.01"
-						bind:value={audioVolume}
-						oninput={() => {
-							if (audioVolume > 0 && !isAudioPlaying && audioRef) {
-								audioRef.play().catch((err) => console.error('Audio playback failed:', err));
-							}
-						}}
-						class="volume-slider"
-						aria-label="Volume"
-					/>
-				</div>
+			<div class="volume-slider-container">
+				<input
+					type="range"
+					min="0"
+					max="1"
+					step="0.01"
+					bind:value={audioVolume}
+					oninput={() => {
+						if (audioVolume > 0 && !isAudioPlaying && audioRef) {
+							audioRef.play().catch((err) => console.error('Audio playback failed:', err));
+						}
+					}}
+					class="volume-slider"
+					aria-label="Volume"
+				/>
 			</div>
-			{#if !isIOS}
-				<button class="icon-btn" onclick={toggleFullscreen} aria-label="Toggle Fullscreen">
-					{@html isFullscreen ? iconMinimize : iconMaximize}
-				</button>
-			{/if}
 		</div>
-	{/if}
+		{#if !isIOS}
+			<button class="icon-btn" onclick={toggleFullscreen} aria-label="Toggle Fullscreen">
+				{@html isFullscreen ? iconMinimize : iconMaximize}
+			</button>
+		{/if}
+	</div>
 
 	<div class="info-layout" role="presentation">
 		<!-- Навігаційні стрілки (Вертикальні) -->
-		{#if currentIndex > 0 && (isMouseActive || isMobile)}
+		{#if currentIndex > 0}
 			<button
 				class="slide-nav-arrow arrow-up"
+				class:inactive={!isMouseActive && !isMobile}
 				transition:fade={{ duration: 200 }}
 				onclick={() => goToSlide(currentIndex - 1)}
 				aria-label="Previous slide"
@@ -659,9 +666,10 @@
 			</button>
 		{/if}
 
-		{#if currentIndex < totalSlides - 1 && (isMouseActive || isMobile)}
+		{#if currentIndex < totalSlides - 1}
 			<button
 				class="slide-nav-arrow arrow-down"
+				class:inactive={!isMouseActive && !isMobile}
 				in:fade={{ duration: 200, delay: 200 }}
 				out:fade={{ duration: 200 }}
 				onclick={() => goToSlide(currentIndex + 1)}
@@ -669,9 +677,10 @@
 			>
 				{@html iconArrowDown}
 			</button>
-		{:else if currentIndex === totalSlides - 1 && (isMouseActive || isMobile)}
+		{:else if currentIndex === totalSlides - 1}
 			<button
 				class="slide-nav-arrow arrow-next-tab"
+				class:inactive={!isMouseActive && !isMobile}
 				in:fade={{ duration: 200, delay: 200 }}
 				out:fade={{ duration: 200 }}
 				onclick={() => nextTab()}
@@ -1365,6 +1374,11 @@
 
 	.top-controls:hover {
 		opacity: 1;
+	}
+	
+	.top-controls.inactive,
+	.slide-nav-arrow.inactive {
+		opacity: 0.1;
 	}
 
 	.audio-control-wrapper {
