@@ -37,6 +37,7 @@
 	import iconMusicOn from '$lib/assets/tabler/music.svg?raw';
 	import iconMusicOff from '$lib/assets/tabler/music-off.svg?raw';
 	import iconLanguage from '$lib/assets/tabler/language.svg?raw';
+	import iconClock from '$lib/assets/tabler/clock.svg?raw';
 	import iconMessage from '$lib/assets/tabler/message.svg?raw';
 	import iconArrowUp from '$lib/assets/tabler/arrow-big-up.svg?raw';
 	import iconArrowDown from '$lib/assets/tabler/arrow-big-down.svg?raw';
@@ -295,6 +296,10 @@
 	let manualCarouselOffset = spring(0, { stiffness: 0.1, damping: 0.8 });
 	let carouselHalfHeight = $state(0);
 
+	// Режим годинника
+	let isClockMode = $state(false);
+	let clockTime = $state({ h: '', m: '', s: '' });
+
 	let clampedTooltipY = $derived.by(() => {
 		if (tooltipHeight === 0 || windowHeight === 0) return tooltipY;
 
@@ -394,6 +399,22 @@
 		return () => {
 			if (mouseTimeout) clearTimeout(mouseTimeout);
 		};
+	});
+
+	// Оновлення годинника
+	$effect(() => {
+		if (!isClockMode) return;
+		function tick() {
+			const now = new Date();
+			clockTime = {
+				h: String(now.getHours()).padStart(2, '0'),
+				m: String(now.getMinutes()).padStart(2, '0'),
+				s: String(now.getSeconds()).padStart(2, '0')
+			};
+		}
+		tick();
+		const interval = setInterval(tick, 1000);
+		return () => clearInterval(interval);
 	});
 
 	let isInitializingUrl = true;
@@ -679,6 +700,11 @@
 			return;
 		}
 
+		if (e.code === 'KeyC') {
+			isClockMode = !isClockMode;
+			return;
+		}
+
 		if (e.code === 'KeyT') {
 			toggleLanguage();
 			return;
@@ -811,6 +837,7 @@
 
 <div
 	class="sea-container"
+	class:clock-active={isClockMode}
 	data-hovered-tab={hoveredTab || ''}
 	class:lang-changing={langState.isChanging}
 >
@@ -918,8 +945,11 @@
 		onpause={() => (isAudioPlaying = false)}
 	></audio>
 
-	<!-- Кнопки керування (мова, звук, повноекранний режим) -->
+	<!-- Кнопки керування (годинник, мова, звук, повноекранний режим) -->
 	<div class="top-controls" class:inactive={!isMouseActive && !isMobile}>
+		<button class="icon-btn" class:active={isClockMode} onclick={() => { isClockMode = !isClockMode; }} aria-label="Toggle Clock">
+			{@html iconClock}
+		</button>
 		<button class="icon-btn" onclick={toggleLanguage} aria-label="Toggle Language">
 			{@html iconLanguage}
 		</button>
@@ -950,6 +980,18 @@
 			</button>
 		{/if}
 	</div>
+
+	{#if isClockMode}
+		<div class="clock-overlay" transition:fade={{ duration: 300 }}>
+			<div class="clock-display">
+				<span class="clock-digit">{clockTime.h}</span>
+				<span class="clock-separator">:</span>
+				<span class="clock-digit">{clockTime.m}</span>
+				<span class="clock-separator clock-separator-sec">:</span>
+				<span class="clock-digit clock-seconds">{clockTime.s}</span>
+			</div>
+		</div>
+	{/if}
 
 	<div class="info-layout" role="presentation">
 		<!-- Навігаційні стрілки (Вертикальні) -->
@@ -1204,6 +1246,70 @@
 
 		/* Перевизначаємо акцентний колір суто для сторінки моря (океанський синій) */
 		--accent-primary: #0284c7;
+	}
+
+	.sea-container.clock-active .info-layout,
+	.sea-container.clock-active .left-carousel-wrapper,
+	.sea-container.clock-active .carousel-tooltip,
+	.sea-container.clock-active .bottom-bar,
+	.sea-container.clock-active .slide-nav-arrow {
+		opacity: 0 !important;
+		pointer-events: none !important;
+		transition: opacity 0.3s ease;
+	}
+
+	.clock-overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 10001;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		pointer-events: none;
+	}
+
+	.clock-display {
+		display: flex;
+		align-items: baseline;
+		gap: 0.25rem;
+		color: rgba(255, 255, 255, 0.85);
+		text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+		font-family: 'Inter', system-ui, sans-serif;
+		font-weight: 200;
+		letter-spacing: 0.05em;
+	}
+
+	.clock-digit {
+		font-size: clamp(4rem, 12vw, 10rem);
+		min-width: 2ch;
+		text-align: center;
+	}
+
+	.clock-separator {
+		font-size: clamp(3rem, 10vw, 8rem);
+		opacity: 0.5;
+		animation: clock-blink 1s step-end infinite;
+	}
+
+	.clock-separator-sec {
+		font-size: clamp(2rem, 6vw, 5rem);
+	}
+
+	.clock-seconds {
+		font-size: clamp(2.5rem, 7vw, 5.5rem);
+		opacity: 0.6;
+	}
+
+	@keyframes clock-blink {
+		0%, 49% { opacity: 0.5; }
+		50%, 100% { opacity: 0.15; }
+	}
+
+	.icon-btn.active {
+		color: var(--accent-primary, #0284c7);
 	}
 
 	.background-video {
