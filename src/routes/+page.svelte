@@ -80,23 +80,19 @@
 	}
 
 	const projects = [
-		{ id: 'slovko', img: 'slovko.jpg', icon: Globe, link: 'https://alik532ua.github.io/Slovko/' },
-		{
-			id: 'mindstep',
-			img: 'mindstep.jpg',
-			icon: Gamepad2,
-			link: 'https://alik532ua.github.io/MindStep/'
-		},
-		{
-			id: 'cv3d',
-			img: 'cv_3d.jpg',
-			icon: Box,
-			link: 'https://alik532ua.itch.io/alik-cv-interactive-3d-experience'
-		},
-		{ id: 'cv_web', img: 'cv_web.jpg', icon: FileUser, link: 'https://alik532ua.github.io/CV/' }
+		{ id: 'slovko', img: 'slovko.jpg', icon: Globe, link: 'https://alik532ua.github.io/Slovko/', tab: 'apps' },
+		{ id: 'mindstep', img: 'mindstep.jpg', icon: Gamepad2, link: 'https://alik532ua.github.io/MindStep/', tab: 'games' },
+		{ id: 'cv3d', img: 'cv_3d.jpg', icon: Box, link: 'https://alik532ua.itch.io/alik-cv-interactive-3d-experience', tab: 'games' },
+		{ id: 'cv_web', img: 'cv_web.jpg', icon: FileUser, link: 'https://alik532ua.github.io/CV/', tab: 'website' },
+		{ id: 'and_dvergr', img: 'AndDvergrShallSpeakAI.jpg', icon: Gamepad2, link: 'https://www.youtube.com/@AndDvergrShallSpeakAI', tab: 'games' },
+		{ id: 'teatralo4ka', img: 'teatralo4ka.jpg', icon: Globe, link: 'https://teatralo4ka.odesa.ua/', tab: 'promo' },
+		{ id: 'as5', img: 'as5_odesa_ua.jpg', icon: Globe, link: 'https://as5.odesa.ua/', tab: 'promo' },
+		{ id: 'vetcrew', img: 'VetCrewGames.jpg', icon: Gamepad2, link: 'https://alik532ua.github.io/VetCrewGames', tab: 'games' }
 	];
 
 	let isFullscreen = $state(false);
+
+	let activeProjects = $derived(currentTab === 'anchor' ? [] : projects.filter(p => p.tab === currentTab));
 
 	function toggleFullscreen() {
 		if (!document.fullscreenElement) {
@@ -226,6 +222,43 @@
 	let previousVolume = 0;
 	let isIOS = $state(false);
 
+	let hoveredCarouselProject = $state<string | null>(null);
+	let clickedCarouselProject = $state<string | null>(null);
+	let isCarouselPaused = $state(false);
+	let tooltipY = $state(0);
+
+	let carouselHoverTimeout: ReturnType<typeof setTimeout>;
+
+	function handleCarouselWrapperLeave() {
+		carouselHoverTimeout = setTimeout(() => {
+			isCarouselPaused = false;
+			hoveredCarouselProject = null;
+		}, 100);
+	}
+
+	function handleCarouselWrapperEnter() {
+		clearTimeout(carouselHoverTimeout);
+		isCarouselPaused = true;
+	}
+
+	function handleTooltipEnter() {
+		clearTimeout(carouselHoverTimeout);
+		isCarouselPaused = true;
+	}
+
+	function handleTooltipLeave() {
+		handleCarouselWrapperLeave();
+	}
+
+	function handleCarouselItemEnter(e: MouseEvent, projectId: string) {
+		clearTimeout(carouselHoverTimeout);
+		isCarouselPaused = true;
+		hoveredCarouselProject = projectId;
+		const target = e.currentTarget as HTMLElement;
+		const rect = target.getBoundingClientRect();
+		tooltipY = rect.top + rect.height / 2;
+	}
+
 	function handleMouseMove() {
 		isMouseActive = true;
 		if (mouseTimeout) clearTimeout(mouseTimeout);
@@ -322,9 +355,9 @@
 
 	let totalSlides = $derived.by(() => {
 		if (currentTab === 'anchor') {
-			return projects.length + 1;
+			return 1;
 		} else {
-			return activeChunks.length + 1; // 1 for intro slide
+			return activeChunks.length + activeProjects.length + 1; // 1 for intro slide
 		}
 	});
 
@@ -610,6 +643,111 @@
 		<source src="{base}/sea_4_av1.webm" type="video/webm" />
 	</video>
 
+	<!-- Vertical Carousel (Left Side) -->
+	{#if !isMobile}
+		<!-- Backdrop for closing -->
+		{#if clickedCarouselProject}
+			<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+			<div class="carousel-backdrop" onclick={() => clickedCarouselProject = null} transition:fade={{duration: 200}}></div>
+		{/if}
+
+		<div class="left-carousel-wrapper" 
+			onmouseenter={handleCarouselWrapperEnter}
+			onmouseleave={handleCarouselWrapperLeave}
+			role="presentation"
+		>
+			<div class="left-carousel-track" class:paused={isCarouselPaused || clickedCarouselProject} class:has-hovered-item={!!hoveredCarouselProject}>
+				<!-- Group 1 -->
+				<div class="carousel-half">
+					{#each [1, 2, 3, 4] as _}
+						{#each projects as p}
+							<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+							<div class="carousel-item" 
+								onmouseenter={(e) => handleCarouselItemEnter(e, p.id)}
+								onclick={() => clickedCarouselProject = p.id}
+								class:active={clickedCarouselProject === p.id}
+								class:hovered-state={hoveredCarouselProject === p.id}
+							>
+								<img src="{base}/images/{p.img}" alt={p.id} class="carousel-img" />
+							</div>
+						{/each}
+					{/each}
+				</div>
+				<!-- Group 2 -->
+				<div class="carousel-half">
+					{#each [1, 2, 3, 4] as _}
+						{#each projects as p}
+							<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+							<div class="carousel-item" 
+								onmouseenter={(e) => handleCarouselItemEnter(e, p.id)}
+								onclick={() => clickedCarouselProject = p.id}
+								class:active={clickedCarouselProject === p.id}
+								class:hovered-state={hoveredCarouselProject === p.id}
+							>
+								<img src="{base}/images/{p.img}" alt={p.id} class="carousel-img" />
+							</div>
+						{/each}
+					{/each}
+				</div>
+			</div>
+		</div>
+
+		<!-- Hover Tooltip -->
+		{#if hoveredCarouselProject && !clickedCarouselProject}
+			{@const p = projects.find(proj => proj.id === hoveredCarouselProject)!}
+			{@const data = t.portfolio.projects[hoveredCarouselProject as keyof typeof t.portfolio.projects]}
+			{@const Icon = p.icon}
+			<div 
+				class="carousel-tooltip slide-project" 
+				style="top: {tooltipY}px;"
+				transition:fade={{duration: 150}}
+				onmouseenter={handleTooltipEnter}
+				onmouseleave={handleTooltipLeave}
+				role="presentation"
+			>
+				<div class="project-content">
+					<div class="title-row">
+						<Icon size={32} class="accent-icon" />
+						<h3>{data.title}</h3>
+						<span class="tech-badge" style="position: relative; top: auto; right: auto; margin-left: auto;">{data.tech}</span>
+					</div>
+					<p class="project-desc">{data.description}</p>
+					<p class="project-feature"><strong>Фішка:</strong> {data.feature}</p>
+					<a href={p.link} target="_blank" class="btn-primary project-btn">
+						{data.linkText}
+						<ExternalLink size={20} />
+					</a>
+				</div>
+			</div>
+		{/if}
+
+		<!-- Clicked Project Slide -->
+		{#if clickedCarouselProject}
+			{@const p = projects.find(proj => proj.id === clickedCarouselProject)!}
+			{@const data = t.portfolio.projects[clickedCarouselProject as keyof typeof t.portfolio.projects]}
+			{@const Icon = p.icon}
+			<div class="carousel-clicked-slide glass-panel info-block" transition:fly={{x: -50, duration: 300, easing: quintOut}}>
+				<button class="close-slide-btn" onclick={() => clickedCarouselProject = null}>✕</button>
+				<div class="project-img">
+					<img src="{base}/images/{p.img}" alt={data.title} />
+					<span class="tech-badge">{data.tech}</span>
+				</div>
+				<div class="project-content">
+					<div class="title-row">
+						<Icon size={32} class="accent-icon" />
+						<h3>{data.title}</h3>
+					</div>
+					<p class="project-desc">{data.description}</p>
+					<p class="project-feature"><strong>Фішка:</strong> {data.feature}</p>
+					<a href={p.link} target="_blank" class="btn-primary project-btn">
+						{data.linkText}
+						<ExternalLink size={20} />
+					</a>
+				</div>
+			</div>
+		{/if}
+	{/if}
+
 	<audio
 		bind:this={audioRef}
 		src="{base}/sea.ogg"
@@ -749,37 +887,6 @@
 							</div>
 						</div>
 					</div>
-
-					<!-- Слайди з проєктами -->
-					{#each projects as p, i}
-						{@const data = t.portfolio.projects[p.id as keyof typeof t.portfolio.projects]}
-						{@const Icon = p.icon}
-						<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-						<div
-							class="slide-wrapper"
-							class:active={currentIndex === i + 1}
-							onclick={() => goToSlide(i + 1)}
-						>
-							<div class="info-slide glass-panel info-block slide-project">
-								<div class="project-img">
-									<img src="{base}/images/{p.img}" alt={data.title} class="img-{p.id}" />
-									<span class="tech-badge">{data.tech}</span>
-								</div>
-								<div class="project-content">
-									<div class="title-row">
-										<Icon size={32} class="accent-icon" />
-										<h3>{data.title}</h3>
-									</div>
-									<p class="project-desc">{data.description}</p>
-									<p class="project-feature"><strong>Фішка:</strong> {data.feature}</p>
-									<a href={p.link} target="_blank" class="btn-primary project-btn">
-										{data.linkText}
-										<ExternalLink size={20} />
-									</a>
-								</div>
-							</div>
-						</div>
-					{/each}
 				{:else}
 					{@const tabData = t.tabs[currentTab as keyof typeof t.tabs]}
 
@@ -818,6 +925,37 @@
 										<div class="item-desc">{@html parseMarkdown(item.p || item.a)}</div>
 									</div>
 								{/each}
+							</div>
+						</div>
+					{/each}
+
+					<!-- Слайди з проєктами (якщо є для цієї вкладки) -->
+					{#each activeProjects as p, i}
+						{@const data = t.portfolio.projects[p.id as keyof typeof t.portfolio.projects]}
+						{@const Icon = p.icon}
+						<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+						<div
+							class="slide-wrapper"
+							class:active={currentIndex === activeChunks.length + 1 + i}
+							onclick={() => goToSlide(activeChunks.length + 1 + i)}
+						>
+							<div class="info-slide glass-panel info-block slide-project">
+								<div class="project-img">
+									<img src="{base}/images/{p.img}" alt={data.title} class="img-{p.id}" />
+									<span class="tech-badge">{data.tech}</span>
+								</div>
+								<div class="project-content">
+									<div class="title-row">
+										<Icon size={32} class="accent-icon" />
+										<h3>{data.title}</h3>
+									</div>
+									<p class="project-desc">{data.description}</p>
+									<p class="project-feature"><strong>Фішка:</strong> {data.feature}</p>
+									<a href={p.link} target="_blank" class="btn-primary project-btn">
+										{data.linkText}
+										<ExternalLink size={20} />
+									</a>
+								</div>
 							</div>
 						</div>
 					{/each}
@@ -1375,7 +1513,7 @@
 	.top-controls:hover {
 		opacity: 1;
 	}
-	
+
 	.top-controls.inactive,
 	.slide-nav-arrow.inactive {
 		opacity: 0.1;
@@ -1728,6 +1866,144 @@
 
 	.nav-controls-container {
 		display: contents;
+	}
+
+	/* --- LEFT CAROUSEL STYLES --- */
+	.left-carousel-wrapper {
+		position: absolute;
+		left: 1rem;
+		top: 50%;
+		transform: translateY(-50%);
+		height: 80dvh;
+		width: calc(250px + 2rem);
+		padding: 0 1rem;
+		overflow: hidden;
+		z-index: 1000;
+		mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+		-webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+	}
+
+	.left-carousel-track {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+		animation: scroll-vertical 120s linear infinite;
+	}
+
+	.left-carousel-track.paused {
+		animation-play-state: paused;
+	}
+
+	.carousel-half {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+
+	@keyframes scroll-vertical {
+		0% {
+			transform: translateY(0);
+		}
+		100% {
+			transform: translateY(calc(-50% - 0.75rem));
+		}
+	}
+
+	.carousel-item {
+		position: relative;
+		width: 100%;
+		aspect-ratio: 16 / 9;
+		border-radius: 12px;
+		cursor: pointer;
+		transition: transform 0.3s ease, filter 0.3s ease, opacity 0.3s ease;
+		pointer-events: auto;
+	}
+
+	.left-carousel-track.has-hovered-item .carousel-item:not(.hovered-state) {
+		filter: blur(4px);
+		opacity: 0.5;
+	}
+
+	.carousel-item:hover, .carousel-item.active, .carousel-item.hovered-state {
+		transform: scale(1.05);
+	}
+
+	.carousel-img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		border-radius: 12px;
+		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+		transition: border 0.3s ease;
+		border: 3px solid transparent;
+	}
+	
+	.carousel-item.active .carousel-img, .carousel-item.hovered-state .carousel-img {
+		border-color: rgba(255, 255, 255, 0.8);
+	}
+
+	.carousel-tooltip {
+		position: absolute;
+		left: calc(1rem + 250px + 2rem + 1.5rem);
+		transform: translateY(-50%);
+		width: 400px;
+		z-index: 1005;
+		pointer-events: auto;
+		
+		/* Glass panel styles */
+		backdrop-filter: blur(20px);
+		-webkit-backdrop-filter: blur(20px);
+		background: rgba(0, 0, 0, 0.25);
+		box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.1);
+		border-radius: 20px;
+		
+		/* Reset padding since inner elements provide it */
+		padding: 0;
+		overflow: hidden;
+	}
+
+	.carousel-clicked-slide {
+		position: absolute;
+		left: calc(2rem + 250px + 2rem);
+		top: 50%;
+		transform: translateY(-50%);
+		width: 450px;
+		max-height: 85dvh;
+		overflow-y: auto;
+		z-index: 1010;
+		padding: 2rem;
+	}
+	
+	.carousel-backdrop {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(0,0,0,0.4);
+		backdrop-filter: blur(2px);
+		z-index: 1009;
+	}
+
+	.close-slide-btn {
+		position: absolute;
+		top: 1rem;
+		right: 1rem;
+		background: rgba(255, 255, 255, 0.1);
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		color: white;
+		width: 32px;
+		height: 32px;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		z-index: 10;
+		transition: background 0.2s ease;
+	}
+	.close-slide-btn:hover {
+		background: rgba(255, 255, 255, 0.3);
 	}
 
 	@media (max-width: 768px) {

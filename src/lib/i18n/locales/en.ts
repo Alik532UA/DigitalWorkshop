@@ -61,6 +61,34 @@ export const en: Translations = {
                 tech: "SvelteKit",
                 feature: "Clean code, responsiveness, and high loading speed.",
                 linkText: "View CV"
+            },
+            and_dvergr: {
+                title: "And Dvergr Shall Speak AI",
+                tech: "C#",
+                description: "A mod for the game Valheim that allows certain NPCs to speak using AI. Now Dvergrs, merchants, and ravens can keep you company and lift your spirits with live, dynamic conversations!",
+                feature: "NPCs use artificial intelligence to generate real-time dialogues.",
+                linkText: "Watch on YouTube"
+            },
+            teatralo4ka: {
+                title: "Odesa Theatrical School Website",
+                tech: "Svelte",
+                description: "My gift to my favorite school! This is the best creative school in the world! The site was not only made for free, but it also allowed the school to ditch paid hosting, saving them 83 euros annually.",
+                feature: "Completely free hosting thanks to an optimized Svelte architecture.",
+                linkText: "Visit Website"
+            },
+            as5: {
+                title: "Odesa Art School No. 5",
+                tech: "Svelte",
+                description: "A wonderful school! We have many joint projects outside the site. By the way, this is my first client under the special offer for creative and charitable organizations.",
+                feature: "A modern, fast website tailored to the needs of an art school.",
+                linkText: "Visit Website"
+            },
+            vetcrew: {
+                title: "VetCrew Games",
+                tech: "Svelte",
+                description: "A series of educational games about animals. A non-profit passion project aimed at bringing attention to those who cannot protect themselves. Inspired by the incredible VetCrew!",
+                feature: "Interactive learning through play with a focus on animal welfare.",
+                linkText: "Play the Game"
             }
         }
     },
