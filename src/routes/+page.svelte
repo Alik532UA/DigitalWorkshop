@@ -954,7 +954,7 @@
 		<div class="sidebar-icons" style="--total-tabs: {tabIcons.length};">
 			{#each tabIcons as tab, index}
 				<div class="sidebar-item">
-					{#if currentTab === tab.id}
+					{#if currentTab === tab.id && totalSlides > 1}
 						<div
 							class="slide-dots"
 							transition:fade={{ duration: 200 }}
