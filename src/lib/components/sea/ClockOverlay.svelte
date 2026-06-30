@@ -7,6 +7,19 @@
 	}
 
 	let { time }: Props = $props();
+
+	function digitRoll(node: HTMLElement, { delay = 0, duration = 600, easing = cubicOut, y = 40 }) {
+		return {
+			delay,
+			duration,
+			easing,
+			css: (t: number, u: number) => `
+				transform: translateY(${u * y}px) scale(${0.85 + 0.15 * t});
+				opacity: ${t};
+				filter: blur(${u * 10}px);
+			`
+		};
+	}
 </script>
 
 <div
@@ -17,19 +30,19 @@
 	<div class="clock-display">
 		<span class="clock-digit">
 			{#key time.h}
-				<span class="digit-cell" in:fade={{ duration: 300 }} out:fade={{ duration: 300 }}>{time.h}</span>
+				<span class="digit-cell" in:digitRoll={{ y: 40, duration: 500 }} out:digitRoll={{ y: -40, duration: 500 }}>{time.h}</span>
 			{/key}
 		</span>
 		<span class="clock-separator">:</span>
 		<span class="clock-digit">
 			{#key time.m}
-				<span class="digit-cell" in:fade={{ duration: 300 }} out:fade={{ duration: 300 }}>{time.m}</span>
+				<span class="digit-cell" in:digitRoll={{ y: 40, duration: 500 }} out:digitRoll={{ y: -40, duration: 500 }}>{time.m}</span>
 			{/key}
 		</span>
 		<span class="clock-separator clock-separator-sec">:</span>
 		<span class="clock-digit clock-seconds">
 			{#key time.s}
-				<span class="digit-cell" in:fade={{ duration: 300 }} out:fade={{ duration: 300 }}>{time.s}</span>
+				<span class="digit-cell" in:digitRoll={{ y: 30, duration: 500 }} out:digitRoll={{ y: -30, duration: 500 }}>{time.s}</span>
 			{/key}
 		</span>
 	</div>
