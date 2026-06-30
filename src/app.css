@@ -242,12 +242,15 @@ body::-webkit-scrollbar {
     background: color-mix(in srgb, var(--accent-primary) 45%, transparent) !important;
     border: none !important;
     box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22) !important;
-    backdrop-filter: blur(12px) saturate(1.25) !important;
-    -webkit-backdrop-filter: blur(12px) saturate(1.25) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
     /* Прибираємо загальну .glass blur-in анімацію (вона анімує backdrop-filter
        і давала стрибок кольору при завантаженні). */
     animation: none !important;
-    transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease !important;
+    /* backdrop-filter наростає із затримкою (поки триває повернення кнопки з режиму
+       соцмереж), щоб blur не "стрибав" наприкінці руху — як поступовий blur на слайдах. */
+    transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease,
+                backdrop-filter 0.6s ease 0.3s, -webkit-backdrop-filter 0.6s ease 0.3s !important;
 }
 
 /* Прибираємо градієнтний псевдоелемент від .btn-primary.glass — тон уже у background. */
@@ -260,6 +263,26 @@ body::-webkit-scrollbar {
     transform: scale(1.02) !important;
     background: color-mix(in srgb, var(--accent-primary) 58%, transparent) !important;
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* --- Плавна поява blur при поверненні кнопки/іконки з режиму соцмереж (ContactDropdown) ---
+   Поки дропдаун відкритий (.hovered), кнопка/іконка прихована (opacity:0 на .trigger-wrapper)
+   і blur = 0. При поверненні backdrop-filter тримається на 0 поки триває opacity-перехід
+   (0.3s), а потім плавно наростає. Це усуває "стрибок" blur — відоме обмеження браузера:
+   backdrop-filter не рендериться під час руху/зміни opacity, тож раніше він різко вмикався
+   аж наприкінці. Той самий принцип, що й поступовий blur на слайдах. */
+.contact-dropdown-wrapper.hovered .project-btn.glass,
+.contact-dropdown-wrapper.hovered .glass-icon {
+    backdrop-filter: blur(0px) !important;
+    -webkit-backdrop-filter: blur(0px) !important;
+    transition: none !important;
+}
+
+/* .glass-icon має власний transition: all 0.3s — зберігаємо його для інших властивостей,
+   але backdrop-filter отримує затримку + плавний підйом при поверненні. */
+.contact-dropdown-wrapper:not(.hovered) .glass-icon {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+                backdrop-filter 0.6s ease 0.3s, -webkit-backdrop-filter 0.6s ease 0.3s !important;
 }
 
 .btn-secondary {
