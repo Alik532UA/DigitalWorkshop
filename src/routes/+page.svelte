@@ -191,7 +191,7 @@
 	/>
 
 	{#if clockState.isActive}
-		<ClockOverlay time={clockState.time} />
+		<ClockOverlay {clockState} />
 	{/if}
 
 	<div class="info-layout" role="presentation">

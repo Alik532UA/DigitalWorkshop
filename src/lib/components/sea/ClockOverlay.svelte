@@ -3,11 +3,49 @@
 	import { cubicOut } from 'svelte/easing';
 	import squircleUrl from '$lib/assets/squircle.svg';
 
+	import type { ClockState } from '$lib/controllers/ClockState.svelte';
+
 	interface Props {
-		time: { h: string; m: string; s: string };
+		clockState: ClockState;
 	}
 
-	let { time }: Props = $props();
+	let { clockState }: Props = $props();
+	let time = $derived(clockState.time);
+
+	let isDragging = $state(false);
+	let startX = 0;
+	let startY = 0;
+	let initialOffsetX = 0;
+	let initialOffsetY = 0;
+
+	function onPointerDown(e: PointerEvent) {
+		e.stopPropagation();
+		isDragging = true;
+		startX = e.clientX;
+		startY = e.clientY;
+		initialOffsetX = clockState.offsetX;
+		initialOffsetY = clockState.offsetY;
+		const target = e.currentTarget as HTMLElement;
+		target.setPointerCapture(e.pointerId);
+	}
+
+	function onPointerMove(e: PointerEvent) {
+		e.stopPropagation();
+		if (!isDragging) return;
+		clockState.offsetX = initialOffsetX + (e.clientX - startX);
+		clockState.offsetY = initialOffsetY + (e.clientY - startY);
+	}
+
+	function onPointerUp(e: PointerEvent) {
+		e.stopPropagation();
+		isDragging = false;
+		const target = e.currentTarget as HTMLElement;
+		target.releasePointerCapture(e.pointerId);
+	}
+
+	function stopProp(e: Event) {
+		e.stopPropagation();
+	}
 
 	function digitRoll(node: HTMLElement, { delay = 0, duration = 600, easing = cubicOut, y = 40 }) {
 		return {
@@ -29,7 +67,20 @@
 	out:fly={{ y: -50, duration: 300, easing: cubicOut }}
 	style="--mask-url: url({squircleUrl});"
 >
-	<div class="clock-display">
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div 
+		class="clock-display draggable"
+		class:dragging={isDragging}
+		style="transform: translate({clockState.offsetX}px, {clockState.offsetY}px)"
+		onpointerdown={onPointerDown}
+		onpointermove={onPointerMove}
+		onpointerup={onPointerUp}
+		onpointercancel={onPointerUp}
+		onmousedown={stopProp}
+		ontouchstart={stopProp}
+		ontouchmove={stopProp}
+		onwheel={stopProp}
+	>
 		<span class="clock-group">
 			{#each time.h.split('') as char, i (i)}
 				<span class="clock-digit">
@@ -80,6 +131,18 @@
 		align-items: center;
 		justify-content: center;
 		pointer-events: none;
+	}
+
+	.clock-display.draggable {
+		pointer-events: auto;
+		cursor: grab;
+		user-select: none;
+		-webkit-user-select: none;
+		touch-action: none;
+	}
+
+	.clock-display.draggable.dragging {
+		cursor: grabbing;
 	}
 
 	.clock-display {
