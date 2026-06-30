@@ -184,7 +184,7 @@
 		isFullscreen={state.isFullscreen}
 		isIOS={state.isIOS}
 		onToggleClock={() => clockState.toggle()}
-		onToggleLanguage={toggleLanguage}
+		onToggleLanguage={clockState.isActive ? () => clockState.toggleFormat() : toggleLanguage}
 		onToggleAudio={() => audioState.toggle()}
 		onToggleFullscreen={() => state.toggleFullscreen()}
 		onVolumeInput={() => audioState.onSliderInput()}

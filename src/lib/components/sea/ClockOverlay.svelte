@@ -58,37 +58,83 @@
 			: (parseInt(time.h) % 12) * 30 + parseInt(time.m) * 0.5
 	);
 
+	let pointers = new Map<number, { x: number; y: number }>();
+	let initialPinchDistance = 0;
+	let initialScale = 1;
+
 	function onPointerDown(e: PointerEvent) {
 		e.stopPropagation();
-		isDragging = true;
-		pointerMoved = false;
-		pointerDownTime = Date.now();
-		startX = e.clientX;
-		startY = e.clientY;
-		initialOffsetX = clockState.offsetX;
-		initialOffsetY = clockState.offsetY;
-		const target = e.currentTarget as HTMLElement;
-		target.setPointerCapture(e.pointerId);
+		pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+		if (pointers.size === 1) {
+			isDragging = true;
+			pointerMoved = false;
+			pointerDownTime = Date.now();
+			startX = e.clientX;
+			startY = e.clientY;
+			initialOffsetX = clockState.offsetX;
+			initialOffsetY = clockState.offsetY;
+			const target = e.currentTarget as HTMLElement;
+			target.setPointerCapture(e.pointerId);
+		} else if (pointers.size === 2) {
+			isDragging = false; // Disable dragging while pinching
+			const pts = Array.from(pointers.values());
+			initialPinchDistance = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+			initialScale = clockState.scale;
+		}
 	}
 
 	function onPointerMove(e: PointerEvent) {
 		e.stopPropagation();
-		if (!isDragging) return;
-		if (Math.abs(e.clientX - startX) > 5 || Math.abs(e.clientY - startY) > 5) {
-			pointerMoved = true;
+		if (!pointers.has(e.pointerId)) return;
+		pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+		if (pointers.size === 1 && isDragging) {
+			if (Math.abs(e.clientX - startX) > 5 || Math.abs(e.clientY - startY) > 5) {
+				pointerMoved = true;
+			}
+			clockState.offsetX = initialOffsetX + (e.clientX - startX);
+			clockState.offsetY = initialOffsetY + (e.clientY - startY);
+		} else if (pointers.size === 2) {
+			const pts = Array.from(pointers.values());
+			const currentDistance = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+			if (initialPinchDistance > 0) {
+				const ratio = currentDistance / initialPinchDistance;
+				clockState.scale = Math.max(0.3, Math.min(3, initialScale * ratio));
+			}
 		}
-		clockState.offsetX = initialOffsetX + (e.clientX - startX);
-		clockState.offsetY = initialOffsetY + (e.clientY - startY);
 	}
 
 	function onPointerUp(e: PointerEvent) {
 		e.stopPropagation();
-		isDragging = false;
-		const target = e.currentTarget as HTMLElement;
-		target.releasePointerCapture(e.pointerId);
+		pointers.delete(e.pointerId);
 
-		if (!pointerMoved && Date.now() - pointerDownTime < 500) {
-			clockState.clockMode = (clockState.clockMode + 1) % 3;
+		if (pointers.size === 0) {
+			isDragging = false;
+			const target = e.currentTarget as HTMLElement;
+			target.releasePointerCapture(e.pointerId);
+
+			if (!pointerMoved && Date.now() - pointerDownTime < 500) {
+				clockState.clockMode = (clockState.clockMode + 1) % 3;
+			}
+		} else if (pointers.size === 1) {
+			const pt = Array.from(pointers.values())[0];
+			isDragging = true;
+			startX = pt.x;
+			startY = pt.y;
+			initialOffsetX = clockState.offsetX;
+			initialOffsetY = clockState.offsetY;
+		}
+	}
+
+	function onWheel(e: WheelEvent) {
+		e.preventDefault();
+		e.stopPropagation();
+		const zoomFactor = 0.05;
+		if (e.deltaY < 0) {
+			clockState.scale = Math.min(3, clockState.scale + zoomFactor);
+		} else {
+			clockState.scale = Math.max(0.3, clockState.scale - zoomFactor);
 		}
 	}
 
@@ -126,7 +172,7 @@
 	<div
 		class="clock-draggable-wrapper draggable"
 		class:dragging={isDragging}
-		style="transform: translate({clockState.offsetX}px, {clockState.offsetY}px)"
+		style="transform: translate({clockState.offsetX}px, {clockState.offsetY}px) scale({clockState.scale})"
 		onpointerdown={onPointerDown}
 		onpointermove={onPointerMove}
 		onpointerup={onPointerUp}
@@ -134,7 +180,7 @@
 		onmousedown={stopProp}
 		ontouchstart={stopProp}
 		ontouchmove={stopProp}
-		onwheel={stopProp}
+		onwheel={onWheel}
 	>
 		{#if clockState.clockMode === 0}
 			<div
@@ -189,6 +235,9 @@
 						</span>
 					{/each}
 				</span>
+				{#if time.ampm}
+					<span class="clock-ampm" in:fade out:fade>{time.ampm}</span>
+				{/if}
 			</div>
 		{:else}
 			<div
@@ -319,6 +368,15 @@
 	.clock-seconds {
 		font-size: clamp(2.5rem, 7vw, 5.5rem);
 		opacity: 0.6;
+	}
+
+	.clock-ampm {
+		font-size: clamp(1.5rem, 4vw, 3rem);
+		opacity: 0.6;
+		margin-left: 0.5rem;
+		align-self: flex-end;
+		margin-bottom: clamp(0.5rem, 2vw, 1.2rem);
+		font-weight: 300;
 	}
 
 	/* Analog Clock Styles */

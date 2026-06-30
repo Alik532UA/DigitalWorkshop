@@ -37,7 +37,7 @@
 	}: Props = $props();
 </script>
 
-<div class="top-controls" class:inactive={!isMouseActive && !isMobile}>
+<div class="top-controls" class:inactive={!isMouseActive && !isMobile} class:clock-active={isClockActive}>
 	<button class="icon-btn" class:active={isClockActive} onclick={onToggleClock} aria-label="Toggle Clock">
 		{@html iconClock}
 	</button>
@@ -189,6 +189,10 @@
 		.top-controls,
 		.top-controls.inactive {
 			opacity: 1;
+		}
+
+		.top-controls.clock-active {
+			opacity: 0.5;
 		}
 
 		.icon-btn {
