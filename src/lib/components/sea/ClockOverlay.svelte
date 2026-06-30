@@ -68,7 +68,7 @@
 	style="--mask-url: url({squircleUrl});"
 >
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div 
+	<div
 		class="clock-display draggable"
 		class:dragging={isDragging}
 		style="transform: translate({clockState.offsetX}px, {clockState.offsetY}px)"
@@ -85,7 +85,11 @@
 			{#each time.h.split('') as char, i (i)}
 				<span class="clock-digit">
 					{#key char}
-						<span class="digit-cell" in:digitRoll={{ y: 40, duration: 500 }} out:digitRoll={{ y: -40, duration: 500 }}>{char}</span>
+						<span
+							class="digit-cell"
+							in:digitRoll={{ y: 40, duration: 500 }}
+							out:digitRoll={{ y: -40, duration: 500 }}>{char}</span
+						>
 					{/key}
 				</span>
 			{/each}
@@ -98,7 +102,11 @@
 			{#each time.m.split('') as char, i (i)}
 				<span class="clock-digit">
 					{#key char}
-						<span class="digit-cell" in:digitRoll={{ y: 40, duration: 500 }} out:digitRoll={{ y: -40, duration: 500 }}>{char}</span>
+						<span
+							class="digit-cell"
+							in:digitRoll={{ y: 40, duration: 500 }}
+							out:digitRoll={{ y: -40, duration: 500 }}>{char}</span
+						>
 					{/key}
 				</span>
 			{/each}
@@ -111,7 +119,11 @@
 			{#each time.s.split('') as char, i (i)}
 				<span class="clock-digit clock-seconds">
 					{#key char}
-						<span class="digit-cell" in:digitRoll={{ y: 30, duration: 500 }} out:digitRoll={{ y: -30, duration: 500 }}>{char}</span>
+						<span
+							class="digit-cell"
+							in:digitRoll={{ y: 30, duration: 500 }}
+							out:digitRoll={{ y: -30, duration: 500 }}>{char}</span
+						>
 					{/key}
 				</span>
 			{/each}
@@ -185,7 +197,7 @@
 		align-items: center;
 		justify-content: center;
 		/* Shift up to align perfectly with the optical center of the digits */
-		transform: translateY(-20%);
+		transform: translateY(-77%);
 	}
 
 	.squircle-dot {
@@ -204,7 +216,7 @@
 
 	.clock-separator-sec.squircle-dots {
 		gap: clamp(0.7rem, 1.8vw, 1.4rem);
-		transform: translateY(-30%);
+		transform: translateY(-65%);
 	}
 
 	.clock-separator-sec .squircle-dot {
