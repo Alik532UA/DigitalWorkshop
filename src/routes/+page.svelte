@@ -28,6 +28,11 @@
 	const audioState = new AudioState();
 	const clockState = new ClockState();
 
+	// Resolve the language state once, during init. `t.current` calls getContext(),
+	// which Svelte forbids outside component initialisation (e.g. inside event handlers).
+	const langState = t.current;
+	const toggleLanguage = () => langState.set(langState.current === 'uk' ? 'en' : 'uk');
+
 	let audioRef: HTMLAudioElement;
 
 	// URL sync effect
@@ -97,7 +102,7 @@
 		state.handleKeyDown(e, {
 			toggleAudio: () => audioState.toggle(),
 			toggleClock: () => clockState.toggle(),
-			toggleLanguage: () => t.current.set(t.current.current === 'uk' ? 'en' : 'uk'),
+			toggleLanguage,
 			openTelegram: () => window.open(config.telegramUrl, '_blank')
 		});
 	}}
@@ -125,7 +130,7 @@
 	class="sea-container"
 	class:clock-active={clockState.isActive}
 	data-hovered-tab={state.hoveredTab || ''}
-	class:lang-changing={t.current.isChanging}
+	class:lang-changing={langState.isChanging}
 >
 	<video autoplay loop muted playsinline class="background-video">
 		<source src="{base}/sea_4_av1.webm" type="video/webm" />
@@ -140,6 +145,7 @@
 			bind:carouselHalfHeight={state.carouselHalfHeight}
 			clampedTooltipY={state.clampedTooltipY}
 			bind:tooltipHeight={state.tooltipHeight}
+			carouselAutoScrollDirection={state.carouselAutoScrollDirection}
 			onCarouselWrapperEnter={() => state.handleCarouselWrapperEnter()}
 			onCarouselWrapperLeave={() => state.handleCarouselWrapperLeave()}
 			onCarouselItemEnter={(e, id) => state.handleCarouselItemEnter(e, id)}
@@ -167,7 +173,7 @@
 		isFullscreen={state.isFullscreen}
 		isIOS={state.isIOS}
 		onToggleClock={() => clockState.toggle()}
-		onToggleLanguage={() => t.current.set(t.current.current === 'uk' ? 'en' : 'uk')}
+		onToggleLanguage={toggleLanguage}
 		onToggleAudio={() => audioState.toggle()}
 		onToggleFullscreen={() => state.toggleFullscreen()}
 		onVolumeInput={() => audioState.onSliderInput()}
@@ -415,13 +421,34 @@
 		--accent-primary: #0284c7;
 	}
 
+	/* Clock mode: all UI flies away (direction per breakpoint below), clock flies in from the top */
 	.sea-container.clock-active .info-layout,
+	.sea-container.clock-active .sidebar-icons,
+	.sea-container.clock-active .bottom-right-controls,
+	.sea-container.clock-active .nav-controls-container,
 	.sea-container.clock-active :global(.left-carousel-wrapper),
-	.sea-container.clock-active :global(.carousel-tooltip),
-	.sea-container.clock-active .slide-nav-arrow {
-		opacity: 0 !important;
-		pointer-events: none !important;
-		transition: opacity 0.3s ease;
+	.sea-container.clock-active :global(.carousel-tooltip) {
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	/* Desktop: side panels slide out sideways (right-hand UI right, carousel left) */
+	@media (min-width: 769px) {
+		.sea-container.clock-active .info-layout {
+			transform: translateX(120%);
+		}
+
+		.sea-container.clock-active .sidebar-icons {
+			transform: translate(120%, -50%);
+		}
+
+		.sea-container.clock-active .bottom-right-controls {
+			transform: translateX(120%);
+		}
+
+		.sea-container.clock-active :global(.left-carousel-wrapper) {
+			transform: translateX(-120%);
+		}
 	}
 
 	.background-video {
@@ -447,6 +474,9 @@
 		pointer-events: auto;
 		box-sizing: border-box;
 		touch-action: none; /* Забороняємо нативний скрол пальцем, щоб працювали наші свайпи */
+		transition:
+			transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+			opacity 0.45s ease;
 	}
 
 	.slides-track {
@@ -853,6 +883,9 @@
 		z-index: 10001;
 		/* Дозволяємо клікати по іконках, незважаючи на pointer-events: none у контейнері */
 		pointer-events: auto;
+		transition:
+			transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+			opacity 0.45s ease;
 	}
 
 	.sidebar-item {
@@ -1160,13 +1193,25 @@
 		gap: 1.25rem; /* Було 1.5rem */
 		z-index: 10001;
 		pointer-events: auto;
+		transition:
+			transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+			opacity 0.45s ease;
 	}
 
 	.nav-controls-container {
 		display: contents;
+		transition:
+			transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+			opacity 0.45s ease;
 	}
 
 	@media (max-width: 768px) {
+		/* Clock mode on mobile: panels fly straight down */
+		.sea-container.clock-active .info-layout,
+		.sea-container.clock-active .nav-controls-container {
+			transform: translate(-50%, 120%);
+		}
+
 		.desktop-text {
 			display: none;
 		}

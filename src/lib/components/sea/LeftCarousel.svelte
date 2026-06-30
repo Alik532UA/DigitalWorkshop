@@ -20,6 +20,7 @@
 		carouselHalfHeight: number;
 		clampedTooltipY: number;
 		tooltipHeight: number;
+		carouselAutoScrollDirection: 'up' | 'down';
 		onCarouselWrapperEnter: () => void;
 		onCarouselWrapperLeave: () => void;
 		onCarouselItemEnter: (e: MouseEvent, projectId: string) => void;
@@ -35,12 +36,24 @@
 		carouselHalfHeight = $bindable(),
 		clampedTooltipY,
 		tooltipHeight = $bindable(),
+		carouselAutoScrollDirection,
 		onCarouselWrapperEnter,
 		onCarouselWrapperLeave,
 		onCarouselItemEnter,
 		onTooltipEnter,
 		onTooltipLeave
 	}: Props = $props();
+
+	let trackNode: HTMLElement;
+
+	$effect(() => {
+		if (trackNode) {
+			const anims = trackNode.getAnimations();
+			if (anims.length > 0) {
+				anims[0].playbackRate = carouselAutoScrollDirection === 'down' ? -1 : 1;
+			}
+		}
+	});
 </script>
 
 <!-- Backdrop for closing handled externally if needed -->
@@ -55,6 +68,7 @@
 		style="transform: translateY({manualCarouselOffset}px); width: 100%; height: 100%;"
 	>
 		<div
+			bind:this={trackNode}
 			class="left-carousel-track"
 			class:paused={isCarouselPaused}
 			class:has-hovered-item={!!hoveredCarouselProject}
@@ -138,6 +152,9 @@
 		padding: 0 1rem;
 		overflow: hidden;
 		z-index: 1000;
+		transition:
+			transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+			opacity 0.45s ease;
 	}
 
 	.left-carousel-track {

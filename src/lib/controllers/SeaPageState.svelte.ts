@@ -61,6 +61,7 @@ export class SeaPageState {
 	manualCarouselOffset = new Spring(0, { stiffness: 0.1, damping: 0.8 });
 	carouselHalfHeight = $state(0);
 	carouselHoverTimeout: ReturnType<typeof setTimeout> | undefined;
+	carouselAutoScrollDirection = $state<'up' | 'down'>('up');
 
 	isInitializingUrl = true;
 
@@ -244,6 +245,12 @@ export class SeaPageState {
 				let newOffset = currentOffset - scrollDelta * 2.5;
 				let hardJump = false;
 
+				if (scrollDelta > 0) {
+					this.carouselAutoScrollDirection = 'up';
+				} else if (scrollDelta < 0) {
+					this.carouselAutoScrollDirection = 'down';
+				}
+
 				if (this.carouselHalfHeight > 0) {
 					if (newOffset > 0) {
 						newOffset -= this.carouselHalfHeight;
@@ -341,6 +348,12 @@ export class SeaPageState {
 			const currentVal = this.manualCarouselOffset.current;
 			let newOffset = currentVal - scrollDelta;
 			let hardJump = false;
+
+			if (scrollDelta > 0) {
+				this.carouselAutoScrollDirection = 'up';
+			} else if (scrollDelta < 0) {
+				this.carouselAutoScrollDirection = 'down';
+			}
 
 			if (this.carouselHalfHeight > 0) {
 				if (newOffset > 0) {

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { fade } from 'svelte/transition';
+	import { fade, fly } from 'svelte/transition';
+	import { cubicOut } from 'svelte/easing';
 
 	interface Props {
 		time: { h: string; m: string; s: string };
@@ -8,13 +9,29 @@
 	let { time }: Props = $props();
 </script>
 
-<div class="clock-overlay" transition:fade={{ duration: 300 }}>
+<div
+	class="clock-overlay"
+	in:fly={{ y: -50, duration: 500, delay: 150, easing: cubicOut }}
+	out:fly={{ y: -50, duration: 300, easing: cubicOut }}
+>
 	<div class="clock-display">
-		<span class="clock-digit">{time.h}</span>
+		<span class="clock-digit">
+			{#key time.h}
+				<span class="digit-cell" in:fade={{ duration: 300 }} out:fade={{ duration: 300 }}>{time.h}</span>
+			{/key}
+		</span>
 		<span class="clock-separator">:</span>
-		<span class="clock-digit">{time.m}</span>
+		<span class="clock-digit">
+			{#key time.m}
+				<span class="digit-cell" in:fade={{ duration: 300 }} out:fade={{ duration: 300 }}>{time.m}</span>
+			{/key}
+		</span>
 		<span class="clock-separator clock-separator-sec">:</span>
-		<span class="clock-digit clock-seconds">{time.s}</span>
+		<span class="clock-digit clock-seconds">
+			{#key time.s}
+				<span class="digit-cell" in:fade={{ duration: 300 }} out:fade={{ duration: 300 }}>{time.s}</span>
+			{/key}
+		</span>
 	</div>
 </div>
 
@@ -41,18 +58,25 @@
 		font-family: 'Inter', system-ui, sans-serif;
 		font-weight: 200;
 		letter-spacing: 0.05em;
+		/* Equal-width digits so the layout never shifts when the value changes */
+		font-variant-numeric: tabular-nums;
 	}
 
+	/* inline-grid stacks the outgoing and incoming value in one cell,
+	   so a digit change is a smooth crossfade instead of an instant swap */
 	.clock-digit {
+		display: inline-grid;
+		justify-items: center;
 		font-size: clamp(4rem, 12vw, 10rem);
-		min-width: 2ch;
-		text-align: center;
+	}
+
+	.clock-digit .digit-cell {
+		grid-area: 1 / 1;
 	}
 
 	.clock-separator {
 		font-size: clamp(3rem, 10vw, 8rem);
 		opacity: 0.5;
-		animation: clock-blink 1s step-end infinite;
 	}
 
 	.clock-separator-sec {
@@ -62,16 +86,5 @@
 	.clock-seconds {
 		font-size: clamp(2.5rem, 7vw, 5.5rem);
 		opacity: 0.6;
-	}
-
-	@keyframes clock-blink {
-		0%,
-		49% {
-			opacity: 0.5;
-		}
-		50%,
-		100% {
-			opacity: 0.15;
-		}
 	}
 </style>
