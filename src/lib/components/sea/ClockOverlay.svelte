@@ -2,6 +2,7 @@
 	import { fade, fly } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import squircleUrl from '$lib/assets/squircle.svg';
+	import { onMount } from 'svelte';
 
 	import type { ClockState } from '$lib/controllers/ClockState.svelte';
 
@@ -11,6 +12,13 @@
 
 	let { clockState }: Props = $props();
 	let time = $derived(clockState.time);
+
+	let isOverlayMounting = $state(true);
+	onMount(() => {
+		setTimeout(() => {
+			isOverlayMounting = false;
+		}, 11000); // Safely longer than the 10.65s total animation time
+	});
 
 	let isDragging = $state(false);
 	let startX = 0;
@@ -34,9 +42,21 @@
 		}
 	});
 
-	let sDeg = $derived(clockState.clockMode === 1 ? smoothTime.getSeconds() * 6 + smoothTime.getMilliseconds() * 0.006 : parseInt(time.s) * 6);
-	let mDeg = $derived(clockState.clockMode === 1 ? smoothTime.getMinutes() * 6 + smoothTime.getSeconds() * 0.1 : parseInt(time.m) * 6 + parseInt(time.s) * 0.1);
-	let hDeg = $derived(clockState.clockMode === 1 ? (smoothTime.getHours() % 12) * 30 + smoothTime.getMinutes() * 0.5 : (parseInt(time.h) % 12) * 30 + parseInt(time.m) * 0.5);
+	let sDeg = $derived(
+		clockState.clockMode === 1
+			? smoothTime.getSeconds() * 6 + smoothTime.getMilliseconds() * 0.006
+			: parseInt(time.s) * 6
+	);
+	let mDeg = $derived(
+		clockState.clockMode === 1
+			? smoothTime.getMinutes() * 6 + smoothTime.getSeconds() * 0.1
+			: parseInt(time.m) * 6 + parseInt(time.s) * 0.1
+	);
+	let hDeg = $derived(
+		clockState.clockMode === 1
+			? (smoothTime.getHours() % 12) * 30 + smoothTime.getMinutes() * 0.5
+			: (parseInt(time.h) % 12) * 30 + parseInt(time.m) * 0.5
+	);
 
 	function onPointerDown(e: PointerEvent) {
 		e.stopPropagation();
@@ -97,7 +117,7 @@
 	style="--mask-url: url({squircleUrl});"
 	onclick={(e) => {
 		if (e.target === e.currentTarget) {
-			clockState.isActive = false;
+			clockState.close();
 		}
 	}}
 	aria-hidden="true"
@@ -117,7 +137,11 @@
 		onwheel={stopProp}
 	>
 		{#if clockState.clockMode === 0}
-			<div class="clock-display" in:fly={{ y: -80, duration: 400, easing: cubicOut }} out:fly={{ y: 80, duration: 400, easing: cubicOut }}>
+			<div
+				class="clock-display"
+				in:fly={{ y: -80, duration: 400, easing: cubicOut }}
+				out:fly={{ y: 80, duration: 400, easing: cubicOut }}
+			>
 				<span class="clock-group">
 					{#each time.h.split('') as char, i (i)}
 						<span class="clock-digit">
@@ -167,10 +191,19 @@
 				</span>
 			</div>
 		{:else}
-			<div class="analog-clock" in:fly={{ y: -80, duration: 400, easing: cubicOut }} out:fly={{ y: 80, duration: 400, easing: cubicOut }}>
+			<div
+				class="analog-clock"
+				class:delayed-blur={isOverlayMounting}
+				in:fly={{ y: -80, duration: 400, easing: cubicOut }}
+				out:fly={{ y: 80, duration: 400, easing: cubicOut }}
+			>
 				<div class="marker-container">
 					{#each Array(12) as _, i}
-						<div class="marker" class:bold={i % 3 === 0} style="transform: rotate({i * 30}deg);"></div>
+						<div
+							class="marker"
+							class:bold={i % 3 === 0}
+							style="transform: rotate({i * 30}deg);"
+						></div>
 					{/each}
 				</div>
 				<div class="clock-face">
@@ -297,11 +330,22 @@
 		background: rgba(0, 0, 0, 0.3);
 		backdrop-filter: blur(20px);
 		-webkit-backdrop-filter: blur(20px);
-		box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 30px rgba(255, 255, 255, 0.05);
+
+		/* Default animation when switching clocks (no delay, smooth transition) */
+		animation: clockBlurIn 0.4s ease backwards;
+
+		box-shadow:
+			0 20px 50px rgba(0, 0, 0, 0.5),
+			inset 0 0 30px rgba(255, 255, 255, 0.05);
 		position: relative;
 		display: flex;
 		align-items: center;
 		justify-content: center;
+	}
+
+	.analog-clock.delayed-blur {
+		/* Override animation for initial mount (delayed until overlay fly completes) */
+		animation: clockBlurIn 10s ease 0.65s backwards;
 	}
 
 	.clock-face {
@@ -399,5 +443,16 @@
 		transform: translate(-50%, -50%);
 		box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 		z-index: 10;
+	}
+
+	@keyframes clockBlurIn {
+		0% {
+			backdrop-filter: blur(0px);
+			-webkit-backdrop-filter: blur(0px);
+		}
+		100% {
+			backdrop-filter: blur(20px);
+			-webkit-backdrop-filter: blur(20px);
+		}
 	}
 </style>

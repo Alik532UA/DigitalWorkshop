@@ -140,6 +140,7 @@
 <div
 	class="sea-container"
 	class:clock-active={clockState.isActive}
+	class:clock-closing={clockState.isClosing}
 	data-hovered-tab={state.hoveredTab || ''}
 	class:lang-changing={langState.isChanging}
 >
@@ -443,6 +444,23 @@
 		pointer-events: none;
 	}
 
+	@keyframes blurInClock {
+		0% {
+			backdrop-filter: blur(0px);
+			-webkit-backdrop-filter: blur(0px);
+		}
+		100% {
+			backdrop-filter: blur(20px);
+			-webkit-backdrop-filter: blur(20px);
+		}
+	}
+
+	/* When clock closes, main UI slides back (0.55s). We trigger blurInClock on info-block with exactly 0.55s delay.
+	   We MUST use a different animation name than blurIn, otherwise the browser will not restart the animation! */
+	.sea-container.clock-closing .info-block {
+		animation: blurInClock 1.2s ease 0.55s backwards !important;
+	}
+
 	/* Desktop: side panels slide out sideways (right-hand UI right, carousel left) */
 	@media (min-width: 769px) {
 		.sea-container.clock-active .info-layout {
@@ -630,6 +648,14 @@
 			-webkit-backdrop-filter 0.3s ease,
 			background 0.3s ease,
 			box-shadow 0.3s ease;
+	}
+
+	.sea-container.clock-active .info-block {
+		backdrop-filter: blur(0px);
+		-webkit-backdrop-filter: blur(0px);
+		transition:
+			backdrop-filter 0.1s ease,
+			-webkit-backdrop-filter 0.1s ease;
 	}
 
 	/* Блюр вмісту контейнера під час зміни мови */
