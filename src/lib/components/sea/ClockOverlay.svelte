@@ -193,16 +193,16 @@
 	.squircle-dots {
 		display: flex;
 		flex-direction: column;
-		gap: clamp(1rem, 2.5vw, 2rem);
+		gap: clamp(0.8rem, 2vw, 1.7rem);
 		align-items: center;
 		justify-content: center;
 		/* Shift up to align perfectly with the optical center of the digits */
-		transform: translateY(-77%);
+		transform: translateY(-85%);
 	}
 
 	.squircle-dot {
-		width: clamp(1rem, 2.5vw, 2rem);
-		height: clamp(1rem, 2.5vw, 2rem);
+		width: clamp(0.8rem, 2vw, 1.7rem);
+		height: clamp(0.8rem, 2vw, 1.7rem);
 		background-color: currentColor;
 		mask-image: var(--mask-url);
 		-webkit-mask-image: var(--mask-url);
@@ -215,13 +215,13 @@
 	}
 
 	.clock-separator-sec.squircle-dots {
-		gap: clamp(0.7rem, 1.8vw, 1.4rem);
-		transform: translateY(-65%);
+		gap: clamp(0.5rem, 1.5vw, 1.1rem);
+		transform: translateY(-75%);
 	}
 
 	.clock-separator-sec .squircle-dot {
-		width: clamp(0.7rem, 1.8vw, 1.4rem);
-		height: clamp(0.7rem, 1.8vw, 1.4rem);
+		width: clamp(0.6rem, 1.5vw, 1.1rem);
+		height: clamp(0.6rem, 1.5vw, 1.1rem);
 	}
 
 	.clock-seconds {
