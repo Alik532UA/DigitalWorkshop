@@ -39,6 +39,7 @@
 	$effect(() => {
 		const tab = state.currentTab;
 		const idx = state.currentIndex;
+		const clock = clockState.isActive;
 
 		untrack(() => {
 			if (state.isInitializingUrl) {
@@ -51,6 +52,11 @@
 				url.searchParams.set('slide', idx.toString());
 			} else {
 				url.searchParams.delete('slide');
+			}
+			if (clock) {
+				url.searchParams.set('clock', '1');
+			} else {
+				url.searchParams.delete('clock');
 			}
 			goto(url.toString(), { replaceState: true, keepFocus: true, noScroll: true });
 		});
@@ -74,6 +80,11 @@
 		const initialSlide = parseInt(params.get('slide') || '0', 10);
 		if (!isNaN(initialSlide) && initialSlide > 0) {
 			state.currentIndex = initialSlide;
+		}
+
+		const initialClock = params.get('clock');
+		if (initialClock === '1' || initialClock === 'true') {
+			clockState.isActive = true;
 		}
 
 		const mediaQuery = window.matchMedia('(max-width: 768px)');
