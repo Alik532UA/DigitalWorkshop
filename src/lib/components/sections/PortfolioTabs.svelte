@@ -67,7 +67,7 @@
                     </div>
 
                     <div class="cta-wrapper">
-                        <a href={config.telegramUrl} target="_blank" class="btn-primary" data-testid="portfolio-cta-website">
+                        <a href={config.telegramUrl} target="_blank" class="btn-primary project-btn glass" data-testid="portfolio-cta-website">
                             {t.tabs.website.cta} <ChevronRight size={18} />
                         </a>
                     </div>
@@ -90,7 +90,7 @@
                     </div>
 
                     <div class="cta-wrapper">
-                        <a href={config.telegramUrl} target="_blank" class="btn-primary" data-testid="portfolio-cta-apps">
+                        <a href={config.telegramUrl} target="_blank" class="btn-primary project-btn glass" data-testid="portfolio-cta-apps">
                             {t.tabs.apps.cta} <ChevronRight size={18} />
                         </a>
                     </div>
@@ -113,7 +113,7 @@
                     </div>
 
                     <div class="cta-wrapper">
-                        <a href={config.telegramUrl} target="_blank" class="btn-primary" data-testid="portfolio-cta-games">
+                        <a href={config.telegramUrl} target="_blank" class="btn-primary project-btn glass" data-testid="portfolio-cta-games">
                             {t.tabs.games.cta} <ChevronRight size={18} />
                         </a>
                     </div>
@@ -136,10 +136,10 @@
                     </div>
 
                     <div class="cta-wrapper">
-                                            <a href={config.telegramUrl} target="_blank" class="btn-primary" data-testid="portfolio-cta-promo">
-                                                {t.tabs.promo.cta}
-                                            </a>
-                                        </div>
+                        <a href={config.telegramUrl} target="_blank" class="btn-primary project-btn glass" data-testid="portfolio-cta-promo">
+                            {t.tabs.promo.cta}
+                        </a>
+                    </div>
                 </div>
             {/if}
         </main>

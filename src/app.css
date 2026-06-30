@@ -228,6 +228,55 @@ body::-webkit-scrollbar {
     opacity: 0.9;
 }
 
+/* Glass project / CTA button - Advanced Guaranteed Blur */
+.project-btn.glass {
+    position: relative !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    /* Cancel the generic .glass blur-in animation to fix the color jump */
+    animation: none !important;
+    z-index: 1 !important;
+    transition: transform 0.3s ease !important;
+}
+
+/* Texture layer (drawn first) */
+.project-btn.glass::before {
+    content: '' !important;
+    position: absolute !important;
+    inset: 0 !important;
+    border-radius: inherit !important;
+    background: var(--gradient) !important;
+    opacity: 0.4 !important;
+    z-index: -2 !important;
+    transition: opacity 0.3s ease !important;
+}
+
+/* Glass layer (drawn second, blurs the texture) */
+.project-btn.glass::after {
+    content: '' !important;
+    position: absolute !important;
+    inset: 0 !important;
+    border-radius: inherit !important;
+    background: rgba(2, 132, 199, 0.35) !important;
+    backdrop-filter: blur(12px) brightness(1.1) saturate(1.1) !important;
+    -webkit-backdrop-filter: blur(12px) brightness(1.1) saturate(1.1) !important;
+    z-index: -1 !important;
+    transition: background 0.3s ease !important;
+}
+
+.project-btn.glass:hover {
+    transform: scale(1.02) !important;
+}
+
+.project-btn.glass:hover::before {
+    opacity: 0.6 !important;
+}
+
+.project-btn.glass:hover::after {
+    background: rgba(2, 132, 199, 0.5) !important;
+}
+
 .btn-secondary {
     background: var(--card-bg);
     border: 1px solid var(--border-color);

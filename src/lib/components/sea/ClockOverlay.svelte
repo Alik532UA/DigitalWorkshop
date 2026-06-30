@@ -244,7 +244,7 @@
 		touch-action: none;
 	}
 
-	.clock-display.draggable.dragging {
+	.clock-draggable-wrapper.draggable.dragging {
 		cursor: grabbing;
 	}
 

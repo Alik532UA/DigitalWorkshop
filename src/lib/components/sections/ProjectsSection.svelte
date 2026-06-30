@@ -54,7 +54,7 @@
                     <a
                         href={p.link}
                         target="_blank"
-                        class="btn-primary project-btn"
+                        class="btn-primary project-btn glass"
                     >
                         {data.linkText}
                         <ExternalLink size={16} />

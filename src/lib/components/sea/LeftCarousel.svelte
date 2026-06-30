@@ -134,7 +134,7 @@
 			</div>
 			<p class="project-desc">{data.description}</p>
 			<p class="project-feature"><strong>Фішка:</strong> {data.feature}</p>
-			<a href={p.link} target="_blank" class="btn-primary project-btn">
+			<a href={p.link} target="_blank" class="btn-primary project-btn glass">
 				{data.linkText}
 				<ExternalLink size={20} />
 			</a>

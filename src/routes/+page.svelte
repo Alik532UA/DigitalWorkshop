@@ -343,7 +343,7 @@
 									</div>
 									<p class="project-desc">{data.description}</p>
 									<p class="project-feature"><strong>Фішка:</strong> {data.feature}</p>
-									<a href={p.link} target="_blank" class="btn-primary project-btn">
+									<a href={p.link} target="_blank" class="btn-primary project-btn glass">
 										{data.linkText}
 										<ExternalLink size={20} />
 									</a>
@@ -690,21 +690,6 @@
 	.slide-wrapper:not(.active) .slide-hero :global(.contact-dropdown-wrapper) {
 		opacity: 0;
 		pointer-events: none;
-	}
-
-	.project-btn.glass {
-		background: rgba(2, 132, 199, 0.5) !important;
-		backdrop-filter: blur(12px) !important;
-		-webkit-backdrop-filter: blur(12px) !important;
-		border: 1px solid rgba(255, 255, 255, 0.2) !important;
-	}
-
-	.project-btn.glass::before {
-		display: none !important;
-	}
-
-	.project-btn.glass:hover {
-		background: rgba(2, 132, 199, 0.7) !important;
 	}
 
 	.slide-hero .project-btn:hover {
