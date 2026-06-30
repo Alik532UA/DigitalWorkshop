@@ -441,7 +441,7 @@ export class SeaPageState {
 			return;
 		}
 
-		let digitMatch = e.code.match(/^(?:Digit|Numpad)([1-5])$/);
+		const digitMatch = e.code.match(/^(?:Digit|Numpad)([1-5])$/);
 		if (digitMatch) {
 			const tabIndex = parseInt(digitMatch[1], 10) - 1;
 			if (tabIndex >= 0 && tabIndex < this.tabsList.length) {
@@ -509,14 +509,14 @@ export class SeaPageState {
 	parseMarkdown(text: string) {
 		if (!text) return '';
 
-		let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+		const html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 		const lines = html.split('\n');
 		let inList = false;
 		let result = '';
 
 		for (let i = 0; i < lines.length; i++) {
-			let line = lines[i];
-			let trimmed = line.trim();
+			const line = lines[i];
+			const trimmed = line.trim();
 
 			if (trimmed.startsWith('* ')) {
 				if (!inList) {

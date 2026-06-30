@@ -105,7 +105,7 @@ export class AudioState {
 
 	/** Handle volume change from wheel on audio control */
 	adjustVolumeByWheel(deltaY: number) {
-		let newVol = this.volume - Math.sign(deltaY) * 0.05;
+		const newVol = this.volume - Math.sign(deltaY) * 0.05;
 		this.volume = Math.max(0, Math.min(1, newVol));
 
 		if (this.volume > 0 && !this.isPlaying && this.audioRef) {
