@@ -117,7 +117,7 @@
 		onwheel={stopProp}
 	>
 		{#if clockState.clockMode === 0}
-			<div class="clock-display" in:fade={{duration: 200}} out:fade={{duration: 200}}>
+			<div class="clock-display" in:fly={{ y: -80, duration: 400, easing: cubicOut }} out:fly={{ y: 80, duration: 400, easing: cubicOut }}>
 				<span class="clock-group">
 					{#each time.h.split('') as char, i (i)}
 						<span class="clock-digit">
@@ -167,7 +167,7 @@
 				</span>
 			</div>
 		{:else}
-			<div class="analog-clock" in:fade={{duration: 200}} out:fade={{duration: 200}}>
+			<div class="analog-clock" in:fly={{ y: -80, duration: 400, easing: cubicOut }} out:fly={{ y: 80, duration: 400, easing: cubicOut }}>
 				<div class="marker-container">
 					{#each Array(12) as _, i}
 						<div class="marker" class:bold={i % 3 === 0} style="transform: rotate({i * 30}deg);"></div>
@@ -199,9 +199,8 @@
 	}
 
 	.clock-draggable-wrapper {
-		display: flex;
-		align-items: center;
-		justify-content: center;
+		display: grid;
+		place-items: center;
 	}
 
 	.clock-draggable-wrapper.draggable {
@@ -212,11 +211,12 @@
 		touch-action: none;
 	}
 
-	.clock-draggable-wrapper.draggable.dragging {
+	.clock-display.draggable.dragging {
 		cursor: grabbing;
 	}
 
 	.clock-display {
+		grid-area: 1 / 1;
 		display: flex;
 		align-items: baseline;
 		gap: 0.25rem;
@@ -290,6 +290,7 @@
 
 	/* Analog Clock Styles */
 	.analog-clock {
+		grid-area: 1 / 1;
 		width: clamp(250px, 40vw, 400px);
 		height: clamp(250px, 40vw, 400px);
 		border-radius: 50%;
