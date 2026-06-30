@@ -8,15 +8,25 @@ export class AudioState {
 	private isPlayPending = false;
 	private fadeInterval: ReturnType<typeof setInterval> | undefined;
 
-	bindAudio(ref: HTMLAudioElement, isMobile: boolean) {
+	bindAudio(ref: HTMLAudioElement, isMobileParam: boolean) {
 		if (this.audioRef || !ref) return;
 		this.audioRef = ref;
+		const isMobile = typeof window !== 'undefined' ? window.matchMedia('(max-width: 768px)').matches : isMobileParam;
 		this.initAutoplay(isMobile);
 	}
 
 	private initAutoplay(isMobile: boolean) {
 		if (this.isFadingIn || !this.audioRef) return;
+
+		if (isMobile) {
+			this.volume = 0.1;
+			this.isPlayPending = false;
+			return;
+		}
+
 		this.isFadingIn = true;
+		this.volume = 0;
+		this.isPlayPending = true;
 
 		const startFadeIn = () => {
 			clearInterval(this.fadeInterval);
@@ -58,27 +68,20 @@ export class AudioState {
 			}
 		};
 
-		this.volume = 0;
-		this.isPlayPending = true;
-
-		if (isMobile) {
-			this.isPlayPending = false;
-		} else {
-			this.audioRef
-				.play()
-				.then(() => {
-					startFadeIn();
-					this.isPlayPending = false;
-				})
-				.catch((err) => {
-					console.error('Audio playback failed (Autoplay Policy):', err);
-					this.isPlayPending = false;
-					document.addEventListener('click', startAudio);
-					document.addEventListener('touchstart', startAudio);
-					document.addEventListener('touchend', startAudio);
-					document.addEventListener('keydown', startAudio);
-				});
-		}
+		this.audioRef
+			.play()
+			.then(() => {
+				startFadeIn();
+				this.isPlayPending = false;
+			})
+			.catch((err) => {
+				console.error('Audio playback failed (Autoplay Policy):', err);
+				this.isPlayPending = false;
+				document.addEventListener('click', startAudio);
+				document.addEventListener('touchstart', startAudio);
+				document.addEventListener('touchend', startAudio);
+				document.addEventListener('keydown', startAudio);
+			});
 	}
 
 	toggle() {
