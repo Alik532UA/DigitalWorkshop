@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
+	import squircleUrl from '$lib/assets/squircle.svg';
 
 	interface Props {
 		time: { h: string; m: string; s: string };
@@ -26,24 +27,43 @@
 	class="clock-overlay"
 	in:fly={{ y: -50, duration: 500, delay: 150, easing: cubicOut }}
 	out:fly={{ y: -50, duration: 300, easing: cubicOut }}
+	style="--mask-url: url({squircleUrl});"
 >
 	<div class="clock-display">
-		<span class="clock-digit">
-			{#key time.h}
-				<span class="digit-cell" in:digitRoll={{ y: 40, duration: 500 }} out:digitRoll={{ y: -40, duration: 500 }}>{time.h}</span>
-			{/key}
+		<span class="clock-group">
+			{#each time.h.split('') as char, i (i)}
+				<span class="clock-digit">
+					{#key char}
+						<span class="digit-cell" in:digitRoll={{ y: 40, duration: 500 }} out:digitRoll={{ y: -40, duration: 500 }}>{char}</span>
+					{/key}
+				</span>
+			{/each}
 		</span>
-		<span class="clock-separator">:</span>
-		<span class="clock-digit">
-			{#key time.m}
-				<span class="digit-cell" in:digitRoll={{ y: 40, duration: 500 }} out:digitRoll={{ y: -40, duration: 500 }}>{time.m}</span>
-			{/key}
+		<div class="clock-separator squircle-dots">
+			<span class="squircle-dot"></span>
+			<span class="squircle-dot"></span>
+		</div>
+		<span class="clock-group">
+			{#each time.m.split('') as char, i (i)}
+				<span class="clock-digit">
+					{#key char}
+						<span class="digit-cell" in:digitRoll={{ y: 40, duration: 500 }} out:digitRoll={{ y: -40, duration: 500 }}>{char}</span>
+					{/key}
+				</span>
+			{/each}
 		</span>
-		<span class="clock-separator clock-separator-sec">:</span>
-		<span class="clock-digit clock-seconds">
-			{#key time.s}
-				<span class="digit-cell" in:digitRoll={{ y: 30, duration: 500 }} out:digitRoll={{ y: -30, duration: 500 }}>{time.s}</span>
-			{/key}
+		<div class="clock-separator clock-separator-sec squircle-dots">
+			<span class="squircle-dot"></span>
+			<span class="squircle-dot"></span>
+		</div>
+		<span class="clock-group">
+			{#each time.s.split('') as char, i (i)}
+				<span class="clock-digit clock-seconds">
+					{#key char}
+						<span class="digit-cell" in:digitRoll={{ y: 30, duration: 500 }} out:digitRoll={{ y: -30, duration: 500 }}>{char}</span>
+					{/key}
+				</span>
+			{/each}
 		</span>
 	</div>
 </div>
@@ -75,6 +95,10 @@
 		font-variant-numeric: tabular-nums;
 	}
 
+	.clock-group {
+		display: flex;
+	}
+
 	/* inline-grid stacks the outgoing and incoming value in one cell,
 	   so a digit change is a smooth crossfade instead of an instant swap */
 	.clock-digit {
@@ -88,12 +112,40 @@
 	}
 
 	.clock-separator {
-		font-size: clamp(3rem, 10vw, 8rem);
 		opacity: 0.5;
 	}
 
-	.clock-separator-sec {
-		font-size: clamp(2rem, 6vw, 5rem);
+	.squircle-dots {
+		display: flex;
+		flex-direction: column;
+		gap: clamp(1.5rem, 4vw, 3rem);
+		align-items: center;
+		justify-content: center;
+		height: 100%;
+		padding-bottom: 0.5em; /* Optical alignment with digits */
+	}
+
+	.squircle-dot {
+		width: clamp(1.2rem, 3vw, 2.5rem);
+		height: clamp(1.2rem, 3vw, 2.5rem);
+		background-color: currentColor;
+		mask-image: var(--mask-url);
+		-webkit-mask-image: var(--mask-url);
+		mask-size: contain;
+		-webkit-mask-size: contain;
+		mask-repeat: no-repeat;
+		-webkit-mask-repeat: no-repeat;
+		mask-position: center;
+		-webkit-mask-position: center;
+	}
+
+	.clock-separator-sec.squircle-dots {
+		gap: clamp(0.8rem, 2vw, 1.8rem);
+	}
+
+	.clock-separator-sec .squircle-dot {
+		width: clamp(0.7rem, 1.8vw, 1.5rem);
+		height: clamp(0.7rem, 1.8vw, 1.5rem);
 	}
 
 	.clock-seconds {
