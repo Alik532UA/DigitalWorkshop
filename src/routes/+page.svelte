@@ -608,7 +608,7 @@
 		background: rgba(0, 0, 0, 0.25);
 
 		/* Використовуємо animation замість transition для блюру, щоб воно працювало при монтуванні (зміна вкладки) */
-		animation: blurIn 1.2s ease 0.8s backwards;
+		animation: blurIn 5s ease 0.8s backwards;
 
 		/* Фон з'являється одразу (без затримки) */
 		transition: background 0.4s ease;

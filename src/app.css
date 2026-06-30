@@ -162,7 +162,7 @@ body::-webkit-scrollbar {
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
     border: 1px solid var(--border-color);
-    animation: blur-in 2.5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.5s both;
+    animation: blur-in 5s cubic-bezier(0.2, 0.8, 0.2, 1) 0.5s both;
 }
 
 .dropdown-card.glass,
