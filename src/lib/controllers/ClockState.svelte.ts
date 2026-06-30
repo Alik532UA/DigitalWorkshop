@@ -2,7 +2,7 @@ import { storage } from '$lib/services/storage';
 
 export class ClockState {
 	isActive = $state(false);
-	isAnalog = $state(false);
+	clockMode = $state(0); // 0: digital, 1: analog smooth, 2: analog sharp
 	time = $state({ h: '00', m: '00', s: '00' });
 	offsetX = $state(0);
 	offsetY = $state(0);

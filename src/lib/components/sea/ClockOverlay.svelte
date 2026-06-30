@@ -20,6 +20,23 @@
 
 	let pointerDownTime = 0;
 	let pointerMoved = false;
+	let smoothTime = $state(new Date());
+
+	$effect(() => {
+		if (clockState.clockMode === 1) {
+			let rafId: number;
+			const loop = () => {
+				smoothTime = new Date();
+				rafId = requestAnimationFrame(loop);
+			};
+			rafId = requestAnimationFrame(loop);
+			return () => cancelAnimationFrame(rafId);
+		}
+	});
+
+	let sDeg = $derived(clockState.clockMode === 1 ? smoothTime.getSeconds() * 6 + smoothTime.getMilliseconds() * 0.006 : parseInt(time.s) * 6);
+	let mDeg = $derived(clockState.clockMode === 1 ? smoothTime.getMinutes() * 6 + smoothTime.getSeconds() * 0.1 : parseInt(time.m) * 6 + parseInt(time.s) * 0.1);
+	let hDeg = $derived(clockState.clockMode === 1 ? (smoothTime.getHours() % 12) * 30 + smoothTime.getMinutes() * 0.5 : (parseInt(time.h) % 12) * 30 + parseInt(time.m) * 0.5);
 
 	function onPointerDown(e: PointerEvent) {
 		e.stopPropagation();
@@ -51,7 +68,7 @@
 		target.releasePointerCapture(e.pointerId);
 
 		if (!pointerMoved && Date.now() - pointerDownTime < 500) {
-			clockState.isAnalog = !clockState.isAnalog;
+			clockState.clockMode = (clockState.clockMode + 1) % 3;
 		}
 	}
 
@@ -99,7 +116,7 @@
 		ontouchmove={stopProp}
 		onwheel={stopProp}
 	>
-		{#if !clockState.isAnalog}
+		{#if clockState.clockMode === 0}
 			<div class="clock-display" in:fade={{duration: 200}} out:fade={{duration: 200}}>
 				<span class="clock-group">
 					{#each time.h.split('') as char, i (i)}
@@ -157,9 +174,9 @@
 					{/each}
 				</div>
 				<div class="clock-face">
-					<div class="hand hour-hand" style="transform: rotate({(parseInt(time.h) % 12) * 30 + parseInt(time.m) * 0.5}deg);"></div>
-					<div class="hand min-hand" style="transform: rotate({parseInt(time.m) * 6 + parseInt(time.s) * 0.1}deg);"></div>
-					<div class="hand second-hand" style="transform: rotate({parseInt(time.s) * 6}deg);"></div>
+					<div class="hand hour-hand" style="transform: rotate({hDeg}deg);"></div>
+					<div class="hand min-hand" style="transform: rotate({mDeg}deg);"></div>
+					<div class="hand second-hand" style="transform: rotate({sDeg}deg);"></div>
 					<div class="center-dot"></div>
 				</div>
 			</div>
