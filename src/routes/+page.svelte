@@ -594,9 +594,7 @@
 	}
 
 	.slide-wrapper.active .info-block {
-		box-shadow:
-			0 20px 50px rgba(0, 0, 0, 0.5),
-			inset 0 0 20px rgba(255, 255, 255, 0.1);
+		box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 
 		/* Фон з'являється одразу (без затримки) */
 		transition: box-shadow 0.4s ease;
@@ -623,14 +621,15 @@
 		gap: 17px; /* Було 20px */
 		position: relative; /* контейнер для ::before з фростом */
 
-		box-shadow:
-			0 20px 50px rgba(0, 0, 0, 0),
-			inset 0 0 20px rgba(255, 255, 255, 0);
+		box-shadow: 0 20px 50px rgba(0, 0, 0, 0);
 
 		/* Апаратне прискорення для вирішення багів браузера з блюром під час анімації */
 		transform: translateZ(0);
 		-webkit-transform: translateZ(0);
 		will-change: transform;
+		
+		/* Fix for hardware acceleration 1px edge artifact */
+		outline: 1px solid transparent;
 
 		/* При втраті фокусу (неактивний слайд) все зникає швидко без затримок */
 		transition: box-shadow 0.3s ease;
