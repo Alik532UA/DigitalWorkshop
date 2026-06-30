@@ -74,6 +74,7 @@
 
     .trigger-wrapper {
         display: block;
+        transition: opacity 0.3s ease;
     }
 
     .contact-dropdown-wrapper.hovered .trigger-wrapper {

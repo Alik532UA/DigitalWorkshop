@@ -446,7 +446,7 @@
 	/* Disable blur animation on the main page while the clock is active.
 	   When the clock closes, this rule is removed, causing the browser to natively restart the blurIn animation 
 	   (which has a 0.8s delay, perfectly hiding the transform bug and then smoothly building up the blur). */
-	.sea-container.clock-active .info-block {
+	.sea-container.clock-active .info-block::before {
 		animation: none !important;
 	}
 
@@ -594,20 +594,24 @@
 	}
 
 	.slide-wrapper.active .info-block {
-		backdrop-filter: blur(20px);
-		-webkit-backdrop-filter: blur(20px);
-		background: rgba(0, 0, 0, 0.25);
 		box-shadow:
 			0 20px 50px rgba(0, 0, 0, 0.5),
 			inset 0 0 20px rgba(255, 255, 255, 0.1);
+
+		/* Фон з'являється одразу (без затримки) */
+		transition: box-shadow 0.4s ease;
+	}
+
+	.slide-wrapper.active .info-block::before {
+		backdrop-filter: blur(20px);
+		-webkit-backdrop-filter: blur(20px);
+		background: rgba(0, 0, 0, 0.25);
 
 		/* Використовуємо animation замість transition для блюру, щоб воно працювало при монтуванні (зміна вкладки) */
 		animation: blurIn 1.2s ease 0.8s backwards;
 
 		/* Фон з'являється одразу (без затримки) */
-		transition:
-			background 0.4s ease,
-			box-shadow 0.4s ease;
+		transition: background 0.4s ease;
 	}
 
 	.info-block {
@@ -617,29 +621,42 @@
 		display: flex;
 		flex-direction: column;
 		gap: 17px; /* Було 20px */
+		position: relative; /* контейнер для ::before з фростом */
 
-		/* Початковий стан: прозорий, щоб не навантажувати неактивні слайди */
-		background: rgba(0, 0, 0, 0);
 		box-shadow:
 			0 20px 50px rgba(0, 0, 0, 0),
 			inset 0 0 20px rgba(255, 255, 255, 0);
-		backdrop-filter: blur(0px);
-		-webkit-backdrop-filter: blur(0px);
 
 		/* Апаратне прискорення для вирішення багів браузера з блюром під час анімації */
 		transform: translateZ(0);
 		-webkit-transform: translateZ(0);
-		will-change: transform, backdrop-filter;
+		will-change: transform;
 
 		/* При втраті фокусу (неактивний слайд) все зникає швидко без затримок */
+		transition: box-shadow 0.3s ease;
+	}
+
+	/* Фрост панелі винесено на псевдоелемент, щоб сам .info-block НЕ був
+	   "backdrop root". Інакше backdrop-filter кнопок-нащадків (.project-btn.glass)
+	   не мав би чого розмивати. Тепер кнопка над морем розмиває море напряму. */
+	.info-block::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+		z-index: -1;
+		/* Початковий стан: прозорий, щоб не навантажувати неактивні слайди */
+		background: rgba(0, 0, 0, 0);
+		backdrop-filter: blur(0px);
+		-webkit-backdrop-filter: blur(0px);
+		will-change: backdrop-filter;
 		transition:
 			backdrop-filter 0.3s ease,
 			-webkit-backdrop-filter 0.3s ease,
-			background 0.3s ease,
-			box-shadow 0.3s ease;
+			background 0.3s ease;
 	}
 
-	.sea-container.clock-active .info-block {
+	.sea-container.clock-active .info-block::before {
 		backdrop-filter: blur(0px);
 		-webkit-backdrop-filter: blur(0px);
 		transition:
