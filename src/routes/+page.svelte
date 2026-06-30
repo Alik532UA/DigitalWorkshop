@@ -140,7 +140,6 @@
 <div
 	class="sea-container"
 	class:clock-active={clockState.isActive}
-	class:clock-closing={clockState.isClosing}
 	data-hovered-tab={state.hoveredTab || ''}
 	class:lang-changing={langState.isChanging}
 >
@@ -444,21 +443,11 @@
 		pointer-events: none;
 	}
 
-	@keyframes blurInClock {
-		0% {
-			backdrop-filter: blur(0px);
-			-webkit-backdrop-filter: blur(0px);
-		}
-		100% {
-			backdrop-filter: blur(20px);
-			-webkit-backdrop-filter: blur(20px);
-		}
-	}
-
-	/* When clock closes, main UI slides back (0.55s). We trigger blurInClock on info-block with exactly 0.55s delay.
-	   We MUST use a different animation name than blurIn, otherwise the browser will not restart the animation! */
-	.sea-container.clock-closing .info-block {
-		animation: blurInClock 1.2s ease 0.55s backwards !important;
+	/* Disable blur animation on the main page while the clock is active.
+	   When the clock closes, this rule is removed, causing the browser to natively restart the blurIn animation 
+	   (which has a 0.8s delay, perfectly hiding the transform bug and then smoothly building up the blur). */
+	.sea-container.clock-active .info-block {
+		animation: none !important;
 	}
 
 	/* Desktop: side panels slide out sideways (right-hand UI right, carousel left) */
