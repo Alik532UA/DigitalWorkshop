@@ -279,7 +279,6 @@
 		background: rgba(0, 0, 0, 0.3);
 		backdrop-filter: blur(20px);
 		-webkit-backdrop-filter: blur(20px);
-		border: 2px solid rgba(255, 255, 255, 0.15);
 		box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 30px rgba(255, 255, 255, 0.05);
 		position: relative;
 		display: flex;
@@ -357,7 +356,7 @@
 		width: 2px;
 		height: 45%;
 		margin-left: -1px;
-		background: var(--accent-primary, #0284c7);
+		background: #ffffff;
 	}
 
 	.second-hand::after {
@@ -367,7 +366,7 @@
 		left: 0;
 		width: 100%;
 		height: 20px;
-		background: var(--accent-primary, #0284c7);
+		background: #ffffff;
 		border-radius: 10px;
 	}
 
@@ -377,7 +376,7 @@
 		left: 50%;
 		width: 14px;
 		height: 14px;
-		background: var(--accent-primary, #0284c7);
+		background: #ffffff;
 		border-radius: 50%;
 		transform: translate(-50%, -50%);
 		box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
