@@ -3,7 +3,7 @@
     import { fade } from "svelte/transition";
     import { setUiState, getTabs, getTheme, getBackground, getMenu } from "$lib/controllers/UiState.svelte";
     import { setLanguageState } from "$lib/i18n/LanguageState.svelte";
-    import { page } from "$app/stores";
+    import { page } from "$app/state";
     import { migrateStorage } from "$lib/services/storageMigration";
     import { logService } from "$lib/services/logService.svelte";
     import Header from "$lib/components/layout/Header.svelte";
@@ -64,7 +64,7 @@
 
     let accentRgb = $derived(hexToRgb(tabs.currentColor));
     
-    let isArchive = $derived($page.url.pathname.includes('/2026-04'));
+    let isArchive = $derived(page.url.pathname.includes('/2026-04'));
 </script>
 
 {#if isArchive}
