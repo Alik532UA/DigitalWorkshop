@@ -1,3 +1,5 @@
+import { logService } from '$lib/services/logService.svelte';
+
 export class AudioState {
 	isPlaying = $state(false);
 	volume = $state(0);
@@ -7,12 +9,26 @@ export class AudioState {
 	private isFadingIn = false;
 	private isPlayPending = false;
 	private fadeInterval: ReturnType<typeof setInterval> | undefined;
+	private detachGestureListeners: (() => void) | null = null;
 
 	bindAudio(ref: HTMLAudioElement, isMobileParam: boolean) {
 		if (this.audioRef || !ref) return;
 		this.audioRef = ref;
 		const isMobile = typeof window !== 'undefined' ? window.matchMedia('(max-width: 768px)').matches : isMobileParam;
 		this.initAutoplay(isMobile);
+
+		// Svelte action contract: without this the document-level gesture
+		// listeners below outlive the <audio> element.
+		return {
+			destroy: () => {
+				this.detachGestureListeners?.();
+				this.detachGestureListeners = null;
+				clearInterval(this.fadeInterval);
+				this.audioRef = null;
+				this.isFadingIn = false;
+				this.isPlayPending = false;
+			}
+		};
 	}
 
 	private initAutoplay(isMobile: boolean) {
@@ -26,7 +42,6 @@ export class AudioState {
 
 		this.isFadingIn = true;
 		this.volume = 0;
-		this.isPlayPending = true;
 
 		const startFadeIn = () => {
 			clearInterval(this.fadeInterval);
@@ -41,46 +56,68 @@ export class AudioState {
 		};
 
 		const removeListeners = () => {
-			document.removeEventListener('click', startAudio);
-			document.removeEventListener('touchstart', startAudio);
-			document.removeEventListener('touchend', startAudio);
-			document.removeEventListener('keydown', startAudio);
+			this.detachGestureListeners?.();
+			this.detachGestureListeners = null;
 		};
 
 		const startAudio = () => {
-			if (this.isPlaying || this.isPlayPending) {
-				if (this.isPlaying) removeListeners();
+			if (this.isPlaying) {
+				removeListeners();
 				return;
 			}
-			if (this.audioRef) {
-				this.isPlayPending = true;
-				this.volume = 0;
-				this.audioRef
-					.play()
-					.then(() => {
-						startFadeIn();
-						removeListeners();
-						this.isPlayPending = false;
-					})
-					.catch(() => {
-						this.isPlayPending = false;
-					});
-			}
+			if (this.isPlayPending || !this.audioRef) return;
+
+			this.isPlayPending = true;
+			this.volume = 0;
+			this.audioRef
+				.play()
+				.then(() => {
+					startFadeIn();
+					removeListeners();
+					this.isPlayPending = false;
+				})
+				.catch((err: unknown) => {
+					this.isPlayPending = false;
+					logService.warn('ui', 'Audio playback failed after user gesture', err);
+				});
 		};
 
+		const waitForGesture = () => {
+			if (this.detachGestureListeners) return;
+			// touchend/pointerdown/keydown are the events that grant user
+			// activation; touchstart alone does not qualify in Chromium.
+			const events = ['pointerdown', 'touchend', 'keydown'] as const;
+			events.forEach((name) => document.addEventListener(name, startAudio));
+			this.detachGestureListeners = () => {
+				events.forEach((name) => document.removeEventListener(name, startAudio));
+			};
+		};
+
+		// Autoplay is denied until the document has had a user gesture. Checking
+		// first means we never fire a play() we know will be rejected — that
+		// rejection is what logged NotAllowedError on every page load.
+		if (navigator.userActivation && !navigator.userActivation.hasBeenActive) {
+			waitForGesture();
+			return;
+		}
+
+		this.isPlayPending = true;
 		this.audioRef
 			.play()
 			.then(() => {
 				startFadeIn();
 				this.isPlayPending = false;
 			})
-			.catch((err) => {
-				console.error('Audio playback failed (Autoplay Policy):', err);
+			.catch((err: unknown) => {
 				this.isPlayPending = false;
-				document.addEventListener('click', startAudio);
-				document.addEventListener('touchstart', startAudio);
-				document.addEventListener('touchend', startAudio);
-				document.addEventListener('keydown', startAudio);
+				waitForGesture();
+
+				// A blocked autoplay is the documented browser behaviour, not a fault.
+				if (err instanceof DOMException && err.name === 'NotAllowedError') {
+					logService.info('ui', 'Autoplay blocked by policy, waiting for user gesture');
+				} else {
+					logService.error('ui', 'Audio playback failed', err);
+				}
 			});
 	}
 
@@ -89,7 +126,7 @@ export class AudioState {
 		if (this.isPlaying) {
 			this.audioRef.pause();
 		} else {
-			this.audioRef.play().catch((err) => console.error('Audio playback failed:', err));
+			this.audioRef.play().catch((err: unknown) => logService.error('ui', 'Audio playback failed', err));
 		}
 	}
 
@@ -112,14 +149,14 @@ export class AudioState {
 		this.volume = Math.max(0, Math.min(1, newVol));
 
 		if (this.volume > 0 && !this.isPlaying && this.audioRef) {
-			this.audioRef.play().catch((err) => console.error('Audio playback failed:', err));
+			this.audioRef.play().catch((err: unknown) => logService.error('ui', 'Audio playback failed', err));
 		}
 	}
 
 	/** Handle volume slider input */
 	onSliderInput() {
 		if (this.volume > 0 && !this.isPlaying && this.audioRef) {
-			this.audioRef.play().catch((err) => console.error('Audio playback failed:', err));
+			this.audioRef.play().catch((err: unknown) => logService.error('ui', 'Audio playback failed', err));
 		}
 	}
 }
