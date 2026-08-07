@@ -19,10 +19,10 @@ export const en: Translations = {
         menu: "Menu"
     },
     hero: {
-        greeting: "My name is Alik\nand I create modern [[website]], [[apps]], and even [[games]]!\n\nAnd for creative schools and charities, I have a [[promo]]!",
-        description: "Select which product interests you to learn more and see my existing work",
-        description_sea_desktop: "Select a product on the right to learn more, or look to the left for examples of my work",
-        description_sea_mobile: "Select a product below to learn more, or scroll to see more",
+        greeting: "Hi, I'm Alik!\nI build modern [[website]], interactive [[apps]], and [[games]].\n\nDo you run a creative school, a club, or a volunteer initiative? Then this [[promo]] is for you!",
+        description: "Pick a product to see the details, or browse my finished work",
+        description_sea_desktop: "Pick a product on the right to see the details, or browse the portfolio on the left",
+        description_sea_mobile: "Pick a product below to see the details, or scroll down to the portfolio",
         buttons: {
             website: "websites",
             apps: "apps",
