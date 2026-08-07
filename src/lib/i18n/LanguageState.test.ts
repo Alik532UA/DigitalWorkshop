@@ -51,4 +51,9 @@ describe('LanguageState', () => {
         await new Promise(r => setTimeout(r, 200));
         expect(language.isChanging).toBe(false);
     });
+    it('should support changing to ja language', () => {
+        menu.enableBlur = false;
+        language.set('ja', menu);
+        expect(language.current).toBe('ja');
+    });
 });

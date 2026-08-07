@@ -208,6 +208,10 @@
                                         class:active={language.current === 'en'} 
                                         onclick={() => language.set('en')}
                                     >EN</button>
+                                    <button 
+                                        class:active={language.current === 'ja'} 
+                                        onclick={() => language.set('ja')}
+                                    >JA</button>
                                 </div>
                             </div>
                             <div class="settings-group">

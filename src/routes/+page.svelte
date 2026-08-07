@@ -31,7 +31,10 @@
 	// Resolve the language state once, during init. `t.current` calls getContext(),
 	// which Svelte forbids outside component initialisation (e.g. inside event handlers).
 	const langState = t.current;
-	const toggleLanguage = () => langState.set(langState.current === 'uk' ? 'en' : 'uk');
+	const toggleLanguage = () => {
+		const next = langState.current === 'uk' ? 'en' : langState.current === 'en' ? 'ja' : 'uk';
+		langState.set(next);
+	};
 
 	let audioRef: HTMLAudioElement;
 

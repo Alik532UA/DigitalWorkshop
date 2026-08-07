@@ -2,12 +2,13 @@ import { replaceState } from '$app/navigation';
 import { z } from 'zod';
 import { en } from './locales/en';
 import { uk } from './locales/uk';
+import { ja } from './locales/ja';
 import { browser } from '$app/environment';
 import { storage } from '$lib/services/storage';
 import { getContext, setContext } from 'svelte';
 import type { MenuState } from '../controllers/UiState.svelte';
 
-export type Language = 'en' | 'uk';
+export type Language = 'en' | 'uk' | 'ja';
 
 export class LanguageState {
     current = $state<Language>('uk');
@@ -19,11 +20,11 @@ export class LanguageState {
         if (browser) {
             const params = new URLSearchParams(window.location.search);
             const lang = params.get('lang') as Language;
-            if (lang === 'en' || lang === 'uk') {
+            if (lang === 'en' || lang === 'uk' || lang === 'ja') {
                 this.current = lang;
             } else {
                 const saved = storage.get('lang') as Language;
-                if (saved === 'en' || saved === 'uk') {
+                if (saved === 'en' || saved === 'uk' || saved === 'ja') {
                     this.current = saved;
                 }
             }
@@ -258,7 +259,7 @@ const TranslationSchema = z.object({
 
 export type Translations = z.infer<typeof TranslationSchema>;
 
-export const translations: Record<Language, Translations> = { en, uk };
+export const translations: Record<Language, Translations> = { en, uk, ja };
 
 export const t = {
     get current() { return getLanguage(); },
