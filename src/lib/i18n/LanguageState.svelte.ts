@@ -4,6 +4,7 @@ import { en } from './locales/en';
 import { uk } from './locales/uk';
 import { ja } from './locales/ja';
 import { es } from './locales/es';
+import { ca } from './locales/ca';
 import { fr } from './locales/fr';
 import { pt } from './locales/pt';
 import { it } from './locales/it';
@@ -48,13 +49,13 @@ import type { MenuState } from '../controllers/UiState.svelte';
 export type Language =
     | 'en' | 'uk' | 'ja' | 'es' | 'fr' | 'pt' | 'it' | 'de' | 'nl' | 'be'
     | 'pl' | 'cs' | 'sk' | 'bg' | 'hr' | 'sl' | 'mk' | 'ro' | 'sv' | 'no' | 'da' | 'is'
-    | 'fi' | 'el' | 'ga' | 'cy' | 'et' | 'lv' | 'lt' | 'crh' | 'ka' | 'sq' | 'ko' | 'tr' | 'he' | 'mt'
+    | 'ca' | 'fi' | 'el' | 'ga' | 'cy' | 'et' | 'lv' | 'lt' | 'crh' | 'ka' | 'sq' | 'ko' | 'tr' | 'he' | 'mt'
     | 'chk' | 'pon' | 'kos' | 'yap';
 
 const SUPPORTED_LANGUAGES: readonly Language[] = [
     'en', 'uk', 'ja', 'es', 'fr', 'pt', 'it', 'de', 'nl', 'be',
     'pl', 'cs', 'sk', 'bg', 'hr', 'sl', 'mk', 'ro', 'sv', 'no', 'da', 'is',
-    'fi', 'el', 'ga', 'cy', 'et', 'lv', 'lt', 'crh', 'ka', 'sq', 'ko', 'tr', 'he', 'mt',
+    'ca', 'fi', 'el', 'ga', 'cy', 'et', 'lv', 'lt', 'crh', 'ka', 'sq', 'ko', 'tr', 'he', 'mt',
     'chk', 'pon', 'kos', 'yap'
 ];
 
@@ -321,7 +322,7 @@ export type Translations = z.infer<typeof TranslationSchema>;
 export const translations: Record<Language, Translations> = {
     en, uk, ja, es, fr, pt, it, de, nl, be,
     pl, cs, sk, bg, hr, sl, mk, ro, sv, no, da, is,
-    fi, el, ga, cy, et, lv, lt, crh, ka, sq, ko, tr, he, mt,
+    ca, fi, el, ga, cy, et, lv, lt, crh, ka, sq, ko, tr, he, mt,
     chk, pon, kos, yap
 };
 
