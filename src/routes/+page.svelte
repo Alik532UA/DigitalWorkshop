@@ -38,6 +38,18 @@
 
 	let audioRef: HTMLAudioElement;
 
+	// The promo tab only exists in Ukrainian. Send the visitor to the sites tab
+	// rather than the anchor: teatralo4ka and as5 are listed there too, so the
+	// cards under the cursor stay the same and only the offer itself drops away.
+	$effect(() => {
+		const lang = langState.current;
+		untrack(() => {
+			if (lang !== 'uk' && state.currentTab === 'promo') {
+				state.setTab('website');
+			}
+		});
+	});
+
 	// URL sync effect
 	$effect(() => {
 		const tab = state.currentTab;
@@ -153,6 +165,7 @@
 	{#if !state.isMobile}
 		<LeftCarousel
 			projects={state.projects}
+			currentTab={state.currentTab}
 			manualCarouselOffset={state.manualCarouselOffset.current}
 			isCarouselPaused={state.isCarouselPaused}
 			hoveredCarouselProject={state.hoveredCarouselProject}
@@ -300,11 +313,11 @@
 					<div class="slide-wrapper" class:active={state.currentIndex === 0} onclick={() => state.goToSlide(0)}>
 						<div class="info-slide glass-panel info-block slide-hero">
 							<div class="hero-text">
-								<h2 class="tab-title">{tabData.title}</h2>
-								<p class="tab-intro">{@html tabData.intro.replace(/\n/g, '<br />')}</p>
+								<h2 class="tab-title">{tabData?.title}</h2>
+								<p class="tab-intro">{@html tabData?.intro.replace(/\n/g, '<br />') ?? ''}</p>
 								<ContactDropdown customStyle="margin-top: 2rem;">
 									<a href={config.telegramUrl} target="_blank" class="btn-primary project-btn glass">
-										{tabData.cta}
+										{tabData?.cta}
 									</a>
 								</ContactDropdown>
 							</div>
@@ -347,7 +360,7 @@
 										<h3>{data.title}</h3>
 									</div>
 									<p class="project-desc">{data.description}</p>
-									<p class="project-feature"><strong>Фішка:</strong> {data.feature}</p>
+									<p class="project-feature"><strong>{t.portfolio.featureLabel}</strong> {data.feature}</p>
 									<a href={p.link} target="_blank" class="btn-primary project-btn glass">
 										{data.linkText}
 										<ExternalLink size={20} />

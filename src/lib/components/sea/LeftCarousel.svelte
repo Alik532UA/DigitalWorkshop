@@ -9,11 +9,12 @@
 		img: string;
 		icon: any;
 		link: string;
-		tab: string;
+		tabs: string[];
 	}
 
 	interface Props {
 		projects: Project[];
+		currentTab: string;
 		manualCarouselOffset: number;
 		isCarouselPaused: boolean;
 		hoveredCarouselProject: string | null;
@@ -30,6 +31,7 @@
 
 	let {
 		projects,
+		currentTab,
 		manualCarouselOffset,
 		isCarouselPaused,
 		hoveredCarouselProject,
@@ -46,6 +48,9 @@
 
 	let trackNode: HTMLElement;
 
+	// On the anchor screen no tab is chosen, so nothing is off-topic yet.
+	const isOffTab = (p: Project) => currentTab !== 'anchor' && !p.tabs.includes(currentTab);
+
 	$effect(() => {
 		if (trackNode) {
 			const anims = trackNode.getAnimations();
@@ -55,6 +60,23 @@
 		}
 	});
 </script>
+
+{#snippet carouselItems()}
+	{#each [1, 2, 3, 4] as _}
+		{#each projects as p}
+			<a
+				href={p.link}
+				target="_blank"
+				class="carousel-item"
+				onmouseenter={(e) => onCarouselItemEnter(e, p.id)}
+				class:hovered-state={hoveredCarouselProject === p.id}
+				class:off-tab={isOffTab(p)}
+			>
+				<img src="{base}/images/{p.img}" alt={p.id} class="carousel-img" />
+			</a>
+		{/each}
+	{/each}
+{/snippet}
 
 <!-- Backdrop for closing handled externally if needed -->
 <div
@@ -73,37 +95,13 @@
 			class:paused={isCarouselPaused}
 			class:has-hovered-item={!!hoveredCarouselProject}
 		>
-			<!-- Group 1 -->
+			<!-- Both halves render the same items; the second one is what makes the
+			     -50% keyframe loop seamlessly. -->
 			<div class="carousel-half" bind:clientHeight={carouselHalfHeight}>
-				{#each [1, 2, 3, 4] as _}
-					{#each projects as p}
-						<a
-							href={p.link}
-							target="_blank"
-							class="carousel-item"
-							onmouseenter={(e) => onCarouselItemEnter(e, p.id)}
-							class:hovered-state={hoveredCarouselProject === p.id}
-						>
-							<img src="{base}/images/{p.img}" alt={p.id} class="carousel-img" />
-						</a>
-					{/each}
-				{/each}
+				{@render carouselItems()}
 			</div>
-			<!-- Group 2 -->
 			<div class="carousel-half">
-				{#each [1, 2, 3, 4] as _}
-					{#each projects as p}
-						<a
-							href={p.link}
-							target="_blank"
-							class="carousel-item"
-							onmouseenter={(e) => onCarouselItemEnter(e, p.id)}
-							class:hovered-state={hoveredCarouselProject === p.id}
-						>
-							<img src="{base}/images/{p.img}" alt={p.id} class="carousel-img" />
-						</a>
-					{/each}
-				{/each}
+				{@render carouselItems()}
 			</div>
 		</div>
 	</div>
@@ -133,7 +131,7 @@
 				</span>
 			</div>
 			<p class="project-desc">{data.description}</p>
-			<p class="project-feature"><strong>Фішка:</strong> {data.feature}</p>
+			<p class="project-feature"><strong>{t.portfolio.featureLabel}</strong> {data.feature}</p>
 			<a href={p.link} target="_blank" class="btn-primary project-btn glass">
 				{data.linkText}
 				<ExternalLink size={20} />
@@ -196,14 +194,25 @@
 		pointer-events: auto;
 	}
 
+	/* Projects outside the open tab step back so the rail mirrors the right panel.
+	   scale() is deliberate: it is layout-neutral, so .carousel-half keeps its
+	   height and neither the -50% keyframe nor carouselHalfHeight drift. */
+	.carousel-item.off-tab {
+		opacity: 0.7;
+		transform: scale(0.85);
+	}
+
 	.left-carousel-track.has-hovered-item .carousel-item:not(.hovered-state) {
 		filter: blur(4px);
 		opacity: 0.5;
 	}
 
+	/* Must stay after .off-tab: equal specificity, so source order decides and
+	   pointing at a card always brings it back to full strength. */
 	.carousel-item:hover,
 	.carousel-item.hovered-state {
 		transform: scale(1.05);
+		opacity: 1;
 	}
 
 	.carousel-img {
