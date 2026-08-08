@@ -113,10 +113,6 @@
 	});
 </script>
 
-<svelte:head>
-	<title>Sea View</title>
-</svelte:head>
-
 <svelte:window
 	bind:innerHeight={state.windowHeight}
 	bind:innerWidth={state.windowWidth}

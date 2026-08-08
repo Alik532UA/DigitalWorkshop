@@ -9,6 +9,7 @@
     import { afterNavigate } from "$app/navigation";
     import { logService } from "$lib/services/logService.svelte";
     import Header from "$lib/components/layout/Header.svelte";
+    import SEO from "$lib/components/layout/SEO.svelte";
     import Footer from "$lib/components/layout/Footer.svelte";
     import BottomNav from "$lib/components/layout/BottomNav.svelte";
     import RightSideArc from "$lib/components/ui/arcs/RightSideArc.svelte";
@@ -73,6 +74,8 @@
     
     let isArchive = $derived(page.url.pathname.includes('/2026-04'));
 </script>
+
+<SEO />
 
 {#if isArchive}
     {#key tabs.current + theme.current}
