@@ -1,6 +1,6 @@
 <svg
-    width="32"
-    height="24"
+    width="100%"
+    height="100%"
     viewBox="0 0 32 24"
     preserveAspectRatio="xMidYMid slice"
     {...$$restProps}
