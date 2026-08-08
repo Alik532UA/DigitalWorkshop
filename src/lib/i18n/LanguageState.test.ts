@@ -56,7 +56,9 @@ describe('LanguageState', () => {
     // + translations record) is the only edit needed here too.
     const OTHER_LANGUAGES = [
         'ja', 'es', 'fr', 'pt', 'it', 'de', 'nl', 'be',
-        'pl', 'cs', 'sk', 'bg', 'hr', 'sl', 'mk', 'ro', 'sv', 'no', 'da', 'is'
+        'pl', 'cs', 'sk', 'bg', 'hr', 'sl', 'mk', 'ro', 'sv', 'no', 'da', 'is',
+        'fi', 'el', 'ga', 'cy', 'et', 'lv', 'lt', 'crh', 'ka', 'sq', 'ko', 'tr', 'he',
+        'chk', 'pon', 'kos', 'yap'
     ] as const;
     it.each(OTHER_LANGUAGES)('should support changing to %s language', (lang) => {
         menu.enableBlur = false;

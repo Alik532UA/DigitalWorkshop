@@ -22,6 +22,23 @@ import { sv } from './locales/sv';
 import { no } from './locales/no';
 import { da } from './locales/da';
 import { is } from './locales/is';
+import { fi } from './locales/fi';
+import { el } from './locales/el';
+import { ga } from './locales/ga';
+import { cy } from './locales/cy';
+import { et } from './locales/et';
+import { lv } from './locales/lv';
+import { lt } from './locales/lt';
+import { crh } from './locales/crh';
+import { ka } from './locales/ka';
+import { sq } from './locales/sq';
+import { ko } from './locales/ko';
+import { tr } from './locales/tr';
+import { he } from './locales/he';
+import { chk } from './locales/chk';
+import { pon } from './locales/pon';
+import { kos } from './locales/kos';
+import { yap } from './locales/yap';
 import { browser } from '$app/environment';
 import { storage } from '$lib/services/storage';
 import { getContext, setContext } from 'svelte';
@@ -29,11 +46,15 @@ import type { MenuState } from '../controllers/UiState.svelte';
 
 export type Language =
     | 'en' | 'uk' | 'ja' | 'es' | 'fr' | 'pt' | 'it' | 'de' | 'nl' | 'be'
-    | 'pl' | 'cs' | 'sk' | 'bg' | 'hr' | 'sl' | 'mk' | 'ro' | 'sv' | 'no' | 'da' | 'is';
+    | 'pl' | 'cs' | 'sk' | 'bg' | 'hr' | 'sl' | 'mk' | 'ro' | 'sv' | 'no' | 'da' | 'is'
+    | 'fi' | 'el' | 'ga' | 'cy' | 'et' | 'lv' | 'lt' | 'crh' | 'ka' | 'sq' | 'ko' | 'tr' | 'he'
+    | 'chk' | 'pon' | 'kos' | 'yap';
 
 const SUPPORTED_LANGUAGES: readonly Language[] = [
     'en', 'uk', 'ja', 'es', 'fr', 'pt', 'it', 'de', 'nl', 'be',
-    'pl', 'cs', 'sk', 'bg', 'hr', 'sl', 'mk', 'ro', 'sv', 'no', 'da', 'is'
+    'pl', 'cs', 'sk', 'bg', 'hr', 'sl', 'mk', 'ro', 'sv', 'no', 'da', 'is',
+    'fi', 'el', 'ga', 'cy', 'et', 'lv', 'lt', 'crh', 'ka', 'sq', 'ko', 'tr', 'he',
+    'chk', 'pon', 'kos', 'yap'
 ];
 
 function isLanguage(value: string | null): value is Language {
@@ -298,7 +319,9 @@ export type Translations = z.infer<typeof TranslationSchema>;
 
 export const translations: Record<Language, Translations> = {
     en, uk, ja, es, fr, pt, it, de, nl, be,
-    pl, cs, sk, bg, hr, sl, mk, ro, sv, no, da, is
+    pl, cs, sk, bg, hr, sl, mk, ro, sv, no, da, is,
+    fi, el, ga, cy, et, lv, lt, crh, ka, sq, ko, tr, he,
+    chk, pon, kos, yap
 };
 
 export const t = {
