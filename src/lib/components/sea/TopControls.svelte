@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
 	import type { Language } from '$lib/i18n/LanguageState.svelte';
+	import FlagUK from '$lib/components/flags/FlagUK.svelte';
+	import FlagEN from '$lib/components/flags/FlagEN.svelte';
+	import FlagJA from '$lib/components/flags/FlagJA.svelte';
 	import iconLanguage from '$lib/assets/tabler/language.svg?raw';
 	import iconClock from '$lib/assets/tabler/clock.svg?raw';
 	import iconMaximize from '$lib/assets/tabler/arrows-maximize.svg?raw';
@@ -42,10 +45,10 @@
 		onVolumeInput
 	}: Props = $props();
 
-	const LANGUAGES: { code: Language; label: string }[] = [
-		{ code: 'uk', label: 'UA' },
-		{ code: 'en', label: 'EN' },
-		{ code: 'ja', label: 'JA' }
+	const LANGUAGES = [
+		{ code: 'uk' as Language, label: 'Українська', flag: FlagUK },
+		{ code: 'en' as Language, label: 'English', flag: FlagEN },
+		{ code: 'ja' as Language, label: '日本語', flag: FlagJA }
 	];
 
 	let isLangOpen = $state(false);
@@ -58,7 +61,19 @@
 			onToggleClockFormat();
 			return;
 		}
-		isLangOpen = !isLangOpen;
+		// On desktop hover has already opened the menu, so a plain toggle here
+		// would shut it again on the way to picking a language.
+		isLangOpen = isMobile ? !isLangOpen : true;
+	}
+
+	function handleLangEnter() {
+		if (isMobile || isClockActive) return;
+		isLangOpen = true;
+	}
+
+	function handleLangLeave() {
+		if (isMobile) return;
+		isLangOpen = false;
 	}
 
 	function selectLanguage(lang: Language) {
@@ -91,7 +106,13 @@
 	<button class="icon-btn" class:active={isClockActive} onclick={onToggleClock} aria-label="Toggle Clock">
 		{@html iconClock}
 	</button>
-	<div class="language-control-wrapper" bind:this={langWrapper}>
+	<div
+		class="language-control-wrapper"
+		bind:this={langWrapper}
+		onmouseenter={handleLangEnter}
+		onmouseleave={handleLangLeave}
+		role="presentation"
+	>
 		<button
 			class="icon-btn"
 			class:active={isLangOpen}
@@ -104,18 +125,24 @@
 		</button>
 
 		{#if isLangOpen && !isClockActive}
-			<div class="lang-dropdown" role="menu" transition:fly={{ y: -8, duration: 200 }}>
-				{#each LANGUAGES as { code, label } (code)}
-					<button
-						class="lang-option"
-						class:active={currentLanguage === code}
-						onclick={() => selectLanguage(code)}
-						role="menuitemradio"
-						aria-checked={currentLanguage === code}
-					>
-						{label}
-					</button>
-				{/each}
+			<!-- The container's padding bridges the gap under the button: without it
+			     the pointer leaves the wrapper on the way down and the menu closes. -->
+			<div class="lang-dropdown-container" transition:fly={{ y: -8, duration: 200 }}>
+				<div class="lang-dropdown" role="menu">
+					{#each LANGUAGES as { code, label, flag: Flag } (code)}
+						<button
+							class="lang-option"
+							class:active={currentLanguage === code}
+							onclick={() => selectLanguage(code)}
+							role="menuitemradio"
+							aria-checked={currentLanguage === code}
+							aria-label={label}
+							title={label}
+						>
+							<span class="flag-frame"><Flag /></span>
+						</button>
+					{/each}
+				</div>
 			</div>
 		{/if}
 	</div>
@@ -177,48 +204,63 @@
 		pointer-events: auto;
 	}
 
-	.lang-dropdown {
+	.lang-dropdown-container {
 		position: absolute;
 		top: 100%;
 		left: 50%;
 		transform: translateX(-50%);
-		margin-top: 10px;
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-		padding: 6px;
-		border-radius: 12px;
-		background: rgba(0, 0, 0, 0.55);
-		border: 1px solid rgba(255, 255, 255, 0.18);
-		backdrop-filter: blur(12px);
-		-webkit-backdrop-filter: blur(12px);
-		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+		padding-top: 10px;
 		z-index: 10003;
 		pointer-events: auto;
 	}
 
-	.lang-option {
-		background: transparent;
-		border: none;
-		color: rgba(255, 255, 255, 0.85);
-		font: inherit;
-		font-size: 0.85rem;
-		font-weight: 600;
-		letter-spacing: 0.02em;
-		padding: 7px 16px;
-		border-radius: 8px;
-		cursor: pointer;
-		transition: all 0.2s ease;
+	/* No card behind the flags: the state is carried by opacity alone, matching
+	   the bare volume slider next to it. */
+	.lang-dropdown {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 4px;
 	}
 
-	.lang-option:hover {
-		background: rgba(255, 255, 255, 0.12);
-		color: white;
+	.lang-option {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: none;
+		border: none;
+		padding: 4px;
+		cursor: pointer;
+		opacity: 0.7;
+		transition: opacity 0.2s ease;
 	}
 
 	.lang-option.active {
-		background: rgba(255, 255, 255, 0.16);
-		color: var(--accent-primary, #0284c7);
+		opacity: 1;
+	}
+
+	.lang-option:hover {
+		opacity: 1;
+	}
+
+	/* Reaching for another flag steps the current one back rather than leaving
+	   two at full strength. :has() keeps it to a real flag hover, so the gaps
+	   between them do not trigger it. */
+	.lang-dropdown:has(.lang-option:hover) .lang-option.active:not(:hover) {
+		opacity: 0.8;
+	}
+
+	.flag-frame {
+		display: block;
+		width: 26px;
+		height: 19px;
+		border-radius: 3px;
+		overflow: hidden;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+	}
+
+	.flag-frame :global(svg) {
+		display: block;
 	}
 
 	.audio-control-wrapper {
