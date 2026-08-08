@@ -10,6 +10,12 @@ import type { Language } from "$lib/i18n/LanguageState.svelte";
 export const DEFAULT_LANGUAGE: Language = "uk";
 
 /**
+ * Єдиний маршрут, що несе мову в адресі. Архів /2026-04/ її не несе, тож там не
+ * можна переписувати адресу під мову — інакше відвідувача викидає з архіву.
+ */
+export const LANGUAGE_ROUTE_ID = "/[[lang=lang]]";
+
+/**
  * Only these get hreflang and are allowed into the index. The rest are machine
  * translations no native speaker has reviewed, and bulk unreviewed translation
  * is something Google judges a domain on — indexing forty of them could cost

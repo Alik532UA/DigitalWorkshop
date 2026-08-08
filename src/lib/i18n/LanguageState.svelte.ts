@@ -69,6 +69,16 @@ export class LanguageState {
     current = $state<Language>('uk');
     isChanging = $state(false);
 
+    /**
+     * Чи несе поточний маршрут мовний сегмент. Виставляє layout — лише він має
+     * законний доступ до page.
+     *
+     * Архів /2026-04/ сегмента не має, і переписування адреси там викидало
+     * відвідувача з архіву на головну: заходиш на /2026-04/, а збережена мова
+     * миттєво переносить на /uk/ або /en/.
+     */
+    onLanguageRoute = true;
+
     constructor() {}
 
     /**
@@ -90,12 +100,12 @@ export class LanguageState {
             const legacy = new URLSearchParams(window.location.search).get('lang');
             if (isLanguage(legacy)) {
                 this.current = legacy;
-                goto(langPath(legacy), { replaceState: true, noScroll: true, keepFocus: true });
+                if (this.onLanguageRoute) goto(langPath(legacy), { replaceState: true, noScroll: true, keepFocus: true });
             } else {
                 const saved = storage.get('lang');
                 if (isLanguage(saved)) {
                     this.current = saved;
-                    goto(langPath(saved), { replaceState: true, noScroll: true, keepFocus: true });
+                    if (this.onLanguageRoute) goto(langPath(saved), { replaceState: true, noScroll: true, keepFocus: true });
                 }
             }
         }
@@ -119,7 +129,7 @@ export class LanguageState {
                 // Same route id with only the parameter changing, so
                 // SvelteKit updates in place instead of remounting — the
                 // switch stays as seamless as it was with ?lang=.
-                goto(langPath(lang), { noScroll: true, keepFocus: true });
+                if (this.onLanguageRoute) goto(langPath(lang), { noScroll: true, keepFocus: true });
             }
             return;
         }
@@ -134,7 +144,7 @@ export class LanguageState {
                 // Same route id with only the parameter changing, so
                 // SvelteKit updates in place instead of remounting — the
                 // switch stays as seamless as it was with ?lang=.
-                goto(langPath(lang), { noScroll: true, keepFocus: true });
+                if (this.onLanguageRoute) goto(langPath(lang), { noScroll: true, keepFocus: true });
             }
             setTimeout(() => {
                 this.isChanging = false;

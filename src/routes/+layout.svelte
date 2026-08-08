@@ -4,6 +4,7 @@
     import { setUiState, getTabs, getTheme, getBackground, getMenu } from "$lib/controllers/UiState.svelte";
     import { setLanguageState } from "$lib/i18n/LanguageState.svelte";
     import { page } from "$app/state";
+    import { LANGUAGE_ROUTE_ID } from "$lib/i18n/routing";
     import { migrateStorage } from "$lib/services/storageMigration";
     import { initAnalytics, trackPageView } from "$lib/services/analytics";
     import { afterNavigate } from "$app/navigation";
@@ -39,12 +40,22 @@
 
     // Fires on the initial load too, so this covers both the first view and the
     // client-side move between / and the archive route.
-    afterNavigate(() => trackPageView());
+    afterNavigate(() => {
+        // Лише маршрут /[[lang]]/ несе мовний сегмент, тож лише там мову можна
+        // відображати в адресі. На /2026-04/ переписування адреси викидало
+        // відвідувача з архіву на головну.
+        language.onLanguageRoute = page.route.id === LANGUAGE_ROUTE_ID;
+        trackPageView();
+    });
 
     onMount(() => {
         logService.info('app', `App initialized in ${dev ? 'development' : 'production'} mode`);
         migrateStorage();
         initAnalytics();
+
+        // Виставляємо і тут, не лише в afterNavigate: порядок між ними не
+        // гарантований, а init() читає прапорець одразу.
+        language.onLanguageRoute = page.route.id === LANGUAGE_ROUTE_ID;
 
         const cleanups = [
             tabs.init(),

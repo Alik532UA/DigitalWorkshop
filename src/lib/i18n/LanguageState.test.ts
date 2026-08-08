@@ -93,4 +93,17 @@ describe('LanguageState', () => {
         language.set('uk', menu);
         expect(goto).toHaveBeenLastCalledWith('/DigitalWorkshop/', expect.anything());
     });
+
+    it('changes language in place on a route without a language segment', () => {
+        // Архів /2026-04/ мовного сегмента не має. Раніше перемикання мови тут
+        // переписувало адресу на /ja/ — і відвідувач вилітав з архіву на
+        // головну.
+        menu.enableBlur = false;
+        language.onLanguageRoute = false;
+
+        language.set('ja', menu);
+
+        expect(language.current).toBe('ja');
+        expect(goto).not.toHaveBeenCalled();
+    });
 });
