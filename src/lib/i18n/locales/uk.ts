@@ -33,6 +33,7 @@ export const uk: Translations = {
     portfolio: {
         title: "Моє портфоліо",
         subtitle: "Тут зібрані проєкти, які демонструють різні технічні можливості: від логічних ігор до освітніх платформ.",
+        featureLabel: "Фішка:",
         projects: {
             slovko: {
                 title: "Slovko",

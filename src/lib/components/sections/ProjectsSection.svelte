@@ -50,7 +50,7 @@
                         <h3>{data.title}</h3>
                     </div>
                     <p class="project-desc">{data.description}</p>
-                    <p class="project-feature"><strong>Фішка:</strong> {data.feature}</p>
+                    <p class="project-feature"><strong>{t.portfolio.featureLabel}</strong> {data.feature}</p>
                     <a
                         href={p.link}
                         target="_blank"
