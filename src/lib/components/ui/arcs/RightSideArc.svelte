@@ -131,7 +131,7 @@
         transform: translateX(calc((1 - {$progressSpring}) * (100% - 20px)));"
     bind:clientHeight={h}
     bind:clientWidth={w}
-    data-testid="side-arc-right"
+    data-testid="side-arc-right-container"
 >
     <div class="svg-container">
         <div class="svg-wrapper">

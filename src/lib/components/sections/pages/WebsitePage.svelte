@@ -5,7 +5,7 @@
     import Section from "../../ui/SectionContainer.svelte";
 </script>
 
-<div class="page-container" data-testid="page-website">
+<div class="page-container" data-testid="page-website-panel">
     <Section id="website" title={t.tabs.website.title}>
         {#snippet icon()}<Globe size={24} />{/snippet}
 

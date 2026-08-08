@@ -4,7 +4,7 @@
     import { t } from "$lib/i18n/LanguageState.svelte";
     import Section from "../../ui/SectionContainer.svelte";
 </script>
-<div class="page-container" data-testid="page-apps">
+<div class="page-container" data-testid="page-apps-panel">
     <Section id="apps" title={t.tabs.apps.title}>
         {#snippet icon()}<Smartphone size={24} />{/snippet}
 

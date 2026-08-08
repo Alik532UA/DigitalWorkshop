@@ -12,7 +12,7 @@
 <!-- The special offer ships only in the Ukrainian locale -->
 {#if t.tabs.promo}
 	{@const promo = t.tabs.promo}
-	<div class="page-container" data-testid="page-promo">
+	<div class="page-container" data-testid="page-promo-panel">
 	<Section id="promo" title={promo.pageTitle || promo.title}>
 		{#snippet icon()}<WandSparkles size={24} />{/snippet}
 

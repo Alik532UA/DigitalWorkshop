@@ -4,7 +4,7 @@
     import { t } from "$lib/i18n/LanguageState.svelte";
     import Section from "../../ui/SectionContainer.svelte";
 </script>
-<div class="page-container" data-testid="page-games">
+<div class="page-container" data-testid="page-games-panel">
     <Section id="games" title={t.tabs.games.title}>
         {#snippet icon()}<Gamepad2 size={24} />{/snippet}
 

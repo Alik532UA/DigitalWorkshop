@@ -70,7 +70,7 @@
                                 class="pulse-btn glass" 
                                 onclick={() => selectTab(part.key as TabType)} 
                                 style="--delay: {part.delay}; --btn-color: {part.color};"
-                                data-testid="hero-cta-{part.key}"
+                                data-testid="hero-cta-btn-{part.key}"
                             >
                                 {part.label}
                             </button>
@@ -101,7 +101,7 @@
                             class="pulse-btn glass" 
                             onclick={() => selectTab(part.key as TabType)} 
                             style="--delay: {part.delay}; --btn-color: {part.color};"
-                            data-testid="hero-cta-{part.key}"
+                            data-testid="hero-cta-btn-{part.key}"
                         >
                             {part.label}
                         </button>
