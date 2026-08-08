@@ -1,4 +1,5 @@
-import { replaceState } from '$app/navigation';
+import { goto } from '$app/navigation';
+import { langPath } from '$lib/i18n/routing';
 import { z } from 'zod';
 import { en } from './locales/en';
 import { uk } from './locales/uk';
@@ -53,14 +54,14 @@ export type Language =
     | 'ca' | 'fi' | 'el' | 'ga' | 'cy' | 'et' | 'lv' | 'lt' | 'crh' | 'ka' | 'sq' | 'ko' | 'tr' | 'he' | 'mt'
     | 'chk' | 'pon' | 'kos' | 'yap';
 
-const SUPPORTED_LANGUAGES: readonly Language[] = [
+export const SUPPORTED_LANGUAGES: readonly Language[] = [
     'en', 'uk', 'ja', 'es', 'fr', 'pt', 'it', 'de', 'nl', 'be',
     'pl', 'cs', 'sk', 'bg', 'hr', 'sl', 'mk', 'ro', 'sv', 'no', 'da', 'is',
     'ca', 'fi', 'el', 'ga', 'cy', 'et', 'lv', 'lt', 'crh', 'ka', 'sq', 'ko', 'tr', 'he', 'mt',
     'chk', 'pon', 'kos', 'yap'
 ];
 
-function isLanguage(value: string | null): value is Language {
+export function isLanguage(value: string | null | undefined): value is Language {
     return !!value && (SUPPORTED_LANGUAGES as readonly string[]).includes(value);
 }
 
@@ -70,51 +71,36 @@ export class LanguageState {
 
     constructor() {}
 
-    init() {
-        if (browser) {
-            const params = new URLSearchParams(window.location.search);
-            const lang = params.get('lang');
-            if (isLanguage(lang)) {
-                this.current = lang;
+    /**
+     * @param routeLanguage the /[[lang]]/ segment, or undefined at the bare path.
+     *
+     * Priority is explicit: an address that names a language wins, then the
+     * saved choice, then Ukrainian. The bare path deliberately counts as "no
+     * choice made", so a returning visitor still lands in their own language;
+     * /uk/ is an explicit request and overrides the saved one.
+     */
+    init(routeLanguage?: Language) {
+        if (!browser) return;
+
+        if (routeLanguage) {
+            this.current = routeLanguage;
+        } else {
+            // ?lang= links are already out in the world from before the move
+            // to paths, so honour them once and rewrite the address.
+            const legacy = new URLSearchParams(window.location.search).get('lang');
+            if (isLanguage(legacy)) {
+                this.current = legacy;
+                goto(langPath(legacy), { replaceState: true, noScroll: true, keepFocus: true });
             } else {
                 const saved = storage.get('lang');
                 if (isLanguage(saved)) {
                     this.current = saved;
+                    goto(langPath(saved), { replaceState: true, noScroll: true, keepFocus: true });
                 }
             }
-            
-            document.documentElement.lang = this.current;
-
-            const cleanup = $effect.root(() => {
-                let isFirstRun = true;
-                $effect(() => {
-                    const lang = this.current;
-                    const url = new URL(window.location.href);
-                    const currentLangInUrl = url.searchParams.get('lang');
-                    
-                    document.documentElement.lang = lang;
-
-                    if (currentLangInUrl !== lang) {
-                        if (isFirstRun) {
-                            isFirstRun = false;
-                            if (!currentLangInUrl) return; 
-                        }
-
-                        url.searchParams.set('lang', lang);
-                        const timer = setTimeout(() => {
-                            try {
-                                replaceState(url.toString(), {});
-                            } catch {
-                                window.history.replaceState(null, '', url.toString());
-                            }
-                        }, 0);
-                        return () => clearTimeout(timer);
-                    }
-                });
-            });
-
-            return () => cleanup();
         }
+
+        document.documentElement.lang = this.current;
     }
     
     set(lang: Language, menuState?: MenuState) {
@@ -130,6 +116,10 @@ export class LanguageState {
             if (browser) {
                 storage.set('lang', lang);
                 document.documentElement.lang = lang;
+                // Same route id with only the parameter changing, so
+                // SvelteKit updates in place instead of remounting — the
+                // switch stays as seamless as it was with ?lang=.
+                goto(langPath(lang), { noScroll: true, keepFocus: true });
             }
             return;
         }
@@ -141,6 +131,10 @@ export class LanguageState {
             if (browser) {
                 storage.set('lang', lang);
                 document.documentElement.lang = lang;
+                // Same route id with only the parameter changing, so
+                // SvelteKit updates in place instead of remounting — the
+                // switch stays as seamless as it was with ?lang=.
+                goto(langPath(lang), { noScroll: true, keepFocus: true });
             }
             setTimeout(() => {
                 this.isChanging = false;

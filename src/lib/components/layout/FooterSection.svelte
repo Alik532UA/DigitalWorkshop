@@ -137,7 +137,7 @@
             target="_blank"
             class="footer-btn"
             style="left: {leftBtnStyles.left}; bottom: {leftBtnStyles.bottom}; --rot: {leftBtnStyles.rot};"
-            data-testid="footer-ask-button"
+            data-testid="footer-ask-btn"
         >
             {t.footer.ask}
         </a>
@@ -146,7 +146,7 @@
             target="_blank"
             class="footer-btn"
             style="left: {rightBtnStyles.left}; bottom: {rightBtnStyles.bottom}; --rot: {rightBtnStyles.rot};"
-            data-testid="footer-order-button"
+            data-testid="footer-order-btn"
         >
             {orderText}
         </a>

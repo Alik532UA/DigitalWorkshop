@@ -2,7 +2,7 @@
     import { ChevronDown, Monitor, Globe, Smartphone, Zap } from "lucide-svelte";
     import { slide } from "svelte/transition";
     import { skillsData } from "$lib/data/skills";
-    import Section from "../ui/Section.svelte";
+    import Section from "../ui/SectionContainer.svelte";
     import { t } from "$lib/i18n/LanguageState.svelte";
 
     let showMoreSkills = $state(false);

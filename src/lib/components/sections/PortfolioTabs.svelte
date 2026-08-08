@@ -12,7 +12,7 @@
         CircleHelp
     } from "lucide-svelte";
     import { t } from "$lib/i18n/LanguageState.svelte";
-    import Section from "../ui/Section.svelte";
+    import Section from "../ui/SectionContainer.svelte";
 
     let activeTab = $state('website');
 

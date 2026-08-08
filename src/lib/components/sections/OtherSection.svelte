@@ -2,7 +2,7 @@
     import { Trophy, Lightbulb, Award, Car, Languages, Skull, Puzzle, Star } from "lucide-svelte";
     import FlagUK from "$lib/components/flags/FlagUK.svelte";
     import FlagEN from "$lib/components/flags/FlagEN.svelte";
-    import Section from "../ui/Section.svelte";
+    import Section from "../ui/SectionContainer.svelte";
     import { t } from "$lib/i18n/LanguageState.svelte";
 </script>
 

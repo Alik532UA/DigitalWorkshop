@@ -1,6 +1,7 @@
 <script lang="ts">
     import { getLanguage, translations } from "$lib/i18n/LanguageState.svelte";
     import { page } from "$app/state";
+    import { INDEXED_LANGUAGES, isIndexed, langUrl } from "$lib/i18n/routing";
 
     // Spelled out rather than taken from page.url / $app/paths: these tags are
     // read out of the prerendered HTML, where page.url.origin is SvelteKit's
@@ -33,9 +34,23 @@
     let pageTitle = $derived(`${t.title[0]} | DigitalWorkshop`);
     let description = $derived(headline);
     let imageUrl = $derived(`${SITE_ORIGIN}${SITE_BASE}/images/profile.jpg`);
-    // The active language rides in ?lang=, so every supported language looks to
-    // a crawler like a separate page carrying duplicate content.
-    let canonical = $derived(`${SITE_ORIGIN}${page.url.pathname}`);
+    // Each language has its own address now. Ukrainian resolves at both the
+    // bare path and /uk/, and langUrl returns the bare one for it, so the
+    // explicit address defers to it instead of competing with it. The archive
+    // route is not a language page, so it keeps its own path.
+    let canonical = $derived(
+        page.data.language ? langUrl(SITE_ORIGIN, language.current) : `${SITE_ORIGIN}${page.url.pathname}`
+    );
+
+    // Only the reviewed languages are offered to search engines. The rest are
+    // unreviewed machine translation: addressable and shareable, but kept out
+    // of the index rather than risking the domain being judged on pages nobody
+    // has read.
+    // The archive is a snapshot of the previous design, kept for reference and
+    // unreachable from the app. Indexed, it would compete in search with the
+    // current site under near-identical wording.
+    let isArchive = $derived(page.url.pathname.includes("/2026-04"));
+    let indexable = $derived(!isArchive && isIndexed(language.current));
 
     // Structured data: this site sells web development, so describe the service
     // rather than leaving search engines to infer it from prose.
@@ -69,6 +84,16 @@
     <meta name="description" content={description} />
     <meta name="author" content="Alik Zapolnov" />
     <link rel="canonical" href={canonical} />
+    {#if !indexable}
+        <meta name="robots" content="noindex, follow" />
+    {/if}
+
+    <!-- Alternates for the reviewed languages only, so search engines are not
+         pointed at pages this site asks them not to index. -->
+    {#each INDEXED_LANGUAGES as alt (alt)}
+        <link rel="alternate" hreflang={alt} href={langUrl(SITE_ORIGIN, alt)} />
+    {/each}
+    <link rel="alternate" hreflang="x-default" href={langUrl(SITE_ORIGIN, "uk")} />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />

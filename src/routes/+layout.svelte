@@ -10,7 +10,7 @@
     import { logService } from "$lib/services/logService.svelte";
     import Header from "$lib/components/layout/Header.svelte";
     import SEO from "$lib/components/layout/SEO.svelte";
-    import Footer from "$lib/components/layout/Footer.svelte";
+    import Footer from "$lib/components/layout/FooterSection.svelte";
     import BottomNav from "$lib/components/layout/BottomNav.svelte";
     import RightSideArc from "$lib/components/ui/arcs/RightSideArc.svelte";
     import LeftSideArc from "$lib/components/ui/arcs/LeftSideArc.svelte";
@@ -21,6 +21,18 @@
     import "../app.css";
 
     const language = setLanguageState();
+
+    // Set here, before any child renders. SEO.svelte reads the language and
+    // sits in this layout, so assigning it further down meant that while
+    // prerendering, each page built its head from the previous page's
+    // language — every language came out shifted by one.
+    language.current = page.data.language ?? "uk";
+
+    // Effects do not run while prerendering, so the line above covers that;
+    // this keeps it in step with the browser back and forward buttons.
+    $effect(() => {
+        language.current = page.data.language ?? "uk";
+    });
     const { tabs, theme, background, menu } = setUiState();
 
     let { children } = $props();
@@ -38,7 +50,7 @@
             tabs.init(),
             theme.init(),
             background.init(tabs),
-            language.init()
+            language.init(page.data.routeLanguage)
         ];
 
         return () => {

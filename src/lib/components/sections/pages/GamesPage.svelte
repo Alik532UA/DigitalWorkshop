@@ -2,7 +2,7 @@
     import { config } from '$lib/config';
     import { ChevronRight, CircleHelp, Gamepad2 } from "lucide-svelte";
     import { t } from "$lib/i18n/LanguageState.svelte";
-    import Section from "../../ui/Section.svelte";
+    import Section from "../../ui/SectionContainer.svelte";
 </script>
 <div class="page-container" data-testid="page-games">
     <Section id="games" title={t.tabs.games.title}>
@@ -24,7 +24,7 @@
             </div>
 
             <div class="cta-section">
-                <a href={config.telegramUrl} target="_blank" class="btn-primary large-btn glass" data-testid="games-cta-button">
+                <a href={config.telegramUrl} target="_blank" class="btn-primary large-btn glass" data-testid="games-cta-btn">
                     {t.tabs.games.cta} <ChevronRight size={20} />
                 </a>
             </div>

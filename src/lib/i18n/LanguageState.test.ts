@@ -1,11 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { goto } from '$app/navigation';
 import { LanguageState } from './LanguageState.svelte';
 import { MenuState } from '../controllers/UiState.svelte';
 
-// Mock SvelteKit modules
+// Mock SvelteKit modules. set() navigates now that each language has its own
+// path, so goto has to be here or the whole file dies on import.
 vi.mock('$app/navigation', () => ({
-    replaceState: vi.fn()
+    goto: vi.fn()
 }));
+
+vi.mock('$app/paths', () => ({ base: '/DigitalWorkshop' }));
 
 // `dev` is read by the analytics service, which LanguageState.set() calls.
 vi.mock('$app/environment', () => ({
@@ -76,5 +80,17 @@ describe('LanguageState', () => {
         menu.enableBlur = false;
         language.set(lang, menu);
         expect(language.current).toBe(lang);
+    });
+    // Each language has its own path now, so switching has to navigate. The
+    // default language lives at the bare path rather than /uk/, which is what
+    // keeps the canonical from competing with itself.
+    it('navigates to the language path, and to the bare path for the default', () => {
+        menu.enableBlur = false;
+
+        language.set('ja', menu);
+        expect(goto).toHaveBeenCalledWith('/DigitalWorkshop/ja/', expect.anything());
+
+        language.set('uk', menu);
+        expect(goto).toHaveBeenLastCalledWith('/DigitalWorkshop/', expect.anything());
     });
 });

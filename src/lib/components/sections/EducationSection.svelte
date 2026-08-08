@@ -1,6 +1,6 @@
 <script lang="ts">
     import { GraduationCap } from "lucide-svelte";
-    import Section from "../ui/Section.svelte";
+    import Section from "../ui/SectionContainer.svelte";
     import { t } from "$lib/i18n/LanguageState.svelte";
     import { educationData } from "$lib/data/education";
     </script>

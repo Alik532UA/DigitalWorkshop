@@ -9,7 +9,7 @@
         FileUser
     } from "lucide-svelte";
     import { base } from "$app/paths";
-    import Section from "../ui/Section.svelte";
+    import Section from "../ui/SectionContainer.svelte";
     import { t } from "$lib/i18n/LanguageState.svelte";
     import { track } from "$lib/services/analytics";
 
