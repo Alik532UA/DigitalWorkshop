@@ -3,6 +3,7 @@
     import telegramIcon from '$lib/assets/social/telegram.svg';
     import viberIcon from '$lib/assets/social/viber.svg';
     import whatsappIcon from '$lib/assets/social/whatsapp.svg';
+    import linkedinIcon from '$lib/assets/social/linkedin.svg';
 
     let { children, isIconMode = false, customStyle = '' } = $props();
 
@@ -48,6 +49,9 @@
             </a>
             <a href="https://wa.me/380937251208" target="_blank" class="social-icon" aria-label="WhatsApp" onclick={(e) => e.stopPropagation()}>
                 <img src={whatsappIcon} alt="WhatsApp" />
+            </a>
+            <a href="https://linkedin.com/in/alik-qa-engineer" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="LinkedIn" onclick={(e) => e.stopPropagation()}>
+                <img src={linkedinIcon} alt="LinkedIn" />
             </a>
         </div>
     {/if}
