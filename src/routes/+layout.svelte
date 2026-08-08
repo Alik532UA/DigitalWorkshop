@@ -5,6 +5,8 @@
     import { setLanguageState } from "$lib/i18n/LanguageState.svelte";
     import { page } from "$app/state";
     import { migrateStorage } from "$lib/services/storageMigration";
+    import { initAnalytics, trackPageView } from "$lib/services/analytics";
+    import { afterNavigate } from "$app/navigation";
     import { logService } from "$lib/services/logService.svelte";
     import Header from "$lib/components/layout/Header.svelte";
     import Footer from "$lib/components/layout/Footer.svelte";
@@ -22,10 +24,15 @@
 
     let { children } = $props();
 
+    // Fires on the initial load too, so this covers both the first view and the
+    // client-side move between / and the archive route.
+    afterNavigate(() => trackPageView());
+
     onMount(() => {
         logService.info('app', `App initialized in ${dev ? 'development' : 'production'} mode`);
         migrateStorage();
-        
+        initAnalytics();
+
         const cleanups = [
             tabs.init(),
             theme.init(),

@@ -3,6 +3,7 @@
 	import { fade } from 'svelte/transition';
 	import { ExternalLink } from 'lucide-svelte';
 	import { t } from '$lib/i18n/LanguageState.svelte';
+	import { track } from '$lib/services/analytics';
 
 	interface Project {
 		id: string;
@@ -68,6 +69,7 @@
 				href={p.link}
 				target="_blank"
 				class="carousel-item"
+				onclick={() => track('project_click', { project: p.id, from: 'carousel' })}
 				onmouseenter={(e) => onCarouselItemEnter(e, p.id)}
 				class:hovered-state={hoveredCarouselProject === p.id}
 				class:off-tab={isOffTab(p)}
@@ -132,7 +134,12 @@
 			</div>
 			<p class="project-desc">{data.description}</p>
 			<p class="project-feature"><strong>{t.portfolio.featureLabel}</strong> {data.feature}</p>
-			<a href={p.link} target="_blank" class="btn-primary project-btn glass">
+			<a
+				href={p.link}
+				target="_blank"
+				class="btn-primary project-btn glass"
+				onclick={() => track('project_click', { project: p.id, from: 'tooltip' })}
+			>
 				{data.linkText}
 				<ExternalLink size={20} />
 			</a>

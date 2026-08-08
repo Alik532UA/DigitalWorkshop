@@ -11,6 +11,7 @@
     import { base } from "$app/paths";
     import Section from "../ui/Section.svelte";
     import { t } from "$lib/i18n/LanguageState.svelte";
+    import { track } from "$lib/services/analytics";
 
     const projects = [
         { id: 'slovko', img: 'slovko.jpg', icon: Globe, link: 'https://alik532ua.github.io/Slovko/' },
@@ -55,6 +56,7 @@
                         href={p.link}
                         target="_blank"
                         class="btn-primary project-btn glass"
+                        onclick={() => track("project_click", { project: p.id, from: "portfolio" })}
                     >
                         {data.linkText}
                         <ExternalLink size={16} />

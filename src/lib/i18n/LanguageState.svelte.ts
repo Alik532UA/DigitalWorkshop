@@ -43,6 +43,7 @@ import { kos } from './locales/kos';
 import { yap } from './locales/yap';
 import { browser } from '$app/environment';
 import { storage } from '$lib/services/storage';
+import { track } from '$lib/services/analytics';
 import { getContext, setContext } from 'svelte';
 import type { MenuState } from '../controllers/UiState.svelte';
 
@@ -118,7 +119,11 @@ export class LanguageState {
     
     set(lang: Language, menuState?: MenuState) {
         if (this.current === lang) return;
-        
+
+        // Deliberate switches only — init() assigns this.current directly, so
+        // restoring a saved language does not count as a choice.
+        track('language_change', { language: lang });
+
         // Якщо блюр вимкнено, міняємо мову миттєво
         if (menuState && !menuState.enableBlur) {
             this.current = lang;

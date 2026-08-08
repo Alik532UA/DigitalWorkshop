@@ -7,9 +7,21 @@ vi.mock('$app/navigation', () => ({
     replaceState: vi.fn()
 }));
 
+// `dev` is read by the analytics service, which LanguageState.set() calls.
 vi.mock('$app/environment', () => ({
-    browser: true
+    browser: true,
+    dev: true
 }));
+
+// jsdom does not hand us a usable localStorage here, and with browser mocked to
+// true both LanguageState and MenuState reach for it as soon as they are built.
+// Without this the whole file dies on construction and nothing runs.
+vi.stubGlobal('localStorage', {
+    getItem: vi.fn(),
+    setItem: vi.fn(),
+    removeItem: vi.fn(),
+    clear: vi.fn()
+});
 
 describe('LanguageState', () => {
     let language: LanguageState;

@@ -2,6 +2,7 @@
     import BaseModal from "./BaseModal.svelte";
     import { base } from "$app/paths";
     import { t } from "$lib/i18n/LanguageState.svelte";
+    import { track } from "$lib/services/analytics";
 
     let { show = $bindable() } = $props<{
         show: boolean;
@@ -14,7 +15,10 @@
             href="https://drive.google.com/file/d/1Znm2vqgBaUOaIGr8SQnSkEGDQgvfpr3p/view"
             target="_blank"
             class="pdf-option"
-            onclick={() => (show = false)}
+            onclick={() => {
+                track("cv_download", { variant: "ats" });
+                show = false;
+            }}
         >
             <div class="pdf-preview">
                 <img
@@ -30,7 +34,10 @@
             href="https://drive.google.com/file/d/169jkAHJDjx8P3zJODr-PtytX2HtkVaRv/view"
             target="_blank"
             class="pdf-option"
-            onclick={() => (show = false)}
+            onclick={() => {
+                track("cv_download", { variant: "dark" });
+                show = false;
+            }}
         >
             <div class="pdf-preview">
                 <img
@@ -46,7 +53,10 @@
             href="https://drive.google.com/file/d/1bNX2y5uD99DrQ1-jjjbFyYQJbeWeeCLB/view"
             target="_blank"
             class="pdf-option"
-            onclick={() => (show = false)}
+            onclick={() => {
+                track("cv_download", { variant: "light" });
+                show = false;
+            }}
         >
             <div class="pdf-preview">
                 <img
