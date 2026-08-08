@@ -10,7 +10,6 @@ export const en: Translations = {
         website: "Websites",
         apps: "Apps",
         games: "Games",
-        promo: "Initiative",
         contact: "Contact",
         settings: "Settings",
         language: "Language",
@@ -19,20 +18,20 @@ export const en: Translations = {
         menu: "Menu"
     },
     hero: {
-        greeting: "Hi, I'm Alik!\nI build modern [[website]], interactive [[apps]], and [[games]].\n\nDo you run a creative school, a club, or a volunteer initiative? Then this [[promo]] is for you!",
+        greeting: "Hi, I'm Alik!\nI build modern [[website]], interactive [[apps]], and [[games]].",
         description: "Pick a product to see the details, or browse my finished work",
         description_sea_desktop: "Pick a product on the right to see the details, or browse the portfolio on the left",
         description_sea_mobile: "Pick a product below to see the details, or scroll down to the portfolio",
         buttons: {
             website: "websites",
             apps: "apps",
-            games: "games",
-            promo: "special offer"
+            games: "games"
         }
     },
     portfolio: {
         title: "My Portfolio",
         subtitle: "Here are projects that demonstrate different technical capabilities: from logic games to educational platforms.",
+        featureLabel: "Highlight:",
         projects: {
             slovko: {
                 title: "Slovko",
@@ -146,54 +145,6 @@ export const en: Translations = {
                 }
             ],
             cta: "Order a game"
-        },
-        promo: {
-            title: "Initiative",
-            pageTitle: "Special Offer",
-            intro: "This program is specially created for non-profit, educational, and socially beneficial initiatives. My goal is to provide them with modern tools for development.",
-            faq: [
-                {
-                    q: "Who can take advantage of this special offer?",
-                    a: "This offer is created specifically for non-profit, educational, and socially beneficial initiatives. These include:\n* State and private creative schools (music, art, theater).\n* General education schools and kindergartens.\n* Sports, logic, and creative clubs.\n* Charitable foundations and non-governmental organizations.\n* Volunteer initiatives.\nIf your project has social or educational value — this initiative is for you."
-                },
-                {
-                    q: "Why is website creation free?",
-                    a: "I want creative schools in Ukraine to have modern and stylish websites instead of outdated and slow pages from the 2010s."
-                },
-                {
-                    q: "What is my personal interest?",
-                    a: "I really don't make money from developing these sites. My main goal is a high-quality live portfolio and word-of-mouth. Your cool site will become my business card. I expect that someone will see my work, and thanks to this, I will receive commercial projects where I can earn fair money.\nThe only condition is a small 'Order a website' button at the bottom. Thanks to this button, those who like your resource will be able to find me and order commercial development."
-                },
-                {
-                    q: "What inspired me to start this project?",
-                    a: "For me, this is a social and creative initiative. I myself graduated from the 'Children's Theater School of Odesa' and perfectly understand the realities of state funding for creative institutions. There is no extra money there, and having a modern, stylish, fast website can help attract new students."
-                },
-                {
-                    q: "What are the support conditions?",
-                    a: "The subscription fee is 50 euros per year for technical support (the first payment is made only 12 months after the website launch)."
-                },
-                {
-                    q: "What is included in the support?",
-                    a: "5 update packages per year (change of schedule, list of teachers, etc.). You pass the data — I publish."
-                },
-                {
-                    q: "Why is technical support paid?",
-                    a: "I expect to help hundreds of schools. To have the resources to regularly update all these sites (publish news, change schedules, add photos), I need time. This minimum symbolic payment is a guarantee that your site will live and be updated, rather than being abandoned after a month."
-                },
-                {
-                    q: "Why is this 50 euros a better deal than regular hosting?",
-                    a: "Usually, schools pay third-party services just for 'hosting' (renting space on the internet) for an old site that no one updates. I suggest redirecting this money to a real result: you pay the same (or less) money, but get a modern resource, and I take over its technical support and publication of your news."
-                },
-                {
-                    q: "Can it be even cheaper?",
-                    a: "Yes! I have a partner program. If you recommend me to another school or foundation:\n* **For them:** they get a discounted price for the first year of the site's operation (35 euros instead of 50).\n* **For you:** you get a -10 euro discount on your subscription fee for each referred initiative.\n5 recommendations = free support for a year!"
-                },
-                {
-                    q: "What other services do I provide besides website development?",
-                    a: "The website is just the tip of the iceberg! I can also help with the development of logos, posters for performances, certificates, banners, and the general style of the organization. Contact me with any creative request — I will provide a consultation."
-                }
-            ],
-            cta: "Submit an application"
         }
     },
     pdf_modal: {

@@ -9,15 +9,18 @@
 	}
 </script>
 
-<div class="page-container" data-testid="page-promo">
-	<Section id="promo" title={t.tabs.promo.pageTitle || t.tabs.promo.title}>
+<!-- The special offer ships only in the Ukrainian locale -->
+{#if t.tabs.promo}
+	{@const promo = t.tabs.promo}
+	<div class="page-container" data-testid="page-promo">
+	<Section id="promo" title={promo.pageTitle || promo.title}>
 		{#snippet icon()}<WandSparkles size={24} />{/snippet}
 
 		<div class="content-wrapper">
-			<p class="intro-text">{t.tabs.promo.intro}</p>
+			<p class="intro-text">{promo.intro}</p>
 
 			<div class="faq-list">
-				{#each t.tabs.promo.faq as item}
+				{#each promo.faq as item}
 					<div class="faq-item glass card">
 						<div class="faq-q">
 							<CircleHelp size={22} class="accent-icon" />
@@ -43,12 +46,13 @@
 
 			<div class="cta-section">
 				<a href={config.telegramUrl} target="_blank" class="btn-primary large-btn glass" data-testid="promo-cta-button">
-					{t.tabs.promo.cta}
+					{promo.cta}
 				</a>
 			</div>
 		</div>
 	</Section>
-</div>
+	</div>
+{/if}
 
 <style>
     .content-wrapper { display: flex; flex-direction: column; gap: 40px; }

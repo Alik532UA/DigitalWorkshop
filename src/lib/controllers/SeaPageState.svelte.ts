@@ -8,29 +8,42 @@ import iconMobile from '$lib/assets/tabler/device-mobile.svg?raw';
 import iconGamepad from '$lib/assets/tabler/device-gamepad-2.svg?raw';
 import iconHeart from '$lib/assets/tabler/heart-handshake.svg?raw';
 
+const ALL_TABS = [
+	{ id: 'anchor', icon: iconAnchor },
+	{ id: 'website', icon: iconWorld },
+	{ id: 'apps', icon: iconMobile },
+	{ id: 'games', icon: iconGamepad },
+	{ id: 'promo', icon: iconHeart }
+];
+
 export class SeaPageState {
 	// Constants
 	LEFT_PANEL_SCROLL_RATIO = 0.4;
-	tabsList = ['anchor', 'website', 'apps', 'games', 'promo'];
 
-	tabIcons = [
-		{ id: 'anchor', icon: iconAnchor },
-		{ id: 'website', icon: iconWorld },
-		{ id: 'apps', icon: iconMobile },
-		{ id: 'games', icon: iconGamepad },
-		{ id: 'promo', icon: iconHeart }
-	];
-
+	// The school sites sit in both categories, so dropping the promo tab in other
+	// languages never leaves a project without a home to show up in.
 	projects = [
-		{ id: 'slovko', img: 'slovko.jpg', icon: Globe, link: 'https://alik532ua.github.io/Slovko/', tab: 'apps' },
-		{ id: 'mindstep', img: 'mindstep.jpg', icon: Gamepad2, link: 'https://alik532ua.github.io/MindStep/', tab: 'games' },
-		{ id: 'cv3d', img: 'cv_3d.jpg', icon: Box, link: 'https://alik532ua.itch.io/alik-cv-interactive-3d-experience', tab: 'games' },
-		{ id: 'cv_web', img: 'cv_web.jpg', icon: FileUser, link: 'https://alik532ua.github.io/CV/', tab: 'website' },
-		{ id: 'and_dvergr', img: 'AndDvergrShallSpeakAI.jpg', icon: Gamepad2, link: 'https://www.youtube.com/@AndDvergrShallSpeakAI', tab: 'games' },
-		{ id: 'teatralo4ka', img: 'teatralo4ka.jpg', icon: Globe, link: 'https://teatralo4ka.odesa.ua/', tab: 'promo' },
-		{ id: 'as5', img: 'as5_odesa_ua.jpg', icon: Globe, link: 'https://as5.odesa.ua/', tab: 'promo' },
-		{ id: 'vetcrew', img: 'VetCrewGames.jpg', icon: Gamepad2, link: 'https://alik532ua.github.io/VetCrewGames', tab: 'games' }
+		{ id: 'slovko', img: 'slovko.jpg', icon: Globe, link: 'https://alik532ua.github.io/Slovko/', tabs: ['apps'] },
+		{ id: 'mindstep', img: 'mindstep.jpg', icon: Gamepad2, link: 'https://alik532ua.github.io/MindStep/', tabs: ['games'] },
+		{ id: 'teatralo4ka', img: 'teatralo4ka.jpg', icon: Globe, link: 'https://teatralo4ka.odesa.ua/', tabs: ['website', 'promo'] },
+		{ id: 'cv3d', img: 'cv_3d.jpg', icon: Box, link: 'https://alik532ua.itch.io/alik-cv-interactive-3d-experience', tabs: ['games'] },
+		{ id: 'cv_web', img: 'cv_web.jpg', icon: FileUser, link: 'https://alik532ua.github.io/CV/', tabs: ['website'] },
+		{ id: 'and_dvergr', img: 'AndDvergrShallSpeakAI.jpg', icon: Gamepad2, link: 'https://www.youtube.com/@AndDvergrShallSpeakAI', tabs: ['games'] },
+		{ id: 'as5', img: 'as5_odesa_ua.jpg', icon: Globe, link: 'https://as5.odesa.ua/', tabs: ['website', 'promo'] },
+		{ id: 'vetcrew', img: 'VetCrewGames.jpg', icon: Gamepad2, link: 'https://alik532ua.github.io/VetCrewGames', tabs: ['games'] }
 	];
+
+	// Resolved during init: reading it later would call getContext() outside a
+	// component, which Svelte forbids.
+	private langState = t.current;
+
+	// The special offer targets Ukrainian schools and charities only, so the tab
+	// exists solely in the Ukrainian version.
+	tabIcons = $derived(
+		this.langState.current === 'uk' ? ALL_TABS : ALL_TABS.filter((tab) => tab.id !== 'promo')
+	);
+
+	tabsList = $derived(this.tabIcons.map((tab) => tab.id));
 
 	// State
 	currentTab = $state('anchor');
@@ -67,12 +80,16 @@ export class SeaPageState {
 
 	// Computed
 	activeProjects = $derived(
-		this.currentTab === 'anchor' ? [] : this.projects.filter((p) => p.tab === this.currentTab)
+		this.currentTab === 'anchor'
+			? []
+			: this.projects.filter((p) => p.tabs.includes(this.currentTab))
 	);
 
 	activeChunks = $derived.by(() => {
 		if (this.currentTab === 'anchor') return [];
 		const tabData = t.tabs[this.currentTab as keyof typeof t.tabs];
+		// tabs.promo is absent outside Ukrainian, so a stale tab id must not throw
+		if (!tabData) return [];
 		const items = (tabData as any).benefits || (tabData as any).faq || [];
 
 		const result = [];

@@ -16,12 +16,15 @@
 
     let activeTab = $state('website');
 
-    const tabs = [
+    const allTabs = [
         { id: 'website', icon: Globe, label: () => t.tabs.website.title },
         { id: 'apps', icon: Smartphone, label: () => t.tabs.apps.title },
         { id: 'games', icon: Gamepad2, label: () => t.tabs.games.title },
-        { id: 'promo', icon: Gift, label: () => t.tabs.promo.title }
+        { id: 'promo', icon: Gift, label: () => t.tabs.promo?.title ?? '' }
     ];
+
+    // tabs.promo only exists in the Ukrainian locale
+    const tabs = $derived(allTabs.filter((tab) => tab.id !== 'promo' || t.tabs.promo));
 
     function setActiveTab(id: string) {
         activeTab = id;
@@ -118,7 +121,7 @@
                         </a>
                     </div>
                 </div>
-            {:else if activeTab === 'promo'}
+            {:else if activeTab === 'promo' && t.tabs.promo}
                 <div in:fly={{ x: 20, duration: 400 }} out:fade={{ duration: 200 }} class="tab-panel">
                     <h2 class="tab-title">{t.tabs.promo.title}</h2>
                     <p class="tab-intro">{t.tabs.promo.intro}</p>

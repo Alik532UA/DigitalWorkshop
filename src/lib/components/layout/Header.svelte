@@ -29,13 +29,16 @@
     let w = $state(0);
     let h = $state(0);
 
-    const baseLinks: { id: TabType; label: () => string; left: number }[] = [
+    const allLinks: { id: TabType; label: () => string; left: number }[] = [
         { id: "website", label: () => t.tabs.website.title, left: 15 },
         { id: "apps", label: () => t.tabs.apps.title, left: 32.5 },
         { id: "about", label: () => t.nav.about, left: 50 },
         { id: "games", label: () => t.tabs.games.title, left: 67.5 },
-        { id: "promo", label: () => t.tabs.promo.title, left: 85 },
+        { id: "promo", label: () => t.tabs.promo?.title ?? "", left: 85 },
     ];
+
+    // tabs.promo only exists in the Ukrainian locale
+    const baseLinks = $derived(allLinks.filter((link) => link.id !== "promo" || t.tabs.promo));
 
     // Desktop Arc calculation
     function getHeaderLinkParams(leftPercent: number) {

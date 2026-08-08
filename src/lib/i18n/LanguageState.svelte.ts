@@ -129,7 +129,8 @@ const TranslationSchema = z.object({
         website: z.string(),
         apps: z.string(),
         games: z.string(),
-        promo: z.string(),
+        // Ukraine-only social initiative: absent from the other locales
+        promo: z.string().optional(),
         contact: z.string(),
         settings: z.string(),
         language: z.string(),
@@ -146,12 +147,15 @@ const TranslationSchema = z.object({
             website: z.string(),
             apps: z.string(),
             games: z.string(),
-            promo: z.string()
+            promo: z.string().optional()
         })
     }),
     portfolio: z.object({
         title: z.string(),
         subtitle: z.string(),
+        // Prefix in front of a project's "feature" line; carries its own colon so
+        // each locale can pick the right punctuation
+        featureLabel: z.string(),
         projects: z.record(z.string(), z.object({
             title: z.string(),
             description: z.string(),
@@ -189,6 +193,9 @@ const TranslationSchema = z.object({
             })),
             cta: z.string()
         }),
+        // The special offer is a Ukrainian social initiative (free sites for
+        // Ukrainian creative schools, EUR support fee, referral programme). It is
+        // not on offer to other audiences, so only uk.ts carries this section.
         promo: z.object({
             title: z.string(),
             pageTitle: z.string().optional(),
@@ -198,7 +205,7 @@ const TranslationSchema = z.object({
                 a: z.string()
             })),
             cta: z.string()
-        })
+        }).optional()
     }),
     pdf_modal: z.object({
         title: z.string(),
