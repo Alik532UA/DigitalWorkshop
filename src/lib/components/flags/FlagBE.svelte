@@ -1,0 +1,18 @@
+<!--
+    White-red-white: the historical 1918 flag, adopted as the national flag in
+    1991-1995 and, since the 2020 protests, the symbol used by the Belarusian
+    pro-democracy movement and diaspora — not the current government's
+    green-red flag. Picked deliberately to match this site's existing stance
+    (Crimean Tatar flag, Odesa's post-2022 transliteration, "Russian —
+    language of the aggressor" in this locale's other.languages.ru string).
+-->
+<svg
+    width="100%"
+    height="100%"
+    viewBox="0 0 32 32"
+    preserveAspectRatio="xMidYMid slice"
+    {...$$restProps}
+>
+    <rect width="32" height="32" fill="#fff" />
+    <rect width="32" height="16" y="8" fill="#D22730" />
+</svg>

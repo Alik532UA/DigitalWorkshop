@@ -51,9 +51,13 @@ describe('LanguageState', () => {
         await new Promise(r => setTimeout(r, 200));
         expect(language.isChanging).toBe(false);
     });
-    it('should support changing to ja language', () => {
+    // One assertion per supported non-default language, kept as a single
+    // parametrized test so adding a locale to LanguageState.ts (Language type
+    // + translations record) is the only edit needed here too.
+    const OTHER_LANGUAGES = ['ja', 'es', 'fr', 'pt', 'it', 'de', 'nl', 'be'] as const;
+    it.each(OTHER_LANGUAGES)('should support changing to %s language', (lang) => {
         menu.enableBlur = false;
-        language.set('ja', menu);
-        expect(language.current).toBe('ja');
+        language.set(lang, menu);
+        expect(language.current).toBe(lang);
     });
 });

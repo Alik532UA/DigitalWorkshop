@@ -3,12 +3,25 @@ import { z } from 'zod';
 import { en } from './locales/en';
 import { uk } from './locales/uk';
 import { ja } from './locales/ja';
+import { es } from './locales/es';
+import { fr } from './locales/fr';
+import { pt } from './locales/pt';
+import { it } from './locales/it';
+import { de } from './locales/de';
+import { nl } from './locales/nl';
+import { be } from './locales/be';
 import { browser } from '$app/environment';
 import { storage } from '$lib/services/storage';
 import { getContext, setContext } from 'svelte';
 import type { MenuState } from '../controllers/UiState.svelte';
 
-export type Language = 'en' | 'uk' | 'ja';
+export type Language = 'en' | 'uk' | 'ja' | 'es' | 'fr' | 'pt' | 'it' | 'de' | 'nl' | 'be';
+
+const SUPPORTED_LANGUAGES: readonly Language[] = ['en', 'uk', 'ja', 'es', 'fr', 'pt', 'it', 'de', 'nl', 'be'];
+
+function isLanguage(value: string | null): value is Language {
+    return !!value && (SUPPORTED_LANGUAGES as readonly string[]).includes(value);
+}
 
 export class LanguageState {
     current = $state<Language>('uk');
@@ -19,12 +32,12 @@ export class LanguageState {
     init() {
         if (browser) {
             const params = new URLSearchParams(window.location.search);
-            const lang = params.get('lang') as Language;
-            if (lang === 'en' || lang === 'uk' || lang === 'ja') {
+            const lang = params.get('lang');
+            if (isLanguage(lang)) {
                 this.current = lang;
             } else {
-                const saved = storage.get('lang') as Language;
-                if (saved === 'en' || saved === 'uk' || saved === 'ja') {
+                const saved = storage.get('lang');
+                if (isLanguage(saved)) {
                     this.current = saved;
                 }
             }
@@ -266,7 +279,7 @@ const TranslationSchema = z.object({
 
 export type Translations = z.infer<typeof TranslationSchema>;
 
-export const translations: Record<Language, Translations> = { en, uk, ja };
+export const translations: Record<Language, Translations> = { en, uk, ja, es, fr, pt, it, de, nl, be };
 
 export const t = {
     get current() { return getLanguage(); },

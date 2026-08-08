@@ -202,17 +202,49 @@
                         <div class="dropdown-content">
                             <div class="settings-group">
                                 <span class="label">{t.nav.language}</span>
+                                <!-- This route is unreachable from any in-app link (see +layout.svelte's
+                                     isArchive check), so the flat button row hasn't been rebuilt into the
+                                     searchable/grouped switcher used elsewhere. Kept in sync language-for-
+                                     language for consistency, but at 10 entries it's already cramped. -->
                                 <div class="options">
-                                    <button 
-                                        class:active={language.current === 'uk'} 
+                                    <button
+                                        class:active={language.current === 'uk'}
                                         onclick={() => language.set('uk')}
                                     >UA</button>
-                                    <button 
-                                        class:active={language.current === 'en'} 
+                                    <button
+                                        class:active={language.current === 'be'}
+                                        onclick={() => language.set('be')}
+                                    >BE</button>
+                                    <button
+                                        class:active={language.current === 'en'}
                                         onclick={() => language.set('en')}
                                     >EN</button>
-                                    <button 
-                                        class:active={language.current === 'ja'} 
+                                    <button
+                                        class:active={language.current === 'es'}
+                                        onclick={() => language.set('es')}
+                                    >ES</button>
+                                    <button
+                                        class:active={language.current === 'fr'}
+                                        onclick={() => language.set('fr')}
+                                    >FR</button>
+                                    <button
+                                        class:active={language.current === 'pt'}
+                                        onclick={() => language.set('pt')}
+                                    >PT</button>
+                                    <button
+                                        class:active={language.current === 'it'}
+                                        onclick={() => language.set('it')}
+                                    >IT</button>
+                                    <button
+                                        class:active={language.current === 'de'}
+                                        onclick={() => language.set('de')}
+                                    >DE</button>
+                                    <button
+                                        class:active={language.current === 'nl'}
+                                        onclick={() => language.set('nl')}
+                                    >NL</button>
+                                    <button
+                                        class:active={language.current === 'ja'}
                                         onclick={() => language.set('ja')}
                                     >JA</button>
                                 </div>

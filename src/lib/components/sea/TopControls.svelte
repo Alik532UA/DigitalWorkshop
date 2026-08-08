@@ -1,9 +1,7 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
 	import type { Language } from '$lib/i18n/LanguageState.svelte';
-	import FlagUK from '$lib/components/flags/FlagUK.svelte';
-	import FlagEN from '$lib/components/flags/FlagEN.svelte';
-	import FlagJA from '$lib/components/flags/FlagJA.svelte';
+	import { LANGUAGE_META } from '$lib/i18n/languageMeta';
 	import iconLanguage from '$lib/assets/tabler/language.svg?raw';
 	import iconClock from '$lib/assets/tabler/clock.svg?raw';
 	import iconMaximize from '$lib/assets/tabler/arrows-maximize.svg?raw';
@@ -44,12 +42,6 @@
 		onToggleFullscreen,
 		onVolumeInput
 	}: Props = $props();
-
-	const LANGUAGES = [
-		{ code: 'uk' as Language, label: 'Українська', flag: FlagUK },
-		{ code: 'en' as Language, label: 'English', flag: FlagEN },
-		{ code: 'ja' as Language, label: '日本語', flag: FlagJA }
-	];
 
 	let isLangOpen = $state(false);
 	let langWrapper: HTMLDivElement | undefined = $state();
@@ -126,10 +118,15 @@
 
 		{#if isLangOpen && !isClockActive}
 			<!-- The container's padding bridges the gap under the button: without it
-			     the pointer leaves the wrapper on the way down and the menu closes. -->
+			     the pointer leaves the wrapper on the way down and the menu closes.
+			     Deliberately a bare, unlabeled flag column (see LANGUAGE_META in
+			     languageMeta.ts) — fine at a handful of languages, but this needs a
+			     different layout (labels, search, or grouping) before the list grows
+			     into the double digits, or it turns into an unreadable wall of flags
+			     floating over the video. -->
 			<div class="lang-dropdown-container" transition:fly={{ y: -8, duration: 200 }}>
 				<div class="lang-dropdown" role="menu">
-					{#each LANGUAGES as { code, label, flag: Flag } (code)}
+					{#each LANGUAGE_META as { code, label, flag: Flag } (code)}
 						<button
 							class="lang-option"
 							class:active={currentLanguage === code}
