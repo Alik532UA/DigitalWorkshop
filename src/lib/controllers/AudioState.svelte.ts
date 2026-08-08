@@ -27,6 +27,9 @@ export class AudioState {
 				this.audioRef = null;
 				this.isFadingIn = false;
 				this.isPlayPending = false;
+				// A detached element fires no `pause` event, so this flag would stay
+				// stuck on `true` and desync from whatever element binds next.
+				this.isPlaying = false;
 			}
 		};
 	}
@@ -123,10 +126,15 @@ export class AudioState {
 
 	toggle() {
 		if (!this.audioRef) return;
-		if (this.isPlaying) {
-			this.audioRef.pause();
-		} else {
+		// Decide from the element, not from `isPlaying`. That flag only mirrors the
+		// play/pause events, so anything that re-renders the <audio> (a language
+		// change navigates via replaceState) can leave it reading "playing" while
+		// the element sits paused. Every click then called pause() on an already
+		// paused element, no `pause` event fired, and the button looked dead.
+		if (this.audioRef.paused) {
 			this.audioRef.play().catch((err: unknown) => logService.error('ui', 'Audio playback failed', err));
+		} else {
+			this.audioRef.pause();
 		}
 	}
 
@@ -148,14 +156,14 @@ export class AudioState {
 		const newVol = this.volume - Math.sign(deltaY) * 0.05;
 		this.volume = Math.max(0, Math.min(1, newVol));
 
-		if (this.volume > 0 && !this.isPlaying && this.audioRef) {
+		if (this.volume > 0 && this.audioRef?.paused) {
 			this.audioRef.play().catch((err: unknown) => logService.error('ui', 'Audio playback failed', err));
 		}
 	}
 
 	/** Handle volume slider input */
 	onSliderInput() {
-		if (this.volume > 0 && !this.isPlaying && this.audioRef) {
+		if (this.volume > 0 && this.audioRef?.paused) {
 			this.audioRef.play().catch((err: unknown) => logService.error('ui', 'Audio playback failed', err));
 		}
 	}
