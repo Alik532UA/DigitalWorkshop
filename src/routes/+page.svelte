@@ -186,8 +186,10 @@
 		bind:audioVolume={audioState.volume}
 		isFullscreen={state.isFullscreen}
 		isIOS={state.isIOS}
+		currentLanguage={langState.current}
 		onToggleClock={() => clockState.toggle()}
-		onToggleLanguage={clockState.isActive ? () => clockState.toggleFormat() : toggleLanguage}
+		onSelectLanguage={(lang) => langState.set(lang)}
+		onToggleClockFormat={() => clockState.toggleFormat()}
 		onToggleAudio={() => audioState.toggle()}
 		onToggleFullscreen={() => state.toggleFullscreen()}
 		onVolumeInput={() => audioState.onSliderInput()}
