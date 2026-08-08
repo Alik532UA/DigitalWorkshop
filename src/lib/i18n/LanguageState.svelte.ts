@@ -10,14 +10,31 @@ import { it } from './locales/it';
 import { de } from './locales/de';
 import { nl } from './locales/nl';
 import { be } from './locales/be';
+import { pl } from './locales/pl';
+import { cs } from './locales/cs';
+import { sk } from './locales/sk';
+import { bg } from './locales/bg';
+import { hr } from './locales/hr';
+import { sl } from './locales/sl';
+import { mk } from './locales/mk';
+import { ro } from './locales/ro';
+import { sv } from './locales/sv';
+import { no } from './locales/no';
+import { da } from './locales/da';
+import { is } from './locales/is';
 import { browser } from '$app/environment';
 import { storage } from '$lib/services/storage';
 import { getContext, setContext } from 'svelte';
 import type { MenuState } from '../controllers/UiState.svelte';
 
-export type Language = 'en' | 'uk' | 'ja' | 'es' | 'fr' | 'pt' | 'it' | 'de' | 'nl' | 'be';
+export type Language =
+    | 'en' | 'uk' | 'ja' | 'es' | 'fr' | 'pt' | 'it' | 'de' | 'nl' | 'be'
+    | 'pl' | 'cs' | 'sk' | 'bg' | 'hr' | 'sl' | 'mk' | 'ro' | 'sv' | 'no' | 'da' | 'is';
 
-const SUPPORTED_LANGUAGES: readonly Language[] = ['en', 'uk', 'ja', 'es', 'fr', 'pt', 'it', 'de', 'nl', 'be'];
+const SUPPORTED_LANGUAGES: readonly Language[] = [
+    'en', 'uk', 'ja', 'es', 'fr', 'pt', 'it', 'de', 'nl', 'be',
+    'pl', 'cs', 'sk', 'bg', 'hr', 'sl', 'mk', 'ro', 'sv', 'no', 'da', 'is'
+];
 
 function isLanguage(value: string | null): value is Language {
     return !!value && (SUPPORTED_LANGUAGES as readonly string[]).includes(value);
@@ -279,7 +296,10 @@ const TranslationSchema = z.object({
 
 export type Translations = z.infer<typeof TranslationSchema>;
 
-export const translations: Record<Language, Translations> = { en, uk, ja, es, fr, pt, it, de, nl, be };
+export const translations: Record<Language, Translations> = {
+    en, uk, ja, es, fr, pt, it, de, nl, be,
+    pl, cs, sk, bg, hr, sl, mk, ro, sv, no, da, is
+};
 
 export const t = {
     get current() { return getLanguage(); },

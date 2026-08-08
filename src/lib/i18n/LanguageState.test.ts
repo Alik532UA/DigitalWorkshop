@@ -54,7 +54,10 @@ describe('LanguageState', () => {
     // One assertion per supported non-default language, kept as a single
     // parametrized test so adding a locale to LanguageState.ts (Language type
     // + translations record) is the only edit needed here too.
-    const OTHER_LANGUAGES = ['ja', 'es', 'fr', 'pt', 'it', 'de', 'nl', 'be'] as const;
+    const OTHER_LANGUAGES = [
+        'ja', 'es', 'fr', 'pt', 'it', 'de', 'nl', 'be',
+        'pl', 'cs', 'sk', 'bg', 'hr', 'sl', 'mk', 'ro', 'sv', 'no', 'da', 'is'
+    ] as const;
     it.each(OTHER_LANGUAGES)('should support changing to %s language', (lang) => {
         menu.enableBlur = false;
         language.set(lang, menu);

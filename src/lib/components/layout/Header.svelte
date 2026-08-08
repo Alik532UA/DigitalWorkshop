@@ -1,5 +1,6 @@
 <script lang="ts">
     import { getLanguage, t } from "$lib/i18n/LanguageState.svelte";
+    import { LANGUAGE_META } from "$lib/i18n/languageMeta";
     import {
         getTheme,
         getTabs,
@@ -203,50 +204,18 @@
                             <div class="settings-group">
                                 <span class="label">{t.nav.language}</span>
                                 <!-- This route is unreachable from any in-app link (see +layout.svelte's
-                                     isArchive check), so the flat button row hasn't been rebuilt into the
-                                     searchable/grouped switcher used elsewhere. Kept in sync language-for-
-                                     language for consistency, but at 10 entries it's already cramped. -->
-                                <div class="options">
-                                    <button
-                                        class:active={language.current === 'uk'}
-                                        onclick={() => language.set('uk')}
-                                    >UA</button>
-                                    <button
-                                        class:active={language.current === 'be'}
-                                        onclick={() => language.set('be')}
-                                    >BE</button>
-                                    <button
-                                        class:active={language.current === 'en'}
-                                        onclick={() => language.set('en')}
-                                    >EN</button>
-                                    <button
-                                        class:active={language.current === 'es'}
-                                        onclick={() => language.set('es')}
-                                    >ES</button>
-                                    <button
-                                        class:active={language.current === 'fr'}
-                                        onclick={() => language.set('fr')}
-                                    >FR</button>
-                                    <button
-                                        class:active={language.current === 'pt'}
-                                        onclick={() => language.set('pt')}
-                                    >PT</button>
-                                    <button
-                                        class:active={language.current === 'it'}
-                                        onclick={() => language.set('it')}
-                                    >IT</button>
-                                    <button
-                                        class:active={language.current === 'de'}
-                                        onclick={() => language.set('de')}
-                                    >DE</button>
-                                    <button
-                                        class:active={language.current === 'nl'}
-                                        onclick={() => language.set('nl')}
-                                    >NL</button>
-                                    <button
-                                        class:active={language.current === 'ja'}
-                                        onclick={() => language.set('ja')}
-                                    >JA</button>
+                                     isArchive check). Reads from the shared LANGUAGE_META list instead of
+                                     a hardcoded button per language, so a future batch can't silently
+                                     forget to add it here too — it just never needed the search/grouping
+                                     UI the reachable switchers got, since nobody lands on this page. -->
+                                <div class="options lang-options">
+                                    {#each LANGUAGE_META as { code, label } (code)}
+                                        <button
+                                            class:active={language.current === code}
+                                            onclick={() => language.set(code)}
+                                            title={label}
+                                        >{code.toUpperCase()}</button>
+                                    {/each}
                                 </div>
                             </div>
                             <div class="settings-group">
@@ -529,6 +498,17 @@
         background: var(--accent-primary);
         color: #1a1a1a;
         font-weight: 700;
+    }
+
+    /* The language row can hold 20+ two-letter codes; unlike the 3-item theme
+       row it needs to wrap instead of squeezing every button flex:1. */
+    :global(.settings-group .options.lang-options) {
+        flex-wrap: wrap;
+    }
+
+    :global(.settings-group .options.lang-options button) {
+        flex: 0 1 44px;
+        padding: 8px 4px;
     }
 
     .mobile-nav {
