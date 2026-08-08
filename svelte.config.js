@@ -15,10 +15,19 @@ const config = {
 		csp: {
 			mode: 'hash',
 			directives: {
-				'script-src': ['self', 'unsafe-inline'],
+				// gtag.js is injected at runtime by the analytics service; without
+				// this the browser blocks it and analytics silently never starts.
+				'script-src': ['self', 'unsafe-inline', 'https://www.googletagmanager.com'],
 				'style-src': ['self', 'unsafe-inline'],
 				'img-src': ['self', 'data:', 'https:'],
-				'connect-src': ['self'],
+				// ...and without these the beacons themselves are blocked, so the
+				// script would load and then fail to report anything.
+				'connect-src': [
+					'self',
+					'https://www.googletagmanager.com',
+					'https://*.google-analytics.com',
+					'https://*.analytics.google.com'
+				],
 				'object-src': ['none'],
 				'base-uri': ['self'],
 				'frame-ancestors': ['none'],
