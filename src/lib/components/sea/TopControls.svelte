@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
 	import type { Language } from '$lib/i18n/LanguageState.svelte';
-	import { LANGUAGE_META } from '$lib/i18n/languageMeta';
+	import { LANGUAGE_META, LANGUAGE_GROUP_ORDER, LANGUAGE_GROUP_LABELS } from '$lib/i18n/languageMeta';
 	import iconLanguage from '$lib/assets/tabler/language.svg?raw';
 	import iconClock from '$lib/assets/tabler/clock.svg?raw';
 	import iconMaximize from '$lib/assets/tabler/arrows-maximize.svg?raw';
@@ -45,6 +45,28 @@
 
 	let isLangOpen = $state(false);
 	let langWrapper: HTMLDivElement | undefined = $state();
+	let langQuery = $state('');
+	// Set once the search box is focused. Without it, typing a query and then
+	// nudging the pointer off the panel would close the menu and throw the
+	// query away — the panel is large enough now that this is easy to do.
+	let isLangPinned = $state(false);
+
+	const filteredLanguageMeta = $derived(
+		LANGUAGE_META.filter((l) => {
+			const q = langQuery.trim().toLowerCase();
+			if (!q) return true;
+			return l.label.toLowerCase().includes(q) || l.code.includes(q);
+		})
+	);
+
+	// Groups render in a fixed order and only when they have a match, so the
+	// list stays tidy however many languages end up sharing a group.
+	const visibleGroups = $derived(
+		LANGUAGE_GROUP_ORDER.map((group) => ({
+			group,
+			items: filteredLanguageMeta.filter((l) => l.group === group)
+		})).filter((g) => g.items.length > 0)
+	);
 
 	function handleLanguageClick() {
 		// While the clock overlay is up this button keeps its previous job of
@@ -56,6 +78,7 @@
 		// On desktop hover has already opened the menu, so a plain toggle here
 		// would shut it again on the way to picking a language.
 		isLangOpen = isMobile ? !isLangOpen : true;
+		if (isLangOpen) langQuery = '';
 	}
 
 	function handleLangEnter() {
@@ -64,13 +87,19 @@
 	}
 
 	function handleLangLeave() {
-		if (isMobile) return;
+		if (isMobile || isLangPinned) return;
 		isLangOpen = false;
+	}
+
+	function closeLangMenu() {
+		isLangOpen = false;
+		isLangPinned = false;
+		langQuery = '';
 	}
 
 	function selectLanguage(lang: Language) {
 		onSelectLanguage(lang);
-		isLangOpen = false;
+		closeLangMenu();
 	}
 
 	// No stopPropagation on the trigger: the page relies on window clicks to track
@@ -78,12 +107,12 @@
 	function handleWindowClick(event: MouseEvent) {
 		if (!isLangOpen) return;
 		if (langWrapper && !langWrapper.contains(event.target as Node)) {
-			isLangOpen = false;
+			closeLangMenu();
 		}
 	}
 
 	$effect(() => {
-		if (isClockActive) isLangOpen = false;
+		if (isClockActive) closeLangMenu();
 	});
 </script>
 
@@ -117,28 +146,48 @@
 		</button>
 
 		{#if isLangOpen && !isClockActive}
-			<!-- The container's padding bridges the gap under the button: without it
-			     the pointer leaves the wrapper on the way down and the menu closes.
-			     Deliberately a bare, unlabeled flag column (see LANGUAGE_META in
-			     languageMeta.ts) — fine at a handful of languages, but this needs a
-			     different layout (labels, search, or grouping) before the list grows
-			     into the double digits, or it turns into an unreadable wall of flags
-			     floating over the video. -->
+			<!-- Searchable, grouped panel mirroring the CV header's language menu.
+			     This used to be a bare unlabeled flag column, which was fine at a
+			     handful of languages but ran the full height of the screen once the
+			     list passed forty, with nothing to read and no way to find anything.
+			     The container's top padding bridges the gap under the button: without
+			     it the pointer leaves the wrapper on the way down and the menu closes. -->
 			<div class="lang-dropdown-container" transition:fly={{ y: -8, duration: 200 }}>
 				<div class="lang-dropdown" role="menu">
-					{#each LANGUAGE_META as { code, label, flag: Flag } (code)}
-						<button
-							class="lang-option"
-							class:active={currentLanguage === code}
-							onclick={() => selectLanguage(code)}
-							role="menuitemradio"
-							aria-checked={currentLanguage === code}
-							aria-label={label}
-							title={label}
-						>
-							<span class="flag-frame"><Flag /></span>
-						</button>
-					{/each}
+					<input
+						type="text"
+						class="lang-search"
+						placeholder="Search language..."
+						aria-label="Search language"
+						bind:value={langQuery}
+						onfocus={() => (isLangPinned = true)}
+					/>
+					<div class="lang-groups">
+						<div class="lang-columns">
+							{#each visibleGroups as { group, items } (group)}
+								<div class="lang-group">
+									<span class="lang-group-label">{LANGUAGE_GROUP_LABELS[group]}</span>
+									{#each items as { code, label, flag: Flag } (code)}
+										<button
+											class="lang-option"
+											class:active={currentLanguage === code}
+											onclick={() => selectLanguage(code)}
+											role="menuitemradio"
+											aria-checked={currentLanguage === code}
+											title={label.endsWith('*')
+												? 'Machine-translated draft — pending native speaker review'
+												: label}
+										>
+											<span class="flag-frame"><Flag /></span>
+											<span class="lang-label">{label}</span>
+										</button>
+									{/each}
+								</div>
+							{:else}
+								<p class="lang-empty">No languages found</p>
+							{/each}
+						</div>
+					</div>
 				</div>
 			</div>
 		{/if}
@@ -201,56 +250,133 @@
 		pointer-events: auto;
 	}
 
+	/* Pinned to the viewport rather than the button: the panel is far wider than
+	   the icon it hangs off, and anchoring it to the button pushed it off the
+	   left edge of the screen on narrow viewports. */
 	.lang-dropdown-container {
-		position: absolute;
-		top: 100%;
-		left: 50%;
-		transform: translateX(-50%);
+		position: fixed;
+		top: calc(2rem + 2.2rem);
+		right: 2rem;
 		padding-top: 10px;
 		z-index: 10003;
 		pointer-events: auto;
 	}
 
-	/* No card behind the flags: the state is carried by opacity alone, matching
-	   the bare volume slider next to it. */
+	/* Self-contained dark glass instead of the theme's card variables: this
+	   panel floats over the sea video, not the page background, so it has to
+	   stay readable whichever theme is active. */
 	.lang-dropdown {
 		display: flex;
 		flex-direction: column;
-		align-items: center;
-		gap: 4px;
+		gap: 8px;
+		width: min(calc(100vw - 4rem), 760px);
+		max-height: min(70vh, 560px);
+		padding: 10px;
+		border-radius: 14px;
+		background: rgba(8, 20, 32, 0.82);
+		backdrop-filter: blur(18px);
+		-webkit-backdrop-filter: blur(18px);
+		border: 1px solid rgba(255, 255, 255, 0.14);
+		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+	}
+
+	.lang-search {
+		flex-shrink: 0;
+		background: rgba(255, 255, 255, 0.08);
+		border: 1px solid rgba(255, 255, 255, 0.16);
+		border-radius: 8px;
+		padding: 8px 10px;
+		color: #fff;
+		font-size: 0.85rem;
+	}
+
+	.lang-search::placeholder {
+		color: rgba(255, 255, 255, 0.45);
+	}
+
+	.lang-search:focus {
+		outline: none;
+		border-color: var(--accent-primary, #0284c7);
+	}
+
+	/* Scroll container only — the multi-column element inside must keep an auto
+	   height, or CSS multicol spills sideways instead of scrolling. */
+	.lang-groups {
+		overflow-y: auto;
+	}
+
+	/* Newspaper-style columns rather than one full-width row per group: with a
+	   dozen groups of wildly different sizes, a per-group grid left the
+	   one-language groups reserving a whole row and wasting most of it. */
+	.lang-columns {
+		columns: 150px;
+		column-gap: 14px;
+	}
+
+	.lang-group {
+		/* Keep a group's heading welded to its languages across a column break. */
+		break-inside: avoid;
+		display: flex;
+		flex-direction: column;
+		padding-bottom: 10px;
+	}
+
+	.lang-group-label {
+		padding: 4px 8px 2px;
+		font-size: 0.66rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: rgba(255, 255, 255, 0.5);
 	}
 
 	.lang-option {
 		display: flex;
 		align-items: center;
-		justify-content: center;
+		gap: 8px;
+		width: 100%;
+		padding: 5px 8px;
 		background: none;
 		border: none;
-		padding: 4px;
+		border-radius: 7px;
 		cursor: pointer;
-		opacity: 0.7;
-		transition: opacity 0.2s ease;
-	}
-
-	.lang-option.active {
-		opacity: 1;
+		color: rgba(255, 255, 255, 0.8);
+		font-size: 0.82rem;
+		text-align: left;
+		transition:
+			background 0.2s ease,
+			color 0.2s ease;
 	}
 
 	.lang-option:hover {
-		opacity: 1;
+		background: rgba(255, 255, 255, 0.1);
+		color: #fff;
 	}
 
-	/* Reaching for another flag steps the current one back rather than leaving
-	   two at full strength. :has() keeps it to a real flag hover, so the gaps
-	   between them do not trigger it. */
-	.lang-dropdown:has(.lang-option:hover) .lang-option.active:not(:hover) {
-		opacity: 0.8;
+	.lang-option.active {
+		background: rgba(255, 255, 255, 0.14);
+		color: #fff;
+	}
+
+	.lang-label {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.lang-empty {
+		padding: 10px 12px;
+		margin: 0;
+		font-size: 0.85rem;
+		color: rgba(255, 255, 255, 0.6);
+		text-align: center;
 	}
 
 	.flag-frame {
 		display: block;
-		width: 26px;
-		height: 19px;
+		flex-shrink: 0;
+		width: 22px;
+		height: 16px;
 		border-radius: 3px;
 		overflow: hidden;
 		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
