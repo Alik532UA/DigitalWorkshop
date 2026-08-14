@@ -156,14 +156,12 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: var(--transition);
         z-index: 10;
     }
 
     .close-btn:hover {
         background: rgba(255, 255, 255, 0.1);
         color: var(--accent-primary);
-        transform: rotate(90deg);
     }
 
     h3 {
