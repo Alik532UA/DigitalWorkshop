@@ -117,7 +117,12 @@ class LogService {
         const header = [
             '--- LOG REPORT ---',
             `VERSION: ${typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'unknown'}`,
-            `DATE: ${new Date().toLocaleString()}`,
+            // ISO, а не toLocaleString(): звіт читає той, хто розбирає збій, а
+            // не відвідувач, який його скопіював. Голий toLocaleString()
+            // форматує в локалі БРАУЗЕРА — 03.08 чи 08.03 залежно від того, де
+            // людина живе, і зрозуміти, що з них день, за самим рядком не можна.
+            // Сайт має 42 мови, тож розбіжність тут не теоретична.
+            `DATE: ${new Date().toISOString()}`,
             `URL: ${browser ? window.location.href : 'SSR'}`,
             `DEVICE: ${browser ? navigator.userAgent : 'Server'}`,
             '---'
