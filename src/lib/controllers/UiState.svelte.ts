@@ -16,6 +16,24 @@ export const tabColors: Record<TabType, string> = {
 
 export const tabOrder: TabType[] = ['website', 'apps', 'about', 'games', 'promo'];
 
+const themeOrder: ThemeType[] = ['dark', 'light', 'colorful'];
+
+/**
+ * SECURITY-v8 § 1.3: схема ВІДКИДАЄ непридатне, а не підставляє значення.
+ *
+ * `params.get('theme') as ThemeType` було твердженням, а не перевіркою: `as`
+ * нічого не звіряє, тож посилання `?theme=zzz` доводило рядок до
+ * `setAttribute('data-theme', …)` і, найгірше, до `storage.set('theme', …)`.
+ * Записане значення переживає перезавантаження, тому один такий клік ламав
+ * тему відвідувачу назавжди — доти, доки він не здогадається почистити сховище.
+ *
+ * Той самий guard прикриває й сховище: у ньому вже може лежати сміття,
+ * записане до цієї правки.
+ */
+export function isTheme(value: unknown): value is ThemeType {
+    return typeof value === 'string' && themeOrder.includes(value as ThemeType);
+}
+
 const tabDefaultBackgrounds: Record<TabType, 1 | 2 | 3> = {
     website: 3, // Shapes
     apps: 3,    // Shapes
@@ -80,8 +98,13 @@ export class ThemeState {
     init() {
         if (browser) {
             const params = new URLSearchParams(window.location.search);
-            const themeParam = params.get('theme') as ThemeType;
-            const saved = themeParam || storage.get("theme") as ThemeType || "dark";
+            const themeParam = params.get('theme');
+            const stored = storage.get('theme');
+            const saved: ThemeType = isTheme(themeParam)
+                ? themeParam
+                : isTheme(stored)
+                    ? stored
+                    : 'dark';
             this.set(saved);
 
             // Sync with OS preferences if not manually set

@@ -11,9 +11,14 @@
 		(function () {
 			try {
 				const PREFIX = 'digitalworkshop_';
+				// Список, а не будь-який рядок: у сховищі може лежати сміття,
+				// записане з ?theme= до того, як параметр почали перевіряти.
+				// Тоді на першому кадрі ставився неіснуючий data-theme, під який
+				// немає жодного правила — сторінка малювалася без теми взагалі.
+				const THEMES = ['dark', 'light', 'colorful'];
 				const saved = localStorage.getItem(PREFIX + 'theme');
 				const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-				const theme = saved || (prefersDark ? 'dark' : 'light');
+				const theme = THEMES.indexOf(saved) !== -1 ? saved : (prefersDark ? 'dark' : 'light');
 				document.documentElement.setAttribute('data-theme', theme);
 				const meta = document.querySelector('meta[name="color-scheme"]');
 				if (meta) meta.setAttribute('content', theme === 'dark' ? 'dark' : 'light dark');
