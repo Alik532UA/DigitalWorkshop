@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { base } from '$app/paths';
-	import { isLanguage, translations, type Language } from '$lib/i18n/LanguageState.svelte';
+	import { isLanguage, type Language } from '$lib/i18n/LanguageState.svelte';
+	import { errorMessages } from '$lib/i18n/errorMessages';
 
 	/**
 	 * ERROR-HANDLING-v8 § 2.2: `+error.svelte` — мінімум, який має бути завжди.
@@ -25,7 +26,7 @@
 	 * Атрибут `lang` виставляє той самий `LanguageState`, тож значення те саме,
 	 * але читання з DOM не кидає ніколи.
 	 */
-	const lang = $derived.by((): Language => {
+	const language = $derived.by((): Language => {
 		if (typeof document === 'undefined') return 'en';
 		const raw = document.documentElement.lang.toLowerCase();
 		if (isLanguage(raw)) return raw;
@@ -35,39 +36,11 @@
 		return isLanguage(bare) ? bare : 'en';
 	});
 
-	const siteTitle = $derived(translations[lang].title);
+	const text = $derived(errorMessages(language));
 	const isNotFound = $derived(page.status === 404);
 
-	/**
-	 * Тексти вписані тут, а не додані у словники.
-	 *
-	 * Словників 42, і кожен звіряється Zod-схемою та інваріантом паритету ключів.
-	 * Два нові ключі означали б 42 машинні переклади, яких ніхто не вичитає, —
-	 * саме те, від чого застерігає I18N-v8 § 3.4. Українська й англійська
-	 * покривають аудиторію сайту; для решти мов лишається код статусу (він
-	 * універсальний) і назва сайту в посиланні (вона є в усіх 42 словниках).
-	 */
-	const isUk = $derived(lang === 'uk');
-
-	const title = $derived(
-		isNotFound
-			? isUk
-				? 'Сторінку не знайдено'
-				: 'Page not found'
-			: isUk
-				? 'Щось пішло не так'
-				: 'Something went wrong'
-	);
-
-	const message = $derived(
-		isNotFound
-			? isUk
-				? 'Такої сторінки немає. Можливо, посилання застаріло.'
-				: 'There is no such page. The link may be out of date.'
-			: isUk
-				? 'Сталася помилка під час завантаження сторінки.'
-				: 'An error occurred while loading the page.'
-	);
+	const title = $derived(isNotFound ? text.notFoundTitle : text.genericTitle);
+	const message = $derived(isNotFound ? text.notFoundMessage : text.genericMessage);
 
 	/**
 	 * Технічний текст показується лише поза 404: для 404 SvelteKit кладе туди
@@ -90,7 +63,7 @@
 			<p class="error-detail">{detail}</p>
 		{/if}
 
-		<a class="error-home" href="{base}/">{siteTitle}</a>
+		<a class="error-home" href="{base}/">{text.home}</a>
 	</div>
 </main>
 
