@@ -1,7 +1,13 @@
 import type { Translations } from "../LanguageState.svelte";
 
+/**
+ * British English — the variety this site's English defaults to, matching the
+ * European audience it addresses. American English lives in `en-us.ts`, which is
+ * built from this file and only restates the words that differ, so the two can
+ * never drift apart in content.
+ */
 export const en: Translations = {
-    lastUpdate: "Last update: March 31, 2026",
+    lastUpdate: "Last update: 31 March 2026",
     title: ["Web Developer", "Svelte Expert", "Solution Architect"],
     title_mobile: "Web Developer\nSvelte Expert\nSolution Architect",
     nav: {
@@ -49,14 +55,14 @@ export const en: Translations = {
             },
             cv3d: {
                 title: "3D CV Experience",
-                description: "Interactive 3D resume in Godot 4. Explore, interact, and find the turtle!",
+                description: "Interactive 3D CV in Godot 4. Explore, interact, and find the turtle!",
                 tech: "Godot 4 (GDExtension)",
                 feature: "Fully interactive 3D environment in the browser.",
                 linkText: "Explore 3D"
             },
             cv_web: {
                 title: "My web CV",
-                description: "This is my stylish modern resume for those who want to hire me for their company.",
+                description: "This is my stylish modern CV for those who want to hire me for their company.",
                 tech: "SvelteKit",
                 feature: "Clean code, responsiveness, and high loading speed.",
                 linkText: "View CV"
@@ -71,14 +77,14 @@ export const en: Translations = {
             teatralo4ka: {
                 title: "Odesa Theatrical School Website",
                 tech: "Svelte",
-                description: "My gift to my favorite school! This is the best creative school in the world! The site was not only made for free, but it also allowed the school to ditch paid hosting, saving them 83 euros annually.",
-                feature: "Completely free hosting thanks to an optimized Svelte architecture.",
+                description: "My gift to my favourite school! This is the best creative school in the world! The site was not only made for free, but it also allowed the school to ditch paid hosting, saving them 83 euros annually.",
+                feature: "Completely free hosting thanks to an optimised Svelte architecture.",
                 linkText: "Visit Website"
             },
             as5: {
                 title: "Odesa Art School No. 5",
                 tech: "Svelte",
-                description: "A wonderful school! We have many joint projects outside the site. By the way, this is my first client under the special offer for creative and charitable organizations.",
+                description: "A wonderful school! We have many joint projects outside the site. By the way, this is my first client under the special offer for creative and charitable organisations.",
                 feature: "A modern, fast website tailored to the needs of a music school.",
                 linkText: "Visit Website"
             },
@@ -94,7 +100,7 @@ export const en: Translations = {
     tabs: {
         website: {
             title: "Websites",
-            intro: "If you need a fast, reliable business site, corporate portal, or landing page — I can help realize it on the most modern tech stack.",
+            intro: "If you need a fast, reliable business site, corporate portal, or landing page — I can help realise it on the most modern tech stack.",
             benefitsTitle: "Why choose my approach?",
             benefits: [
                 {
@@ -157,11 +163,11 @@ export const en: Translations = {
         title: "Education",
         institutions: {
             polytech_name: "Odesa Polytechnic National University",
-            theater_school_name: "Odesa Children's Theater School"
+            theater_school_name: "Odesa Children's Theatre School"
         },
         descriptions: {
-            polytech_desc: "Institute of Computer Systems. Specialized in Software Engineering.",
-            theater_school_desc: "Theater art department. Acting and public speaking skills."
+            polytech_desc: "Institute of Computer Systems. Specialised in Software Engineering.",
+            theater_school_desc: "Theatre art department. Acting and public speaking skills."
         }
     },
     experience: {
@@ -174,7 +180,7 @@ export const en: Translations = {
             singree_role: "Trainee Web Developer",
             unicorn_role: "Chief Editor & Host",
             nutduet_role: "Event Host & Entertainer",
-            channel7_role: "TV Program Author & Host",
+            channel7_role: "TV Programme Author & Host",
             krug_role: "News Correspondent",
             theater_role: "Acting Teacher"
         },
@@ -182,7 +188,7 @@ export const en: Translations = {
             intellias_desc: "Developed enterprise-level web applications using modern JS frameworks.",
             absoft_desc: "Focused on frontend development and UI components library.",
             singree_desc: "Learned basics of web development and CMS integration.",
-            unicorn_desc: "Managed content strategy and hosted video programs for YouTube.",
+            unicorn_desc: "Managed content strategy and hosted video programmes for YouTube.",
             nutduet_desc: "Professional event management and entertainment.",
             channel7_desc: "Created and hosted weekly TV shows about technology and city life.",
             krug_desc: "Reported on local news and social issues.",
@@ -202,14 +208,14 @@ export const en: Translations = {
         platforms: {
             desktop: "Cross-platform: Windows/macOS/Linux",
             web: "Modern Web: SPA/SSR/PWA",
-            mobile: "Mobile Web: Optimized for smartphones"
+            mobile: "Mobile Web: Optimised for smartphones"
         },
         items: {
             ai: "AI Engineering & LLM",
             csharp: "C# / .NET",
             java: "Java",
             playwright: "E2E Testing (Playwright)",
-            blender: "3D Modeling (Blender)",
+            blender: "3D Modelling (Blender)",
             slicer: "3D Printing & Slicing",
             printing: "Rapid Prototyping",
             godot: "GameDev (Godot Engine)",
@@ -226,15 +232,15 @@ export const en: Translations = {
     other: {
         title: "Additional Info",
         iq: "135 (Mensa level)",
-        olympics: "Winner of regional Olympiads in Physics and Math",
-        driver: "B Category license",
+        olympics: "Winner of regional Olympiads in Physics and Maths",
+        driver: "B Category licence",
         languages: {
             title: "Languages",
             uk: "Ukrainian — Native",
             en: "English — Intermediate+",
             ru: "Russian — Language of the aggressor"
         },
-        hobbies: ["3D Printing", "Photography", "Traveling", "Psychology", "IoT"]
+        hobbies: ["3D Printing", "Photography", "Travelling", "Psychology", "IoT"]
     },
     about: {
         hobbiesTitle: "Hobbies & Interests"

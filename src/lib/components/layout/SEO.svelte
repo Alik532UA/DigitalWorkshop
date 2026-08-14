@@ -1,7 +1,7 @@
 <script lang="ts">
     import { getLanguage, translations } from "$lib/i18n/LanguageState.svelte";
     import { page } from "$app/state";
-    import { INDEXED_LANGUAGES, isIndexed, langUrl } from "$lib/i18n/routing";
+    import { INDEXED_LANGUAGES, bcp47, isIndexed, langUrl } from "$lib/i18n/routing";
 
     // Spelled out rather than taken from page.url / $app/paths: these tags are
     // read out of the prerendered HTML, where page.url.origin is SvelteKit's
@@ -91,7 +91,7 @@
     <!-- Alternates for the reviewed languages only, so search engines are not
          pointed at pages this site asks them not to index. -->
     {#each INDEXED_LANGUAGES as alt (alt)}
-        <link rel="alternate" hreflang={alt} href={langUrl(SITE_ORIGIN, alt)} />
+        <link rel="alternate" hreflang={bcp47(alt)} href={langUrl(SITE_ORIGIN, alt)} />
     {/each}
     <link rel="alternate" hreflang="x-default" href={langUrl(SITE_ORIGIN, "uk")} />
 

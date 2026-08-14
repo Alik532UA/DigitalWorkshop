@@ -71,7 +71,7 @@ describe('LanguageState', () => {
     // parametrized test so adding a locale to LanguageState.ts (Language type
     // + translations record) is the only edit needed here too.
     const OTHER_LANGUAGES = [
-        'ja', 'es', 'fr', 'pt', 'it', 'de', 'nl', 'be',
+        'ja', 'en-us', 'es', 'fr', 'pt', 'it', 'de', 'nl', 'be',
         'pl', 'cs', 'sk', 'bg', 'hr', 'sl', 'mk', 'ro', 'sv', 'no', 'da', 'is',
         'ca', 'fi', 'el', 'ga', 'cy', 'et', 'lv', 'lt', 'crh', 'ka', 'sq', 'ko', 'tr', 'he', 'mt',
         'chk', 'pon', 'kos', 'yap'

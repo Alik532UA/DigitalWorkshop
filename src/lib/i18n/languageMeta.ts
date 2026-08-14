@@ -15,6 +15,7 @@ import FlagPT from "$lib/components/flags/FlagPT.svelte";
 import FlagIT from "$lib/components/flags/FlagIT.svelte";
 import FlagRO from "$lib/components/flags/FlagRO.svelte";
 import FlagEN from "$lib/components/flags/FlagEN.svelte";
+import FlagENUS from "$lib/components/flags/FlagENUS.svelte";
 import FlagDE from "$lib/components/flags/FlagDE.svelte";
 import FlagNL from "$lib/components/flags/FlagNL.svelte";
 import FlagSV from "$lib/components/flags/FlagSV.svelte";
@@ -98,7 +99,12 @@ export const LANGUAGE_META = [
     { code: "it" as Language, label: "Italiano", flag: FlagIT, group: "romance" as LanguageGroup },
     { code: "ro" as Language, label: "Română", flag: FlagRO, group: "romance" as LanguageGroup },
     // Germanic & Nordic
-    { code: "en" as Language, label: "English", flag: FlagEN, group: "germanic" as LanguageGroup },
+    // Two Englishes, because the spellings genuinely differ (theatre/theater,
+    // organisations/organizations, licence/license). "en" is the British text;
+    // the label says so, since "English" on its own next to a second English
+    // entry tells the visitor nothing.
+    { code: "en" as Language, label: "English (UK)", flag: FlagEN, group: "germanic" as LanguageGroup },
+    { code: "en-us" as Language, label: "English (US)", flag: FlagENUS, group: "germanic" as LanguageGroup },
     { code: "de" as Language, label: "Deutsch", flag: FlagDE, group: "germanic" as LanguageGroup },
     { code: "nl" as Language, label: "Nederlands", flag: FlagNL, group: "germanic" as LanguageGroup },
     { code: "sv" as Language, label: "Svenska", flag: FlagSV, group: "germanic" as LanguageGroup },

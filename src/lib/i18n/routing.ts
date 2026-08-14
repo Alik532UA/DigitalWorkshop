@@ -24,10 +24,24 @@ export const LANGUAGE_ROUTE_ID = "/[[lang=lang]]";
  *
  * Promoting a language is a one-line change here once someone has read it over.
  */
-export const INDEXED_LANGUAGES: readonly Language[] = ["uk", "en"];
+export const INDEXED_LANGUAGES: readonly Language[] = ["uk", "en", "en-us"];
 
 export function isIndexed(lang: Language): boolean {
 	return INDEXED_LANGUAGES.includes(lang);
+}
+
+/**
+ * The tag form for `lang` and `hreflang`. URL segments stay lowercase so a
+ * hand-typed /DigitalWorkshop/en-us/ resolves on case-sensitive static hosting,
+ * while the attribute gets the canonical spelling — language lowercase, region
+ * uppercase.
+ *
+ * "en" stays generic rather than becoming "en-GB" on purpose: a plain "en"
+ * alternate is what search engines fall back to for every English region that is
+ * not the US, which is the job the British text does here.
+ */
+export function bcp47(lang: Language): string {
+	return lang.replace(/-([a-z]{2})$/, (_, region: string) => `-${region.toUpperCase()}`);
 }
 
 /** Path for a language, with the trailing slash this site serves. */
