@@ -408,7 +408,7 @@
         gap: 8px;
         padding: 10px 16px;
         border-radius: 12px;
-        background: var(--dropdown-bg, rgba(255, 255, 255, 0.25));
+        background: var(--dropdown-bg);
         border: 1px solid var(--border-color);
         color: var(--text-primary);
         cursor: pointer;
