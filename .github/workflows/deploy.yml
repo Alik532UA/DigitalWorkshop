@@ -37,6 +37,12 @@ jobs:
       - name: Run unit tests
         run: npm run test:unit -- --run
 
+      # Поріг high, а не moderate: після оновлення лишилися лише 4 low, але
+      # moderate-поріг довелося б вимкнути на першому ж транзитивному
+      # попередженні, а вимкнений гейт гірший за відсутній.
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+
       - name: Build
         run: npm run build
 
