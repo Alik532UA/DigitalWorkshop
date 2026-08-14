@@ -8,7 +8,6 @@ package-lock.json
 .git/
 .temp/
 .read_for_AI/
-terminology_audit.md
 tsconfig.json
 svelte.config.js
 vite.config.ts
