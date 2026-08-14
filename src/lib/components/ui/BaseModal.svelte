@@ -1,5 +1,6 @@
 <script lang="ts">
     import { X } from "lucide-svelte";
+    import { t } from '$lib/i18n/LanguageState.svelte';
     import { fade, scale } from "svelte/transition";
     import { onMount, tick } from "svelte";
 
@@ -94,7 +95,13 @@
             tabindex="-1"
             transition:scale={{ duration: 200, start: 0.95 }}
         >
-            <button class="close-btn" onclick={close} aria-label="Close modal">
+            <button
+                type="button"
+                class="close-btn"
+                onclick={close}
+                aria-label={t.nav.close}
+                data-testid="base-modal-close-btn"
+            >
                 <X size={24} />
             </button>
 
