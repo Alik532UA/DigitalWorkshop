@@ -294,9 +294,17 @@
 		color: rgba(255, 255, 255, 0.45);
 	}
 
+	/* Підсвітка рамки лишається для миші; обводку прибрано лише з `:focus`, а
+	   не з `:focus-visible` — з клавіатури поле мусить лишатися помітним
+	   (ACCESSIBILITY-v8 § 3). Глобальне правило в app.css домальовує кільце. */
 	.lang-search:focus {
 		outline: none;
 		border-color: var(--accent-primary, #0284c7);
+	}
+
+	.lang-search:focus-visible {
+		outline: 3px solid var(--focus-ring);
+		outline-offset: 2px;
 	}
 
 	/* Scroll container only — the multi-column element inside must keep an auto
@@ -421,8 +429,16 @@
 		height: 4px;
 		background: rgba(255, 255, 255, 0.3);
 		border-radius: 2px;
-		outline: none;
 		cursor: pointer;
+	}
+
+	/* Повзунок гучності — повноцінна клавіатурна ціль: стрілки міняють
+	   значення. Без кільця незрячий із клавіатури не знає, що потрапив на
+	   нього. `outline: none` тут стояв безумовно, тобто гасив і фокус миші,
+	   і фокус із Tab. */
+	.volume-slider:focus-visible {
+		outline: 3px solid var(--focus-ring);
+		outline-offset: 4px;
 	}
 
 	.volume-slider::-webkit-slider-thumb {

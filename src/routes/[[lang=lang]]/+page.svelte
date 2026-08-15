@@ -996,7 +996,16 @@
 		cursor: pointer;
 		transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 		padding: 0;
-		outline: none;
+	}
+
+	/* Головні кнопки сторінки — вкладки розділів. `outline: none` стояв на них
+	   безумовно, тож з клавіатури пройти головну було неможливо: місце фокуса
+	   не показувалося ніде (ACCESSIBILITY-v8 § 3).
+	   Відступ більший за типові 2px: іконка вирізана маскою й межа елемента не
+	   збігається з видимою формою, тож кільце впритул читалося б як обрізане. */
+	.glass-icon:focus-visible {
+		outline: 3px solid var(--focus-ring);
+		outline-offset: 4px;
 	}
 
 	.glass-icon:hover,

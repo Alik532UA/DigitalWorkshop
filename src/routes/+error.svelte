@@ -135,9 +135,16 @@
 	}
 
 	/* Єдина інтерактивна ціль сторінки мусить бути помітною з клавіатури
-	   (ACCESSIBILITY-v8 § 3). */
+	   (ACCESSIBILITY-v8 § 3).
+
+	   `--focus-ring`, а не `--accent-primary`: акцент ставить `+layout.svelte`
+	   інлайном, а саме тут макета може не бути. Коли помилка сталася в самому
+	   макеті, SvelteKit рендерить цю сторінку БЕЗ нього — тоді змінна
+	   неоголошена, і `outline` стає невалідним на етапі обчислення, тобто
+	   зникає зовсім (UI-UX-v8 § 1.6). Кільце пропадало б рівно в тому випадку,
+	   заради якого написана решта цього файлу. */
 	.error-home:focus-visible {
-		outline: 3px solid var(--accent-primary);
+		outline: 3px solid var(--focus-ring);
 		outline-offset: 3px;
 	}
 </style>
