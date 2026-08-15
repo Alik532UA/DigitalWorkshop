@@ -1,15 +1,37 @@
+# Що ховати від AI-асистента, а що ні (CI-CD-AND-TOOLS-v8 § 2.2).
+#
+# Правило одне: виключати велике й непрозоре, лишати мале й описове.
+# Конфіги проєкту НЕ виключаються — саме з них асистент дізнається профіль:
+# який адаптер, що дозволено в CSP, який `base`, які скрипти й гейти взагалі
+# існують. Доти тут стояли всі п'ять (`package.json`, `svelte.config.js`,
+# `vite.config.ts`, `tsconfig.json`, `eslint.config.js`), і канон називає цей
+# випадок поіменно: економія кілька кілобайт, а наслідок той, що асистент
+# пропонує «додати eslint», який уже стоїть, і не бачить `connect-src`, який
+# треба правити разом із новою залежністю.
+
+# Залежності та артефакти збірки
 node_modules/
 build/
 dist/
 .svelte-kit/
-.private/
+.git/
 *.lock
 package-lock.json
-.git/
-.temp/
-.read_for_AI/
-tsconfig.json
-svelte.config.js
-vite.config.ts
-eslint.config.js
-package.json
+
+# Медіа: 28 МБ відео й 2 МБ звуку, з яких асистенту не видно нічого
+static/sea_4_av1.webm
+static/sea.ogg
+static/images/
+static/fonts/
+
+# Копія сусіднього проєкту, узята для звірки, — не код цього
+.private/CV-svelte/
+# Вивантажена історія й робочі нотатки: сотні кілобайт сирого тексту
+.private/git_history.txt
+.private/git_history_hero.txt
+.private/notes-*.txt
+# `.private/docs/` НАВМИСНО не виключено — це контекст для AI
+# (DOCUMENTATION-v8, узгоджено з CI-CD-AND-TOOLS-v8 § 2.2)
+
+# `.temp/` порожня, а `.read_for_AI/` не існує зовсім — рядки на неіснуючий
+# шлях створюють враження, що щось приховано, і його потім шукають.
