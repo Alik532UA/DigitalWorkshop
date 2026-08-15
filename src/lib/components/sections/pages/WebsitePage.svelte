@@ -49,7 +49,8 @@
 
     .benefits-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        /* min(): 280px — поріг переносу, а не мінімальна ширина колонки. */
+        grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
         gap: 25px;
     }
 

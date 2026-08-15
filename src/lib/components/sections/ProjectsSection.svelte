@@ -78,7 +78,10 @@
 
     .projects-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        /* min(), бо гола довжина в minmax — це підлога, а не поріг: колонка
+           лишається 350px і в контейнері 280px, і картка розпирає сторінку.
+           350px далі працює як поріг переносу на дві колонки. */
+        grid-template-columns: repeat(auto-fit, minmax(min(350px, 100%), 1fr));
         gap: 30px;
     }
 
