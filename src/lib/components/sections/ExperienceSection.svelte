@@ -1,14 +1,14 @@
 <script lang="ts">
     import { ChevronDown, Briefcase } from "lucide-svelte";
     import { slide } from "svelte/transition";
-    import Section from "../ui/SectionContainer.svelte";
+    import SectionContainer from "../ui/SectionContainer.svelte";
     import { t } from "$lib/i18n/LanguageState.svelte";
     import { experienceData } from "$lib/data/experience";
 
     let showNonIT = $state(false);
     </script>
 
-    <Section id="experience" title={t.experience.title}>
+    <SectionContainer id="experience" title={t.experience.title}>
     {#snippet icon()}
         <Briefcase size={22} aria-hidden="true" />
     {/snippet}
@@ -46,7 +46,7 @@
             </div>
         {/if}
     </div>
-</Section>
+</SectionContainer>
 
 <style>
     .timeline {

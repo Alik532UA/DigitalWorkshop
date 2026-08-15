@@ -2,7 +2,7 @@
     import { config } from '$lib/config';
 	import { CircleHelp, WandSparkles } from "lucide-svelte";
 	import { t } from '$lib/i18n/LanguageState.svelte';
-	import Section from '../../ui/SectionContainer.svelte';
+	import SectionContainer from '../../ui/SectionContainer.svelte';
 
 	function processMarkdown(text: string): string {
 		return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
@@ -13,7 +13,7 @@
 {#if t.tabs.promo}
 	{@const promo = t.tabs.promo}
 	<div class="page-container" data-testid="page-promo-panel">
-	<Section id="promo" title={promo.pageTitle || promo.title}>
+	<SectionContainer id="promo" title={promo.pageTitle || promo.title}>
 		{#snippet icon()}<WandSparkles size={24} />{/snippet}
 
 		<div class="content-wrapper">
@@ -50,7 +50,7 @@
 				</a>
 			</div>
 		</div>
-	</Section>
+	</SectionContainer>
 	</div>
 {/if}
 

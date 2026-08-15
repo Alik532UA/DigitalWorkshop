@@ -9,7 +9,7 @@
         FileUser
     } from "lucide-svelte";
     import { base } from "$app/paths";
-    import Section from "../ui/SectionContainer.svelte";
+    import SectionContainer from "../ui/SectionContainer.svelte";
     import { t } from "$lib/i18n/LanguageState.svelte";
     import { track } from "$lib/services/analytics";
 
@@ -21,7 +21,7 @@
     ];
 </script>
 
-<Section id="projects" title={t.portfolio.title}>
+<SectionContainer id="projects" title={t.portfolio.title}>
     {#snippet icon()}
         <Rocket size={22} />
     {/snippet}
@@ -65,7 +65,7 @@
             </div>
         {/each}
     </div>
-</Section>
+</SectionContainer>
 
 <style>
     .portfolio-subtitle {

@@ -2,10 +2,10 @@
     import { config } from '$lib/config';
     import { ChevronRight, CircleHelp, Gamepad2 } from "lucide-svelte";
     import { t } from "$lib/i18n/LanguageState.svelte";
-    import Section from "../../ui/SectionContainer.svelte";
+    import SectionContainer from "../../ui/SectionContainer.svelte";
 </script>
 <div class="page-container" data-testid="page-games-panel">
-    <Section id="games" title={t.tabs.games.title}>
+    <SectionContainer id="games" title={t.tabs.games.title}>
         {#snippet icon()}<Gamepad2 size={24} />{/snippet}
 
         <div class="content-wrapper">
@@ -29,7 +29,7 @@
                 </a>
             </div>
         </div>
-    </Section>
+    </SectionContainer>
 </div>
 
 <style>

@@ -12,7 +12,7 @@
         CircleHelp
     } from "lucide-svelte";
     import { t } from "$lib/i18n/LanguageState.svelte";
-    import Section from "../ui/SectionContainer.svelte";
+    import SectionContainer from "../ui/SectionContainer.svelte";
 
     let activeTab = $state('website');
 
@@ -31,7 +31,7 @@
     }
 </script>
 
-<Section id="portfolio-details" title={t.nav.portfolio}>
+<SectionContainer id="portfolio-details" title={t.nav.portfolio}>
     <div class="tabs-container">
         <!-- Sidebar Navigation -->
         <aside class="tabs-sidebar glass">
@@ -147,7 +147,7 @@
             {/if}
         </main>
     </div>
-</Section>
+</SectionContainer>
 
 <style>
     .tabs-container {

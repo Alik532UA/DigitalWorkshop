@@ -2,13 +2,13 @@
     import { ChevronDown, Monitor, Globe, Smartphone, Zap } from "lucide-svelte";
     import { slide } from "svelte/transition";
     import { skillsData } from "$lib/data/skills";
-    import Section from "../ui/SectionContainer.svelte";
+    import SectionContainer from "../ui/SectionContainer.svelte";
     import { t } from "$lib/i18n/LanguageState.svelte";
 
     let showMoreSkills = $state(false);
 </script>
 
-<Section id="skills" title={t.skills.title}>
+<SectionContainer id="skills" title={t.skills.title}>
     {#snippet icon()}
         <Zap size={22} aria-hidden="true" />
     {/snippet}
@@ -130,7 +130,7 @@
             <ChevronDown size={18} class={showMoreSkills ? "rotated" : ""} />
         </button>
     </div>
-</Section>
+</SectionContainer>
 
 <style>
     /* Platforms Grid */

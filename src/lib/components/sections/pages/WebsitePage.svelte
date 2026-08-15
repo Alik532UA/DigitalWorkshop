@@ -2,11 +2,11 @@
     import { config } from '$lib/config';
     import { ChevronRight, CircleCheck, Globe } from "lucide-svelte";
     import { t } from "$lib/i18n/LanguageState.svelte";
-    import Section from "../../ui/SectionContainer.svelte";
+    import SectionContainer from "../../ui/SectionContainer.svelte";
 </script>
 
 <div class="page-container" data-testid="page-website-panel">
-    <Section id="website" title={t.tabs.website.title}>
+    <SectionContainer id="website" title={t.tabs.website.title}>
         {#snippet icon()}<Globe size={24} />{/snippet}
 
         <div class="content-wrapper">
@@ -28,7 +28,7 @@
                 </a>
             </div>
         </div>
-    </Section>
+    </SectionContainer>
 </div>
 
 <style>

@@ -1,11 +1,11 @@
 <script lang="ts">
     import { GraduationCap } from "lucide-svelte";
-    import Section from "../ui/SectionContainer.svelte";
+    import SectionContainer from "../ui/SectionContainer.svelte";
     import { t } from "$lib/i18n/LanguageState.svelte";
     import { educationData } from "$lib/data/education";
     </script>
 
-    <Section id="education" title={t.education.title}>
+    <SectionContainer id="education" title={t.education.title}>
     {#snippet icon()}
         <GraduationCap size={24} />
     {/snippet}
@@ -19,7 +19,7 @@
             </div>
         {/each}
     </div>
-</Section>
+</SectionContainer>
 
 <style>
     .education-grid {
