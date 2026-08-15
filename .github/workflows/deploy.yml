@@ -46,6 +46,12 @@ jobs:
       - name: Build
         run: npm run build
 
+      # Єдиний гейт, що читає build/, а не src/. Обидва дефекти, через які він
+      # написаний — прибитий `<html lang>` на всіх 42 мовах і CSP, що не
+      # покривала власний інлайн-скрипт, — у джерелах виглядали правильно.
+      - name: Check build output
+        run: npm run check:build
+
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
         with:
