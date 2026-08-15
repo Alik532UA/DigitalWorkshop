@@ -68,4 +68,66 @@ describe('CI', () => {
 			`workflow кличе скрипт, якого немає — крок упаде на push: ${missing.join(', ')}`
 		).toEqual([]);
 	});
+
+	/**
+	 * AI-AGENT-PITFALLS-v8 § 1.4, CI-CD-AND-TOOLS-v8 § 1.3.
+	 *
+	 * При `cancel-in-progress: true` пуш пачкою комітів скасовує всі проміжні
+	 * прогони. Прогін, який УПЕРШЕ виконав би щойно доданий гейт, тоді не
+	 * завершується ніколи — і гейт кілька днів вважається робочим, не
+	 * виконавшись жодного разу. У Slovko це саме так і сталося.
+	 */
+	it('деплой-пайплайн не скасовує проміжні прогони (§ 1.3)', () => {
+		expect(/concurrency:/.test(all), 'групи паралельності немає взагалі').toBe(true);
+		expect(
+			/cancel-in-progress:\s*false/.test(all),
+			'скасовані прогони ховають гейти, які ще жодного разу не виконувалися'
+		).toBe(true);
+		expect(/cancel-in-progress:\s*true/.test(all)).toBe(false);
+	});
+
+	/**
+	 * CI-CD-AND-TOOLS-v8 § 1.5 — єдина машинна перевірка правила «артефакт
+	 * збірки не комітиться» (VERSIONING-v8 § 1.4).
+	 */
+	it('після збірки перевіряється, що дерево лишилося чистим (§ 1.5)', () => {
+		expect(
+			/git diff --exit-code/.test(all),
+			'без цього кроку buildTime чи оновлений lockfile тихо потрапляють у коміти'
+		).toBe(true);
+	});
+
+	/**
+	 * Гейти по зібраному виводу — CODE-QUALITY-v8 § 7. Пайплайн без цього кроку
+	 * не бачить нічого з того, що виникає під час пререндеру.
+	 */
+	it('зібраний вивід перевіряється окремим кроком (§ 7)', () => {
+		expect(/run:\s*npm run check:build/.test(all), 'у workflow немає кроку check:build').toBe(true);
+
+		const buildAt = all.indexOf('npm run build');
+		const checkAt = all.indexOf('npm run check:build');
+		expect(buildAt, 'кроку build немає').toBeGreaterThan(-1);
+		expect(checkAt, 'check:build мусить іти ПІСЛЯ build — інакше читати нічого').toBeGreaterThan(
+			buildAt
+		);
+	});
+
+	/**
+	 * CI-CD-AND-TOOLS-v8 § 1.1, CRITICAL: `contents: write` у деплой-пайплайні —
+	 * вектор supply-chain атаки, і допускається лише для dual deploy із записом
+	 * у PROJECT-CONTEXT.md. Тут дефолтний OIDC, тож write не потрібен.
+	 */
+	it('деплой іде через OIDC без contents: write (§ 1.1)', () => {
+		expect(/contents:\s*read/.test(all), 'permissions не звужені до contents: read').toBe(true);
+		expect(/contents:\s*write/.test(all), 'contents: write без записаного обґрунтування').toBe(
+			false
+		);
+	});
+
+	/** SECURITY-v8 § 9 / DEPENDENCIES-v8 § 4.1: аудит прод-залежностей у CI. */
+	it('залежності аудитяться з порогом high (§ 4.1)', () => {
+		expect(/npm audit[^\n]*--audit-level=high/.test(all), 'кроку audit немає або без порогу').toBe(
+			true
+		);
+	});
 });
