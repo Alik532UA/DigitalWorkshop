@@ -11,7 +11,7 @@
     import { logService } from "$lib/services/logService.svelte";
     import Header from "$lib/components/layout/Header.svelte";
     import SEO from "$lib/components/layout/SEO.svelte";
-    import Footer from "$lib/components/layout/FooterSection.svelte";
+    import FooterSection from "$lib/components/layout/FooterSection.svelte";
     import BottomNav from "$lib/components/layout/BottomNav.svelte";
     import RightSideArc from "$lib/components/ui/arcs/RightSideArc.svelte";
     import LeftSideArc from "$lib/components/ui/arcs/LeftSideArc.svelte";
@@ -145,7 +145,7 @@
     </main>
 
     {#if isArchive}
-        <Footer />
+        <FooterSection />
         <BottomNav />
     {/if}
     <LogCopyButton />
