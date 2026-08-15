@@ -1,5 +1,7 @@
 import { browser, dev } from '$app/environment';
-import { sessionStorage } from '$lib/services/storage'; // Ми розширимо storage пізніше
+// Wrapper, а не глобаль: він додає префікс проєкту й guard на browser. Origin
+// спільний із сусідніми проєктами, тож ключ без префікса — це чужі дані.
+import { sessionStorage } from '$lib/services/storage';
 
 export type LogLevel = 'info' | 'warn' | 'error';
 export type LogCategory = 'ui' | 'storage' | 'i18n' | 'network' | 'app';
@@ -90,7 +92,7 @@ class LogService {
         try {
             // Зберігаємо тільки останні 50 для сесії, щоб не перевантажувати STORAGE
             const shortHistory = this.history.slice(-50);
-            window.sessionStorage.setItem('digitalworkshop_' + SESSION_STORAGE_KEY, JSON.stringify({
+            sessionStorage.set(SESSION_STORAGE_KEY, JSON.stringify({
                 history: shortHistory,
                 errorCount: this.errorCount
             }));
@@ -102,7 +104,7 @@ class LogService {
     private loadFromSession() {
         if (!browser) return;
         try {
-            const raw = window.sessionStorage.getItem('digitalworkshop_' + SESSION_STORAGE_KEY);
+            const raw = sessionStorage.get(SESSION_STORAGE_KEY);
             if (raw) {
                 const parsed = JSON.parse(raw);
                 this.history = parsed.history || [];
@@ -139,7 +141,7 @@ class LogService {
         this.history = [];
         this.errorCount = 0;
         if (browser) {
-            window.sessionStorage.removeItem('digitalworkshop_' + SESSION_STORAGE_KEY);
+            sessionStorage.remove(SESSION_STORAGE_KEY);
         }
     }
 }
