@@ -3,7 +3,9 @@
 Персональний сайт-майстерня: візитівка, перелік застосунків та окремі сторінки-нариси.
 SvelteKit 2 + Svelte 5 (Runes), TypeScript, vanilla CSS, статична збірка на GitHub Pages.
 
-Живий сайт: <https://alik532ua.github.io/DigitalWorkshop/>
+🌐 Живий сайт: **<https://alik532ua.github.io/DigitalWorkshop/>** — спільний домен, власного тут немає. Тому `paths.base` дорівнює `/DigitalWorkshop` (без винятку для dev), а ключі сховища мають префікс `digitalworkshop_`: origin ділиться з сусідніми проєктами.
+
+Про переїзд на власний домен — [CUSTOM-DOMAIN-v8.md](../sveltekit-canon/selection_criteria/v8/CUSTOM-DOMAIN-v8.md): міняти `base` наосліп не можна, там зібрані граблі двох уже наявних переїздів.
 
 ## Швидкий старт
 
