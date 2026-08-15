@@ -1,7 +1,7 @@
 {
 	"name": "digital-workshop-svelte",
 	"private": true,
-	"version": "0.0.183",
+	"version": "0.0.185",
 	"type": "module",
 	"engines": {
 		"node": ">=22"
@@ -18,7 +18,7 @@
 		"format": "prettier --write .",
 		"test:unit": "vitest run",
 		"test:watch": "vitest",
-		"bump": "node scripts/bump-version.js"
+		"bump": "node scripts/bump-version.mjs"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
