@@ -1,14 +1,48 @@
 <script lang="ts">
     import { fly } from 'svelte/transition';
+    import { config } from '$lib/config';
     import telegramIcon from '$lib/assets/social/telegram.svg';
     import viberIcon from '$lib/assets/social/viber.svg';
     import whatsappIcon from '$lib/assets/social/whatsapp.svg';
     import linkedinIcon from '$lib/assets/social/linkedin.svg';
 
+    /**
+     * Розкривач із чотирма способами звʼязку.
+     *
+     * ## Що тут було недосяжним із клавіатури
+     *
+     * Тригер — `<div role="button" tabindex="0">` з одним лише `onclick`, і
+     * попередження `a11y_click_events_have_key_events` було просто заглушене.
+     * Тобто елемент оголошував себе кнопкою, ставав у порядок обходу, і на
+     * Enter/Space не робив НІЧОГО. Viber, WhatsApp і LinkedIn існують у DOM лише
+     * коли розкривач відкритий, тож три способи звʼязку з чотирьох були
+     * недосяжні з клавіатури зовсім (ACCESSIBILITY-v8, анти-патерни, HIGH;
+     * WCAG 2.1.1).
+     *
+     * Тригер лишається `div`, а не стає `<button>`, навмисно: у нього
+     * підставляють `<a>` (кнопка «написати»), а посилання всередині кнопки — це
+     * невалідна розмітка й гірша доступність, ніж була.
+     *
+     * ## Куди дівається фокус
+     *
+     * Відкритий розкривач ховає тригер (`opacity: 0; pointer-events: none`), і
+     * фокус на невидимому елементі — це «фокус зник» для того, хто ним
+     * користується. Тому при відкритті з клавіатури фокус переходить на перше
+     * посилання, а сам тригер стає `inert`: не `aria-hidden`, бо всередині нього
+     * є focusable `<a>`, і `aria-hidden` на такому елементі — окремий
+     * анти-патерн того ж файлу канону.
+     *
+     * Escape закриває й повертає фокус на тригер. Вихід фокуса за межі
+     * розкривача теж закриває його — інакше він лишався б відкритим назавжди:
+     * `mouseleave` для клавіатури не настає ніколи.
+     */
     let { children, isIconMode = false, customStyle = '' } = $props();
 
     let isHovered = $state(false);
     let isTouch = $state(false);
+
+    let wrapperEl: HTMLDivElement | undefined = $state();
+    let triggerEl: HTMLDivElement | undefined = $state();
 
     function handleMouseEnter() {
         if (!isTouch) isHovered = true;
@@ -21,18 +55,63 @@
     function handleTouchStart() {
         isTouch = true;
     }
+
+    function toggle() {
+        isHovered = !isHovered;
+    }
+
+    /** Відкриття з клавіатури: слідом за станом переїжджає й фокус. */
+    function openWithKeyboard() {
+        isHovered = true;
+        // Після оновлення DOM — посилань до цього моменту ще не існує.
+        requestAnimationFrame(() => {
+            wrapperEl?.querySelector<HTMLAnchorElement>('.social-icon')?.focus();
+        });
+    }
+
+    function closeAndReturnFocus() {
+        if (!isHovered) return;
+        isHovered = false;
+        requestAnimationFrame(() => triggerEl?.focus());
+    }
+
+    function handleTriggerKeydown(event: KeyboardEvent) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            // Space інакше прокрутить сторінку — елемент не є справжньою кнопкою.
+            event.preventDefault();
+            openWithKeyboard();
+        }
+    }
+
+    function handleKeydown(event: KeyboardEvent) {
+        if (event.key === 'Escape') closeAndReturnFocus();
+    }
+
+    function handleFocusOut(event: FocusEvent) {
+        const next = event.relatedTarget;
+        if (next instanceof Node && wrapperEl?.contains(next)) return;
+        // Фокус пішов геть — без цього розкривач лишався б відкритим назавжди.
+        isHovered = false;
+    }
 </script>
 
 <svelte:window onclick={() => { if (isHovered && isTouch) isHovered = false; }} />
 
+<!-- Наведення й дотик на обгортці, а не на тригері: тригер при відкритті
+     ховається, і слухачі на ньому перестали б працювати саме тоді, коли
+     потрібні. Ролі в обгортки немає — вона не інтерактивна, роль несе тригер,
+     тому попередження про статичний елемент тут не про дефект. -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div 
+    bind:this={wrapperEl}
     class="contact-dropdown-wrapper" 
     class:is-icon-mode={isIconMode}
     class:hovered={isHovered}
     onmouseenter={handleMouseEnter} 
     onmouseleave={handleMouseLeave}
     ontouchstart={handleTouchStart}
+    onkeydown={handleKeydown}
+    onfocusout={handleFocusOut}
     style={customStyle}
 >
     {#if isHovered}
@@ -41,23 +120,43 @@
             x: (isIconMode && !isTouch) ? 15 : 0, 
             duration: 200 
         }} class:icon-mode={isIconMode}>
-            <a href="https://t.me/alik532" target="_blank" class="social-icon" aria-label="Telegram" onclick={(e) => e.stopPropagation()}>
+            <!-- Адреси прийшли з `$lib/config`, і саме тому правило їх не пропускає:
+                 у літералі `https://…` воно бачить зовнішнє посилання, у виразі —
+                 не бачить нічого й вимагає `resolve()`. А `resolve()` призначений
+                 для маршрутів ЦЬОГО сайту (SEO-v8 § 1.5) і для t.me чи wa.me
+                 неправильний. Виняток вузький — рівно на цю групу посилань, тож
+                 внутрішнє посилання, додане в цьому файлі поза нею, правило
+                 побачить. -->
+            <!-- eslint-disable svelte/no-navigation-without-resolve -->
+            <a href={config.telegramUrl} target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Telegram" onclick={(e) => e.stopPropagation()}>
                 <img src={telegramIcon} alt="Telegram" />
             </a>
-            <a href="viber://chat?number=%2B380937251208" target="_blank" class="social-icon" aria-label="Viber" onclick={(e) => e.stopPropagation()}>
+            <a href={config.viberUrl} target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Viber" onclick={(e) => e.stopPropagation()}>
                 <img src={viberIcon} alt="Viber" />
             </a>
-            <a href="https://wa.me/380937251208" target="_blank" class="social-icon" aria-label="WhatsApp" onclick={(e) => e.stopPropagation()}>
+            <a href={config.whatsappUrl} target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="WhatsApp" onclick={(e) => e.stopPropagation()}>
                 <img src={whatsappIcon} alt="WhatsApp" />
             </a>
-            <a href="https://linkedin.com/in/alik-qa-engineer" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="LinkedIn" onclick={(e) => e.stopPropagation()}>
+            <a href={config.linkedinUrl} target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="LinkedIn" onclick={(e) => e.stopPropagation()}>
                 <img src={linkedinIcon} alt="LinkedIn" />
             </a>
+            <!-- eslint-enable svelte/no-navigation-without-resolve -->
         </div>
     {/if}
 
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <div onclick={(e) => { e.preventDefault(); e.stopPropagation(); isHovered = !isHovered; }} role="button" tabindex="0" class="trigger-wrapper">
+    <!-- `aria-label` тут немає навмисно: доступне ім'я тригера складається з
+         його вмісту — підставленого посилання «написати», текст якого вже
+         приходить з i18n. Прибитий тут підпис перекрив би його прибитою мовою. -->
+    <div
+        bind:this={triggerEl}
+        onclick={(e) => { e.preventDefault(); e.stopPropagation(); toggle(); }}
+        onkeydown={handleTriggerKeydown}
+        role="button"
+        tabindex="0"
+        aria-expanded={isHovered}
+        inert={isHovered}
+        class="trigger-wrapper"
+    >
         {@render children()}
     </div>
 </div>
