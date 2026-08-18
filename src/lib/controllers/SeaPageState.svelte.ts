@@ -1,4 +1,5 @@
 import { t } from '$lib/i18n/LanguageState.svelte';
+import { logService } from '$lib/services/logService.svelte';
 import { Spring } from 'svelte/motion';
 import { Globe, Gamepad2, Box, FileUser } from 'lucide-svelte';
 
@@ -194,8 +195,11 @@ export class SeaPageState {
 				.then(() => {
 					this.isFullscreen = true;
 				})
-				.catch((err) => {
-					console.error(`Error attempting to enable fullscreen: ${err.message}`);
+				.catch((error) => {
+					// `warn`, а не `error`: відмова тут очікувана — браузер віддає
+					// повний екран лише з жесту користувача, а на iOS Safari не
+					// віддає його для `documentElement` узагалі (DEBUGGING-v8 § 1.3).
+					logService.warn('ui', 'Fullscreen request refused', error);
 				});
 		} else {
 			if (document.exitFullscreen) {

@@ -130,10 +130,11 @@
 
     <main class="main-content" class:archive-padding={isArchive}>
         <div class="page-scroll-area">
-            <svelte:boundary onerror={(e) => {
-                logService.error('app', 'Runtime error in main content', e);
-                console.error('Runtime error:', e);
-            }}>
+            <!-- Другого виклику `console.error` тут немає навмисно: `logService`
+                 у продакшні сам дублює рівень `error` у консоль, а в dev виводить
+                 кожен запис. Дубль давав два рядки про одну подію й один із них
+                 — поза буфером, який копіює кнопка звіту (DEBUGGING-v8 § 1.3). -->
+            <svelte:boundary onerror={(e) => logService.error('app', 'Runtime error in main content', e)}>
                 {@render children()}
                 {#snippet failed(error, reset)}
                     <div class="content-centering" style="padding: 40px 20px;">

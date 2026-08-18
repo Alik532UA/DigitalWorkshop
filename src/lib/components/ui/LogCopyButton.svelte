@@ -15,8 +15,12 @@
             setTimeout(() => {
                 copied = false;
             }, 1500);
-        } catch (err) {
-            console.error('Failed to copy report:', err);
+        } catch (error) {
+            // `warn`, а не `error`: `navigator.clipboard` відсутній на не-HTTPS
+            // origin і відмовляє без дозволу — це стан середовища, не збій
+            // застосунку. У буфер запис іде, щоб наступний звіт показав, що
+            // попередня спроба копіювання не вдалася (DEBUGGING-v8 § 1.3).
+            logService.warn('ui', 'Clipboard write for the log report failed', error);
         }
     }
 </script>
