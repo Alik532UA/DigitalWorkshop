@@ -12,9 +12,22 @@ import { browser, dev } from "$app/environment";
  * no script is loaded and nothing is sent — so the file can be carried into a
  * new project without it reporting into this property.
  */
-const GA_ID = "G-91TWFXBR3Z";
+const GA_ID: string = "G-91TWFXBR3Z";
 
-const isConfigured = /^G-[A-Z0-9]{6,}$/.test(GA_ID) && !GA_ID.includes("XXXX");
+/**
+ * Значення, з яким файл переноситься в новий проєкт: із ним усе нижче стає
+ * no-op — скрипт не вантажиться й нічого не надсилається.
+ *
+ * Порівняння ТОЧНЕ, а не `GA_ID.includes("XXXX")`, як було (ANALYTICS-v8 § 2.2,
+ * HIGH). Підрядок хибив в обидва боки: справжній ідентифікатор, у якому
+ * трапилося б `XXXX`, він відкидав, а будь-який інший плейсхолдер —
+ * `G-YYYYYYYYYY`, `G-000000000` — пропускав як налаштований, і події поїхали б у
+ * чужий ресурс. Названа константа робить домовленість перевірною: у коментарі
+ * вище сказано «замініть на плейсхолдер», і тепер видно, на який саме.
+ */
+const PLACEHOLDER: string = "G-XXXXXXXXXX";
+
+const isConfigured = GA_ID !== PLACEHOLDER && /^G-[A-Z0-9]{6,}$/.test(GA_ID);
 
 // `dev` keeps local work from landing in the same property as real traffic.
 const enabled = browser && !dev && isConfigured;
