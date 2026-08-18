@@ -110,6 +110,14 @@
 		mediaQuery.addEventListener('change', handler);
 
 		state.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+
+		// PERFORMANCE-v8, анти-патерни (HIGH): підписки без знімання тут не було
+		// зовсім. Ця сторінка — маршрут, а не сингтон: перехід на /2026-04/ і назад
+		// розбирає компонент і збирає новий, тож кожен такий прохід додавав ще
+		// одного слухача, який пише в `state` уже НЕІСНУЮЧОЇ сторінки. Симптом
+		// накопичується поступово й на перезавантаженні зникає — тобто в браузері
+		// його майже не побачити.
+		return () => mediaQuery.removeEventListener('change', handler);
 	});
 </script>
 
