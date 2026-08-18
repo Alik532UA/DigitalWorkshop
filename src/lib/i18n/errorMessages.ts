@@ -29,6 +29,8 @@ export type ErrorMessages = {
 	genericTitle: string;
 	genericMessage: string;
 	home: string;
+	/** Кнопка повторної спроби в `ErrorFallback` — межа <svelte:boundary>. */
+	retry: string;
 };
 
 /**
@@ -44,14 +46,16 @@ const ERROR_MESSAGES: Partial<Record<Language, ErrorMessages>> = {
 		notFoundMessage: 'There is no such page. The link may be out of date.',
 		genericTitle: 'Something went wrong',
 		genericMessage: 'An error occurred while loading the page.',
-		home: 'Home'
+		home: 'Home',
+		retry: 'Try again'
 	},
 	uk: {
 		notFoundTitle: 'Сторінку не знайдено',
 		notFoundMessage: 'Такої сторінки немає. Можливо, посилання застаріло.',
 		genericTitle: 'Щось пішло не так',
 		genericMessage: 'Сталася помилка під час завантаження сторінки.',
-		home: 'На головну'
+		home: 'На головну',
+		retry: 'Спробувати ще раз'
 	}
 };
 

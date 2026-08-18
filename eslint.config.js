@@ -116,7 +116,8 @@ export default ts.config(
 			// не мали бути реактивними; розбирати їх треба поштучно.
 			'svelte/prefer-svelte-reactivity': 'warn',
 
-			// CODE-QUALITY-v8 § 1, HIGH. 5 місць.
+			// CODE-QUALITY-v8 § 1, HIGH. 4 місця (`npx eslint . -f json`, 2026-08-19;
+			// було 5 — `error: any` у `ErrorFallback` замінено на `unknown`).
 			'@typescript-eslint/no-explicit-any': 'warn'
 		}
 	},

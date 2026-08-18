@@ -1,11 +1,45 @@
 <script lang="ts">
+    import { dev } from "$app/environment";
     import { RefreshCw, AlertTriangle } from "lucide-svelte";
-    
-    let { error, reset, componentName = "Component" } = $props<{ 
-        error: any; 
-        reset: () => void;
-        componentName?: string;
-    }>();
+    import { errorMessages } from "$lib/i18n/errorMessages";
+    import { languageFromDocument } from "$lib/i18n/documentLanguage";
+
+    /**
+     * Межа <svelte:boundary> — те, що бачить відвідувач замість вмісту, який не
+     * відрендерився. Три речі тут виправлені разом, бо вони про одне: цей екран
+     * показується у продакшні реальним людям, а виглядав як налагоджувальний.
+     *
+     *  1. `error: any` → `unknown`. У межу приходить те, що кинули, а кинути
+     *     можна будь-що; `any` дозволяв читати `.message` з рядка й отримувати
+     *     `undefined` (CODE-QUALITY-v8 § 1, HIGH).
+     *
+     *  2. Текст був прибитий англійською на сайті з 42 мовними версіями
+     *     (I18N-v8, анти-патерни, HIGH). Тепер він із того самого словника, що
+     *     й `+error.svelte`, і мова читається з `<html lang>` — див.
+     *     `languageFromDocument()`.
+     *
+     *  3. `error.message` і назва компонента показувалися ЗАВЖДИ. Це рантаймний
+     *     текст на кшталт «Cannot read properties of undefined» плюс внутрішня
+     *     назва «Main Content»: відвідувачу він не пояснює нічого, зате показує
+     *     нутрощі застосунку (ERROR-HANDLING-v8, анти-патерни, CRITICAL).
+     *     `hooks.client.ts` для тієї самої ситуації навмисно віддає узагальнене
+     *     повідомлення — тут було навпаки. Тепер технічний рядок лишається лише
+     *     в dev; у продакшні подія все одно повністю лежить у `logService` і
+     *     їде у звіт разом із версією збірки.
+     */
+    let {
+        error,
+        reset,
+        componentName = "Component"
+    }: { error: unknown; reset: () => void; componentName?: string } = $props();
+
+    // Не `$derived`: `<html lang>` — не реактивне джерело, тож похідне значення
+    // все одно не перерахувалося б, а виглядало б так, ніби перерахується.
+    const text = errorMessages(languageFromDocument());
+
+    const detail = $derived(
+        dev ? `${componentName}: ${error instanceof Error ? error.message : String(error ?? "")}` : ""
+    );
 </script>
 
 <div class="error-container glass card">
@@ -13,12 +47,14 @@
         <AlertTriangle size={32} />
     </div>
     <div class="error-content">
-        <h3>Something went wrong</h3>
-        <p class="error-location">Error in {componentName}</p>
-        <p class="error-message">{error?.message || "Unknown rendering error"}</p>
+        <h3>{text.genericTitle}</h3>
+        <p class="error-message-text">{text.genericMessage}</p>
+        {#if detail}
+            <p class="error-detail">{detail}</p>
+        {/if}
         <button class="retry-btn" onclick={reset}>
             <RefreshCw size={16} />
-            Try again
+            {text.retry}
         </button>
     </div>
 </div>
@@ -59,15 +95,13 @@
         color: var(--text-primary);
     }
 
-    .error-location {
-        font-size: 0.85rem;
+    .error-message-text {
         color: var(--text-secondary);
-        margin-bottom: 5px;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
+        margin-bottom: 15px;
     }
 
-    .error-message {
+    /* Лишається лише в dev — див. коментар у <script>. */
+    .error-detail {
         color: #ef4444;
         font-family: monospace;
         font-size: 0.9rem;
@@ -75,6 +109,7 @@
         background: rgba(0, 0, 0, 0.2);
         padding: 8px 12px;
         border-radius: 8px;
+        word-break: break-word;
     }
 
     .retry-btn {

@@ -7,7 +7,8 @@ const FIELDS: (keyof ErrorMessages)[] = [
 	'notFoundMessage',
 	'genericTitle',
 	'genericMessage',
-	'home'
+	'home',
+	'retry'
 ];
 
 describe('тексти сторінки помилки', () => {

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { base } from '$app/paths';
-	import { isLanguage, type Language } from '$lib/i18n/LanguageState.svelte';
 	import { errorMessages } from '$lib/i18n/errorMessages';
+	import { languageFromDocument } from '$lib/i18n/documentLanguage';
 
 	/**
 	 * ERROR-HANDLING-v8 § 2.2: `+error.svelte` — мінімум, який має бути завжди.
@@ -15,26 +15,11 @@
 	 */
 
 	/**
-	 * Мова береться з `<html lang>`, а НЕ з `getLanguage()`.
-	 *
-	 * `getLanguage()` читає контекст, який ставить `+layout.svelte`. У звичайному
-	 * випадку макет над сторінкою помилки є, і контекст був би. Але саме тут
-	 * покладатися на це не можна: якщо помилка сталася в самому макеті, SvelteKit
-	 * рендерить `+error.svelte` БЕЗ нього — і сторінка помилки впала б сама,
-	 * замінивши зрозумілу помилку на порожній екран.
-	 *
-	 * Атрибут `lang` виставляє той самий `LanguageState`, тож значення те саме,
-	 * але читання з DOM не кидає ніколи.
+	 * Мова — з `<html lang>`, а НЕ з `getLanguage()`. Причина (і той самий
+	 * розбір BCP-47) живе в `languageFromDocument()`: коротко — контекст тут
+	 * може не існувати взагалі, бо саме падіння макета й приводить сюди.
 	 */
-	const language = $derived.by((): Language => {
-		if (typeof document === 'undefined') return 'en';
-		const raw = document.documentElement.lang.toLowerCase();
-		if (isLanguage(raw)) return raw;
-		// `<html lang>` тримає BCP-47 ('en-US', 'uk-UA'), а ключі словників —
-		// короткі. Беремо базовий сабтег, і лише якщо він відомий.
-		const bare = raw.split('-')[0];
-		return isLanguage(bare) ? bare : 'en';
-	});
+	const language = $derived(languageFromDocument());
 
 	const text = $derived(errorMessages(language));
 	const isNotFound = $derived(page.status === 404);
