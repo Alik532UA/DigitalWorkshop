@@ -264,12 +264,24 @@
 			>
 				{#if state.currentTab === 'anchor'}
 					<!-- Slide 1: Hero -->
+					<!-- Клік по слайду — ДОДАТКОВИЙ вказівниковий шлях, а не єдиний: слайди
+					     перемикаються з клавіатури на рівні вікна (`handleKeyDown`) —
+					     ArrowUp/Down, W/S, Space, а вкладки цифрами 1–5. Дублювати ту саму
+					     навігацію ще й обробником на кожному слайді означало б два джерела
+					     одного поводження. Обґрунтування обовʼязкове поруч із ignore
+					     (ACCESSIBILITY-v8, SVELTE-UI-v8, анти-патерни). -->
 					<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 					<div class="slide-wrapper" class:active={state.currentIndex === 0} onclick={() => state.goToSlide(0)}>
 						<div class="info-slide glass-panel info-block slide-hero">
 							<div class="photo-wrapper">
 								<img src="{base}/images/profile.jpg" alt="Alik" class="profile-photo" />
 							</div>
+							<!-- Делегування, а не власна інтерактивність: справжні цілі всередині —
+							     `<button class="inline-badge">`, і Enter/Space на них дають звичайний
+							     клік, який цей обробник і ловить сплиттям. Тобто клавіатура працює
+							     через них, а не попри них. `onmouseover`/`onmouseout` лишаються
+							     оформленням (підсвітка вкладки під курсором) і клавіатурного
+							     відповідника не потребують. -->
 							<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions, a11y_mouse_events_have_key_events -->
 							<div
 								class="hero-text"
@@ -313,6 +325,12 @@
 					{@const tabData = t.tabs[state.currentTab as keyof typeof t.tabs]}
 
 					<!-- Tab intro slide -->
+					<!-- Клік по слайду — ДОДАТКОВИЙ вказівниковий шлях, а не єдиний: слайди
+					     перемикаються з клавіатури на рівні вікна (`handleKeyDown`) —
+					     ArrowUp/Down, W/S, Space, а вкладки цифрами 1–5. Дублювати ту саму
+					     навігацію ще й обробником на кожному слайді означало б два джерела
+					     одного поводження. Обґрунтування обовʼязкове поруч із ignore
+					     (ACCESSIBILITY-v8, SVELTE-UI-v8, анти-патерни). -->
 					<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 					<div class="slide-wrapper" class:active={state.currentIndex === 0} onclick={() => state.goToSlide(0)}>
 						<div class="info-slide glass-panel info-block slide-hero">
@@ -330,6 +348,12 @@
 
 					<!-- Details slides (FAQ / Benefits) -->
 					{#each state.activeChunks as chunk, i}
+						<!-- Клік по слайду — ДОДАТКОВИЙ вказівниковий шлях, а не єдиний: слайди
+						     перемикаються з клавіатури на рівні вікна (`handleKeyDown`) —
+						     ArrowUp/Down, W/S, Space, а вкладки цифрами 1–5. Дублювати ту саму
+						     навігацію ще й обробником на кожному слайді означало б два джерела
+						     одного поводження. Обґрунтування обовʼязкове поруч із ignore
+						     (ACCESSIBILITY-v8, SVELTE-UI-v8, анти-патерни). -->
 						<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 						<div class="slide-wrapper" class:active={state.currentIndex === i + 1} onclick={() => state.goToSlide(i + 1)}>
 							<div class="chunk-content">
@@ -347,6 +371,12 @@
 					{#each state.activeProjects as p, i}
 						{@const data = t.portfolio.projects[p.id as keyof typeof t.portfolio.projects]}
 						{@const Icon = p.icon}
+						<!-- Клік по слайду — ДОДАТКОВИЙ вказівниковий шлях, а не єдиний: слайди
+						     перемикаються з клавіатури на рівні вікна (`handleKeyDown`) —
+						     ArrowUp/Down, W/S, Space, а вкладки цифрами 1–5. Дублювати ту саму
+						     навігацію ще й обробником на кожному слайді означало б два джерела
+						     одного поводження. Обґрунтування обовʼязкове поруч із ignore
+						     (ACCESSIBILITY-v8, SVELTE-UI-v8, анти-патерни). -->
 						<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 						<div
 							class="slide-wrapper"
