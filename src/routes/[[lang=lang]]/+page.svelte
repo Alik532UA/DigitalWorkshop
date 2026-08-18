@@ -274,7 +274,23 @@
 					<div class="slide-wrapper" class:active={state.currentIndex === 0} onclick={() => state.goToSlide(0)}>
 						<div class="info-slide glass-panel info-block slide-hero">
 							<div class="photo-wrapper">
-								<img src="{base}/images/profile.jpg" alt="Alik" class="profile-photo" />
+								<!-- Найбільше зображення першого екрана, тобто кандидат на LCP:
+								     `eager` + висока пріоритетність, а не `lazy`
+								     (PERFORMANCE-v8 § 3.1). `width`/`height` — щоб браузер знав
+								     пропорції до завантаження; CSS (`100%`/`100%`) їх перекриває,
+								     тож вигляд не змінюється. Ті самі атрибути вже стоять на цій
+								     самій фотографії в архівному `HeroSection` — тут їх просто
+								     не було. -->
+								<img
+									src="{base}/images/profile.jpg"
+									alt="Alik"
+									class="profile-photo"
+									width="280"
+									height="280"
+									loading="eager"
+									fetchpriority="high"
+									decoding="async"
+								/>
 							</div>
 							<!-- Делегування, а не власна інтерактивність: справжні цілі всередині —
 							     `<button class="inline-badge">`, і Enter/Space на них дають звичайний
@@ -385,7 +401,17 @@
 						>
 							<div class="info-slide glass-panel info-block slide-project">
 								<div class="project-img">
-									<img src="{base}/images/{p.img}" alt={data.title} class="img-{p.id}" />
+									<!-- Слайди проєктів зсунуті за межі екрана (`translateY` на
+									     трек), тож на першому кадрі жодне з цих зображень не
+									     видно: `lazy` тут не компроміс, а точний опис
+									     (PERFORMANCE-v8, анти-патерни). -->
+									<img
+										src="{base}/images/{p.img}"
+										alt={data.title}
+										class="img-{p.id}"
+										loading="lazy"
+										decoding="async"
+									/>
 									<span class="tech-badge">{data.tech}</span>
 								</div>
 								<div class="project-content">

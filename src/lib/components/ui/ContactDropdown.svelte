@@ -127,18 +127,22 @@
                  неправильний. Виняток вузький — рівно на цю групу посилань, тож
                  внутрішнє посилання, додане в цьому файлі поза нею, правило
                  побачить. -->
+            <!-- `loading="eager"` названо явно, а не пропущено: значки існують у
+                 DOM лише поки розкривач відкритий, тобто зʼявляються вже після
+                 дії користувача й мусять бути видні одразу. `lazy` тут дав би
+                 порожні квадрати в момент відкриття (PERFORMANCE-v8 § 3.1). -->
             <!-- eslint-disable svelte/no-navigation-without-resolve -->
             <a href={config.telegramUrl} target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Telegram" onclick={(e) => e.stopPropagation()}>
-                <img src={telegramIcon} alt="Telegram" />
+                <img src={telegramIcon} alt="Telegram" loading="eager" decoding="async" />
             </a>
             <a href={config.viberUrl} target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Viber" onclick={(e) => e.stopPropagation()}>
-                <img src={viberIcon} alt="Viber" />
+                <img src={viberIcon} alt="Viber" loading="eager" decoding="async" />
             </a>
             <a href={config.whatsappUrl} target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="WhatsApp" onclick={(e) => e.stopPropagation()}>
-                <img src={whatsappIcon} alt="WhatsApp" />
+                <img src={whatsappIcon} alt="WhatsApp" loading="eager" decoding="async" />
             </a>
             <a href={config.linkedinUrl} target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="LinkedIn" onclick={(e) => e.stopPropagation()}>
-                <img src={linkedinIcon} alt="LinkedIn" />
+                <img src={linkedinIcon} alt="LinkedIn" loading="eager" decoding="async" />
             </a>
             <!-- eslint-enable svelte/no-navigation-without-resolve -->
         </div>

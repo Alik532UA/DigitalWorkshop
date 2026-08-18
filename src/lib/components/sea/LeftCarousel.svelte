@@ -74,7 +74,17 @@
 				class:hovered-state={hoveredCarouselProject === p.id}
 				class:off-tab={isOffTab(p)}
 			>
-				<img src="{base}/images/{p.img}" alt={p.id} class="carousel-img" />
+				<!-- Рейка перелічує проєкти ВСІХ вкладок і довша за екран, тож
+				     більшість карток на першому кадрі не видно (PERFORMANCE-v8,
+				     анти-патерни). `.off-tab` лишає їх видимими — приховує лише
+				     прокрутка, і саме її `lazy` і враховує. -->
+				<img
+					src="{base}/images/{p.img}"
+					alt={p.id}
+					class="carousel-img"
+					loading="lazy"
+					decoding="async"
+				/>
 			</a>
 		{/each}
 	{/each}
