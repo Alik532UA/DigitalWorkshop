@@ -89,34 +89,64 @@ export class TabState {
     }
 }
 
+/** Медіа-запит системної схеми. Той самий, що читає скрипт першого кадру. */
+const PREFERS_DARK = '(prefers-color-scheme: dark)';
+
 export class ThemeState {
     current = $state<ThemeType>("dark");
     isChanging = $state(false);
 
     constructor() {}
 
+    /**
+     * Ініціалізація теми — три джерела, і різниця між ними не косметична.
+     *
+     * ## Що тут було зламано
+     *
+     * Запасним варіантом стояв літерал `'dark'`, а скрипт першого кадру в
+     * `app.html` для того самого випадку читає `prefers-color-scheme`. Тобто
+     * відвідувач зі СВІТЛОЮ схемою в системі й порожнім сховищем бачив, як
+     * сторінка малюється світлою, а після гідрації стає темною — і темна
+     * лишалася назавжди, бо `set()` її ще й зберігав.
+     *
+     * Другий бік того самого: `set()` писав у сховище на КОЖНОМУ шляху, тож
+     * уже після першого завантаження `storage.get('theme')` ніколи не був
+     * порожній. Умова `if (!storage.get('theme'))` у слухачі системної схеми
+     * не виконувалася ніколи — підписка на `prefers-color-scheme` була мертвим
+     * кодом, який виглядав робочим (UI-UX-v8 § 1.4).
+     *
+     * Тому шляхів тепер два: `set()` — явний вибір, який запам'ятовується;
+     * `apply()` — застосування без запису. Системна схема йде через `apply()`,
+     * і саме це лишає «ручний вибір не зафіксовано» правдою.
+     */
     init() {
-        if (browser) {
-            const params = new URLSearchParams(window.location.search);
-            const themeParam = params.get('theme');
-            const stored = storage.get('theme');
-            const saved: ThemeType = isTheme(themeParam)
-                ? themeParam
-                : isTheme(stored)
-                    ? stored
-                    : 'dark';
-            this.set(saved);
+        if (!browser) return;
 
-            // Sync with OS preferences if not manually set
-            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-            const handler = (e: MediaQueryListEvent) => {
-                if (!storage.get('theme')) {
-                    this.set(e.matches ? 'dark' : 'light');
-                }
-            };
-            mediaQuery.addEventListener('change', handler);
-            return () => mediaQuery.removeEventListener('change', handler);
+        const params = new URLSearchParams(window.location.search);
+        const themeParam = params.get('theme');
+        const stored = storage.get('theme');
+        const systemQuery = window.matchMedia(PREFERS_DARK);
+
+        if (isTheme(themeParam)) {
+            // Тема в адресі — вибір: посилання з `?theme=` шлють саме щоб
+            // показати її, тож вона лишається й після переходу на інші сторінки.
+            this.set(themeParam);
+        } else if (isTheme(stored)) {
+            // Уже збережене повторно писати нема потреби.
+            this.apply(stored);
+        } else {
+            this.apply(systemQuery.matches ? 'dark' : 'light');
         }
+
+        // Системна схема змінюється поки сторінка відкрита — доти, доки
+        // користувач не зафіксував вибір сам.
+        const handler = (e: MediaQueryListEvent) => {
+            if (storage.get('theme') === null) {
+                this.apply(e.matches ? 'dark' : 'light');
+            }
+        };
+        systemQuery.addEventListener('change', handler);
+        return () => systemQuery.removeEventListener('change', handler);
     }
 
     async toggle() {
@@ -143,7 +173,14 @@ export class ThemeState {
         }, 300);
     }
 
-    set(theme: ThemeType) {
+    /**
+     * Застосовує тему до стану й до документа, НЕ запам'ятовуючи вибір.
+     *
+     * Різниця з `set()` — рівно в одному рядку, і саме він визначає, чи буде
+     * далі працювати підписка на системну схему: доки в сховищі нічого немає,
+     * «користувач не обирав» лишається правдою (див. `init()`).
+     */
+    private apply(theme: ThemeType) {
         this.current = theme;
         if (browser) {
             document.documentElement.setAttribute("data-theme", theme);
@@ -154,7 +191,13 @@ export class ThemeState {
                 meta.setAttribute('content', theme === 'dark' ? 'dark' : 'light dark');
             }
             document.documentElement.style.colorScheme = theme === 'light' ? 'light' : 'dark';
+        }
+    }
 
+    /** Явний вибір користувача: застосовується й запам'ятовується. */
+    set(theme: ThemeType) {
+        this.apply(theme);
+        if (browser) {
             storage.set("theme", theme);
         }
     }
