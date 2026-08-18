@@ -89,11 +89,10 @@
     .cta-section { display: flex; justify-content: center; }
     .large-btn { padding: 20px 40px; font-size: 1.2rem; }
 
-    @media (max-width: 1200px) {
-        .faq-list { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    @media (max-width: 768px) {
-        .faq-list { grid-template-columns: 1fr; }
-    }
+    /* Двох медіазапитів із `grid-template-columns` тут більше немає: `.faq-list` —
+       багатоколонковий блок (`columns: 3 300px`), а не сітка, і властивості
+       сітки на ньому не діють. Обидва правила виглядали як обробка вузького
+       екрана, а не робили нічого. Кількість колонок спадає сама: 300px — це
+       оголошена МІНІМАЛЬНА ширина колонки, тож при 1200px в'юпорта (мінус
+       відступи макета) їх уже дві, а на телефоні одна (FLUID-SIZING-v8 § 3). */
 </style>

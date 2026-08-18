@@ -53,7 +53,10 @@
     .cta-section { display: flex; justify-content: center; }
     .large-btn { padding: 20px 40px; font-size: 1.2rem; }
 
-    @media (max-width: 768px) {
-        .faq-list { grid-template-columns: 1fr; }
-    }
+    /* Медіазапиту з `grid-template-columns: 1fr` тут більше немає: `.faq-list` —
+       багатоколонковий блок (`columns: 2 400px`), а не сітка, і властивість
+       сітки на ньому не діє взагалі. Правило виглядало як обробка вузького
+       екрана, а не робило нічого — і саме тому не викликало питань. Кількість
+       колонок і без нього спадає до однієї сама: 400px — це оголошена
+       МІНІМАЛЬНА ширина колонки (FLUID-SIZING-v8 § 3). */
 </style>
