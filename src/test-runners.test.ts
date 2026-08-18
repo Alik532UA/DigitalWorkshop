@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import { withoutComments } from './test-support/source-text';
 
 /**
  * Кожен файл перевірки належить раннеру, який у проєкті справді є
@@ -40,18 +41,16 @@ const RUNNERS = [
 	{ imports: 'vitest', dep: 'vitest', config: /^vitest\.config\.|^vite\.config\./ }
 ];
 
-/**
- * Коментарі відрізаються перед пошуком імпорту.
+/*
+ * Коментарі відрізаються перед пошуком імпорту — спільним `withoutComments()`.
  *
  * Перший варіант цієї перевірки шукав назву раннера підрядком і оголосив
  * сиротою сам себе: у докблоці вище процитовано рядок
  * `import … from '@playwright/test'` із мертвого файлу, заради якого все й
  * писалося. Рівно та сама помилка, що й у § 1.1 канону — перевірка дивилася
- * поруч із тим, що мала перевіряти.
+ * поруч із тим, що мала перевіряти. Власної копії прибирача цей файл більше
+ * не тримає: їх було чотири, і кожна вже хоч раз давала хибний вердикт.
  */
-function withoutComments(source: string): string {
-	return source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
-}
 
 function walk(dir: string, out: string[] = []): string[] {
 	if (!existsSync(dir)) return out;

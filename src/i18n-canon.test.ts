@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { globSync, readFileSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
+import { withoutComments } from './test-support/source-text';
 
 /**
  * Інваріанти локалізації (I18N-v8 § 2, § 4.3, § 7.1).
@@ -23,18 +24,16 @@ const read = (p: string) => readFileSync(resolve(ROOT, p), 'utf8');
 /**
  * Коментарі й `<style>` — наша територія, там можна будь-якою мовою.
  *
- * На відміну від версії в CV, тут відрізається й кінцевий коментар на рядку з
- * кодом: `return a ? 1 : -1; // вправо`. Без цього єдиною знахідкою в
- * DigitalWorkshop був саме такий рядок — тобто перевірка починала своє життя
- * червоною не через дефект. `(?<![:'"\\])` не дає з'їсти `https://…`, де перед
- * подвійним слешем стоїть двокрапка.
+ * Відрізання коментарів живе у спільному `withoutComments()`: ту саму функцію
+ * тримали чотири гейти, і кожна копія відрізнялася від решти. Тут лишається
+ * рівно те, що є тільки в цієї перевірки, — блок `<style>`.
+ *
+ * Кінцевий коментар на рядку з кодом (`return a ? 1 : -1; // вправо`) теж
+ * відрізається: без цього єдиною знахідкою в DigitalWorkshop був саме такий
+ * рядок, тобто перевірка починала життя червоною не через дефект.
  */
 function strippedMarkup(source: string): string {
-	return source
-		.replace(/<!--[\s\S]*?-->/g, '')
-		.replace(/<style[\s\S]*?<\/style>/g, '')
-		.replace(/\/\*[\s\S]*?\*\//g, '')
-		.replace(/(?<![:'"\\])\/\/.*$/gm, '');
+	return withoutComments(source.replace(/<style[\s\S]*?<\/style>/g, ''));
 }
 
 const CYRILLIC = /[\u0400-\u04FF]/;

@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { withoutComments } from './test-support/source-text';
 
 /**
  * Інваріанти CSP по джерелах (SECURITY-v8 § 6.1, § 6.3, § 16).
@@ -70,10 +71,8 @@ describe('перевірка жива', () => {
 			']'
 		].join(br);
 
-		expect(withoutLineComments(sample)).not.toContain('unsafe-inline');
-		expect(withoutLineComments(sample), 'разом із коментарем зникли й значення').toContain(
-			"'self'"
-		);
+		expect(withoutComments(sample)).not.toContain('unsafe-inline');
+		expect(withoutComments(sample), 'разом із коментарем зникли й значення').toContain("'self'");
 	});
 });
 
@@ -102,7 +101,7 @@ describe('CSP', () => {
 	 */
 	it("script-src не містить 'unsafe-inline'", () => {
 		const values =
-			withoutLineComments(svelteConfig).match(/'script-src':\s*\[([\s\S]*?)\]/)?.[1] ?? '';
+			withoutComments(svelteConfig).match(/'script-src':\s*\[([\s\S]*?)\]/)?.[1] ?? '';
 		expect(values, "секцію 'script-src' не знайдено — перевіряти нема чого").not.toBe('');
 
 		expect(

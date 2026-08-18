@@ -2,6 +2,7 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve, sep } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { withoutComments } from './test-support/source-text';
 
 /**
  * DEBUGGING-v8 § 1.3 (HIGH) і CODE-QUALITY-v8, анти-патерни: події застосунку
@@ -42,21 +43,6 @@ function walk(dir: string, out: string[] = []): string[] {
 		else if (/\.(ts|svelte)$/.test(entry)) out.push(toPosix(full));
 	}
 	return out;
-}
-
-/**
- * Прибирає коментарі — інакше перевірку валить пояснення, ЧОМУ виклику тут
- * немає. Розбиття по `/\r?\n/`, а не по `'\n'`: у робочому дереві файли лежать
- * із CRLF, і регулярка з `$` на такому рядку не збігається ні з чим — на цьому
- * вже одного разу застряг гейт CSP.
- */
-function withoutComments(source: string): string {
-	return source
-		.replace(/<!--[\s\S]*?-->/g, '')
-		.replace(/\/\*[\s\S]*?\*\//g, '')
-		.split(/\r?\n/)
-		.map((line) => line.replace(/\/\/.*/, ''))
-		.join('\n');
 }
 
 const CONSOLE_CALL = /\bconsole\s*\.\s*(log|info|warn|error|debug|trace|table|dir)\s*\(/g;
