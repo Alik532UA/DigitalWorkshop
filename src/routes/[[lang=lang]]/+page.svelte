@@ -163,7 +163,7 @@
 	class:lang-changing={langState.isChanging}
 >
 	<video autoplay loop muted playsinline class="background-video">
-		<source src="{base}/sea_4_av1.webm" type="video/webm" />
+		<source src="{base}/video/sea_4_av1.webm" type="video/webm" />
 	</video>
 
 	{#if !state.isMobile}
@@ -187,7 +187,7 @@
 
 	<audio
 		bind:this={audioRef}
-		src="{base}/sea.ogg"
+		src="{base}/audio/sea.ogg"
 		loop
 		bind:volume={audioState.volume}
 		onplay={() => (audioState.isPlaying = true)}

@@ -19,8 +19,8 @@ dist/
 package-lock.json
 
 # Медіа: 28 МБ відео й 2 МБ звуку, з яких асистенту не видно нічого
-static/sea_4_av1.webm
-static/sea.ogg
+static/video/sea_4_av1.webm
+static/audio/sea.ogg
 static/images/
 static/fonts/
 
