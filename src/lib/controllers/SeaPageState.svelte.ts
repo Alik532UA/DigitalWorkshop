@@ -1,5 +1,5 @@
 import { t } from '$lib/i18n/LanguageState.svelte';
-import { acceptsShortcut } from '$lib/services/keyboard';
+import { acceptsPageShortcut } from '$lib/services/hotkeys.svelte';
 import { logService } from '$lib/services/logService.svelte';
 import { Spring } from 'svelte/motion';
 import { Globe, Gamepad2, Box, FileUser } from 'lucide-svelte';
@@ -465,7 +465,7 @@ export class SeaPageState {
 	 * список із пошуком, і людина набирає назву.
 	 */
 	handleKeyDown(e: KeyboardEvent, callbacks: { toggleAudio: () => void, toggleClock: () => void, toggleLanguageMenu: () => void, toggleTheme: () => void, openTelegram: () => void }) {
-		if (!acceptsShortcut(e)) return;
+		if (!acceptsPageShortcut(e)) return;
 
 		/*
 		 * `preventDefault` — ОДИН раз і лише коли дія відбулася (HOTKEYS-v8 § 2.4).

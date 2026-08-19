@@ -2,6 +2,7 @@
     import { fly } from "svelte/transition";
     import { cubicInOut } from "svelte/easing";
     import { getBackground, getMenu } from '$lib/controllers/UiState.svelte';
+    import { hotkeys } from '$lib/services/hotkeys.svelte';
     import { t } from '$lib/i18n/LanguageState.svelte';
 
     const background = getBackground();
@@ -33,6 +34,30 @@
                         {bg.label()}
                     </button>
                 {/each}
+            </div>
+        </div>
+
+        <!--
+            WCAG SC 2.1.4 (HOTKEYS-v8 § 3, CRITICAL): одиночні літерні скорочення
+            мусять вимикатися. Перемикач стоїть тут, бо це єдина панель
+            налаштувань у проєкті; друга дорога — `?hotkeys=off` в адресі, і вона
+            не запасна, а основна для морської сторінки, де цієї панелі немає.
+
+            Підпис англійською, як і сусідні: панель службова, її текст не
+            приходить зі словників (`i18n-canon` забороняє кирилицю в розмітці —
+            зашитий український рядок означав би 41 мову без перекладу).
+        -->
+        <div class="settings-group">
+            <span class="label">Hotkeys</span>
+            <div class="options">
+                <button
+                    class:active={hotkeys.enabled}
+                    onclick={() => hotkeys.set(true)}
+                >On</button>
+                <button
+                    class:active={!hotkeys.enabled}
+                    onclick={() => hotkeys.set(false)}
+                >Off</button>
             </div>
         </div>
 

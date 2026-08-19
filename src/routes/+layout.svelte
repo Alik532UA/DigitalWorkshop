@@ -10,6 +10,7 @@
     import { afterNavigate } from "$app/navigation";
     import { logService } from "$lib/services/logService.svelte";
     import { debugMode } from "$lib/services/debugMode.svelte";
+    import { hotkeys } from "$lib/services/hotkeys.svelte";
     import { createKeySequence } from "$lib/services/keySequence";
     import { hardReset, RESET_PRESSES_DEV, RESET_PRESSES_PROD } from "$lib/services/resetService";
     import Header from "$lib/components/layout/Header.svelte";
@@ -55,6 +56,10 @@
         logService.info('app', `App initialized in ${dev ? 'development' : 'production'} mode`);
         migrateStorage();
         initAnalytics();
+
+        // WCAG SC 2.1.4 (`hotkeys.svelte.ts`). Саме в onMount: під час пререндеру
+        // звернення до `searchParams` кидає й валить збірку.
+        hotkeys.applyParam(page.url.searchParams.get('hotkeys'));
 
         // Виставляємо і тут, не лише в afterNavigate: порядок між ними не
         // гарантований, а init() читає прапорець одразу.
