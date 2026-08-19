@@ -468,6 +468,25 @@ export class SeaPageState {
 		if (!acceptsShortcut(e)) return;
 
 		/*
+		 * `preventDefault` — ОДИН раз і лише коли дія відбулася (HOTKEYS-v8 § 2.4).
+		 *
+		 * Доти його не було ні в одній літерній гілці, і `L` через це поводилася
+		 * неправильно: панель відкривалася, фокус ішов у поле пошуку — і та сама подія
+		 * доїжджала до поля своєю типовою дією, тобто вписувала туди `l`. Людина
+		 * бачила відкриту панель із зайвою літерою й порожнім списком.
+		 *
+		 * Один вихід замість `preventDefault` у кожній гілці — щоб наступна клавіша не
+		 * могла його забути: саме так це й сталося. Так само зроблено в `CV`, звідки
+		 * взято поведінку `L`.
+		 */
+		if (!this.dispatchShortcut(e, callbacks)) return;
+		e.preventDefault();
+	}
+
+	/** @returns чи клавіша щось зробила. Від цього залежить `preventDefault` вище. */
+	private dispatchShortcut(e: KeyboardEvent, callbacks: { toggleAudio: () => void, toggleClock: () => void, toggleLanguageMenu: () => void, toggleTheme: () => void, openTelegram: () => void }): boolean {
+
+		/*
 		 * `Escape` закриває панель мов — і це не додаткова зручність, а єдиний вихід.
 		 *
 		 * Панель, відкрита клавішею `L`, забирає фокус у своє поле пошуку. Далі
@@ -480,45 +499,44 @@ export class SeaPageState {
 		 * «закриємо, якщо жодна інша клавіша не спрацювала».
 		 */
 		if (e.code === 'Escape') {
-			if (!this.isLangMenuOpen) return;
+			if (!this.isLangMenuOpen) return false;
 			this.isLangMenuOpen = false;
-			e.preventDefault();
-			return;
+			return true;
 		}
 
 		if (e.code === 'KeyM') {
 			callbacks.toggleAudio();
-			return;
+			return true;
 		}
 
 		if (e.code === 'KeyC') {
 			callbacks.toggleClock();
-			return;
+			return true;
 		}
 
 		if (e.code === 'KeyT') {
 			callbacks.toggleTheme();
-			return;
+			return true;
 		}
 
 		if (e.code === 'KeyL') {
 			callbacks.toggleLanguageMenu();
-			return;
+			return true;
 		}
 
 		if (e.code === 'KeyF') {
 			this.toggleFullscreen();
-			return;
+			return true;
 		}
 
 		if (e.code === 'KeyH') {
 			this.setTab(this.tabsList[0]);
-			return;
+			return true;
 		}
 
 		if (e.code === 'Enter' || e.code === 'NumpadEnter') {
 			callbacks.openTelegram();
-			return;
+			return true;
 		}
 
 		const digitMatch = e.code.match(/^(?:Digit|Numpad)([1-5])$/);
@@ -526,13 +544,16 @@ export class SeaPageState {
 			const tabIndex = parseInt(digitMatch[1], 10) - 1;
 			if (tabIndex >= 0 && tabIndex < this.tabsList.length) {
 				this.setTab(this.tabsList[tabIndex]);
+				return true;
 			}
-			return;
+			return false;
 		}
 
 		if (e.code === 'Space') {
+			// Прокрутку сторінки пробілом гасимо навіть коли крок не відбувся: інакше
+			// на середині анімації сторінка стрибне вниз, а слайд лишиться тим самим.
 			e.preventDefault();
-			if (this.isScrolling) return;
+			if (this.isScrolling) return true;
 
 			if (this.currentIndex < this.totalSlides - 1) {
 				this.currentIndex++;
@@ -547,10 +568,10 @@ export class SeaPageState {
 					this.lockScroll();
 				}
 			}
-			return;
+			return true;
 		}
 
-		if (this.isScrolling) return;
+		if (this.isScrolling) return false;
 
 		switch (e.code) {
 			case 'ArrowDown':
@@ -583,7 +604,12 @@ export class SeaPageState {
 				this.prevTab();
 				this.lockScroll();
 				break;
+			default:
+				// Клавіша не наша — типова дія лишається браузеру.
+				return false;
 		}
+
+		return true;
 	}
 
 	parseMarkdown(text: string) {

@@ -86,16 +86,21 @@
             aria-label="Copy debug report — {appVersion}"
             data-testid="app-version-value"
         >
+            <!--
+                Номер версії стоїть у ВСІХ трьох станах, і це виправлення, а не смак.
+                Доти лічильник помилок його ЗАМІНЯВ — а на dev-сторінці помилки є майже
+                завжди, тож версії не було видно ніколи, тобто головна річ на таблі
+                зникала саме там, де вона потрібна. Лічильник ДОДАЄТЬСЯ до номера, а не
+                стає замість нього.
+            -->
             {#if copied}
-                <div in:scale>
-                    <Check size={18} />
-                </div>
+                <Check size={14} class="hint-icon" />
             {:else if logService.errorCount > 0}
-                <span class="count">{logService.errorCount > 99 ? '!' : logService.errorCount}</span>
+                <span class="count">{logService.errorCount > 99 ? '99+' : logService.errorCount}</span>
             {:else}
                 <Copy size={12} class="hint-icon" />
-                <span class="version">{appVersion}</span>
             {/if}
+            <span class="version">{appVersion}</span>
         </button>
     </div>
 {/if}
@@ -149,16 +154,11 @@
     }
 
     /*
-     * Помилки — кружок, а не капсула: у цьому стані важлива не версія, а те, що
-     * щось сталося. Номер версії лишається у звіті, який копіює цей самий клік.
+     * Форма НЕ змінюється між станами: капсула лишається капсулою, бо номер версії
+     * лишається на місці. Доти помилки перетворювали табло на кружок 32px — тобто
+     * зникала не лише версія, а й сама впізнаваність елемента: у куті зʼявлялося щось
+     * інше, і його доводилося перечитувати.
      */
-    .log-fab.has-errors,
-    .log-fab.copied {
-        width: 32px;
-        min-height: 32px;
-        padding: 0;
-        border-radius: 50%;
-    }
 
     /*
      * Червоний темніший за #ef4444 — за WCAG AA, не за смаком: білий текст на
@@ -179,9 +179,21 @@
         border-color: #1b5e20;
     }
 
+    /*
+     * Лічильник — плашка ПЕРЕД номером, а не текст замість нього.
+     *
+     * Темніший червоний за тло самої капсули (#7f1d1d на #c92a2a): білий текст дає на
+     * ньому 10:1, а сама плашка читається як окремий елемент, а не як пляма. Червоне
+     * на червоному тут навмисно — сигнал один, і роздвоювати його кольором нема сенсу.
+     */
     .count {
-        font-size: 0.9rem;
-        font-weight: bold;
+        font-size: 0.75rem;
+        font-weight: 700;
+        line-height: 1;
+        padding: 2px 5px;
+        border-radius: 8px;
+        background: #7f1d1d;
+        color: #ffffff;
     }
 
     /*
@@ -197,12 +209,6 @@
             min-height: 44px;
             padding: 0 12px;
             border-radius: 22px;
-        }
-
-        .log-fab.has-errors,
-        .log-fab.copied {
-            width: 44px;
-            padding: 0;
         }
 
         .version {
