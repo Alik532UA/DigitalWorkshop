@@ -12,6 +12,7 @@
 	import ContactDropdown from '$lib/components/ui/ContactDropdown.svelte';
 
 	import { SeaPageState } from '$lib/controllers/SeaPageState.svelte';
+	import { getTheme } from '$lib/controllers/UiState.svelte';
 	import { AudioState } from '$lib/controllers/AudioState.svelte';
 	import { ClockState } from '$lib/controllers/ClockState.svelte';
 
@@ -31,6 +32,12 @@
 	// Resolve the language state once, during init. `t.current` calls getContext(),
 	// which Svelte forbids outside component initialisation (e.g. inside event handlers).
 	const langState = t.current;
+	/*
+	 * Тема беруться з контексту ТУТ, під час ініціалізації: `getContext()`
+	 * заборонений поза нею, тож викликати його в обробнику клавіші не можна —
+	 * рівно з тієї причини, що вже описана вище для `langState`.
+	 */
+	const themeState = getTheme();
 	const toggleLanguage = () => {
 		const next = langState.current === 'uk' ? 'en' : langState.current === 'en' ? 'ja' : 'uk';
 		langState.set(next);
@@ -133,6 +140,9 @@
 			toggleAudio: () => audioState.toggle(),
 			toggleClock: () => clockState.toggle(),
 			toggleLanguage,
+			// `T` — тема, як у решті проєктів (HOTKEYS-v8 § 1.1). Доти цієї
+			// клавіші тут не було, а `T` перемикав мову.
+			toggleTheme: () => void themeState.toggle(),
 			openTelegram: () => window.open(config.telegramUrl, '_blank')
 		});
 	}}

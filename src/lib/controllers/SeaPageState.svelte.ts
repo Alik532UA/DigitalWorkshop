@@ -1,4 +1,5 @@
 import { t } from '$lib/i18n/LanguageState.svelte';
+import { acceptsShortcut } from '$lib/services/keyboard';
 import { logService } from '$lib/services/logService.svelte';
 import { Spring } from 'svelte/motion';
 import { Globe, Gamepad2, Box, FileUser } from 'lucide-svelte';
@@ -431,7 +432,24 @@ export class SeaPageState {
 		}
 	}
 
-	handleKeyDown(e: KeyboardEvent, callbacks: { toggleAudio: () => void, toggleClock: () => void, toggleLanguage: () => void, openTelegram: () => void }) {
+	/**
+	 * Гарячі клавіші сторінки.
+	 *
+	 * **Два захисти на початку, і без них це було зламано.** Обробник висить на
+	 * `svelte:window`, тобто працює й тоді, коли людина друкує. Панель мов має
+	 * поле «Search language», а `T` перемикав саму панель — тож літера `t` у полі
+	 * її закривала: `Deutsch`, `Italiano`, `Português` набрати не виходило.
+	 * Заразом `Ctrl+T` відкривав нову вкладку **і** перемикав мову, бо
+	 * `e.code === 'KeyT'` істинне й для комбінацій (HOTKEYS-v8 § 2.1, § 2.2).
+	 *
+	 * **`T` — тема, `L` — мова.** Доти `T` перемикав мову, а тема гарячої клавіші
+	 * не мала взагалі. У сусідньому `CV` `T` завжди означав тему, тож людина, яка
+	 * користується двома сайтами, отримувала не ту дію, якої хотіла
+	 * (HOTKEYS-v8 § 1.1).
+	 */
+	handleKeyDown(e: KeyboardEvent, callbacks: { toggleAudio: () => void, toggleClock: () => void, toggleLanguage: () => void, toggleTheme: () => void, openTelegram: () => void }) {
+		if (!acceptsShortcut(e)) return;
+
 		if (e.code === 'KeyM') {
 			callbacks.toggleAudio();
 			return;
@@ -443,6 +461,11 @@ export class SeaPageState {
 		}
 
 		if (e.code === 'KeyT') {
+			callbacks.toggleTheme();
+			return;
+		}
+
+		if (e.code === 'KeyL') {
 			callbacks.toggleLanguage();
 			return;
 		}
