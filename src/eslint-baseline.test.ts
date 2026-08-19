@@ -74,3 +74,115 @@ describe('базовий набір ESLint (CODE-QUALITY-v8 § 6.4.1)', () => {
 		expect(level, 'правило вимкнене — зелений lint нічого не доводить').not.toBe(0);
 	});
 });
+
+/**
+ * Борг у режимі `warn` — число, яке ЛИШЕ спадає (CODE-QUALITY-v8 § 6.4.1).
+ *
+ * ## Навіщо ще одна перевірка поруч із попередньою
+ *
+ * Та вище доводить, що правило не `off`. Вона нічого не каже про кількість, а
+ * саме кількість і є боргом: `warn` лишає порушення у звіті рівно для того, щоб
+ * за ним можна було стежити. Без гейта стежити нічим — і це не гіпотеза.
+ *
+ * До 2026-08-20 числа стояли коментарями в `eslint.config.js` і вже розійшлися
+ * з дійсністю: для `@typescript-eslint/no-unused-vars` там було записано 17 при
+ * реальних 16, а `PROJECT-CONTEXT.md` обіцяв 66 попереджень при реальних 65.
+ * Той самий клас, який AI-AGENT-PITFALLS-v8 § 5.5 називає прямо: «Число зі звіту
+ * старіє саме тоді, коли робота йде добре» — і в цьому проєкті воно вже старіло
+ * двічі, у тому самому файлі, з тієї самої причини.
+ *
+ * ## Чому число тепер тут, а не в коментарі конфіга
+ *
+ * Бо коментар не виконується. Тут воно живе в одному місці й перевіряється
+ * командою на кожному прогоні — тобто виконано вимогу § 5.5 «отримати число
+ * командою», а не переказано з пам'яті.
+ *
+ * ## Чому саме РІВНІСТЬ, а не «не більше»
+ *
+ * «Не більше» ловить зростання й пропускає застарівання: виправив три місця —
+ * число лишилося старим, і наступний читач бачить борг, якого немає. Рівність
+ * змушує опустити число тим самим комітом, яким борг скоротили. Ціна — один
+ * рядок правки; вигода — число, якому можна вірити.
+ *
+ * ## Зворотний експеримент (AI-AGENT-PITFALLS-v8 § 1.1)
+ *
+ * Проведено: `svelte/require-each-key` у мапі тимчасово змінено з 15 на 14 —
+ * перевірка почервоніла з текстом «борг ВИРІС»; на 16 — «борг скоротився».
+ * Повернуто 15 — зелена.
+ */
+const DEBT: Readonly<Record<string, number>> = {
+	'svelte/no-navigation-without-resolve': 22,
+	'@typescript-eslint/no-unused-vars': 16,
+	'svelte/require-each-key': 15,
+	'svelte/prefer-svelte-reactivity': 8,
+	'@typescript-eslint/no-explicit-any': 4
+};
+
+describe('борг ESLint — число, що лише спадає (CODE-QUALITY-v8 § 6.4.1)', () => {
+	let counts: Record<string, number>;
+	let errors: number;
+	let linted: number;
+
+	beforeAll(async () => {
+		// Той самий прохід, що й `npm run lint`, тільки через Node API: запуск
+		// `.cmd` без `shell: true` з Node 22+ падає з EINVAL, а `shell: true` дає
+		// DEP0190. Виміряно 3,7 c — про запас 60, бо під паралельним прогоном
+		// плаваючий таймаут дав би червоний гейт там, де порушення немає.
+		const results = await new ESLint().lintFiles(['.']);
+		counts = {};
+		errors = 0;
+		linted = results.length;
+		for (const result of results) {
+			for (const message of result.messages) {
+				const rule = message.ruleId ?? '(без правила)';
+				counts[rule] = (counts[rule] ?? 0) + 1;
+				if (message.severity === 2) errors++;
+			}
+		}
+	}, 60_000);
+
+	it('перевірка жива: lint пройшов по джерелах проєкту', () => {
+		expect(linted, 'ESLint не взяв жодного файлу — далі рахувати нема чого').toBeGreaterThan(0);
+	});
+
+	it('помилок немає — борг це попередження, а не поламана збірка', () => {
+		expect(errors).toBe(0);
+	});
+
+	it.each(Object.keys(DEBT))('%s: борг не зріс і число не застаріло', (rule) => {
+		const actual = counts[rule] ?? 0;
+		const declared = DEBT[rule];
+
+		if (actual > declared) {
+			expect.fail(
+				`${rule}: борг ВИРІС — ${actual} проти записаних ${declared}. ` +
+					'Правило в режимі warn лише для того, щоб число спадало.'
+			);
+		}
+		if (actual < declared) {
+			expect.fail(
+				`${rule}: борг скоротився до ${actual}, а в DEBT досі ${declared}. ` +
+					'Опустіть число тим самим комітом — інакше воно застаріє мовчки.'
+			);
+		}
+		expect(actual).toBe(declared);
+	});
+
+	it('немає боргу без записаного числа', () => {
+		const unlisted = Object.keys(counts).filter((rule) => !(rule in DEBT));
+		expect(
+			unlisted,
+			`нове правило дає попередження, а числа для нього немає:\n${unlisted.join('\n')}`
+		).toEqual([]);
+	});
+
+	/**
+	 * Сума окремо: саме її називають у `PROJECT-CONTEXT.md` і в описах комітів, і
+	 * саме вона вже розходилася з дійсністю. Тепер це число теж має джерело.
+	 */
+	it('сума боргу дорівнює тому, що звітує lint', () => {
+		const total = Object.values(counts).reduce((sum, n) => sum + n, 0);
+		const declared = Object.values(DEBT).reduce((sum, n) => sum + n, 0);
+		expect(total, 'сума в DEBT розійшлася з прогоном').toBe(declared);
+	});
+});
