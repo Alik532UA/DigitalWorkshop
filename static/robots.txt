@@ -2,4 +2,11 @@
 User-agent: *
 Disallow:
 
+# Службова сторінка чеклиста бета-тестування (BETA-CHECKLIST-v8 § 4). Вона
+# працює за адресою й дається посиланням тому, хто згодився допомогти, але в
+# індексі конкурувала б із самим сайтом. Разом із цим рядком її тримають поза
+# індексом `noindex, nofollow` у розмітці, відсутність canonical і відсутність у
+# sitemap — перелік прихованих маршрутів один, у src/lib/i18n/routing.ts.
+Disallow: /DigitalWorkshop/beta-test-checklists/
+
 Sitemap: https://alik532ua.github.io/DigitalWorkshop/sitemap.xml

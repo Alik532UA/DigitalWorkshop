@@ -64,6 +64,29 @@ const LANGUAGES = readdirSync('src/lib/i18n/locales')
 const ARCHIVE = '2026-04';
 
 /**
+ * Приховані маршрути (BETA-CHECKLIST-v8 § 4, § 5.5) — читаються з того самого
+ * модуля, що й решта політики адрес, а не дублюються тут константою.
+ *
+ * Для них перевіряється ПРОТИЛЕЖНЕ до звичайної сторінки: `noindex` мусить
+ * БУТИ, `canonical` і `hreflang` — НЕ мусять, у sitemap їх бути не мусить.
+ * Прирівняти таку сторінку до 404-фолбека було б дешевше на два рядки й
+ * неправильно: разом із canonical вона перестала б перевірятися на порожнє тіло
+ * й на `<title>`, і найслабше покритою стала б саме та сторінка, якою
+ * користуються тестувальники.
+ */
+const HIDDEN_ROUTES = readSource(
+	ROUTING,
+	/HIDDEN_ROUTES: readonly string\[\] = \[([^\]]+)\]/,
+	'HIDDEN_ROUTES'
+)
+	.split(',')
+	.map((s) => s.trim().replace(/^["']|["']$/g, ''))
+	.filter(Boolean);
+
+const hiddenFile = (route) => `${BUILD}/${route}/index.html`;
+const isHiddenFile = (file) => HIDDEN_ROUTES.some((route) => file === hiddenFile(route));
+
+/**
  * Мінімум видимого тексту. Дефект, від якого це захищає, — сторінка зі
  * спінером замість вмісту: там тексту нуль або десяток символів.
  *
@@ -96,13 +119,14 @@ const files = htmlFiles(BUILD);
 /**
  * Canary. Порожній або куций список дав би «проблем немає» на зламаній
  * збірці — рівно те, від чого застерігає AI-AGENT-PITFALLS-v8 § 1.
- * Очікується 42 мовні сторінки + голий шлях + архів + 404.
+ * Очікується 42 мовні сторінки + голий шлях + архів + 404 + приховані.
  */
-const EXPECTED_HTML = LANGUAGES.length + 3;
+const EXPECTED_HTML = LANGUAGES.length + 3 + HIDDEN_ROUTES.length;
 if (files.length !== EXPECTED_HTML) {
 	console.error(
 		`Знайдено ${files.length} HTML, очікується ${EXPECTED_HTML} ` +
-			`(${LANGUAGES.length} мов + голий шлях + /${ARCHIVE}/ + 404). ` +
+			`(${LANGUAGES.length} мов + голий шлях + /${ARCHIVE}/ + 404 + ` +
+			`${HIDDEN_ROUTES.length} прихованих). ` +
 			'Перевірка зупинена: на такій збірці її результат нічого не означає.'
 	);
 	process.exit(1);
@@ -133,6 +157,11 @@ for (const lang of LANGUAGES) {
 	}
 }
 if (!existsSync(`${BUILD}/${ARCHIVE}/index.html`)) fail(`немає ${BUILD}/${ARCHIVE}/index.html`);
+for (const route of HIDDEN_ROUTES) {
+	// Зник `entries()` або сам маршрут — і сторінка, посилання на яку вже
+	// розіслані тестувальникам, тихо перестала існувати.
+	if (!existsSync(hiddenFile(route))) fail(`немає ${hiddenFile(route)} — прихований маршрут не збудувався`);
+}
 if (!existsSync(`${BUILD}/404.html`)) fail(`немає ${BUILD}/404.html — GitHub Pages віддає його на кожну биту адресу`);
 
 // --- 2. Мова сторінки збігається з її адресою (I18N-v8 § 5.2, SVELTE-CORE-v8 § 5.1) ---
@@ -180,7 +209,19 @@ for (const file of files) {
 	}
 
 	const canonicals = html.match(/<link[^>]+rel="canonical"[^>]*>/g) ?? [];
-	if (canonicals.length !== 1) {
+	if (isHiddenFile(file)) {
+		// Саме через canonical сторінка потрапила б у sitemap, який будується з
+		// проіндексованих адрес — тому тут його не мусить бути ЗОВСІМ.
+		if (canonicals.length !== 0) {
+			fail(`${file}: у прихованої сторінки є canonical — вона перестала бути прихованою`);
+		}
+		if (!/name="robots" content="noindex, nofollow"/.test(html)) {
+			fail(`${file}: прихована сторінка без «noindex, nofollow»`);
+		}
+		if (/<link rel="alternate" hreflang=/.test(html)) {
+			fail(`${file}: у прихованої сторінки є hreflang — вона не є мовною версією нічого`);
+		}
+	} else if (canonicals.length !== 1) {
 		fail(`${file}: canonical знайдено ${canonicals.length} разів, очікується рівно 1`);
 	} else {
 		const href = canonicals[0].match(/href="([^"]+)"/)?.[1] ?? '';
@@ -243,6 +284,8 @@ for (const lang of LANGUAGES) {
 
 	for (const file of files) {
 		if (file === `${BUILD}/404.html`) continue;
+		// Приховані перевірено вище — і саме на ПРОТИЛЕЖНЕ.
+		if (isHiddenFile(file)) continue;
 		const html = readFileSync(file, 'utf8');
 		const actual = [...html.matchAll(/<link rel="alternate" hreflang="([^"]+)" href="([^"]+)"/g)]
 			.map((m) => `${m[1]}=${m[2]}`)
@@ -290,7 +333,13 @@ for (const file of files) {
 	if (!existsSync(robotsPath)) {
 		fail('немає build/robots.txt');
 	} else {
-		const advertised = readFileSync(robotsPath, 'utf8').match(/^\s*Sitemap:\s*(\S+)/im)?.[1];
+		const robots = readFileSync(robotsPath, 'utf8');
+		for (const route of HIDDEN_ROUTES) {
+			if (!robots.includes(`Disallow: ${BASE}/${route}/`)) {
+				fail(`robots.txt не забороняє /${route}/ — прихована сторінка відкрита кравлеру`);
+			}
+		}
+		const advertised = robots.match(/^\s*Sitemap:\s*(\S+)/im)?.[1];
 		if (!advertised) {
 			fail('robots.txt не оголошує Sitemap');
 		} else if (!advertised.startsWith(`${SITE_ROOT}/`)) {
@@ -310,6 +359,11 @@ for (const file of files) {
 						'sitemap розійшовся з INDEXED_LANGUAGES — він або кличе кравлера на noindex-сторінки, або ховає індексовані\n' +
 							`      маємо:    ${actual.join(' ')}\n      очікуємо: ${expected.join(' ')}`
 					);
+				}
+				for (const route of HIDDEN_ROUTES) {
+					if (locs.some((loc) => loc.includes(`/${route}/`))) {
+						fail(`sitemap кличе кравлера на приховану сторінку /${route}/`);
+					}
 				}
 				for (const loc of locs) {
 					const rel = loc.startsWith(SITE_ROOT) ? loc.slice(SITE_ROOT.length) : null;
@@ -331,5 +385,6 @@ if (problems.length > 0) {
 
 console.log(
 	`Збірка перевірена: ${files.length} HTML, ${LANGUAGES.length} мов, ` +
-		`${INDEXED_LANGUAGES.length} у sitemap, CSP покриває всі інлайн-скрипти. Проблем немає.`
+		`${INDEXED_LANGUAGES.length} у sitemap, ${HIDDEN_ROUTES.length} прихованих поза індексом, ` +
+		'CSP покриває всі інлайн-скрипти. Проблем немає.'
 );

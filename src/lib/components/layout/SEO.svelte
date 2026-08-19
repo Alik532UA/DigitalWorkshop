@@ -1,7 +1,7 @@
 <script lang="ts">
     import { getLanguage, translations } from "$lib/i18n/LanguageState.svelte";
     import { page } from "$app/state";
-    import { INDEXED_LANGUAGES, bcp47, isIndexed, langUrl } from "$lib/i18n/routing";
+    import { INDEXED_LANGUAGES, bcp47, isHiddenRoute, isIndexed, langUrl } from "$lib/i18n/routing";
 
     // Spelled out rather than taken from page.url / $app/paths: these tags are
     // read out of the prerendered HTML, where page.url.origin is SvelteKit's
@@ -50,7 +50,11 @@
     // unreachable from the app. Indexed, it would compete in search with the
     // current site under near-identical wording.
     let isArchive = $derived(page.url.pathname.includes("/2026-04"));
-    let indexable = $derived(!isArchive && isIndexed(language.current));
+    // Прихована сторінка (чеклист бета-тестування) — свій випадок, не архів:
+    // архів має canonical на себе, а ця не має його взагалі, бо не є версією
+    // жодного вмісту (BETA-CHECKLIST-v8 § 4.1). Перелік — у routing.ts.
+    let isHidden = $derived(isHiddenRoute(page.url.pathname));
+    let indexable = $derived(!isArchive && !isHidden && isIndexed(language.current));
 
     // Structured data: this site sells web development, so describe the service
     // rather than leaving search engines to infer it from prose.
@@ -83,17 +87,32 @@
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <meta name="author" content="Alik Zapolnov" />
-    <link rel="canonical" href={canonical} />
+    <!-- Прихована сторінка не отримує ні canonical, ні hreflang: canonical
+         оголошує «це головна адреса ЦЬОГО вмісту», а hreflang — «ось той самий
+         вміст іншою мовою». Для службової сторінки обидва твердження неправдиві,
+         і саме через canonical вона потрапила б у sitemap, який будується з
+         проіндексованих адрес (BETA-CHECKLIST-v8 § 4.1). Решта мета-тегів
+         лишається — інакше сторінка перестала б перевірятися на порожнє тіло й
+         на title, і найслабше покритою стала б саме та, якою користуються
+         тестувальники (§ 5.5). -->
+    {#if !isHidden}
+        <link rel="canonical" href={canonical} />
+    {/if}
     {#if !indexable}
-        <meta name="robots" content="noindex, follow" />
+        <!-- `nofollow` лише для прихованої: на ній є посилання на головну, і
+             йти за ним кравлеру нема потреби. Архів і невичитані мови лишаються
+             `follow` — їхні посилання ведуть на сторінки, які індексуються. -->
+        <meta name="robots" content={isHidden ? "noindex, nofollow" : "noindex, follow"} />
     {/if}
 
     <!-- Alternates for the reviewed languages only, so search engines are not
          pointed at pages this site asks them not to index. -->
-    {#each INDEXED_LANGUAGES as alt (alt)}
-        <link rel="alternate" hreflang={bcp47(alt)} href={langUrl(SITE_ORIGIN, alt)} />
-    {/each}
-    <link rel="alternate" hreflang="x-default" href={langUrl(SITE_ORIGIN, "uk")} />
+    {#if !isHidden}
+        {#each INDEXED_LANGUAGES as alt (alt)}
+            <link rel="alternate" hreflang={bcp47(alt)} href={langUrl(SITE_ORIGIN, alt)} />
+        {/each}
+        <link rel="alternate" hreflang="x-default" href={langUrl(SITE_ORIGIN, "uk")} />
+    {/if}
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
