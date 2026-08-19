@@ -21,6 +21,9 @@ import {
  */
 const STORAGE_KEY = 'beta_marks';
 
+/** Скільки кнопка тримає підпис «скопійовано». Читає й тест поводження таймера. */
+const COPIED_LABEL_MS = 2000;
+
 /**
  * Версія збірки, якою підписується кожна позначка (§ 3.1).
  *
@@ -80,6 +83,25 @@ export class BetaChecklistState {
 	fallbackReport = $state('');
 	copied = $state(false);
 
+	/**
+	 * Таймер, що гасить підпис «скопійовано» (PERFORMANCE-v8 § 6, SVELTE-CORE-v8
+	 * § 1.4: скидання гасить не лише значення, а й усе, що стан запустив).
+	 *
+	 * Доти `setTimeout` викликався без збереження дескриптора, і це давало два
+	 * різні дефекти, а не один:
+	 *
+	 *  1. **Другий клік гасив власне підтвердження достроково.** Натиснути двічі
+	 *     протягом двох секунд — звичайна річ, коли не помітив реакції. Перший
+	 *     таймер лишався живим і збивав `copied` у `false` через 2 с ПІСЛЯ
+	 *     ПЕРШОГО кліку, тобто підпис від другого зникав майже одразу. Виглядало
+	 *     це як «кнопка блимнула і нічого не сталося» — саме той стан, через який
+	 *     людина тисне втретє.
+	 *  2. **Таймер переживав сторінку.** Пішовши з чеклиста одразу після
+	 *     копіювання, відвідувач лишав спрацювання, яке пише в поле знищеного
+	 *     контролера.
+	 */
+	private copiedTimer: ReturnType<typeof setTimeout> | undefined;
+
 	constructor() {
 		// Фасад сам має guard на browser і не кидає, тож зайвої перевірки тут не
 		// треба; зіпсоване значення він віддає як відсутнє (UI-UX-v8 § 1.1).
@@ -125,6 +147,18 @@ export class BetaChecklistState {
 		this.marks = {};
 		this.fallbackReport = '';
 		storage.remove(STORAGE_KEY);
+	}
+
+	/**
+	 * Знімає все, що контролер запустив. Кличе сторінка з `onDestroy`.
+	 *
+	 * Окремий метод, а не `clear()`: скидання відповідей і знищення сторінки —
+	 * різні події, і `clear()` не має права гасити підтвердження копіювання, яке
+	 * саме зараз показане.
+	 */
+	dispose(): void {
+		clearTimeout(this.copiedTimer);
+		this.copiedTimer = undefined;
 	}
 
 	/** Скільки пунктів вкладки позначено ЦІЄЮ версією збірки. */
@@ -223,7 +257,13 @@ export class BetaChecklistState {
 			await navigator.clipboard.writeText(report);
 			this.fallbackReport = '';
 			this.copied = true;
-			setTimeout(() => (this.copied = false), 2000);
+			// Перевзвід, а не другий таймер: інакше попередній гасить підпис, який
+			// поставив цей клік.
+			clearTimeout(this.copiedTimer);
+			this.copiedTimer = setTimeout(() => {
+				this.copied = false;
+				this.copiedTimer = undefined;
+			}, COPIED_LABEL_MS);
 		} catch (error) {
 			// `warn`, не `error`: відсутній буфер обміну — стан середовища, а не збій
 			// застосунку (DEBUGGING-v8 § 1.3).

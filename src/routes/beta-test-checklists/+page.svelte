@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onDestroy } from 'svelte';
 	import { getLanguage } from '$lib/i18n/LanguageState.svelte';
 	import {
 		BETA_TABS,
@@ -29,6 +30,11 @@
 	 */
 	const state = new BetaChecklistState();
 	const language = getLanguage();
+
+	// Контролер тримає таймер підпису «скопійовано». Без цього рядка він
+	// переживає сторінку: піти з чеклиста одразу після копіювання — звичайний
+	// шлях (PERFORMANCE-v8 § 6).
+	onDestroy(() => state.dispose());
 
 	/** Дві мови в даних; решта 40 мов бачить англійський текст (§ 2.4). */
 	const isUk = $derived(language.current === 'uk');
