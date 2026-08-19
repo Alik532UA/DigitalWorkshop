@@ -1,7 +1,7 @@
 {
 	"name": "digital-workshop-svelte",
 	"private": true,
-	"version": "0.0.221",
+	"version": "0.0.222",
 	"type": "module",
 	"engines": {
 		"node": ">=22"
