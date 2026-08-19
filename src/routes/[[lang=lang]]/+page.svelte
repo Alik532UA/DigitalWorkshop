@@ -271,7 +271,7 @@
 					     перемикаються з клавіатури на рівні вікна (`handleKeyDown`) —
 					     ArrowUp/Down, W/S, Space, а вкладки цифрами 1–5. Дублювати ту саму
 					     навігацію ще й обробником на кожному слайді означало б два джерела
-					     одного поводження. Обґрунтування обовʼязкове поруч із ignore
+					     одного поводження. Обґрунтування обов'язкове поруч із ignore
 					     (ACCESSIBILITY-v8, SVELTE-UI-v8, анти-патерни). -->
 					<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 					<div class="slide-wrapper" class:active={state.currentIndex === 0} onclick={() => state.goToSlide(0)}>
@@ -353,7 +353,7 @@
 					     перемикаються з клавіатури на рівні вікна (`handleKeyDown`) —
 					     ArrowUp/Down, W/S, Space, а вкладки цифрами 1–5. Дублювати ту саму
 					     навігацію ще й обробником на кожному слайді означало б два джерела
-					     одного поводження. Обґрунтування обовʼязкове поруч із ignore
+					     одного поводження. Обґрунтування обов'язкове поруч із ignore
 					     (ACCESSIBILITY-v8, SVELTE-UI-v8, анти-патерни). -->
 					<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 					<div class="slide-wrapper" class:active={state.currentIndex === 0} onclick={() => state.goToSlide(0)}>
@@ -381,7 +381,7 @@
 						     перемикаються з клавіатури на рівні вікна (`handleKeyDown`) —
 						     ArrowUp/Down, W/S, Space, а вкладки цифрами 1–5. Дублювати ту саму
 						     навігацію ще й обробником на кожному слайді означало б два джерела
-						     одного поводження. Обґрунтування обовʼязкове поруч із ignore
+						     одного поводження. Обґрунтування обов'язкове поруч із ignore
 						     (ACCESSIBILITY-v8, SVELTE-UI-v8, анти-патерни). -->
 						<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 						<div class="slide-wrapper" class:active={state.currentIndex === i + 1} onclick={() => state.goToSlide(i + 1)}>
@@ -404,7 +404,7 @@
 						     перемикаються з клавіатури на рівні вікна (`handleKeyDown`) —
 						     ArrowUp/Down, W/S, Space, а вкладки цифрами 1–5. Дублювати ту саму
 						     навігацію ще й обробником на кожному слайді означало б два джерела
-						     одного поводження. Обґрунтування обовʼязкове поруч із ignore
+						     одного поводження. Обґрунтування обов'язкове поруч із ignore
 						     (ACCESSIBILITY-v8, SVELTE-UI-v8, анти-патерни). -->
 						<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 						<div

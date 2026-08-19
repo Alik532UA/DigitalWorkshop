@@ -64,7 +64,7 @@ describe('редакція PII (§ 1.4)', () => {
 		expect(dump).not.toContain('okolosov@atncorp.com');
 		expect(dump).not.toContain('hunter2');
 		expect(dump).not.toContain('eyJhbGciOi');
-		expect(dump, 'вкладені об’єкти теж чистяться').not.toContain('Bearer abc');
+		expect(dump, "вкладені об'єкти теж чистяться").not.toContain('Bearer abc');
 
 		// Діагностичне лишається — інакше редакція знецінює сам лог.
 		expect(dump).toContain('500');
@@ -116,7 +116,7 @@ describe('логер не має права зламати застосунок 
 		);
 
 		expect(() => logService.info('app', 'подія')).not.toThrow();
-		expect(logService.history.length, 'буфер у пам’яті працює далі').toBe(1);
+		expect(logService.history.length, "буфер у пам'яті працює далі").toBe(1);
 	});
 });
 

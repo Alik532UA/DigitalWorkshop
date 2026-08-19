@@ -173,7 +173,7 @@
 	     `.clock-overlay` несе `aria-hidden="true"` і focusable дітей усередині
 	     немає, а сам оверлей відкривається й закривається клавішею C
 	     (`handleKeyDown`). Тобто ignore тут не приховує недосяжної функції.
-	     Обґрунтування обовʼязкове поруч (ACCESSIBILITY-v8, анти-патерни). -->
+	     Обґрунтування обов'язкове поруч (ACCESSIBILITY-v8, анти-патерни). -->
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
 		class="clock-draggable-wrapper draggable"
