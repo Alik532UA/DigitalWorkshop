@@ -225,6 +225,7 @@
 				transition:fade={{ duration: 200 }}
 				onclick={() => state.goToSlide(state.currentIndex - 1)}
 				aria-label="Previous slide"
+				data-testid="sea-slide-prev-btn"
 			>
 				{@html iconArrowUp}
 			</button>
@@ -238,6 +239,7 @@
 				out:fade={{ duration: 200 }}
 				onclick={() => state.goToSlide(state.currentIndex + 1)}
 				aria-label="Next slide"
+				data-testid="sea-slide-next-btn"
 			>
 				{@html iconArrowDown}
 			</button>
@@ -249,6 +251,7 @@
 				out:fade={{ duration: 200 }}
 				onclick={() => state.nextTab()}
 				aria-label="Next tab"
+				data-testid="sea-tab-next-btn"
 			>
 				{@html iconArrowRight}
 			</button>
@@ -330,7 +333,12 @@
 									<span class="mobile-text">{t.hero.description_sea_mobile}</span>
 								</p>
 								<ContactDropdown customStyle="margin-top: 2rem;">
-									<a href={config.telegramUrl} target="_blank" class="btn-primary project-btn glass">
+									<a
+										href={config.telegramUrl}
+										target="_blank"
+										class="btn-primary project-btn glass"
+										data-testid="sea-hero-cta-btn"
+									>
 										{t.footer.ask}
 									</a>
 								</ContactDropdown>
@@ -354,7 +362,12 @@
 								<h2 class="tab-title">{tabData?.title}</h2>
 								<p class="tab-intro">{@html tabData?.intro.replace(/\n/g, '<br />') ?? ''}</p>
 								<ContactDropdown customStyle="margin-top: 2rem;">
-									<a href={config.telegramUrl} target="_blank" class="btn-primary project-btn glass">
+									<a
+										href={config.telegramUrl}
+										target="_blank"
+										class="btn-primary project-btn glass"
+										data-testid="sea-tab-cta-btn"
+									>
 										{tabData?.cta}
 									</a>
 								</ContactDropdown>
@@ -450,6 +463,7 @@
 									class:active={state.currentIndex === i}
 									onclick={() => state.goToSlide(i)}
 									aria-label="Go to slide {i + 1}"
+									data-testid="sea-slide-dot-{i}-btn"
 								></button>
 							{/each}
 						</div>
@@ -459,6 +473,7 @@
 						class:active={state.currentTab === tab.id}
 						style="--mask-url: url({squircleUrl}); --animation-order: {index};"
 						aria-label={tab.id}
+						data-testid="sea-tab-{tab.id}-btn"
 						onmouseenter={() => (state.hoveredTab = tab.id)}
 						onmouseleave={() => (state.hoveredTab = null)}
 						onclick={() => state.setTab(tab.id)}
@@ -477,6 +492,7 @@
 					target="_blank"
 					class="glass-icon"
 					class:bg-blue={state.currentIndex > 0}
+					data-testid="sea-contact-btn"
 					style="--mask-url: url({squircleUrl});"
 					aria-label="Contact via Telegram"
 				>

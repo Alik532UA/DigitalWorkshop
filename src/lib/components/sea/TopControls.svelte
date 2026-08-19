@@ -124,7 +124,13 @@
 	class:clock-active={isClockActive}
 	class:lang-open={isLangOpen}
 >
-	<button class="icon-btn" class:active={isClockActive} onclick={onToggleClock} aria-label="Toggle Clock">
+	<button
+		class="icon-btn"
+		class:active={isClockActive}
+		onclick={onToggleClock}
+		aria-label="Toggle Clock"
+		data-testid="sea-clock-btn"
+	>
 		{@html iconClock}
 	</button>
 	<div
@@ -138,6 +144,7 @@
 			class="icon-btn"
 			class:active={isLangOpen}
 			onclick={handleLanguageClick}
+			data-testid="sea-lang-btn"
 			aria-label={isClockActive ? 'Toggle Clock Format' : 'Select Language'}
 			aria-haspopup={isClockActive ? undefined : 'menu'}
 			aria-expanded={isClockActive ? undefined : isLangOpen}
@@ -159,6 +166,7 @@
 						class="lang-search"
 						placeholder="Search language..."
 						aria-label="Search language"
+						data-testid="sea-lang-search-input"
 						bind:value={langQuery}
 						onfocus={() => (isLangPinned = true)}
 					/>
@@ -172,6 +180,7 @@
 											class="lang-option"
 											class:active={currentLanguage === code}
 											onclick={() => selectLanguage(code)}
+											data-testid="sea-lang-option-{code}-btn"
 											role="menuitemradio"
 											aria-checked={currentLanguage === code}
 											title={label.endsWith('*')
@@ -193,7 +202,12 @@
 		{/if}
 	</div>
 	<div class="audio-control-wrapper">
-		<button class="icon-btn" onclick={onToggleAudio} aria-label="Toggle Audio">
+		<button
+			class="icon-btn"
+			onclick={onToggleAudio}
+			aria-label="Toggle Audio"
+			data-testid="sea-audio-btn"
+		>
 			{@html isAudioPlaying ? iconMusicOn : iconMusicOff}
 		</button>
 		<div class="volume-slider-container">
@@ -206,11 +220,17 @@
 				oninput={onVolumeInput}
 				class="volume-slider"
 				aria-label="Volume"
+				data-testid="sea-volume-slider"
 			/>
 		</div>
 	</div>
 	{#if !isIOS}
-		<button class="icon-btn" onclick={onToggleFullscreen} aria-label="Toggle Fullscreen">
+		<button
+			class="icon-btn"
+			onclick={onToggleFullscreen}
+			aria-label="Toggle Fullscreen"
+			data-testid="sea-fullscreen-btn"
+		>
 			{@html isFullscreen ? iconMinimize : iconMaximize}
 		</button>
 	{/if}
