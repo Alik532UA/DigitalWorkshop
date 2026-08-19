@@ -326,6 +326,85 @@ for (const file of files) {
 	}
 }
 
+// --- 7A. Кожен тип ресурсу, який сторінка ВАНТАЖИТЬ, має директиву ---
+
+/**
+ * SECURITY-v8 § 6.2, HIGH: «Розрахунок на те, що `default-src` покриє медіа,
+ * iframe, воркери й шрифти».
+ *
+ * Чому перевірка читає `build/`, а не `svelte.config.js`. Політика в конфігу
+ * доводить лише те, що директиву написали; питання тут інше — чи є директива на
+ * кожен тип ресурсу, який зібрана сторінка справді тягне. Ці два переліки
+ * розходяться мовчки: додати `<audio>` й не згадати про `media-src` — одна
+ * правка розмітки, а провал CSP НЕ ЛАМАЄ РОЗКЛАДКИ. Сторінка рендериться
+ * правильно, просто без тієї речі, і єдиний слід — рядок `Refused to load…` у
+ * консолі, куди без причини не дивляться.
+ *
+ * Тому: знаходимо в зібраному HTML і CSS теги, що вантажать ресурси, і для
+ * кожного знайденого типу вимагаємо або власну директиву, або `default-src` як
+ * запасну. `frame-ancestors` тут не перевіряється навмисно — у `<meta>` він
+ * ігнорується браузером за специфікацією, тобто на GitHub Pages недосяжний
+ * узагалі, і вимагати його означало б обіцяти захист, якого немає.
+ */
+{
+	/** Тип ресурсу → як його впізнати у зібраному виводі. */
+	const RESOURCE_KINDS = [
+		{ directive: 'media-src', re: /<(?:audio|video)[\s>]|<source[^>]+src=/i, what: 'аудіо або відео' },
+		{ directive: 'frame-src', re: /<iframe[\s>]/i, what: 'вбудований фрейм' },
+		{ directive: 'img-src', re: /<img[\s>]/i, what: 'зображення' },
+		{ directive: 'font-src', re: /@font-face/i, what: 'веб-шрифт' },
+		{ directive: 'worker-src', re: /new\s+(?:Worker|SharedWorker)\s*\(/, what: 'воркер' },
+		{ directive: 'manifest-src', re: /rel="manifest"/i, what: 'маніфест' }
+	];
+
+	const cssFiles = [];
+	(function collectCss(dir) {
+		for (const entry of readdirSync(dir)) {
+			const full = join(dir, entry);
+			if (statSync(full).isDirectory()) collectCss(full);
+			else if (entry.endsWith('.css')) cssFiles.push(full.replace(/\\/g, '/'));
+		}
+	})(BUILD);
+
+	// Canary: без CSS у збірці перевірка шрифтів мовчала б і виглядала зеленою.
+	if (cssFiles.length === 0) {
+		fail('у build/ немає жодного .css — перевірка директив CSP нічого не бачить');
+	}
+
+	const assets = [...files, ...cssFiles].map((f) => readFileSync(f, 'utf8')).join('\n');
+
+	const anyCsp = readFileSync(files[0], 'utf8').match(
+		/http-equiv="content-security-policy" content="([^"]*)"/i
+	)?.[1];
+
+	if (anyCsp) {
+		const has = (directive) => new RegExp(`(?:^|;)\\s*${directive}\\s`).test(anyCsp);
+		const hasDefault = has('default-src');
+
+		// `default-src` НЕ зараховується як покриття типу, який сторінка справді
+		// вантажить, і це не педантизм: анти-патерн § 6.2 сформульований саме як
+		// «розрахунок на те, що default-src покриє медіа, iframe, воркери й
+		// шрифти». Директива на кожен наявний тип робить перелік дозволених
+		// джерел видимим у політиці — інакше `default-src 'self'` мовчки
+		// перетворює «звідки можна брати відео» на питання, якого ніхто не ставив.
+		for (const kind of RESOURCE_KINDS) {
+			if (!kind.re.test(assets)) continue;
+			if (has(kind.directive)) continue;
+			fail(
+				`у збірці є ${kind.what}, а власної директиви ${kind.directive} в політиці ` +
+					'немає — покладатися на default-src тут заборонено (SECURITY-v8 § 6.2)'
+			);
+		}
+
+		if (!hasDefault) {
+			fail(
+				'у політиці немає default-src — тип ресурсу без власної директиви ' +
+					'лишається без обмежень (SECURITY-v8 § 6.2)'
+			);
+		}
+	}
+}
+
 // --- 8. robots.txt і sitemap.xml описують те, що справді збудувалося ---
 
 {
