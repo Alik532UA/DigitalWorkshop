@@ -32,7 +32,7 @@ import { withoutComments } from './test-support/source-text';
  *
  * `PROJECT-CONTEXT.md` називав чотири завеликі файли «навмисними
  * відхиленнями» — і числа в ньому вже розійшлися з дійсністю: головна сторінка
- * була записана як 1482 рядки при реальних 1522, `SeaPageState` як 565 при 651.
+ * була записана як 1482 рядки при реальних 1521, `SeaPageState` як 565 при 650.
  * Тобто «відхилення» тихо РОСЛИ, і слово «навмисне» стосувалося лише того
  * розміру, який колись побачили.
  *
@@ -161,27 +161,42 @@ const DATA_MODULES = /^src\/lib\/(i18n\/locales|data)\//;
  * (AI-AGENT-PITFALLS-v8 § 5.5). Рости їм не можна; зменшуватися — скільки
  * завгодно; повернувшись під канонічну межу, запис ВИЛУЧАЄТЬСЯ.
  *
- * `UiState.svelte.ts` і `LanguageState.svelte.ts` виросли 2026-08-20 (367→405 і
- * 362→368) — це `throw` в аксесорах контексту разом із поясненням, чого вимагає
+ * `UiState.svelte.ts` і `LanguageState.svelte.ts` виросли 2026-08-20 (366→404 і
+ * 361→367) — це `throw` в аксесорах контексту разом із поясненням, чого вимагає
  * SVELTE-CORE-v8 § 3.3 (HIGH). Правило HIGH важить більше за орієнтир MEDIUM,
  * і зростання записане тут, а не змовчане.
  */
 const OVERSIZED: Readonly<Record<string, number>> = {
-	'src/routes/[[lang=lang]]/+page.svelte': 1522,
-	'src/lib/controllers/SeaPageState.svelte.ts': 651,
-	'src/lib/components/sea/TopControls.svelte': 568,
-	'src/lib/components/layout/Header.svelte': 560,
-	'src/lib/components/sea/ClockOverlay.svelte': 523,
-	'src/routes/beta-test-checklists/+page.svelte': 467,
-	'src/lib/controllers/UiState.svelte.ts': 405,
-	'src/lib/i18n/LanguageState.svelte.ts': 368,
-	'src/lib/components/sea/LeftCarousel.svelte': 342
+	'src/routes/[[lang=lang]]/+page.svelte': 1521,
+	'src/lib/controllers/SeaPageState.svelte.ts': 650,
+	'src/lib/components/sea/TopControls.svelte': 567,
+	'src/lib/components/layout/Header.svelte': 559,
+	'src/lib/components/sea/ClockOverlay.svelte': 522,
+	'src/routes/beta-test-checklists/+page.svelte': 466,
+	'src/lib/controllers/UiState.svelte.ts': 404,
+	'src/lib/i18n/LanguageState.svelte.ts': 367,
+	'src/lib/components/sea/LeftCarousel.svelte': 341
 };
 
 const limitOf = (file: string): number | undefined =>
 	LIMITS.find(([re]) => re.test(file))?.[1];
 
-const linesOf = (file: string): number => readFileSync(join(ROOT, file), 'utf8').split(/\r?\n/).length;
+/**
+ * Кількість рядків так, як її рахує `wc -l` і як бачить редактор.
+ *
+ * Кінцевий перенос рядка НЕ рахується окремим рядком: інакше файл рівно на межі
+ * звітується як «на один більше», і межа 300 насправді означає 299. Приклад у
+ * каноні цієї поправки не має, тож помилка приїхала б разом із ним.
+ *
+ * `\r?\n` обов'язковий: `.gitattributes` тримає `eol=lf`, але в старому checkout
+ * робоче дерево може бути з CRLF, і тоді `split('\n')` лишає `\r` у кожному
+ * рядку (див. `test-support/source-text.ts`).
+ */
+const linesOf = (file: string): number => {
+	const lines = readFileSync(join(ROOT, file), 'utf8').split(/\r?\n/);
+	if (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
+	return lines.length;
+};
 
 describe('розмір файлу (PROJECT-STRUCTURE-v8 § 7)', () => {
 	const measured = sources
