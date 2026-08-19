@@ -172,22 +172,6 @@ export function getLanguage() {
     return getContext<LanguageState>(LANGUAGE_KEY);
 }
 
-/**
- * Pluralization function for Slavic languages (Ukrainian, Russian)
- * @param n - Number of items
- * @param one - Form for 1 item (яблуко)
- * @param few - Form for 2-4 items (яблука)
- * @param many - Form for 5+ items (яблук)
- */
-export function plural(n: number, one: string, few: string, many: string): string {
-    const abs = Math.abs(n) % 100;
-    const lastDigit = abs % 10;
-    if (abs > 10 && abs < 20) return many;
-    if (lastDigit > 1 && lastDigit < 5) return few;
-    if (lastDigit === 1) return one;
-    return many;
-}
-
 const TranslationSchema = z.object({
     lastUpdate: z.string(),
     title: z.array(z.string()),
