@@ -360,7 +360,45 @@ export function setUiState() {
     return { tabs, theme, background, menu };
 }
 
-export function getTabs() { return getContext<TabState>(TABS_KEY); }
-export function getTheme() { return getContext<ThemeState>(THEME_KEY); }
-export function getBackground() { return getContext<BackgroundState>(BACKGROUND_KEY); }
-export function getMenu() { return getContext<MenuState>(MENU_KEY); }
+/**
+ * SVELTE-CORE-v8 § 3.3 (HIGH): аксесор контексту КИДАЄ, якщо контексту немає.
+ *
+ * `getContext()` повертає `undefined` мовчки. Компонент, винесений з-під свого
+ * провайдера — перенесений в інший маршрут, обгорнутий межею, показаний зі
+ * сторінки помилки, — падає НЕ ТАМ: виняток вилітає при першому звертанні до
+ * поля, за кілька кадрів і кілька файлів від причини. `RightSideArc` читає
+ * чотири контексти одразу, і без цієї перевірки повідомлення було б
+ * «Cannot read properties of undefined (reading 'current')» без жодної згадки
+ * про те, який саме контекст відсутній.
+ *
+ * Тип у `getContext<T>` — не перевірка, а обіцянка: TypeScript вірить анотації,
+ * а не значенню. Тобто до цієї правки сигнатури обіцяли `TabState`, а віддати
+ * могли `undefined`, і компілятор про це не казав нічого.
+ *
+ * Повідомлення англійською й лише для розробника: у проді `ErrorFallback`
+ * показує `error.message` тільки при `dev`, відвідувач бачить текст зі
+ * словника.
+ */
+function fromContext<T>(key: symbol, accessor: string): T {
+	const value = getContext<T | undefined>(key);
+	if (value === undefined) {
+		throw new Error(
+			`${accessor}(): UI context is missing. setUiState() runs in +layout.svelte — ` +
+				'this component is rendered outside it.'
+		);
+	}
+	return value;
+}
+
+export function getTabs(): TabState {
+	return fromContext<TabState>(TABS_KEY, 'getTabs');
+}
+export function getTheme(): ThemeState {
+	return fromContext<ThemeState>(THEME_KEY, 'getTheme');
+}
+export function getBackground(): BackgroundState {
+	return fromContext<BackgroundState>(BACKGROUND_KEY, 'getBackground');
+}
+export function getMenu(): MenuState {
+	return fromContext<MenuState>(MENU_KEY, 'getMenu');
+}

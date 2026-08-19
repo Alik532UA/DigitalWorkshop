@@ -168,8 +168,30 @@ export function setLanguageState() {
     return state;
 }
 
-export function getLanguage() {
-    return getContext<LanguageState>(LANGUAGE_KEY);
+/**
+ * SVELTE-CORE-v8 § 3.3 (HIGH): аксесор контексту КИДАЄ, якщо контексту немає.
+ *
+ * Тут це важить більше, ніж деінде: `t` — модульний обʼєкт, чий кожен геттер
+ * починається з `this.current`, тобто з цього виклику. Без перевірки відсутній
+ * контекст давав «Cannot read properties of undefined (reading 'current')» у
+ * будь-якому з чотирнадцяти геттерів `t`, і за повідомленням не було видно ні
+ * що бракує контексту, ні який компонент його читає.
+ *
+ * Сторінки помилки це НЕ стосується: `+error.svelte` і `ErrorFallback` беруть
+ * мову з `<html lang>` через `languageFromDocument()` саме тому, що макета над
+ * ними може не бути (див. `documentLanguage.ts`). Тобто єдиний шлях, який мусив
+ * працювати без контексту, його й не питає.
+ */
+export function getLanguage(): LanguageState {
+	const state = getContext<LanguageState | undefined>(LANGUAGE_KEY);
+	if (state === undefined) {
+		throw new Error(
+			'getLanguage(): language context is missing. setLanguageState() runs in ' +
+				'+layout.svelte — this component is rendered outside it. Screens shown after a ' +
+				'failure must use languageFromDocument() instead.'
+		);
+	}
+	return state;
 }
 
 const TranslationSchema = z.object({
