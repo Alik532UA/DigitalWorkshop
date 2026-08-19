@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { onDestroy, onMount } from "svelte";
     import { fade } from "svelte/transition";
     import { setUiState, getTabs, getTheme, getBackground, getMenu } from "$lib/controllers/UiState.svelte";
     import { setLanguageState } from "$lib/i18n/LanguageState.svelte";
@@ -9,6 +9,9 @@
     import { initAnalytics, trackPageView } from "$lib/services/analytics";
     import { afterNavigate } from "$app/navigation";
     import { logService } from "$lib/services/logService.svelte";
+    import { debugMode } from "$lib/services/debugMode.svelte";
+    import { createKeySequence } from "$lib/services/keySequence";
+    import { hardReset, RESET_PRESSES_DEV, RESET_PRESSES_PROD } from "$lib/services/resetService";
     import Header from "$lib/components/layout/Header.svelte";
     import SEO from "$lib/components/layout/SEO.svelte";
     import FooterSection from "$lib/components/layout/FooterSection.svelte";
@@ -94,9 +97,49 @@
     }
 
     let accentRgb = $derived(hexToRgb(tabs.currentColor));
-    
+
     let isArchive = $derived(page.url.pathname.includes('/2026-04'));
+
+    /**
+     * Службові жести: серія `V` (табло версії) і серія `R` (аварійне скидання).
+     *
+     * **Тут, а не в компоненті табла, і причина не в зручності.** У проді табло НЕ
+     * ВІДМАЛЬОВАНЕ, доки жест не спрацював, — тобто жест, який його показує, з
+     * нього ж і не міг би початися. Layout рендериться завжди, включно з
+     * не-архівними сторінками, де немає ні шапки, ні нижньої навігації.
+     *
+     * Захисти (автоповтор, поля вводу, вікно між натисканнями, скидання на іншій
+     * клавіші, модифікатори) живуть у `keySequence` разом із тестами. `T` і `L`
+     * лишаються там, де були — у `SeaPageState`: вони діють у межах сторінки, а не
+     * сайту, і володіє ними стан цієї сторінки.
+     */
+    const versionSequence = createKeySequence({
+        code: 'KeyV',
+        threshold: () => debugMode.pressesToToggle,
+        onComplete: () =>
+            logService.info('ui', `Service badge ${debugMode.toggle() ? 'shown' : 'hidden'}`)
+    });
+
+    const resetSequence = createKeySequence({
+        code: 'KeyR',
+        threshold: dev ? RESET_PRESSES_DEV : RESET_PRESSES_PROD,
+        onComplete: () => void hardReset(!dev)
+    });
+
+    function handleServiceGesture(event: KeyboardEvent) {
+        // Обидві серії отримують КОЖНУ подію, включно з тією, що завершила сусідню:
+        // інакше `V` не скидала б набране в `R`, і серія перестала б бути серією.
+        versionSequence.handle(event);
+        resetSequence.handle(event);
+    }
+
+    onDestroy(() => {
+        versionSequence.reset();
+        resetSequence.reset();
+    });
 </script>
+
+<svelte:window onkeydown={handleServiceGesture} />
 
 <SEO />
 

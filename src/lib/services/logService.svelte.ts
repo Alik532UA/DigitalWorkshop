@@ -89,6 +89,17 @@ class LogService {
     history = $state<LogEntry[]>([]);
     errorCount = $state(0);
 
+    /**
+     * Номер збірки — звідси, а не з глобальної `__APP_VERSION__` на місці виклику.
+     *
+     * Причина технічна й конкретна: у `.svelte` файлах eslint не знає цієї
+     * глобальної змінної (`globals.browser` її, звісно, не містить), тож
+     * звернення з розмітки — це `no-undef`, тобто ПОМИЛКА, а не попередження.
+     * Замість дозволяти глобальну в конфігу лінтера ім'я живе в одному місці —
+     * тут, поряд зі звітом, який його ж і друкує.
+     */
+    readonly appVersion = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'unknown';
+
     constructor() {
         if (browser) {
             this.loadFromSession();
@@ -180,7 +191,7 @@ class LogService {
     getReport(): string {
         const header = [
             '--- LOG REPORT ---',
-            `VERSION: ${typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'unknown'}`,
+            `VERSION: ${this.appVersion}`,
             // ISO, а не toLocaleString(): звіт читає той, хто розбирає збій, а
             // не відвідувач, який його скопіював. Голий toLocaleString()
             // форматує в локалі БРАУЗЕРА — 03.08 чи 08.03 залежно від того, де

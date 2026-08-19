@@ -1,6 +1,12 @@
 import { browser } from '$app/environment';
 
-const PREFIX = 'digitalworkshop_';
+/**
+ * Експортований, бо він потрібен не лише тут: аварійне скидання фільтрує ним
+ * імена кешів (`resetService`). Другий літерал у тому файлі означав би два
+ * джерела для однієї назви, а розходяться вони тихо — кеші просто лишилися б
+ * нечищеними (STORAGE-NAMESPACE-v8 § Крок 5).
+ */
+export const PREFIX = 'digitalworkshop_';
 
 /**
  * Фасад Web Storage (STORAGE-NAMESPACE-v8, Крок 1).
