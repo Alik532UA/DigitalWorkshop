@@ -38,9 +38,21 @@
 	 * рівно з тієї причини, що вже описана вище для `langState`.
 	 */
 	const themeState = getTheme();
-	const toggleLanguage = () => {
-		const next = langState.current === 'uk' ? 'en' : langState.current === 'en' ? 'ja' : 'uk';
-		langState.set(next);
+	/**
+	 * `L` ВІДКРИВАЄ панель мов, а не перемикає мову по колу.
+	 *
+	 * Доти вона крутила `uk → en → ja → uk`, і це було неправильно з двох причин.
+	 * По-перше, мов на сайті сорок із гаком, а по колу проходили три — тобто клавіша
+	 * робила щось інше, ніж кнопка з тим самим значком. По-друге, зміна мови тут — це
+	 * навігація: щоб дійти до потрібної, людина проходила через дві чужі сторінки.
+	 *
+	 * Тепер це те саме, що в `CV`: клавіша відкриває список із пошуком, і людина
+	 * набирає назву мови (HOTKEYS-v8 § 1.1 — `L` «змінює АБО відкриває панель»).
+	 * Перемикач, а не «відкрити»: інакше клавіша, якою панель відкрили, не змогла б
+	 * її закрити.
+	 */
+	const toggleLanguageMenu = () => {
+		state.isLangMenuOpen = !state.isLangMenuOpen;
 	};
 
 	let audioRef: HTMLAudioElement;
@@ -139,7 +151,7 @@
 		state.handleKeyDown(e, {
 			toggleAudio: () => audioState.toggle(),
 			toggleClock: () => clockState.toggle(),
-			toggleLanguage,
+			toggleLanguageMenu,
 			// `T` — тема, як у решті проєктів (HOTKEYS-v8 § 1.1). Доти цієї
 			// клавіші тут не було, а `T` перемикав мову.
 			toggleTheme: () => void themeState.toggle(),
@@ -214,6 +226,7 @@
 		isFullscreen={state.isFullscreen}
 		isIOS={state.isIOS}
 		currentLanguage={langState.current}
+		bind:isLangOpen={state.isLangMenuOpen}
 		onToggleClock={() => clockState.toggle()}
 		onSelectLanguage={(lang) => langState.set(lang)}
 		onToggleClockFormat={() => clockState.toggleFormat()}

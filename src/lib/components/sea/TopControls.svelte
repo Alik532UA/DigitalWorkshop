@@ -18,6 +18,13 @@
 		isFullscreen: boolean;
 		isIOS: boolean;
 		currentLanguage: Language;
+		/**
+		 * Чи відкрита панель мов. Двостороння, бо власників у неї двоє: кнопка тут і
+		 * гаряча клавіша `L`, яку обробляє сторінка (`SeaPageState`). Тримати стан лише
+		 * тут означало б, що клавіша до нього не дістане, — а тримати другу копію
+		 * означало б, що вони колись розійдуться.
+		 */
+		isLangOpen?: boolean;
 		onToggleClock: () => void;
 		onSelectLanguage: (lang: Language) => void;
 		onToggleClockFormat: () => void;
@@ -35,6 +42,7 @@
 		isFullscreen,
 		isIOS,
 		currentLanguage,
+		isLangOpen = $bindable(false),
 		onToggleClock,
 		onSelectLanguage,
 		onToggleClockFormat,
@@ -43,7 +51,6 @@
 		onVolumeInput
 	}: Props = $props();
 
-	let isLangOpen = $state(false);
 	let langWrapper: HTMLDivElement | undefined = $state();
 	let langQuery = $state('');
 	// Set once the search box is focused. Without it, typing a query and then
@@ -113,6 +120,27 @@
 
 	$effect(() => {
 		if (isClockActive) closeLangMenu();
+	});
+
+	/*
+	 * Панель, відкриту КЛАВІШЕЮ, треба закріпити й дати їй фокус.
+	 *
+	 * На десктопі меню відкривається наведенням, а `handleLangLeave` закриває його,
+	 * щойно вказівник іде геть. Без закріплення `L`, натиснута при вказівнику
+	 * будь-де інде, відкривала б панель і тієї ж миті губила її — тобто виглядала б
+	 * як клавіша, що не працює.
+	 *
+	 * Фокус у полі пошуку — те саме, що робить панель мов у `CV`: там сорок із
+	 * гаком мов, і перше, що людина робить після відкриття, — набирає назву. Заодно
+	 * це відповідає на «а що тепер», не вимагаючи здогадки.
+	 */
+	$effect(() => {
+		if (!isLangOpen) return;
+		isLangPinned = true;
+		langQuery = '';
+		// Поле зʼявляється в тому ж кадрі, тож пошук робиться після нього.
+		const input = langWrapper?.querySelector<HTMLInputElement>('.lang-search');
+		input?.focus();
 	});
 </script>
 

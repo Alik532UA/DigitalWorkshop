@@ -64,6 +64,16 @@ export class SeaPageState {
 	isMobile = $state(false);
 	isIOS = $state(false);
 	isFullscreen = $state(false);
+
+	/**
+	 * Чи відкрита панель мов.
+	 *
+	 * Тут, а не в `TopControls`, бо власників у неї двоє: кнопка з прапорцем і клавіша
+	 * `L`, яку обробляє цей самий клас. Тримати стан у компоненті означало б, що
+	 * клавіша до нього не дістає, а тримати другу копію — що вони колись розійдуться.
+	 * Тим же шляхом іде `CV`, де панель мов теж має один спільний вимикач.
+	 */
+	isLangMenuOpen = $state(false);
 	mouseTimeout: ReturnType<typeof setTimeout> | undefined;
 
 	hoveredCarouselProject = $state<string | null>(null);
@@ -442,13 +452,39 @@ export class SeaPageState {
 	 * Заразом `Ctrl+T` відкривав нову вкладку **і** перемикав мову, бо
 	 * `e.code === 'KeyT'` істинне й для комбінацій (HOTKEYS-v8 § 2.1, § 2.2).
 	 *
-	 * **`T` — тема, `L` — мова.** Доти `T` перемикав мову, а тема гарячої клавіші
-	 * не мала взагалі. У сусідньому `CV` `T` завжди означав тему, тож людина, яка
-	 * користується двома сайтами, отримувала не ту дію, якої хотіла
+	 * **`T` — тема, `L` — панель мов.** Доти `T` перемикав мову, а тема гарячої
+	 * клавіші не мала взагалі. У сусідньому `CV` `T` завжди означав тему, тож людина,
+	 * яка користується двома сайтами, отримувала не ту дію, якої хотіла
 	 * (HOTKEYS-v8 § 1.1).
+	 *
+	 * **`L` ВІДКРИВАЄ панель, а не крутить мови по колу.** Перша версія цієї клавіші
+	 * робила `uk → en → ja → uk`, і це було неправильно двічі: мов на сайті сорок із
+	 * гаком, а по колу проходили три — тобто клавіша робила щось інше, ніж кнопка з
+	 * тим самим значком; а зміна мови тут ще й НАВІГАЦІЯ, тож дорога до потрібної
+	 * мови вела через дві чужі сторінки. Тепер це те саме, що в `CV`: відкривається
+	 * список із пошуком, і людина набирає назву.
 	 */
-	handleKeyDown(e: KeyboardEvent, callbacks: { toggleAudio: () => void, toggleClock: () => void, toggleLanguage: () => void, toggleTheme: () => void, openTelegram: () => void }) {
+	handleKeyDown(e: KeyboardEvent, callbacks: { toggleAudio: () => void, toggleClock: () => void, toggleLanguageMenu: () => void, toggleTheme: () => void, openTelegram: () => void }) {
 		if (!acceptsShortcut(e)) return;
+
+		/*
+		 * `Escape` закриває панель мов — і це не додаткова зручність, а єдиний вихід.
+		 *
+		 * Панель, відкрита клавішею `L`, забирає фокус у своє поле пошуку. Далі
+		 * `acceptsShortcut` уже НЕ пропускає літери — і правильно: `l` мусить доїхати
+		 * до поля, щоб знайти Lithuanian. Тобто закрити панель тією ж `L` неможливо за
+		 * побудовою, і без цієї гілки лишався б тільки клік мишкою. `Escape` — єдина
+		 * клавіша, яку захист пропускає з поля (HOTKEYS-v8 § 2.2), тому саме він.
+		 *
+		 * Стоїть першим: у решти гілок є свої `return`, і гілка після них означала б
+		 * «закриємо, якщо жодна інша клавіша не спрацювала».
+		 */
+		if (e.code === 'Escape') {
+			if (!this.isLangMenuOpen) return;
+			this.isLangMenuOpen = false;
+			e.preventDefault();
+			return;
+		}
 
 		if (e.code === 'KeyM') {
 			callbacks.toggleAudio();
@@ -466,7 +502,7 @@ export class SeaPageState {
 		}
 
 		if (e.code === 'KeyL') {
-			callbacks.toggleLanguage();
+			callbacks.toggleLanguageMenu();
 			return;
 		}
 
