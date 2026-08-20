@@ -13,6 +13,7 @@
     import { hotkeys } from "$lib/services/hotkeys.svelte";
     import { createKeySequence } from "$lib/services/keySequence";
     import { hardReset, RESET_PRESSES_DEV, RESET_PRESSES_PROD } from "$lib/services/resetService";
+    import { webVitals } from "$lib/controllers/webVitals.svelte";
     import Header from "$lib/components/layout/Header.svelte";
     import SEO from "$lib/components/layout/SEO.svelte";
     import FooterSection from "$lib/components/layout/FooterSection.svelte";
@@ -38,6 +39,10 @@
     $effect(() => {
         language.current = page.data.language ?? "uk";
     });
+
+    // Start RUM Core Web Vitals collection (OBSERVABILITY-v8 § 2.1)
+    $effect(() => webVitals.start());
+
     const { tabs, theme, background, menu } = setUiState();
 
     let { children } = $props();
