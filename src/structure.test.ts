@@ -169,7 +169,7 @@ const DATA_MODULES = /^src\/lib\/(i18n\/locales|data)\//;
 const OVERSIZED: Readonly<Record<string, number>> = {
 	'src/routes/[[lang=lang]]/+page.svelte': 1521,
 	'src/lib/controllers/SeaPageState.svelte.ts': 650,
-	'src/lib/components/sea/TopControls.svelte': 567,
+	'src/lib/components/sea/TopControls.svelte': 559,
 	'src/lib/components/layout/Header.svelte': 559,
 	'src/lib/components/sea/ClockOverlay.svelte': 522,
 	'src/routes/beta-test-checklists/+page.svelte': 466,

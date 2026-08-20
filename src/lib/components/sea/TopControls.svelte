@@ -53,10 +53,6 @@
 
 	let langWrapper: HTMLDivElement | undefined = $state();
 	let langQuery = $state('');
-	// Set once the search box is focused. Without it, typing a query and then
-	// nudging the pointer off the panel would close the menu and throw the
-	// query away — the panel is large enough now that this is easy to do.
-	let isLangPinned = $state(false);
 
 	const filteredLanguageMeta = $derived(
 		LANGUAGE_META.filter((l) => {
@@ -82,25 +78,15 @@
 			onToggleClockFormat();
 			return;
 		}
-		// On desktop hover has already opened the menu, so a plain toggle here
-		// would shut it again on the way to picking a language.
-		isLangOpen = isMobile ? !isLangOpen : true;
-		if (isLangOpen) langQuery = '';
-	}
-
-	function handleLangEnter() {
-		if (isMobile || isClockActive) return;
-		isLangOpen = true;
-	}
-
-	function handleLangLeave() {
-		if (isMobile || isLangPinned) return;
-		isLangOpen = false;
+		// Звичайний перемикач, однаковий на десктопі й на дотику: панель
+		// відкриває НАТИСКАННЯ. Доти на десктопі тут стояло `= true`, бо
+		// відкривало наведення, і перемикач закривав би панель по дорозі до
+		// вибору мови. Наведення прибрано — див. коментар над розміткою обгортки.
+		isLangOpen = !isLangOpen;
 	}
 
 	function closeLangMenu() {
 		isLangOpen = false;
-		isLangPinned = false;
 		langQuery = '';
 	}
 
@@ -123,20 +109,18 @@
 	});
 
 	/*
-	 * Панель, відкриту КЛАВІШЕЮ, треба закріпити й дати їй фокус.
+	 * Відкрита панель отримує фокус у полі пошуку й порожній запит.
 	 *
-	 * На десктопі меню відкривається наведенням, а `handleLangLeave` закриває його,
-	 * щойно вказівник іде геть. Без закріплення `L`, натиснута при вказівнику
-	 * будь-де інде, відкривала б панель і тієї ж миті губила її — тобто виглядала б
-	 * як клавіша, що не працює.
+	 * Тут, а не в обробнику натискання: відкрити панель можна двома шляхами —
+	 * кнопкою й клавішею `L` (`SeaPageState` перемикає той самий проп), — і
+	 * поводження мусить бути однаковим незалежно від того, яким саме.
 	 *
-	 * Фокус у полі пошуку — те саме, що робить панель мов у `CV`: там сорок із
-	 * гаком мов, і перше, що людина робить після відкриття, — набирає назву. Заодно
-	 * це відповідає на «а що тепер», не вимагаючи здогадки.
+	 * Фокус у полі — те саме, що робить панель мов у `CV`: там сорок із гаком
+	 * мов, і перше, що людина робить після відкриття, — набирає назву. Заодно це
+	 * відповідає на «а що тепер», не вимагаючи здогадки.
 	 */
 	$effect(() => {
 		if (!isLangOpen) return;
-		isLangPinned = true;
 		langQuery = '';
 		// Поле зʼявляється в тому ж кадрі, тож пошук робиться після нього.
 		const input = langWrapper?.querySelector<HTMLInputElement>('.lang-search');
@@ -161,13 +145,22 @@
 	>
 		{@html iconClock}
 	</button>
-	<div
-		class="language-control-wrapper"
-		bind:this={langWrapper}
-		onmouseenter={handleLangEnter}
-		onmouseleave={handleLangLeave}
-		role="presentation"
-	>
+	<!--
+		Обгортка НЕ реагує на наведення, і це навмисно.
+
+		До 2026-08-20 на ній висіли `onmouseenter`/`onmouseleave`: панель мов
+		відкривалася від того, що вказівник просто проходив повз кнопку — по
+		дорозі до звуку чи фулскрину, — і закривалася, щойно він ішов далі. Меню
+		на 42 мови, яке з'являється саме́ і зникає саме́, це не підказка, а
+		перешкода: воно перекриває сторінку, забирає фокус у своє поле пошуку
+		(тобто перехоплює клавіатуру) і зникає, якщо трохи промахнутися мишею.
+
+		Тепер панель відкриває лише НАТИСКАННЯ — кнопкою або клавішею `L`.
+		Обгортка лишається, бо `handleWindowClick` перевіряє нею, чи клік стався
+		всередині панелі; `role="presentation"` прибрано разом з обробниками —
+		він стояв лише для того, щоб компілятор не лаявся на інтерактивний `div`.
+	-->
+	<div class="language-control-wrapper" bind:this={langWrapper}>
 		<button
 			class="icon-btn"
 			class:active={isLangOpen}
@@ -185,8 +178,8 @@
 			     This used to be a bare unlabeled flag column, which was fine at a
 			     handful of languages but ran the full height of the screen once the
 			     list passed forty, with nothing to read and no way to find anything.
-			     The container's top padding bridges the gap under the button: without
-			     it the pointer leaves the wrapper on the way down and the menu closes. -->
+			     The container's top padding is now just the gap under the button: it
+			     used to be a hover bridge, and hover no longer opens anything. -->
 			<div class="lang-dropdown-container" transition:fly={{ y: -8, duration: 200 }}>
 				<div class="lang-dropdown" role="menu">
 					<input
@@ -196,7 +189,6 @@
 						aria-label="Search language"
 						data-testid="sea-lang-search-input"
 						bind:value={langQuery}
-						onfocus={() => (isLangPinned = true)}
 					/>
 					<div class="lang-groups">
 						<div class="lang-columns">
