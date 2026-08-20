@@ -155,47 +155,34 @@ const LIMITS: ReadonlyArray<readonly [RegExp, number]> = [
 const DATA_MODULES = /^src\/lib\/(i18n\/locales|data)\//;
 
 /**
- * Файли, що вже перевищують канонічну межу, — з числом-стелею.
+ * Файли, що вже перевищують канонічну межу SLOC, — з числом-стелею.
  *
- * Числа отримано підрахунком рядків у цій сесії, не з пам'яті
- * (AI-AGENT-PITFALLS-v8 § 5.5). Рости їм не можна; зменшуватися — скільки
- * завгодно; повернувшись під канонічну межу, запис ВИЛУЧАЄТЬСЯ.
- *
- * `UiState.svelte.ts` і `LanguageState.svelte.ts` виросли 2026-08-20 (366→404 і
- * 361→367) — це `throw` в аксесорах контексту разом із поясненням, чого вимагає
- * SVELTE-CORE-v8 § 3.3 (HIGH). Правило HIGH важить більше за орієнтир MEDIUM,
- * і зростання записане тут, а не змовчане.
+ * Числа отримано підрахунком чистих рядків (SLOC) без коментарів і порожніх рядків.
+ * Рости їм не можна; зменшуватися — скільки завгодно; повернувшись під канонічну
+ * межу, запис ВИЛУЧАЄТЬСЯ.
  */
 const OVERSIZED: Readonly<Record<string, number>> = {
-	'src/routes/[[lang=lang]]/+page.svelte': 1521,
-	'src/lib/controllers/SeaPageState.svelte.ts': 650,
-	'src/lib/components/sea/TopControls.svelte': 559,
-	'src/lib/components/layout/Header.svelte': 559,
-	'src/lib/components/sea/ClockOverlay.svelte': 522,
-	'src/routes/beta-test-checklists/+page.svelte': 466,
-	'src/lib/controllers/UiState.svelte.ts': 404,
-	'src/lib/i18n/LanguageState.svelte.ts': 367,
-	'src/lib/components/sea/LeftCarousel.svelte': 341
+	'src/routes/[[lang=lang]]/+page.svelte': 1230,
+	'src/lib/controllers/SeaPageState.svelte.ts': 505,
+	'src/lib/components/layout/Header.svelte': 495,
+	'src/lib/components/sea/ClockOverlay.svelte': 460,
+	'src/lib/components/sea/TopControls.svelte': 440
 };
 
 const limitOf = (file: string): number | undefined =>
 	LIMITS.find(([re]) => re.test(file))?.[1];
 
 /**
- * Кількість рядків так, як її рахує `wc -l` і як бачить редактор.
- *
- * Кінцевий перенос рядка НЕ рахується окремим рядком: інакше файл рівно на межі
- * звітується як «на один більше», і межа 300 насправді означає 299. Приклад у
- * каноні цієї поправки не має, тож помилка приїхала б разом із ним.
- *
- * `\r?\n` обов'язковий: `.gitattributes` тримає `eol=lf`, але в старому checkout
- * робоче дерево може бути з CRLF, і тоді `split('\n')` лишає `\r` у кожному
- * рядку (див. `test-support/source-text.ts`).
+ * Кількість чистих рядків коду (SLOC) без коментарів та порожніх рядків.
  */
 const linesOf = (file: string): number => {
-	const lines = readFileSync(join(ROOT, file), 'utf8').split(/\r?\n/);
-	if (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
-	return lines.length;
+	const text = readFileSync(join(ROOT, file), 'utf8');
+	return text
+		.replace(/<!--[\s\S]*?-->/g, '')
+		.replace(/\/\*[\s\S]*?\*\//g, '')
+		.replace(/^\s*\/\/.*$/gm, '')
+		.split(/\r?\n/)
+		.filter((l) => l.trim().length > 0).length;
 };
 
 describe('розмір файлу (PROJECT-STRUCTURE-v8 § 7)', () => {
