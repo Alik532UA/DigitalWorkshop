@@ -1,14 +1,15 @@
 {
 	"name": "digital-workshop-svelte",
 	"private": true,
-	"version": "0.0.229",
+	"version": "0.0.230",
 	"type": "module",
 	"engines": {
 		"node": ">=22"
 	},
 	"scripts": {
+		"test": "vitest run",
 		"dev": "vite dev",
-		"build": "vite build",
+		"build": "vite build && node scripts/generate-sitemap.mjs",
 		"preview": "vite preview",
 		"prepare": "husky",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
