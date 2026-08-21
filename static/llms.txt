@@ -1,0 +1,28 @@
+# DigitalWorkshop — Web Development & Interactive Digital Studio
+
+> Digital workshop and catalog of interactive web applications, games, and developer utilities built with SvelteKit, TypeScript, and modern web standards.
+
+## Main Pages
+
+- [Digital Workshop (Головна)](https://alik532ua.github.io/DigitalWorkshop/): Showcase of interactive web applications, tools, and digital solutions.
+- [English Version](https://alik532ua.github.io/DigitalWorkshop/en/): Portfolio and app catalog in English.
+
+## Featured Applications & Projects
+
+- [MindStep](https://alik532ua.github.io/MindStep/): Step-by-step cognitive training game and educational tool.
+- [Slovko](https://alik532ua.github.io/Slovko/): Daily Ukrainian linguistic word-guessing puzzle.
+- [Adopt an Animal](https://adoptananimal.github.io/adoptananimal/): Charity animal adoption platform.
+- [Developer Resume](https://alik532ua.github.io/CV/): Professional background and engineering credentials.
+
+## Key Capabilities
+
+- Web application architecture with SvelteKit 2 and Svelte 5 runes.
+- Offline-first Progressive Web Apps (PWA) with fast prerendered delivery.
+- Comprehensive accessibility (WCAG 2.1 AA) and fluid design systems.
+- Generative Engine Optimization (GEO/LLMO) and Schema.org structured data.
+
+## Contacts & Resources
+
+- GitHub: https://github.com/Alik532UA
+- Telegram: https://t.me/alik532
+- [Sitemap](https://alik532ua.github.io/DigitalWorkshop/sitemap.xml): XML sitemap of indexed routes.

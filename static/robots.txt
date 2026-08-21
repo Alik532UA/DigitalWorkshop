@@ -1,12 +1,18 @@
 # allow crawling everything by default
 User-agent: *
-Disallow:
+Disallow: /DigitalWorkshop/beta-test-checklists/
 
-# Службова сторінка чеклиста бета-тестування (BETA-CHECKLIST-v8 § 4). Вона
-# працює за адресою й дається посиланням тому, хто згодився допомогти, але в
-# індексі конкурувала б із самим сайтом. Разом із цим рядком її тримають поза
-# індексом `noindex, nofollow` у розмітці, відсутність canonical і відсутність у
-# sitemap — перелік прихованих маршрутів один, у src/lib/i18n/routing.ts.
+# AI Search Crawlers
+User-agent: GPTBot
+Allow: /
+Disallow: /DigitalWorkshop/beta-test-checklists/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /DigitalWorkshop/beta-test-checklists/
+
+User-agent: ClaudeBot
+Allow: /
 Disallow: /DigitalWorkshop/beta-test-checklists/
 
 Sitemap: https://alik532ua.github.io/DigitalWorkshop/sitemap.xml

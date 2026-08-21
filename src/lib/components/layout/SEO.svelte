@@ -103,6 +103,8 @@
              йти за ним кравлеру нема потреби. Архів і невичитані мови лишаються
              `follow` — їхні посилання ведуть на сторінки, які індексуються. -->
         <meta name="robots" content={isHidden ? "noindex, nofollow" : "noindex, follow"} />
+    {:else}
+        <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     {/if}
 
     <!-- Alternates for the reviewed languages only, so search engines are not
