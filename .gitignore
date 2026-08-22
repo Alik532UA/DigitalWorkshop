@@ -39,3 +39,5 @@ gitignore/
 .private/
 .read_for_AI
 .temp
+# Звіти Lighthouse CI — артефакт прогону, а не джерело.
+.lighthouseci/
