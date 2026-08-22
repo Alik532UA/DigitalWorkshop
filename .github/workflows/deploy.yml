@@ -41,6 +41,7 @@ jobs:
         run: npm run check
 
       - name: Lint
+        if: ${{ !cancelled() }}
         run: npm run lint
 
       # Без `-- --run`: скрипт уже `vitest run`, і прапорець тут лише вдавав би,
@@ -48,6 +49,7 @@ jobs:
       # локальний прогін і будь-який інший викликач її не бачать
       # (CI-CD-AND-TOOLS-v8 § 1.4). Те, що скрипт не watch, тримає src/ci.test.ts.
       - name: Run unit tests
+        if: ${{ !cancelled() }}
         run: npm run test:unit
 
       # Поріг high, а не moderate: після оновлення лишилися лише 3 low, але
@@ -60,6 +62,7 @@ jobs:
       # видно. Якщо колись доведеться вимикати — спершу `--omit=dev`, і лише
       # тоді послаблення стане відходом, а не порогом.
       - name: Audit dependencies
+        if: ${{ !cancelled() }}
         run: npm audit --audit-level=high
 
       - name: Build
