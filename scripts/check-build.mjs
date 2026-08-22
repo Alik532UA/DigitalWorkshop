@@ -22,6 +22,7 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { checkGeo } from './check-geo.mjs';
 
 const BUILD = 'build';
 
@@ -35,7 +36,9 @@ const BUILD = 'build';
 function readSource(file, re, what) {
 	const m = re.exec(readFileSync(file, 'utf8'));
 	if (!m) {
-		console.error(`check-build: у ${file} не знайдено ${what}. Гейт зупинено — далі він перевіряв би не те.`);
+		console.error(
+			`check-build: у ${file} не знайдено ${what}. Гейт зупинено — далі він перевіряв би не те.`
+		);
 		process.exit(1);
 	}
 	return m[1];
@@ -48,8 +51,16 @@ const SITE_ORIGIN = readSource(SEO_COMPONENT, /const SITE_ORIGIN = "([^"]+)"/, '
 const BASE = readSource('svelte.config.js', /base:\s*['"]([^'"]*)['"]/, 'paths.base');
 const SITE_ROOT = `${SITE_ORIGIN}${BASE}`;
 
-const DEFAULT_LANGUAGE = readSource(ROUTING, /DEFAULT_LANGUAGE: Language = "([^"]+)"/, 'DEFAULT_LANGUAGE');
-const INDEXED_LANGUAGES = readSource(ROUTING, /INDEXED_LANGUAGES: readonly Language\[\] = \[([^\]]+)\]/, 'INDEXED_LANGUAGES')
+const DEFAULT_LANGUAGE = readSource(
+	ROUTING,
+	/DEFAULT_LANGUAGE: Language = "([^"]+)"/,
+	'DEFAULT_LANGUAGE'
+);
+const INDEXED_LANGUAGES = readSource(
+	ROUTING,
+	/INDEXED_LANGUAGES: readonly Language\[\] = \[([^\]]+)\]/,
+	'INDEXED_LANGUAGES'
+)
 	.split(',')
 	.map((s) => s.trim().replace(/^"|"$/g, ''))
 	.filter(Boolean);
@@ -139,7 +150,8 @@ const bcp47 = (lang) => lang.replace(/-([a-z]{2})$/, (_, region) => `-${region.t
 const langUrl = (lang) => (lang === DEFAULT_LANGUAGE ? `${SITE_ROOT}/` : `${SITE_ROOT}/${lang}/`);
 
 /** Шлях у `build/` для мовної версії. */
-const langFile = (lang) => (lang === DEFAULT_LANGUAGE ? `${BUILD}/index.html` : `${BUILD}/${lang}/index.html`);
+const langFile = (lang) =>
+	lang === DEFAULT_LANGUAGE ? `${BUILD}/index.html` : `${BUILD}/${lang}/index.html`;
 
 const visibleText = (html) =>
 	(html.match(/<body[^>]*>([\s\S]*)<\/body>/)?.[1] ?? '')
@@ -160,9 +172,11 @@ if (!existsSync(`${BUILD}/${ARCHIVE}/index.html`)) fail(`немає ${BUILD}/${A
 for (const route of HIDDEN_ROUTES) {
 	// Зник `entries()` або сам маршрут — і сторінка, посилання на яку вже
 	// розіслані тестувальникам, тихо перестала існувати.
-	if (!existsSync(hiddenFile(route))) fail(`немає ${hiddenFile(route)} — прихований маршрут не збудувався`);
+	if (!existsSync(hiddenFile(route)))
+		fail(`немає ${hiddenFile(route)} — прихований маршрут не збудувався`);
 }
-if (!existsSync(`${BUILD}/404.html`)) fail(`немає ${BUILD}/404.html — GitHub Pages віддає його на кожну биту адресу`);
+if (!existsSync(`${BUILD}/404.html`))
+	fail(`немає ${BUILD}/404.html — GitHub Pages віддає його на кожну биту адресу`);
 
 // --- 2. Мова сторінки збігається з її адресою (I18N-v8 § 5.2, SVELTE-CORE-v8 § 5.1) ---
 
@@ -171,7 +185,9 @@ for (const lang of LANGUAGES) {
 	if (!existsSync(file)) continue;
 	const actual = readFileSync(file, 'utf8').match(/<html lang="([^"]*)"/)?.[1];
 	if (actual !== bcp47(lang)) {
-		fail(`${file}: <html lang="${actual}">, очікується "${bcp47(lang)}" — мова зсунута відносно адреси`);
+		fail(
+			`${file}: <html lang="${actual}">, очікується "${bcp47(lang)}" — мова зсунута відносно адреси`
+		);
 	}
 }
 
@@ -205,7 +221,9 @@ for (const file of files) {
 
 	const text = visibleText(html);
 	if (text.length < MIN_BODY_TEXT) {
-		fail(`${file}: видимого тексту ${text.length} символів (мінімум ${MIN_BODY_TEXT}) — сторінка пішла б в індекс порожньою`);
+		fail(
+			`${file}: видимого тексту ${text.length} символів (мінімум ${MIN_BODY_TEXT}) — сторінка пішла б в індекс порожньою`
+		);
 	}
 
 	const canonicals = html.match(/<link[^>]+rel="canonical"[^>]*>/g) ?? [];
@@ -232,12 +250,15 @@ for (const file of files) {
 
 	// JSON-LD віддано літералом замість даних (SEO-v8 § 3.2).
 	if (/ld\+json"[^>]*>\s*\{JSON/.test(html)) {
-		fail(`${file}: JSON-LD не обчислено — вирази всередині <script> Svelte не рахує, потрібен {@html}`);
+		fail(
+			`${file}: JSON-LD не обчислено — вирази всередині <script> Svelte не рахує, потрібен {@html}`
+		);
 	}
 
 	const ogImage = html.match(/property="og:image" content="([^"]+)"/)?.[1];
 	if (!ogImage) fail(`${file}: немає og:image`);
-	else if (!ogImage.startsWith(`${SITE_ROOT}/`)) fail(`${file}: og:image не з цього сайту — ${ogImage}`);
+	else if (!ogImage.startsWith(`${SITE_ROOT}/`))
+		fail(`${file}: og:image не з цього сайту — ${ogImage}`);
 	else if (!existsSync(join(BUILD, ogImage.slice(SITE_ROOT.length)))) {
 		fail(`${file}: og:image вказує на ${ogImage}, а файлу в build/ немає`);
 	}
@@ -265,20 +286,30 @@ for (const lang of LANGUAGES) {
 		fail(`${file}: мова в INDEXED_LANGUAGES, але сторінка просить noindex`);
 	}
 	if (!shouldIndex && !hasNoindex) {
-		fail(`${file}: невичитаний машинний переклад без noindex — саме за це Google оцінює домен цілком`);
+		fail(
+			`${file}: невичитаний машинний переклад без noindex — саме за це Google оцінює домен цілком`
+		);
 	}
 }
 {
 	const archive = `${BUILD}/${ARCHIVE}/index.html`;
-	if (existsSync(archive) && !/name="robots" content="noindex/.test(readFileSync(archive, 'utf8'))) {
-		fail(`${archive}: архів без noindex — він конкурував би в пошуку з чинним сайтом майже тим самим текстом`);
+	if (
+		existsSync(archive) &&
+		!/name="robots" content="noindex/.test(readFileSync(archive, 'utf8'))
+	) {
+		fail(
+			`${archive}: архів без noindex — він конкурував би в пошуку з чинним сайтом майже тим самим текстом`
+		);
 	}
 }
 
 // --- 6. hreflang: однаковий і взаємний на всіх сторінках (SEO-v8 § 2.2) ---
 
 {
-	const expected = [...INDEXED_LANGUAGES.map((l) => `${bcp47(l)}=${langUrl(l)}`), `x-default=${langUrl(DEFAULT_LANGUAGE)}`]
+	const expected = [
+		...INDEXED_LANGUAGES.map((l) => `${bcp47(l)}=${langUrl(l)}`),
+		`x-default=${langUrl(DEFAULT_LANGUAGE)}`
+	]
 		.sort()
 		.join(' ');
 
@@ -292,7 +323,9 @@ for (const lang of LANGUAGES) {
 			.sort()
 			.join(' ');
 		if (actual !== expected) {
-			fail(`${file}: набір hreflang відрізняється від решти сторінок\n      маємо:    ${actual}\n      очікуємо: ${expected}`);
+			fail(
+				`${file}: набір hreflang відрізняється від решти сторінок\n      маємо:    ${actual}\n      очікуємо: ${expected}`
+			);
 		}
 	}
 }
@@ -313,10 +346,13 @@ for (const file of files) {
 	const metaAt = html.search(/http-equiv="content-security-policy"/i);
 	// Лише виконувані скрипти: `application/ld+json` розбір повертає на
 	// визначенні типу, до перевірки CSP, тож хеша він не потребує.
-	const executable = /<script(?![^>]*\ssrc=)(?![^>]*\stype="(?!module|text\/javascript)[^"]*")[^>]*>([\s\S]*?)<\/script>/g;
+	const executable =
+		/<script(?![^>]*\ssrc=)(?![^>]*\stype="(?!module|text\/javascript)[^"]*")[^>]*>([\s\S]*?)<\/script>/g;
 	for (const m of html.matchAll(executable)) {
 		if (m.index < metaAt) {
-			fail(`${file}: інлайн-скрипт стоїть вище мета-політики — вона на нього не діє (SECURITY-v8 § 6.3)`);
+			fail(
+				`${file}: інлайн-скрипт стоїть вище мета-політики — вона на нього не діє (SECURITY-v8 § 6.3)`
+			);
 			continue;
 		}
 		const hash = `sha256-${createHash('sha256').update(m[1]).digest('base64')}`;
@@ -349,7 +385,11 @@ for (const file of files) {
 {
 	/** Тип ресурсу → як його впізнати у зібраному виводі. */
 	const RESOURCE_KINDS = [
-		{ directive: 'media-src', re: /<(?:audio|video)[\s>]|<source[^>]+src=/i, what: 'аудіо або відео' },
+		{
+			directive: 'media-src',
+			re: /<(?:audio|video)[\s>]|<source[^>]+src=/i,
+			what: 'аудіо або відео'
+		},
 		{ directive: 'frame-src', re: /<iframe[\s>]/i, what: 'вбудований фрейм' },
 		{ directive: 'img-src', re: /<img[\s>]/i, what: 'зображення' },
 		{ directive: 'font-src', re: /@font-face/i, what: 'веб-шрифт' },
@@ -428,7 +468,9 @@ for (const file of files) {
 			if (!existsSync(local)) {
 				fail(`robots.txt оголошує ${advertised}, а файлу в build/ немає`);
 			} else {
-				const locs = [...readFileSync(local, 'utf8').matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+				const locs = [...readFileSync(local, 'utf8').matchAll(/<loc>([^<]+)<\/loc>/g)].map(
+					(m) => m[1]
+				);
 				if (locs.length === 0) fail('sitemap порожній — жодного <loc>');
 
 				const expected = INDEXED_LANGUAGES.map(langUrl).sort();
@@ -455,6 +497,15 @@ for (const file of files) {
 		}
 	}
 }
+
+// ---------------------------------------------------------------------------
+// SEO-v8 § 7.5 — артефакти AI-пошуку (llms.txt і групи robots.txt).
+//
+// Розбір живе в `check-geo`, бо він робить власний парсер `robots.txt`:
+// краулер, що збігся з іменованою групою, ігнорує `User-agent: *` цілком, тож
+// пропущений там `Disallow` не «наслідується», а ВІДКРИВАЄ шлях саме цьому
+// боту. У кількох майже однакових блоках очима така дірка не видно.
+for (const msg of checkGeo(BUILD)) fail(msg);
 
 if (problems.length > 0) {
 	console.error(`\nПеревірка збірки не пройдена — ${problems.length} проблем:\n`);
