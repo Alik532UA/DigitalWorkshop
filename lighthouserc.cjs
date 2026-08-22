@@ -2,7 +2,23 @@ module.exports = {
 	ci: {
 		collect: {
 			staticDistDir: './build',
-			maxAutodiscoverIsolate: 1
+
+			/*
+			 * Адреса вказана ЯВНО, і це не уточнення, а виправлення.
+			 *
+			 * Без неї LHCI сам шукає HTML у `staticDistDir` — і з двох файлів
+			 * (`index.html` і `404.html`) разом із `maxAutodiscoverIsolate: 1`
+			 * брав саме `404.html`. Це SPA-фолбек: пререндереного вмісту в ньому
+			 * немає, а завантажитися при `base: '/DigitalWorkshop'` з кореня
+			 * сервера він не може. Chrome не малював жодного кадру, Lighthouse
+			 * падав із `NO_FCP`, і крок стояв ПЕРЕД `upload-pages-artifact` —
+			 * тобто гейт, який жодного разу не проходив, блокував увесь деплой.
+			 *
+			 * Хост тут фіктивний: LHCI піднімає власний сервер на випадковому
+			 * порті й підставляє його origin, беручи з цього рядка лише шлях.
+			 */
+			url: ['http://localhost/index.html'],
+			numberOfRuns: 1
 		},
 		assert: {
 			assertions: {
