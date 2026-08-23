@@ -354,6 +354,52 @@ export const BETA_CHECKS: readonly BetaCheck[] = [
 		negative: true
 	},
 
+	/*
+	 * ─── ДОСТУПНІСТЬ: РІВНО ТЕ, ЧОГО axe НЕ БАЧИТЬ ───────────────────────────
+	 *
+	 * З 2026-08-23 у проєкті є `tests/a11y.spec.ts` — axe над зібраним сайтом,
+	 * головна й чеклист, у світлій і темній темі. Він ловить приблизно третину
+	 * проблем доступності: те, що видно з атрибутів і обчислених кольорів.
+	 *
+	 * Пункти нижче — друга половина. Перший із них не «про всяк випадок»: це
+	 * ПРЯМИЙ наслідок правки, зробленої тим самим комітом. Розкривач контактів
+	 * мав `role="button"` на `div`, який містить посилання
+	 * (`nested-interactive`, WCAG 4.1.2); роль знято, а разом із нею —
+	 * `aria-expanded`, бо на елементі без ролі він заборонений. Ціна: стан
+	 * «розкрито / згорнуто» більше не оголошується читачем екрана, хоч самі
+	 * способи зв'язку досяжні. Повний розв'язок — окрема справжня
+	 * `<button aria-expanded>` ПОРУЧ із посиланням; це зміна розмітки в місцях
+	 * виклику, і саме її й треба оцінити руками, перш ніж робити.
+	 */
+	{
+		id: 'sea_15',
+		category: { uk: 'Доступність', en: 'Accessibility' },
+		text: {
+			uk: "Увімкніть екранний читач (Windows: Ctrl+Win+Enter), дійдіть Tab-ом до кнопки «написати» й натисніть Enter. Чотири способи зв'язку мусять стати досяжними Tab-ом. Оцініть, чи зрозуміло БЕЗ ЗОРУ, що список розкрився: якщо ні — потрібна окрема кнопка з `aria-expanded` поруч із посиланням.",
+			en: 'Turn on a screen reader (Windows: Ctrl+Win+Enter), Tab to the «write to me» button and press Enter. The four contact options must become reachable by Tab. Judge whether it is clear WITHOUT SIGHT that the list opened: if not, a separate button with `aria-expanded` next to the link is needed.'
+		},
+		coverage: 'manual',
+		testid: 'sea-hero-cta-btn'
+	},
+	{
+		id: 'sea_16',
+		category: { uk: 'Доступність', en: 'Accessibility' },
+		text: {
+			uk: 'Не торкаючись мишки, пройдіть головну лише клавішею Tab від початку до кінця. Рамка фокуса мусить бути видною на КОЖНОМУ кроці, а порядок — іти зверху вниз, як читається сторінка, без стрибків назад.',
+			en: 'Without touching the mouse, walk the home page with Tab alone from start to finish. The focus ring must be visible at EVERY step, and the order must go top to bottom the way the page reads, without jumping back.'
+		},
+		coverage: 'manual'
+	},
+	{
+		id: 'sea_17',
+		category: { uk: 'Доступність', en: 'Accessibility' },
+		text: {
+			uk: 'Подивіться на кнопку «Надіслати звіт» на сторінці чеклиста в кожній із трьох тем. Підпис мусить читатися на будь-якому акценті: до 2026-08-23 він був білим на пастельному градієнті (1.08–1.81:1), тобто фактично невидимим.',
+			en: 'Look at the «Send report» button on the checklist page in each of the three themes. The label must be readable on any accent: before 2026-08-23 it was white on a pastel gradient (1.08–1.81:1), that is, effectively invisible.'
+		},
+		coverage: 'manual'
+	},
+
 	// --------------------------------------------------------------- archive
 	{
 		id: 'archive_1',
