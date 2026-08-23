@@ -19,7 +19,28 @@ import { describe, expect, it } from 'vitest';
  */
 const ROOT = resolve(__dirname, '..');
 
-const THEME_SELECTORS = [':root', "[data-theme='dark']", "[data-theme='colorful']"];
+const THEME_SELECTORS = [':root', "html[data-theme='dark']", "html[data-theme='colorful']"];
+
+/**
+ * Тіло блока за селектором. `indexOf('}')` від початку файлу тут не годиться:
+ * блоки `:root` містять коментарі з фігурними дужками, і зріз обривався б на
+ * першій із них.
+ */
+function blockBody(css: string, selector: string): string {
+	const at = css.indexOf(selector);
+	if (at < 0) return '';
+	const open = css.indexOf('{', at);
+	if (open < 0) return '';
+	let depth = 0;
+	for (let i = open; i < css.length; i += 1) {
+		if (css[i] === '{') depth += 1;
+		else if (css[i] === '}') {
+			depth -= 1;
+			if (depth === 0) return css.slice(open + 1, i);
+		}
+	}
+	return '';
+}
 
 function walk(dir: string, keep: (name: string) => boolean, out: string[] = []): string[] {
 	for (const entry of readdirSync(dir)) {
@@ -59,16 +80,42 @@ describe('індикатор фокуса', () => {
 		).toBe(true);
 	});
 
-	it('--focus-ring оголошено в кожній темі', () => {
+	/**
+	 * Перевіряється ВЛАСТИВІСТЬ, а не спосіб її досягти.
+	 *
+	 * Перша редакція вимагала окреме оголошення `--focus-ring:` у КОЖНОМУ
+	 * тематичному блоці, і причина була правильна: змінна, оголошена лише в
+	 * `:root` літералом, дає темне кільце на темному тлі. Але 2026-08-23 `:root`
+	 * дістав `--focus-ring: light-dark(#1d1d1f, #ffffff)`, і темне значення
+	 * приїжджає САМЕ звідти — блокові `html[data-theme='dark']` досить оголосити
+	 * `color-scheme: dark`.
+	 *
+	 * Тобто перевірка почервоніла на правильному коді й вимагала повернути
+	 * ДРУГЕ джерело того самого кольору. Це та сама помилка, що в правилі
+	 * «кожна тема мусить мати свій рядок»: вона стереже реалізацію.
+	 *
+	 * Тепер умова: у кожної теми кільце ВІДРІЗНЯЄТЬСЯ від світлого — або власним
+	 * оголошенням, або через `light-dark()` у `:root` разом зі звуженням
+	 * `color-scheme` у самому блоці. Тема, яка не робить ні того, ні того,
+	 * успадкує світле кільце — і саме це є дефектом.
+	 */
+	it('кожна тема має власне кільце фокуса — оголошенням або схемою', () => {
+		const rootBody = blockBody(appCss, ':root');
+		const rootRingIsPaired = /--focus-ring:\s*light-dark\(/.test(rootBody);
+
 		const missing = THEME_SELECTORS.filter((selector) => {
-			const block = appCss.slice(appCss.indexOf(selector));
-			const body = block.slice(block.indexOf('{'), block.indexOf('}'));
-			return !body.includes('--focus-ring:');
+			if (selector === ':root') return !/--focus-ring:/.test(rootBody);
+			const body = blockBody(appCss, selector);
+			if (/--focus-ring:/.test(body)) return false; // власне значення
+			// Немає власного — тоді парне значення з `:root` мусить бути обране
+			// звуженням схеми саме тут.
+			return !(rootRingIsPaired && /color-scheme:\s*(light|dark)\s*;/.test(body));
 		});
+
 		expect(
 			missing,
-			`теми без власного --focus-ring: ${missing.join(', ')}. ` +
-				'Змінна, оголошена лише в :root, у темній темі дасть темне кільце на темному тлі (UI-UX-v8 § 1.6).'
+			`теми, які успадкують СВІТЛЕ кільце: ${missing.join(', ')}. ` +
+				'Ні власного --focus-ring, ні звуження color-scheme під light-dark() з :root (UI-UX-v8 § 1.6).'
 		).toEqual([]);
 	});
 
