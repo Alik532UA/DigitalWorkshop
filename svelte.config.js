@@ -14,6 +14,27 @@ import { readFileSync } from 'node:fs';
  *
  * Падіння при відсутності скрипта навмисне: мовчазний порожній хеш означав би
  * політику, яка блокує тему й не каже про це нічого.
+ *
+ * ## Символ повернення каретки ОБОВ'ЯЗКОВО прибирається перед хешуванням
+ *
+ * Браузер хешує НЕ байти файлу, а текстовий вузол скрипта ПІСЛЯ розбору HTML, а
+ * розбір нормалізує CRLF у LF (HTML Standard, «preprocessing the input
+ * stream»). На Windows `src/app.html` лежить із CRLF (`core.autocrlf`), тож у
+ * політику їхав один хеш, а браузер вимагав інший — заміряно 2026-08-23:
+ * потрібен був `sha256-DRXz6NOS6pdCXo9ViiKt76VrRQJv381L3bClM8T+ToA=`.
+ *
+ * Наслідок — блокування ВСЬОГО скрипта першого кадру, тобто анти-FOUC теми: на
+ * Linux (CI, продакшн) файл із LF і все працює, а на машині розробника тема
+ * мигає й ніхто не знає чому. Той самий дефект у `teatralo4ka` вимкнув заставку
+ * з кулісами. `MindStep` і `VetCrewGames` натрапили на нього раніше й уже
+ * нормалізують. Тримає інваріант `src/csp-hash.test.ts`.
+ *
+ * @returns {`sha256-${string}`} Літеральний тип, а не широкий `string`:
+ * `script-src` у SvelteKit типізований проти нього, і один широкий елемент
+ * розширює ЦІЛИЙ масив директиви. Видно це стало 2026-08-23, коли конфіг уперше
+ * потрапив під `svelte-check` — він дивиться на `src/`, а конфіг досі
+ * імпортували лише `scripts/`; інваріант `src/csp-hash.test.ts` імпортує його
+ * зі `src/`.
  */
 function inlineScriptHash() {
 	const html = readFileSync('src/app.html', 'utf8');
@@ -30,7 +51,7 @@ function inlineScriptHash() {
 		);
 	}
 
-	const body = html.slice(start + open.length, end);
+	const body = html.slice(start + open.length, end).replace(/\r\n/g, '\n');
 	return `sha256-${createHash('sha256').update(body).digest('base64')}`;
 }
 
