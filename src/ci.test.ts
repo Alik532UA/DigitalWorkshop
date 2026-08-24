@@ -12,7 +12,43 @@ import { describe, expect, it } from 'vitest';
 const DIR = '.github/workflows';
 
 const files = existsSync(DIR) ? readdirSync(DIR).filter((f) => /\.ya?ml$/.test(f)) : [];
-const all = files.map((f) => readFileSync(`${DIR}/${f}`, 'utf8')).join('\n');
+
+/**
+ * ВМІСТ WORKFLOW ЧИТАЄТЬСЯ ЛИШЕ ЧЕРЕЗ ЦЕ, і `\r\n` тут нормалізується.
+ *
+ * Розбір кроків нижче вимагає `\n`, і це не косметика. У JavaScript `.` не
+ * збігається з `\r` — це термінатор рядка, — а `$` без прапорця `m` стоїть перед
+ * `\n`, але не перед `\r`. Тому `/^(\s+)- name: (.*)$/` на рядку
+ * «      - name: Install dependencies\r» не збігається ЖОДНОГО разу.
+ *
+ * Наслідок цього такий: у CI чекаут із `\n`, і розбір бачить усі кроки; на
+ * Windows-чекауті `core.autocrlf` дає `\r\n`, і той самий розбір бачить НУЛЬ
+ * кроків. Тобто тест червоніє локально на тому, що в CI зелене, — а це гірше за
+ * відсутню перевірку: вона привчає не дивитися на червоне.
+ *
+ * Для ЦЬОГО файлу це ПРОФІЛАКТИКА: розбір workflow ніколи не бачив нуля, бо
+ * `.gitattributes` тримає `* text=auto eol=lf` — тобто вміст лежить із `\n` у
+ * будь-якому checkout, незалежно від `core.autocrlf`.
+ *
+ * Але сам клас у цьому репозиторії вже стріляв, і `.gitattributes` з'явився саме
+ * через нього: `security-canon.test.ts` різав коментарі регуляркою з `$` без `m`,
+ * і на CRLF та переставала збігатися — коміт був червоний локально й зелений у CI.
+ * Причину тоді полагодили один раз для всього дерева, і це правильно.
+ *
+ * Нормалізація тут не заміна тому правилу, а страховка від його зникнення:
+ * `.gitattributes` — один рядок, який приберуть, не думаючи про цей файл, і ніщо
+ * про це не скаже. У сусідніх проєктах пакета (`teatralo4ka.odesa.ua`,
+ * `MindStep`) той самий клас стріляв ще двічі.
+ *
+ * Нормалізація стоїть на МЕЖІ читання, а не в розборі, і саме тому. Полагодити
+ * можна було й сам `stepsOf` — тоді наступна регулярка без `m`, яку тут
+ * допишуть, наступила б на те саме. Один раз при читанні = клас зникає для всіх
+ * перевірок файлу.
+ */
+const readWorkflow = (file: string): string =>
+	readFileSync(`${DIR}/${file}`, 'utf8').replace(/\r\n/g, '\n');
+
+const all = files.map((f) => readWorkflow(f)).join('\n');
 const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as {
 	scripts?: Record<string, string>;
 };
@@ -207,7 +243,7 @@ describe('гейти не ховають один одного (CI-CD-AND-TOOLS-
 	// Свій перелік файлів, а не спільний `all`: назва файлу потрібна в тексті
 	// помилки, а склеєний вміст її втрачає.
 	const gates = files.flatMap((file) =>
-		stepsOf(readFileSync(`${DIR}/${file}`, 'utf8'))
+		stepsOf(readWorkflow(file))
 			.filter((s) => INDEPENDENT_GATE.test(s.body) && !BUILD_DEPENDENT.test(s.body))
 			.map((s) => ({ ...s, file }))
 	);
@@ -269,9 +305,7 @@ describe('гейти не ховають один одного (CI-CD-AND-TOOLS-
  */
 describe('install у CI не глушить перевірку peer-залежностей', () => {
 	it('жоден workflow не кличе npm із --legacy-peer-deps', () => {
-		const offenders = files.filter((file) =>
-			/--legacy-peer-deps/.test(readFileSync(`${DIR}/${file}`, 'utf8'))
-		);
+		const offenders = files.filter((file) => /--legacy-peer-deps/.test(readWorkflow(file)));
 		expect(
 			offenders,
 			'прапорець знімає перевірку peer-залежностей для всього дерева; ' +
@@ -328,7 +362,7 @@ describe('версія Node узгоджена в трьох місцях (§ 2.
 
 		const ciMajors = files
 			.flatMap((file) => [
-				...readFileSync(`${DIR}/${file}`, 'utf8').matchAll(/node-version:\s*["']?v?(\d+)/g)
+				...readWorkflow(file).matchAll(/node-version:\s*["']?v?(\d+)/g)
 			])
 			.map((m) => Number(m[1]));
 		expect(
