@@ -86,9 +86,10 @@ describe('паритет словників тримає тип', () => {
 			const path = `src/lib/i18n/locales/${basename(file)}`;
 			if (!/:\s*Translations\s*=/.test(read(path))) bad.push(path);
 		}
-		expect(bad, `немає анотації ": Translations" — паритет не перевіряється в:\n${bad.join('\n')}`).toEqual(
-			[]
-		);
+		expect(
+			bad,
+			`немає анотації ": Translations" — паритет не перевіряється в:\n${bad.join('\n')}`
+		).toEqual([]);
 	});
 
 	/**
@@ -130,5 +131,136 @@ describe('форматування з урахуванням локалі', () =
 			}
 		}
 		expect(bad, `форматує в локалі браузера, а не сайту:\n${bad.join('\n')}`).toEqual([]);
+	});
+});
+
+/**
+ * Паритет словників і порожні значення (GATE-I18N-PARITY: «відсутні й зайві
+ * ключі, порожні рядки, slug без файлу»).
+ *
+ * ## Що вже тримає тип, а що НІ
+ *
+ * `PROJECT-CONTEXT.md` каже: «паритет тримає анотація `: Translations`». Це
+ * правда рівно для ОБОВ'ЯЗКОВИХ ключів — зниклий валить `svelte-check`, зайвий
+ * теж (перевірка на самý анотацію — вище в цьому файлі). Дві діри лишаються, і
+ * обидві тип закрити не може за побудовою:
+ *
+ *  1. **необов'язковий ключ.** Досить одного `?:` у `Translations` — і сорок
+ *     один словник може мовчки не мати цієї гілки. Заміряно тут: у `uk.ts` 188
+ *     рядків, у решті сорока одного — 162. Різниця — підрозділ `promo`;
+ *  2. **порожнє значення.** `''` — цілком законний `string`. Саме так виглядає
+ *     ключ, доданий заглушкою в 42 файли «щоб потім перекласти»: сорок один
+ *     переклад приїде, а один лишиться порожнім, і кнопка буде без підпису.
+ *
+ * Обидві діри дають рівно той збій, заради якого написаний цей файл: нічого не
+ * падає, `svelte-check` задоволений, а побачити можна лише відкривши сторінку
+ * тією мовою — тобто способом, яким тридцять восьму локаль не відкриває ніхто.
+ *
+ * ## Чому перелік винятків названий і закритий
+ *
+ * `promo` відсутній поза українською НАВМИСНО, і це рішення проведене через усі
+ * чотири місця, де воно видно: `Header.svelte` викидає вкладку з переліку,
+ * `SeaPageState` — із `ALL_TABS`, головна сторінка переводить `?tab=promo` на
+ * вкладку сайтів, а `PromoPage.svelte` починається з `{#if t.tabs.promo}`.
+ * Тобто це продуктовий виняток, а не пропущений переклад.
+ *
+ * Але саме тому він мусить бути ЗАПИСАНИЙ тут. Незаписаний виняток не
+ * відрізняється від дефекту: наступний `?:` у `Translations` виглядатиме так
+ * само, і сорок одна мова втратить розділ без жодного червоного.
+ *
+ * Словники ІМПОРТУЮТЬСЯ, а не читаються текстом: регулярка по джерелу не
+ * відрізнила б лапки у значенні від лапок навколо нього, а обхід розібраного
+ * об'єкта заразом дістає рядки з вкладених об'єктів і масивів — `title` тут
+ * масив, `nav` вкладений об'єкт.
+ */
+describe('паритет словників за ключами й непорожність значень', () => {
+	/**
+	 * Гілки, яких у решті мов немає НАВМИСНО. Перелік закритий: новий пропуск
+	 * має спершу стати рішенням, а вже потім рядком тут.
+	 */
+	const INTENTIONALLY_UKRAINIAN_ONLY = ['nav.promo', 'hero.buttons.promo', 'tabs.promo'];
+
+	/** Мова, з якою звіряються решта: тут пишуть першою (`routing.ts`). */
+	const REFERENCE = 'uk.ts';
+
+	const modules = import.meta.glob('./lib/i18n/locales/*.ts', { eager: true }) as Record<
+		string,
+		Record<string, unknown>
+	>;
+
+	/**
+	 * Кожен рядок словника разом зі шляхом до нього.
+	 *
+	 * Індекс масиву згортається у `[]`: `faq` має різну ДОВЖИНУ в різних мовах
+	 * законно, і порівнювати треба форму, а не кількість елементів.
+	 */
+	function strings(value: unknown, path: string, out: { path: string; value: string }[]) {
+		if (typeof value === 'string') out.push({ path, value });
+		else if (Array.isArray(value)) value.forEach((v) => strings(v, `${path}[]`, out));
+		else if (value && typeof value === 'object') {
+			for (const [k, v] of Object.entries(value)) strings(v, path ? `${path}.${k}` : k, out);
+		}
+	}
+
+	const dictionaries = Object.entries(modules).map(([file, mod]) => {
+		const found: { path: string; value: string }[] = [];
+		for (const exported of Object.values(mod)) strings(exported, '', found);
+		return { file: basename(file), found, keys: new Set(found.map((s) => s.path)) };
+	});
+
+	const reference = dictionaries.find((d) => d.file === REFERENCE);
+	const excused = (key: string) =>
+		INTENTIONALLY_UKRAINIAN_ONLY.some(
+			(p) => key === p || key.startsWith(`${p}.`) || key.startsWith(`${p}[`)
+		);
+
+	it('перевірка жива: словники імпортовано й рядки зібрано', () => {
+		expect(dictionaries.length, 'жодного словника не імпортовано').toBeGreaterThan(1);
+		expect(reference, `немає ${REFERENCE} — звірятися нема з чим`).toBeDefined();
+		expect(
+			reference!.found.length,
+			'обхід не знайшов рядків у зразковому словнику — розбір зламався'
+		).toBeGreaterThan(100);
+	});
+
+	it('перевірка жива: перелік винятків не застарів', () => {
+		const gone = INTENTIONALLY_UKRAINIAN_ONLY.filter(
+			(p) =>
+				![...reference!.keys].some((k) => k === p || k.startsWith(`${p}.`) || k.startsWith(`${p}[`))
+		);
+		expect(
+			gone,
+			`цих гілок у ${REFERENCE} уже немає — виняток нічого не покриває й ховає майбутній пропуск:\n${gone.join('\n')}`
+		).toEqual([]);
+	});
+
+	it('кожен словник має ті самі ключі, що зразковий', () => {
+		const bad: string[] = [];
+		for (const dict of dictionaries) {
+			if (dict.file === REFERENCE) continue;
+			for (const key of reference!.keys) {
+				if (!dict.keys.has(key) && !excused(key)) bad.push(`${dict.file}: немає ${key}`);
+			}
+			for (const key of dict.keys) {
+				if (!reference!.keys.has(key))
+					bad.push(`${dict.file}: зайвий ${key}, якого немає в ${REFERENCE}`);
+			}
+		}
+		expect(
+			bad,
+			`необов'язковий ключ у Translations дозволяє гілці зникнути мовчки; ` +
+				`якщо пропуск навмисний — він має стати рядком у INTENTIONALLY_UKRAINIAN_ONLY:\n${bad.join('\n')}`
+		).toEqual([]);
+	});
+
+	it('жодне значення не порожнє і не з самих пробілів', () => {
+		const bad = dictionaries.flatMap(({ file, found }) =>
+			found.filter((s) => s.value.trim() === '').map((s) => `${file}: ${s.path}`)
+		);
+		expect(
+			bad,
+			`порожній переклад показує пустоту замість тексту, а тип цього не бачить — ` +
+				`'' це законний string:\n${bad.join('\n')}`
+		).toEqual([]);
 	});
 });
