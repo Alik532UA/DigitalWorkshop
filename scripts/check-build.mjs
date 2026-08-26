@@ -23,9 +23,27 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { asBrowserSees } from '../svelte.config.js';
+import { findLightDarkCalls, nonColorLightDark } from './light-dark.mjs';
 import { checkGeo } from './check-geo.mjs';
 
 const BUILD = 'build';
+
+/**
+ * Усі `.css` зібраного сайту.
+ *
+ * Обхід був двома копіями — у перевірці директив CSP і в перевірці
+ * `light-dark()`. Копії різнилися лише назвою локальної змінної, тобто були
+ * рівно тим, від чого застерігає `src/test-support/source-text.ts`: два місця,
+ * які МУСЯТЬ дивитися на однаковий перелік файлів, і ніщо їх не звіряє.
+ */
+function cssFilesInBuild(dir = BUILD, out = []) {
+	for (const entry of readdirSync(dir)) {
+		const full = join(dir, entry);
+		if (statSync(full).isDirectory()) cssFilesInBuild(full, out);
+		else if (entry.endsWith('.css')) out.push(full.replace(/\\/g, '/'));
+	}
+	return out;
+}
 
 /**
  * Джерела істини читаються з коду, а не дублюються тут константами.
@@ -402,14 +420,7 @@ for (const file of files) {
 		{ directive: 'manifest-src', re: /rel="manifest"/i, what: 'маніфест' }
 	];
 
-	const cssFiles = [];
-	(function collectCss(dir) {
-		for (const entry of readdirSync(dir)) {
-			const full = join(dir, entry);
-			if (statSync(full).isDirectory()) collectCss(full);
-			else if (entry.endsWith('.css')) cssFiles.push(full.replace(/\\/g, '/'));
-		}
-	})(BUILD);
+	const cssFiles = cssFilesInBuild();
 
 	// Canary: без CSS у збірці перевірка шрифтів мовчала б і виглядала зеленою.
 	if (cssFiles.length === 0) {
@@ -447,6 +458,58 @@ for (const file of files) {
 					'лишається без обмежень (SECURITY-v8 § 6.2)'
 			);
 		}
+	}
+}
+
+// --- 7B. light-dark() у ЗІБРАНОМУ CSS (UI-UX-v8 § 1.5.1.3) ---
+
+/**
+ * `UIUX-LIGHT-DARK-COLOR-ONLY` (HIGH) вимагає судити саме по `build/`, і не з
+ * педантизму: збірник тут — окремий учасник. Vite 8 віддає CSS Lightning CSS,
+ * і той ЗНИЖУЄ `light-dark()` у `var(--lightningcss-light, X) …` для будь-якого
+ * типу значення; Vite 7 віддає CSS esbuild, який не знижує нічого. Тобто одне
+ * й те саме джерело живе на одній версії збірника і мертве на іншій —
+ * заміряно в каноні: `VetCrewGames` (Vite ^8) працює, `teatralo4ka` (^7) ні.
+ *
+ * Гейт над джерелом (`src/css-variables.test.ts`) лишається обов'язковим; цей
+ * додає до нього те, чого джерело не знає — що саме поїхало відвідувачеві.
+ *
+ * Порожньо тут означає ЗНИЖЕНО: виклики були в джерелі, а у збірці їх нема.
+ * Це не дефект сам по собі, але мовчазна зміна механізму, і побачити її можна
+ * лише звідси.
+ */
+{
+	const cssInBuild = cssFilesInBuild();
+
+	// Коментарі — геть: `app.css` пояснює `light-dark()` у чотирьох місцях, і без
+	// цього число у звіті було б 13 замість дев'яти справжніх викликів. Число зі
+	// звіту, яке не збігається з дійсністю, — окремий дефект (AI-AGENT-PITFALLS-v8 § 5.5).
+	const sourceCss = readFileSync('src/app.css', 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+	const inSource = findLightDarkCalls(sourceCss).length;
+	let inBuild = 0;
+
+	for (const file of cssInBuild) {
+		const css = readFileSync(file, 'utf8');
+		inBuild += findLightDarkCalls(css).length;
+		for (const { call, arg } of nonColorLightDark(css)) {
+			fail(
+				`${file}: light-dark() з неколірним аргументом — «${arg}» у ${call}. ` +
+					'Значення недійсне на обчисленні, і властивість отримує ПОЧАТКОВЕ ' +
+					'(box-shadow: none, background-image: none) — поїде відвідувачеві саме так'
+			);
+		}
+	}
+
+	if (
+		inSource > 0 &&
+		inBuild === 0 &&
+		!cssInBuild.some((f) => readFileSync(f, 'utf8').includes('--lightningcss-'))
+	) {
+		fail(
+			`у src/app.css ${inSource} викликів light-dark(), а у зібраному CSS жодного і ` +
+				'жодного `--lightningcss-` — тобто збірник викинув їх, а не знизив. ' +
+				'Сторінка без JS втратила світлу/темну пару мовчки (UI-UX-v8 § 1.5.1.3)'
+		);
 	}
 }
 

@@ -2,6 +2,8 @@
 import { describe, expect, it } from "vitest";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { findLightDarkCalls, nonColorLightDark } from "../scripts/light-dark.mjs";
+import { withoutComments } from "./test-support/source-text";
 
 /**
  * A reference to a CSS variable that does not exist is the quietest class of
@@ -72,6 +74,40 @@ function walk(dir: string, keep: (name: string) => boolean, out: string[] = []):
 }
 
 const read = (p: string) => readFileSync(p, "utf8");
+/**
+ * Тіло правила, всередині якого стоїть символ за індексом `at`.
+ *
+ * Потрібне для `color-scheme`: канон вимагає, щоб схема була оголошена В ТОМУ
+ * САМОМУ правилі, а не будь-де у файлі. Пошук іде по фігурних дужках — круглі
+ * дужки самого виклику на нього не впливають.
+ *
+ * @returns Текст блока, або `null`, якщо виклик стоїть поза правилом.
+ */
+function enclosingBlock(css: string, at: number): string | null {
+	let depth = 0;
+	let open = -1;
+	for (let i = at; i >= 0; i -= 1) {
+		if (css[i] === "}") depth += 1;
+		else if (css[i] === "{") {
+			if (depth === 0) {
+				open = i;
+				break;
+			}
+			depth -= 1;
+		}
+	}
+	if (open < 0) return null;
+	depth = 0;
+	for (let i = open; i < css.length; i += 1) {
+		if (css[i] === "{") depth += 1;
+		else if (css[i] === "}") {
+			depth -= 1;
+			if (depth === 0) return css.slice(open + 1, i);
+		}
+	}
+	return null;
+}
+
 
 /** Declarations of the form `--name:` — in CSS, in a component `<style>`, in an inline `style`. */
 function declarations(source: string): Set<string> {
@@ -142,6 +178,81 @@ describe("CSS variables", () => {
 		expect(
 			[...problems.keys()],
 			`undeclared variables (the fallback applies, or the property becomes invalid):\n${report}`
+		).toEqual([]);
+	});
+});
+
+/**
+ * `light-dark()` — функція КОЛЬОРУ, і неколірний аргумент гасить властивість
+ * ЦІЛКОМ (UI-UX-v8 § 1.5.1.3, `UIUX-LIGHT-DARK-COLOR-ONLY`, HIGH).
+ *
+ * Тут це не гіпотеза. 2026-08-23 проєкт перевів на `light-dark()` дев'ять
+ * токенів одним заходом — а канон каже, що саме такий механічний прохід по
+ * файлу теми забирає з собою й неколірні токени: вони стоять у тому самому
+ * блоці, виглядають так само й мають таку саму пару значень. По сусідах
+ * заміряно: `Slovko` — 5 із 37, `as5` — 7 (тінь мали 0 із 6 правил, що її
+ * просять), `teatralo4ka` — 1 із 8 споживачами, `CV` — 1 із 5.
+ *
+ * Дев'ять викликів тут зараз колірні. Не перевіряло цього ніщо: сусідній
+ * інваріант вище стежить, що змінна ОГОЛОШЕНА, а не що значення дійсне; ESLint
+ * і `svelte-check` у CSS-значення не заглядають; axe міряє контраст того, що
+ * намалювалося, а зникла тінь контрасту не змінює. Тобто перший же
+ * `--shadow: light-dark(0 4px 20px #0002, 0 4px 20px #0006)` поїхав би у
+ * продакшн як `box-shadow: none`, і симптом вказав би не туди — у `Slovko`
+ * зникнення `backdrop-filter` виглядало як дефект онбордингу.
+ */
+describe("light-dark() (UI-UX-v8 § 1.5.1)", () => {
+	const cssBearing = [
+		...GLOBAL_STYLE_FILES.map((f) => join(ROOT, f).replace(/\\/g, "/")),
+		...walk(join(ROOT, "src"), (n) => n.endsWith(".svelte"))
+	];
+	const withCalls = cssBearing
+		.map((file) => {
+			// Коментарі прибираються ПЕРЕД пошуком: у `app.css` слово `light-dark()`
+			// стоїть у чотирьох поясненнях того, навіщо ця конструкція тут узагалі.
+			// Гейт, що червоніє на власному описі, — вже пройдена цим проєктом пастка
+			// (`test-support/source-text.ts`). Індекси лишаються від того самого
+			// тексту, що й `enclosingBlock` нижче.
+			const css = withoutComments(read(file));
+			return { file, css, calls: findLightDarkCalls(css) };
+		})
+		.filter((entry) => entry.calls.length > 0);
+
+	const rel = (file: string) => file.replace(`${ROOT.replace(/\\/g, "/")}/`, "");
+
+	it("перевірка жива: виклики light-dark() знайдено", () => {
+		const total = withCalls.reduce((n, e) => n + e.calls.length, 0);
+		expect(total, "у джерелах немає жодного light-dark() — перевіряти нічого").toBeGreaterThan(0);
+	});
+
+	it("обидва аргументи — кольори, інакше властивість зникає цілком", () => {
+		const bad = withCalls.flatMap(({ file, css }) =>
+			nonColorLightDark(css).map(({ call, arg }) => `${rel(file)}: ${call} — «${arg}» не колір`)
+		);
+		expect(
+			bad,
+			`неколірний аргумент робить значення недійсним, і властивість отримує ПОЧАТКОВЕ значення ` +
+				`(box-shadow: none, background-image: none). Пара відтворюється вручну через ` +
+				`html[data-theme=…] + @media (prefers-color-scheme: …):\n${bad.join("\n")}`
+		).toEqual([]);
+	});
+
+	it("у блоці з light-dark() оголошено color-scheme", () => {
+		const bad: string[] = [];
+		for (const { file, css, calls } of withCalls) {
+			for (const { call, index } of calls) {
+				const block = enclosingBlock(css, index);
+				if (block === null) {
+					bad.push(`${rel(file)}: ${call} — поза будь-яким блоком правил`);
+				} else if (!/(^|[;{\s])color-scheme\s*:/.test(block)) {
+					bad.push(`${rel(file)}: ${call} — у блоці немає color-scheme`);
+				}
+			}
+		}
+		expect(
+			bad,
+			`без color-scheme у тому ж правилі light-dark() МОВЧКИ віддає перший аргумент — ` +
+				`той самий клас, що неоголошена змінна:\n${bad.join("\n")}`
 		).toEqual([]);
 	});
 });
