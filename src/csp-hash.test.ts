@@ -2,7 +2,8 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import config from '../svelte.config.js';
+import { withoutComments } from './test-support/source-text';
+import config, { asBrowserSees } from '../svelte.config.js';
 
 /**
  * Хеш інлайн-скрипта у CSP мусить збігатися з тим, що обчислить БРАУЗЕР
@@ -30,9 +31,6 @@ import config from '../svelte.config.js';
  * б там, де дефект живе, — на машині розробника. Клас AI-AGENT-PITFALLS-v8 § 1.4.
  */
 
-/** Рівно те, що робить HTML-парсер із текстом скрипта перед хешуванням. */
-const asBrowserSees = (text: string): string => text.replace(/\r\n/g, '\n');
-
 const sha256 = (text: string): string =>
 	`sha256-${createHash('sha256').update(text).digest('base64')}`;
 
@@ -56,13 +54,17 @@ function inlineScripts(): string[] {
 
 /** Хеші зі зібраного конфігу — те, що справді поїде в заголовок. */
 const cspHashes: string[] = (
-	(config as { kit?: { csp?: { directives?: Record<string, string[]> } } }).kit?.csp
-		?.directives?.['script-src'] ?? []
+	(config as { kit?: { csp?: { directives?: Record<string, string[]> } } }).kit?.csp?.directives?.[
+		'script-src'
+	] ?? []
 ).filter((value) => typeof value === 'string' && value.startsWith('sha256-'));
 
 describe('CSP: хеш інлайн-скрипта збігається з тим, що обчислить браузер', () => {
 	it('перевірка жива: інлайн-скрипт знайдено і в CSP є sha256', () => {
-		expect(inlineScripts().length, 'у app.html немає інлайн-скриптів — хешувати нічого').toBeGreaterThan(0);
+		expect(
+			inlineScripts().length,
+			'у app.html немає інлайн-скриптів — хешувати нічого'
+		).toBeGreaterThan(0);
 		expect(cspHashes.length, 'у script-src немає жодного sha256').toBeGreaterThan(0);
 	});
 
@@ -86,6 +88,51 @@ describe('CSP: хеш інлайн-скрипта збігається з тим
 		expect(
 			crlf,
 			`у script-src лежить хеш над CRLF (${crlf.join(', ')}) — браузер його не приймає`
+		).toEqual([]);
+	});
+});
+
+/**
+ * Гейт над `build/` мусить хешувати ТЕ САМЕ, що конфіг, який клав хеш у політику.
+ *
+ * 2026-08-27 він хешував інше: сирі байти зібраного HTML. На Windows
+ * `src/app.html` лежить у робочому дереві з CRLF (`i/lf w/crlf` у
+ * `git ls-files --eol`), цей CRLF доїжджає до `build/index.html`, і
+ * `npm run check:build` віддавав 46 «інлайн-скрипт без хеша» на збірці, де
+ * політика містила рівно правильний `sha256-DRXz6NOS…`. У CI на тому самому
+ * коміті гейт був зелений.
+ *
+ * `.gitattributes` сюди не дістає за побудовою: `build/` не відстежується, тож
+ * нормалізувати його git не може. Захист може бути лише один — гейт, чий
+ * вердикт не залежить від переносів рядків.
+ */
+describe('вердикт не залежить від переносів рядків', () => {
+	const withCrlf = "(function () {\r\n\tconst t = 'x';\r\n})();\r\n";
+	const withLf = withCrlf.replace(/\r\n/g, '\n');
+
+	it('перевірка жива: сирі байти CRLF і LF дають РІЗНІ хеші', () => {
+		expect(sha256(withCrlf)).not.toEqual(sha256(withLf));
+	});
+
+	it('після нормалізації той самий скрипт дає той самий хеш', () => {
+		expect(sha256(asBrowserSees(withCrlf))).toEqual(sha256(asBrowserSees(withLf)));
+	});
+
+	it('одиночний CR теж стає LF — так робить розбір HTML', () => {
+		expect(asBrowserSees('a\rb')).toEqual('a\nb');
+	});
+
+	it('гейт над build/ проводить текст через asBrowserSees перед хешуванням', () => {
+		const source = withoutComments(readFileSync('scripts/check-build.mjs', 'utf8'));
+		const hashing = source.split('\n').filter((line) => line.includes("createHash('sha256')"));
+
+		expect(
+			hashing.length,
+			'у check-build.mjs зник виклик createHash — гейт більше не звіряє хеші'
+		).toBeGreaterThan(0);
+		expect(
+			hashing.filter((line) => !line.includes('asBrowserSees(')),
+			'ці рядки хешують сирий текст зібраного HTML: на CRLF-checkout гейт червонітиме на робочій збірці'
 		).toEqual([]);
 	});
 });

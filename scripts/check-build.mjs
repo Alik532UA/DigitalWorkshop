@@ -22,6 +22,7 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { asBrowserSees } from '../svelte.config.js';
 import { checkGeo } from './check-geo.mjs';
 
 const BUILD = 'build';
@@ -355,7 +356,11 @@ for (const file of files) {
 			);
 			continue;
 		}
-		const hash = `sha256-${createHash('sha256').update(m[1]).digest('base64')}`;
+		// `asBrowserSees` — та сама нормалізація, що і в `svelte.config.js`, який
+		// клав хеш у політику. Без неї гейт хешує СИРІ БАЙТИ зібраного HTML: на
+		// Windows у них CRLF із `src/app.html`, і кожна сторінка звітує «без
+		// хеша» на цілком робочій збірці, а CI на тому самому коміті зелений.
+		const hash = `sha256-${createHash('sha256').update(asBrowserSees(m[1])).digest('base64')}`;
 		if (!csp.includes(hash)) {
 			fail(`${file}: інлайн-скрипт без хеша в політиці (${hash}) — браузер його заблокує мовчки`);
 		}
