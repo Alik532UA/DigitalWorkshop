@@ -1,5 +1,5 @@
 import { goto } from '$app/navigation';
-import { bcp47, langPath } from '$lib/i18n/routing';
+import { bcp47, DEFAULT_LANGUAGE, langPath } from '$lib/i18n/routing';
 import { z } from 'zod';
 import { en } from './locales/en';
 import { enUS } from './locales/en-us';
@@ -102,12 +102,50 @@ export class LanguageState {
         if (routeLanguage) {
             this.current = routeLanguage;
         } else {
-            // ?lang= links are already out in the world from before the move
-            // to paths, so honour them once and rewrite the address.
-            const legacy = new URLSearchParams(window.location.search).get('lang');
-            if (isLanguage(legacy)) {
-                this.current = legacy;
-                if (this.onLanguageRoute) goto(langPath(legacy), { replaceState: true, noScroll: true, keepFocus: true });
+            /*
+             * `?lang=` — тепер КОНТРАКТ, а не лише перехідник для старих посилань.
+             *
+             * Він з'явився як міграція з `?lang=` на шляхи. Лишається з другої
+             * причини, яка не мине: сусідні сайти автора шлють сюди мову, якою
+             * читав відвідувач ТАМ, а українську вони не можуть покласти в шлях —
+             * `/DigitalWorkshop/uk/` свідомо не існує (§ 3.1). Без параметра
+             * відвідувач, що прийшов з української сторінки, отримав би тут ту
+             * мову, яку цей сайт запам'ятав із минулого візиту. Таблиця, з якої
+             * будуються ті посилання, — `src/lib/siblings.ts`.
+             *
+             * Вище за збережений вибір навмисно: параметр каже про ЦЕЙ перехід,
+             * збережене — про попередні. У сховище не пишеться: візит не
+             * перекреслює свідомого вибору, зробленого тут.
+             *
+             * `SvelteURLSearchParams` тут ні до чого: об'єкт живе три рядки
+             * всередині `init()` і на нього ніхто не підписаний.
+             */
+            // eslint-disable-next-line svelte/prefer-svelte-reactivity
+            const params = new URLSearchParams(window.location.search);
+            const asked = params.get('lang');
+
+            if (isLanguage(asked)) {
+                this.current = asked;
+
+                /*
+                 * Типова мова лишається в параметрі, решта переїжджає в шлях.
+                 *
+                 * Не симетрія заради симетрії: `/DigitalWorkshop/uk/` не існує,
+                 * тож прибрати `?lang=uk` означало б лишити голу адресу — тобто
+                 * «вибору не зроблено», — і наступне перезавантаження віддало б
+                 * сторінку збереженій мові.
+                 *
+                 * Переписування ще й НЕСЕ решту параметрів, чого попередній
+                 * варіант не робив: школи приходять із `?tab=promo&theme=colorful`,
+                 * і `goto(langPath(...))` губив обидва. Працювало це лише тому, що
+                 * `+layout.svelte` кличе `tabs.init()` і `theme.init()` перед цим —
+                 * порядок, якого ніхто не записав, а він тримав фічу.
+                 */
+                if (this.onLanguageRoute && asked !== DEFAULT_LANGUAGE) {
+                    params.delete('lang');
+                    const rest = params.toString();
+                    goto(`${langPath(asked)}${rest ? `?${rest}` : ''}`, { replaceState: true, noScroll: true, keepFocus: true });
+                }
             } else {
                 const saved = storage.get('lang');
                 if (isLanguage(saved)) {

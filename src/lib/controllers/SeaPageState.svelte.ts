@@ -2,7 +2,8 @@ import { t } from '$lib/i18n/LanguageState.svelte';
 import { acceptsPageShortcut } from '$lib/services/hotkeys.svelte';
 import { logService } from '$lib/services/logService.svelte';
 import { Spring } from 'svelte/motion';
-import { Globe, Gamepad2, Box, FileUser } from 'lucide-svelte';
+import { PROJECTS } from '$lib/data/projects';
+import { siblingUrl } from '$lib/siblings';
 
 import iconAnchor from '$lib/assets/tabler/anchor.svg?raw';
 import iconWorld from '$lib/assets/tabler/world-www.svg?raw';
@@ -22,22 +23,25 @@ export class SeaPageState {
 	// Constants
 	LEFT_PANEL_SCROLL_RATIO = 0.4;
 
-	// The school sites sit in both categories, so dropping the promo tab in other
-	// languages never leaves a project without a home to show up in.
-	projects = [
-		{ id: 'slovko', img: 'slovko.jpg', icon: Globe, link: 'https://alik532ua.github.io/Slovko/', tabs: ['apps'] },
-		{ id: 'mindstep', img: 'mindstep.jpg', icon: Gamepad2, link: 'https://alik532ua.github.io/MindStep/', tabs: ['games'] },
-		{ id: 'teatralo4ka', img: 'teatralo4ka.jpg', icon: Globe, link: 'https://teatralo4ka.odesa.ua/', tabs: ['website', 'promo'] },
-		{ id: 'cv3d', img: 'cv_3d.jpg', icon: Box, link: 'https://alik532ua.itch.io/alik-cv-interactive-3d-experience', tabs: ['games'] },
-		{ id: 'cv_web', img: 'cv_web.jpg', icon: FileUser, link: 'https://alik532ua.github.io/CV/', tabs: ['website'] },
-		{ id: 'and_dvergr', img: 'AndDvergrShallSpeakAI.jpg', icon: Gamepad2, link: 'https://www.youtube.com/@AndDvergrShallSpeakAI', tabs: ['games'] },
-		{ id: 'as5', img: 'as5_odesa_ua.jpg', icon: Globe, link: 'https://as5.odesa.ua/', tabs: ['website', 'promo'] },
-		{ id: 'vetcrew', img: 'VetCrewGames.jpg', icon: Gamepad2, link: 'https://alik532ua.github.io/VetCrewGames', tabs: ['games'] }
-	];
-
 	// Resolved during init: reading it later would call getContext() outside a
 	// component, which Svelte forbids.
 	private langState = t.current;
+
+	/*
+	 * Перелік живе в `data/projects.ts`; тут із нього робиться те, що вміє лише
+	 * цей клас, — адреса мовою, якою читають сторінку.
+	 *
+	 * `link` більше не написаний, а виведений: адреса сусіднього сайту залежить
+	 * від мови, і лише `siblingUrl` знає, як кожен сусід її пише. Споживачі й далі
+	 * читають `p.link`, тож три місця, що це малюють (`+page.svelte`,
+	 * `LeftCarousel` і розмітка самої сторінки), нічого нового не вчили.
+	 */
+	projects = $derived(
+		PROJECTS.map((project) => ({
+			...project,
+			link: project.site ? siblingUrl(project.site, this.langState.current) : project.link
+		}))
+	);
 
 	// The special offer targets Ukrainian schools and charities only, so the tab
 	// exists solely in the Ukrainian version.

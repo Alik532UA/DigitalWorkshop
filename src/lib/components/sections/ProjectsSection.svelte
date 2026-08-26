@@ -11,14 +11,26 @@
     import { base } from "$app/paths";
     import SectionContainer from "../ui/SectionContainer.svelte";
     import { t } from "$lib/i18n/LanguageState.svelte";
+    import { siblingUrl } from "$lib/siblings";
     import { track } from "$lib/services/analytics";
 
-    const projects = [
-        { id: 'slovko', img: 'slovko.jpg', icon: Globe, link: 'https://alik532ua.github.io/Slovko/' },
-        { id: 'mindstep', img: 'mindstep.jpg', icon: Gamepad2, link: 'https://alik532ua.github.io/MindStep/' },
+    /*
+     * Це АРХІВ (`/2026-04/`), а не другий перелік тих самих проєктів: тут їх
+     * чотири, а на морській сторінці вісім. Зводити їх в один означало б
+     * переписати те, що архів і зберігає.
+     *
+     * Мова, однак, спільна: архів малюється тією ж мовою, що й решта сайту, тож
+     * і посилання звідси мусять вести в неї. itch.io своєї мови не має, тож
+     * лишається літералом.
+     */
+    const lang = t.current;
+
+    const projects = $derived([
+        { id: 'slovko', img: 'slovko.jpg', icon: Globe, link: siblingUrl('slovko', lang.current) },
+        { id: 'mindstep', img: 'mindstep.jpg', icon: Gamepad2, link: siblingUrl('mindstep', lang.current) },
         { id: 'cv3d', img: 'cv_3d.jpg', icon: Box, link: 'https://alik532ua.itch.io/alik-cv-interactive-3d-experience' },
-        { id: 'cv_web', img: 'cv_web.jpg', icon: FileUser, link: 'https://alik532ua.github.io/CV/' }
-    ];
+        { id: 'cv_web', img: 'cv_web.jpg', icon: FileUser, link: siblingUrl('cv', lang.current) }
+    ]);
 </script>
 
 <SectionContainer id="projects" title={t.portfolio.title}>

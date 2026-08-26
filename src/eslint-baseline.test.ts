@@ -114,7 +114,9 @@ const DEBT: Readonly<Record<string, number>> = {
 	'svelte/no-navigation-without-resolve': 22,
 	'@typescript-eslint/no-unused-vars': 16,
 	'svelte/require-each-key': 15,
-	'svelte/prefer-svelte-reactivity': 8,
+	// 8 → 7: `LanguageState.init()` читає `?lang=` один раз усередині функції, і
+	// на цей об'єкт ніхто не підписаний — придушено точково з причиною поруч.
+	'svelte/prefer-svelte-reactivity': 7,
 	'@typescript-eslint/no-explicit-any': 4
 };
 
