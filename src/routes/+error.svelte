@@ -57,7 +57,10 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		min-height: 100vh;
+		/* `dvh`: сторінка центрує картку по висоті, а `vh` на телефоні більший за
+		   видиме вікно — картка з'їжджала під адресну стрічку, і сторінка помилки
+		   отримувала прокрутку на порожньому місці (FLUID-SIZING-v8 § 2). */
+		min-height: 100dvh;
 		padding: 2rem 1rem;
 		background: var(--bg-color);
 		font-family: var(--font-main);

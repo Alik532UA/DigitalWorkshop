@@ -310,7 +310,11 @@
 		flex-direction: column;
 		gap: 8px;
 		width: min(calc(100vw - 4rem), 760px);
-		max-height: min(70vh, 560px);
+		/* `dvh`, не `vh`: `vh` міряє вікно БЕЗ панелі браузера, тож на телефоні з
+		   видимою адресною стрічкою 70vh більше за те, що видно, і низ переліку
+		   мов — разом із прокруткою всередині нього — лягав під панель
+		   (FLUID-SIZING-v8 § 2). На десктопі значення те саме. */
+		max-height: min(70dvh, 560px);
 		padding: 10px;
 		border-radius: 14px;
 		background: rgba(8, 20, 32, 0.82);
