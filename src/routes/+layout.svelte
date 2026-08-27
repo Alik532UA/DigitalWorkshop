@@ -262,30 +262,25 @@
         padding-left: 160px; /* Відступ для LeftSideArc */
     }
 
-    :global(::view-transition-old(main-content)),
-    :global(::view-transition-new(main-content)) {
-        perspective: 1000px;
-    }
+    /* Тут стояв «маятник» переходу між сторінками: чотири правила
+       `::view-transition-old/new(main-content)` і два `@keyframes`. Вони не
+       спрацьовували ЖОДНОГО разу, і причина — не в них самих.
 
-    :global(::view-transition-old(main-content)) {
-        animation: 0.6s cubic-bezier(0.4, 0, 0.2, 1) both pendulum-out;
-        transform-origin: top center;
-    }
+       `::view-transition-old(X)` бере `view-transition-name`, а НЕ клас. Поруч
+       стоїть `<main class="main-content">`, назва збігається дослівно, і саме
+       тому блок читався як робочий. Властивості `view-transition-name` немає в
+       проєкті ніде; `document.startViewTransition()` і `onNavigate` — теж.
+       Без обох браузер не створює псевдоелементів узагалі, тож селектори не
+       збігалися ні з чим.
 
-    :global(::view-transition-new(main-content)) {
-        animation: 0.6s cubic-bezier(0.4, 0, 0.2, 1) both pendulum-in;
-        transform-origin: top center;
-    }
+       Мовчало про це все: `svelte-check` не аналізує `:global(...)` за
+       побудовою, а решта гейтів у CSS-значення не заглядає. У `build/` правила
+       їхали в продакшн (`0.XYb5nxnC.css`, заміряно).
 
-    @keyframes pendulum-out {
-        0% { transform: rotateX(0deg); opacity: 1; }
-        100% { transform: rotateX(-90deg); opacity: 0; }
-    }
-
-    @keyframes pendulum-in {
-        0% { transform: rotateX(90deg); opacity: 0; }
-        100% { transform: rotateX(0deg); opacity: 1; }
-    }
+       Вмикати цей перехід — рішення продуктове й видиме (0.6s rotateX на кожній
+       навігації), тож зроблено те, що НЕ змінює поводження: мертвий код
+       прибрано. Повернення без обв'язки ловить `src/view-transition.test.ts`
+       (UIUX-VIEW-TRANSITION; рішення записане в PROJECT-CONTEXT.md). */
 
     @media (max-width: 1200px) {
         .main-content.archive-padding { 
