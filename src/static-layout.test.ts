@@ -97,3 +97,71 @@ describe('static/', () => {
 		);
 	});
 });
+
+/**
+ * Кожен `<video>` і `<audio>` мусить мати джерело, яке грає Safari
+ * (SVELTE-UI-v8, анти-патерн «формат, обраний за розміром, а не за підтримкою»).
+ *
+ * ## Що сталося
+ *
+ * Фон моря їхав одним джерелом — `sea_4_av1.webm`, AV1 у контейнері WebM.
+ * Safari не декодує AV1 у WebM: його підтримку AV1 оголошено для MP4 і лише на
+ * залізі з апаратним декодером. Звук їхав `sea.ogg` — Ogg Vorbis Safari не
+ * підтримував НІКОЛИ. Тобто на кожному пристрої Apple фонове відео не грало
+ * (лишалася заливка `background-color: #9aa0ac` на весь екран), а кнопка звуку
+ * мовчала — і мовчала тихо, бо `play()` без придатного джерела не кидає.
+ *
+ * ## Чому одного `<source>` з MP4 НЕ ДОСИТЬ
+ *
+ * Браузер обирає джерело за `type`, ДО декодування. Safari підтримує контейнер
+ * WebM (VP8/VP9), тож на `type="video/webm"` без `codecs=` він скаже «беру»,
+ * далі не декодує AV1 — і до наступного `<source>` НЕ ПЕРЕЙДЕ: фолбек працює на
+ * етапі вибору, а не після збою. Саме тому обидві перевірки нижче потрібні
+ * разом: одна вимагає сумісного джерела, друга — щоб несумісне можна було
+ * відхилити, не програвши його.
+ */
+describe('медіа: є джерело, яке грає Safari', () => {
+	const SAFARI_PLAYS = /^(video|audio)\/mp4|^audio\/(mpeg|aac|wav)|^video\/quicktime/;
+
+	const withMedia = walk(join(ROOT, 'src'), (n) => /[.]svelte$/.test(n))
+		.map((file) => ({ file: toPosix(file).replace(`${toPosix(ROOT)}/`, ''), src: readFileSync(file, 'utf8') }))
+		.flatMap(({ file, src }) =>
+			[...src.matchAll(/<(video|audio)\b([\s\S]*?)<\/\1>/g)].map((m) => ({
+				file,
+				tag: m[1],
+				types: [...m[2].matchAll(/<source\b[^>]*\stype="([^"]+)"/g)].map((t) => t[1]),
+				hasBareSrc: /<(?:video|audio)\b[^>]*\ssrc=/.test(m[0])
+			}))
+		);
+
+	it('перевірка жива: медіаелементи знайдено', () => {
+		expect(withMedia.length, 'у джерелах немає жодного <video>/<audio> — перевіряти нічого').toBeGreaterThan(0);
+	});
+
+	it('кожен елемент має хоча б одне джерело, яке грає Safari', () => {
+		const bad = withMedia
+			.filter(({ types }) => !types.some((t) => SAFARI_PLAYS.test(t)))
+			.map(({ file, tag, types }) => `${file}: <${tag}> має лише [${types.join(', ') || 'жодного <source>'}]`);
+		expect(
+			bad,
+			'на Apple цей елемент не відтворить нічого, і мовчки — помилки не буде:\n' + bad.join('\n')
+		).toEqual([]);
+	});
+
+	it('кожен <source> називає codecs — інакше Safari застрягне на першому', () => {
+		const bad = withMedia.flatMap(({ file, tag, types }) =>
+			types.filter((t) => !/;\s*codecs=/.test(t)).map((t) => `${file}: <${tag}> джерело type="${t}"`)
+		);
+		expect(
+			bad,
+			'без codecs= браузер обирає джерело за самим контейнером і до наступного вже не перейде:\n' + bad.join('\n')
+		).toEqual([]);
+	});
+
+	it('фолбек не обходиться атрибутом src на самому елементі', () => {
+		const bad = withMedia
+			.filter(({ hasBareSrc }) => hasBareSrc)
+			.map(({ file, tag }) => `${file}: <${tag} src="…"> — один src не має запасного варіанта`);
+		expect(bad, bad.join('\n')).toEqual([]);
+	});
+});

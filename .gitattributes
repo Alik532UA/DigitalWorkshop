@@ -22,3 +22,5 @@
 *.woff2 binary
 *.ogg binary
 *.webm binary
+*.mp4 binary
+*.m4a binary

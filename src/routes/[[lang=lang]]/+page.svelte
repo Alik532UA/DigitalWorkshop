@@ -19,6 +19,7 @@
 	import TopControls from '$lib/components/sea/TopControls.svelte';
 	import ClockOverlay from '$lib/components/sea/ClockOverlay.svelte';
 	import LeftCarousel from '$lib/components/sea/LeftCarousel.svelte';
+	import SeaBackdrop from '$lib/components/sea/SeaBackdrop.svelte';
 
 	import iconMessage from '$lib/assets/tabler/message.svg?raw';
 	import iconArrowUp from '$lib/assets/tabler/arrow-big-up.svg?raw';
@@ -184,9 +185,7 @@
 	data-hovered-tab={state.hoveredTab || ''}
 	class:lang-changing={langState.isChanging}
 >
-	<video autoplay loop muted playsinline class="background-video">
-		<source src="{base}/video/sea_4_av1.webm" type="video/webm" />
-	</video>
+	<SeaBackdrop />
 
 	{#if !state.isMobile}
 		<LeftCarousel
@@ -207,15 +206,21 @@
 		/>
 	{/if}
 
+	<!-- Той самий фолбек, що й у відео, і з тієї самої причини: Ogg Vorbis
+	     Safari не підтримував ніколи. Кнопка звуку на Apple мовчала завжди —
+	     і мовчала ТИХО, бо `play()` на елементі без придатного джерела не
+	     кидає, а лишає готовність на нулі. -->
 	<audio
 		bind:this={audioRef}
-		src="{base}/audio/sea.ogg"
 		loop
 		bind:volume={audioState.volume}
 		onplay={() => (audioState.isPlaying = true)}
 		onpause={() => (audioState.isPlaying = false)}
 		use:audioState.bindAudio={state.isMobile}
-	></audio>
+	>
+		<source src="{base}/audio/sea.ogg" type="audio/ogg; codecs=vorbis" />
+		<source src="{base}/audio/sea.m4a" type="audio/mp4; codecs=mp4a.40.2" />
+	</audio>
 
 	<TopControls
 		isMouseActive={state.isMouseActive}
@@ -584,18 +589,6 @@
 		.sea-container.clock-active :global(.left-carousel-wrapper) {
 			transform: translateX(-120%);
 		}
-	}
-
-	.background-video {
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		width: 100vw;
-		height: 100dvh;
-		transform: translate(-50%, -50%);
-		object-fit: cover;
-		object-position: right center; /* Прив'язуємо відео до правого краю для всіх екранів */
-		background-color: #9aa0ac;
 	}
 
 	.info-layout {
