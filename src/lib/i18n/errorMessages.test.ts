@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import { SUPPORTED_LANGUAGES, type Language } from './LanguageState.svelte';
 import { errorMessages, translatedErrorLanguages, type ErrorMessages } from './errorMessages';
