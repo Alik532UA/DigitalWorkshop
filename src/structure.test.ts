@@ -162,7 +162,7 @@ const DATA_MODULES = /^src\/lib\/(i18n\/locales|data)\//;
  * межу, запис ВИЛУЧАЄТЬСЯ.
  */
 const OVERSIZED: Readonly<Record<string, number>> = {
-	'src/routes/[[lang=lang]]/+page.svelte': 1230,
+	'src/routes/[[lang=lang]]/+page.svelte': 1222,
 	'src/lib/controllers/SeaPageState.svelte.ts': 505,
 	'src/lib/components/layout/Header.svelte': 495,
 	'src/lib/components/sea/ClockOverlay.svelte': 460,
