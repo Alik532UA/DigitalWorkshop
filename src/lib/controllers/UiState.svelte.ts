@@ -188,7 +188,10 @@ export class ThemeState {
             // Sync color-scheme meta tag
             const meta = document.querySelector('meta[name="color-scheme"]');
             if (meta) {
-                meta.setAttribute('content', theme === 'dark' ? 'dark' : 'light dark');
+                // `only light`, а не `light dark`: мета-тег мусить збігатися зі звуженням у
+                // CSS, інакше сторінка оголошує себе світлою-без-темної й Android Chrome
+                // перемальовує її своєю Auto Dark Theme (UI-UX-v9 `UIUX-ONLY-LIGHT`).
+                meta.setAttribute('content', theme === 'dark' ? 'dark' : 'only light');
             }
 
             /*
