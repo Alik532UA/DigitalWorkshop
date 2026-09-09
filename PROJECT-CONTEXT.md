@@ -12,7 +12,7 @@
 | Хостинг                                | GitHub Pages, project page акаунта `Alik532UA`        |
 | Origin                                 | `https://alik532ua.github.io`                         |
 | base path                              | `/DigitalWorkshop`                                    |
-| Порт dev-сервера                       | 5198 (`dw-dev` у `.claude/launch.json` кореня GitHub) |
+| Порт dev-сервера                       | 5198 (`.claude/launch.json` цього репозиторію)        |
 | Спільний origin з іншими застосунками? | **так**                                               |
 | PROJECT_PREFIX                         | `digitalworkshop_`                                    |
 
@@ -42,7 +42,7 @@
 | Версіонування                                                    | автобамп у pre-commit hook (husky)                                        | версія в `static/app-version.json`, лише поле `version`                                                                                                                                                                                                                                                                               | до 2026-08 |
 | Одиниця версії                                                   | **бамп на коміт**                                                         | один автор, деплой на кожен push; номер свідомо є лічильником, а не позначкою випуску (VERSIONING-v8 § 1.2)                                                                                                                                                                                                                           | 2026-08-16 |
 | E2E                                                              | **Playwright, рівно під axe** (`tests/a11y.spec.ts`, порт 5599, лише `chromium`) | Сценарних E2E немає: єдиний прогін — axe над зібраним сайтом у двох темах. Додано 2026-08-23                                                                                                                                                                                                                                                                                      | 2026-08-16 |
-| Середовище компонентних тестів (CQ-COMPONENT-ENV)                | **B — jsdom**, без `@vitest/browser`                                     | Канон типового НЕ має, вибір робиться за ознакою й записується сюди. Тут ознака сходиться прямо: A (браузерний режим) потрібен, коли компонент залежить від розмірів, layout, фокуса чи скролу, — а все це вже міряє Playwright над ЗІБРАНИМ сайтом, на справжніх сторінках, а не на змонтованому компоненті. Заводити A варто лише під компонент із власною геометрією, який незручно дістати через сторінку; такого тут немає. `environment: 'jsdom'` стоїть типовим у `vite.config.ts`, і 29 файлів із 39 явно відмовляються від нього рядком `// @vitest-environment node` | 2026-08-28 |
+| Середовище компонентних тестів (CQ-COMPONENT-ENV)                | **B — jsdom**, без `@vitest/browser`                                     | Канон типового НЕ має, вибір робиться за ознакою й записується сюди. Тут ознака сходиться прямо: A (браузерний режим) потрібен, коли компонент залежить від розмірів, layout, фокуса чи скролу, — а все це вже міряє Playwright над ЗІБРАНИМ сайтом, на справжніх сторінках, а не на змонтованому компоненті. Заводити A варто лише під компонент із власною геометрією, який незручно дістати через сторінку; такого тут немає. `environment: 'jsdom'` стоїть типовим у `vite.config.ts`, і 33 файли із 43 явно відмовляються від нього рядком `// @vitest-environment node` | 2026-08-28 |
 | CSP: `unsafe-inline` у `script-src`                              | **прибрано**                                                              | поки він стояв, SvelteKit не додавав хешів узагалі — політика дозволяла будь-який інлайн-скрипт. Скрипт першого кадру перенесено під `%sveltekit.head%` і хешується зі свого файлу                                                                                                                                                    | 2026-08-16 |
 | Поріг `npm audit`                                                | **усі залежності**, не `--omit=dev`                                       | 3 low сидять у dev-гілці, гейт із ними зелений; звужувати обсяг означало б перестати бачити те, що видно. Відхилення від GATE-AUDIT записане в коментарі поруч із кроком                                                                                                                                                              | 2026-08-16 |
 | Закінчення рядків                                                | `.gitattributes` із `* text=auto eol=lf`                                  | без нього робоче дерево на Windows отримувало CRLF, а CI (Linux) — LF, і гейти, які читають власні джерела текстом, давали різний вердикт на тому самому коміті. Один випадок уже стався — див. «Історія рішень»                                                                                                                      | 2026-08-19 |
@@ -169,29 +169,38 @@ teatralo4ka.odesa.ua і з VetCrewGames, плюс підвал adoptananimal. К
 
 ## Перевірки, які тут є
 
-Числа отримано `npm run test:unit`, `npx eslint . -f json` і `npm audit --json`
-2026-08-20.
+**Кількості в цьому розділі більше немає, і це не стиль.** Кожне число тут
+застарівало на наступному коміті — заміри й наслідки в «Історії рішень» нижче.
+Тепер кількість читається з прогону, а перелік файлів стоїть під ДВОБІЧНИМ
+резолвером (`src/doc-numbers.test.ts`): названий файл мусить існувати, наявний
+файл мусить бути названий, і кроки CI звіряються з таблицею в обидва боки
+(AI-AGENT-PITFALLS-v9 § 5.5.1 `PIT-NUMBER-UNDER-GATE`, § 5.5.2 `PIT-DOC-FACTS`).
 
-| Гейт                           | Де                | Що ловить                                                                                                                                                                             |
-| ------------------------------ | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run lint`                 | CI                | eslint; 65 попереджень, 0 помилок. Число більше не переказується: його тримає мапа `DEBT` у `src/eslint-baseline.test.ts`, звірена з прогоном ESLint                                  |
-| `npm run check`                | CI                | `svelte-check`, 0 помилок                                                                                                                                                             |
-| `npm run test:unit`            | CI                | 35 файлів, 331 перевірка                                                                                                                                                              |
-| `npm run check:build`          | CI, після `build` | єдиний гейт по зібраному HTML: мова кожної сторінки, canonical, noindex, hreflang, CSP і хеші інлайн-скриптів, robots↔sitemap, а для прихованої сторінки — ПРОТИЛЕЖНЕ до всього цього |
-| `git diff --exit-code`         | CI, після `build` | збірка змінила відстежуваний файл                                                                                                                                                     |
-| `npm audit --audit-level=high` | CI                | вразливості залежностей (усіх, не лише прод — див. «Прийняті рішення»)                                                                                                                |
+| Гейт                              | Де                | Що ловить                                                                                                                                                                             |
+| --------------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run lint`                    | CI                | eslint; борг тримає мапа `DEBT` у `src/eslint-baseline.test.ts`, звірена з прогоном на РІВНІСТЬ — тобто число живе там, а не тут                                                      |
+| `npm run check`                   | CI                | `svelte-check`; поріг — нуль помилок                                                                                                                                                  |
+| `npm run test:unit`               | CI                | усі юніт-гейти; перелік файлів нижче                                                                                                                                                  |
+| `npm run test:e2e`                | CI, після збірки  | axe над ЗІБРАНИМ сайтом у світлій і темній темах плюс сторінка чеклиста; база — пара «перелік id + кількість» у `tests/a11y-baseline.ts`, і кількість лише спадає                     |
+| `npm run check:build`             | CI, після `build` | єдиний гейт по зібраному HTML: мова кожної сторінки, canonical, noindex, hreflang, CSP і хеші інлайн-скриптів, robots↔sitemap, а для прихованої сторінки — ПРОТИЛЕЖНЕ до всього цього |
+| `git diff --exit-code`            | CI, після `build` | збірка змінила відстежуваний файл                                                                                                                                                     |
+| `npm audit --audit-level=high`    | CI                | вразливості залежностей (усіх, не лише прод — див. «Прийняті рішення»)                                                                                                                |
+| `npx @lhci/cli autorun` Lighthouse | CI, після `build` | пороги продуктивності, доступності, best-practices і SEO над `build/` — див. `lighthouserc.cjs`                                                                                       |
 
-Файли перевірок (35): `analytics-canon`, `app-html-lang`, `beta-checklist`,
-`ci`, `close-button-conventions`, `context-conventions`, `css-inert-properties`,
-`css-variables`, `dependencies`, `eslint-baseline`, `focus-visible`,
-`i18n-canon`, `image-loading`, `listener-cleanup`, `logging-conventions`,
-`orphan-assets`, `security-canon`, `static-layout`, `structure`,
-`svelte-ignore-conventions`, `test-runners`, `testid-conventions`, `version`,
-`lib/controllers/BetaChecklistState`, `lib/controllers/theme-init`,
-`lib/controllers/theme-param`, `lib/i18n/LanguageState`,
-`lib/i18n/errorMessages`, `lib/services/hotkeys`, `lib/services/keySequence`,
-`lib/services/keyboard`, `lib/services/logService`, `lib/services/storage`,
-`lib/services/storageMigration`, `test-support/source-text`.
+Файли перевірок: `analytics-canon`, `app-html-lang`, `beta-checklist`, `ci`,
+`close-button-conventions`, `color-scheme-canon`, `context-conventions`,
+`csp-hash`, `css-inert-properties`, `css-variables`, `dependencies`,
+`doc-numbers`, `eol`, `eslint-baseline`, `focus-visible`, `hooks.client`,
+`i18n-canon`, `image-loading`, `lib/controllers/BetaChecklistState`,
+`lib/controllers/theme-init`, `lib/controllers/theme-param`,
+`lib/i18n/LanguageState`, `lib/i18n/errorMessages`, `lib/services/hotkeys`,
+`lib/services/keySequence`, `lib/services/keyboard`,
+`lib/services/logService`, `lib/services/storage`,
+`lib/services/storageMigration`, `lib/siblings`, `listener-cleanup`,
+`logging-conventions`, `orphan-assets`, `security-canon`, `static-layout`,
+`structure`, `svelte-ignore-conventions`, `test-runners`,
+`test-support/source-text`, `testid-conventions`, `version`,
+`view-transition`, `viewport-units`.
 
 Чотири з них додано 2026-08-20 аудитом проти v8, і кожен закриває правило, яке
 доти не перевіряв ніхто:
@@ -234,6 +243,16 @@ teatralo4ka.odesa.ua і з VetCrewGames, плюс підвал adoptananimal. К
 
 ## Історія рішень, які легко скасувати помилково
 
+- **Числа з розділу «Перевірки, які тут є» прибрані навмисно (2026-09-10).**
+  Аудит проти канону v9 знайшов у ньому чотири розбіжності одразу, і кожне число
+  колись було заміряне чесно: записано «35 файлів, 331 перевірка» при 42 і 399,
+  «65 попереджень» при 64, перелік файлів без семи наявних, «29 файлів із 39»
+  при 32 з 42. Останнє гірше за решту — воно збиралося грепом по
+  `// @vitest-environment node`, а один файл мав цей рядок ЗІПСОВАНИМ і в греп
+  не потрапляв, тобто число було неправильним ще в мить заміру. Повертати
+  кількість у прозу не можна: `src/doc-numbers.test.ts` червоніє на числі
+  попереджень і на кількості файлів/перевірок у тому розділі. Перелік файлів
+  лишається — але під двобічним резолвером, а не як переказ.
 - **`color-scheme` оголошує CSS, а не інлайновий стиль (2026-08-23).** У
   `UiState.apply()` стояв рядок
   `document.documentElement.style.colorScheme = theme === 'light' ? 'light' : 'dark'`.
