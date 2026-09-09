@@ -1,6 +1,6 @@
 // @vitest-environment node
-import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { basename, join, resolve, sep } from 'node:path';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { basename, dirname, join, posix, resolve, sep } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { withoutComments } from './test-support/source-text';
 
@@ -20,9 +20,11 @@ import { withoutComments } from './test-support/source-text';
  *     лише у `.svelte` і `.svelte.ts`. У звичайному `.ts` `$state(...)` — це
  *     виклик неоголошеної функції: код збереться, а реактивності не буде, і
  *     сказати про це нікому.
- *  2. **Осиротілі компоненти** (§ 4.3, HIGH). Файл, який ніде не імпортовано,
- *     читається як зроблена робота. У сусідньому проєкті через це оцінка SEO
- *     була виставлена за фактом наявності `SEO.svelte`, який ніхто не підключив.
+ *  2. **Недосяжні модулі** (§ 4.3.1, `PS-REACHABILITY`, HIGH). Файл, до якого
+ *     немає шляху від точок входу, читається як зроблена робота. У сусідньому
+ *     проєкті через це оцінка SEO була виставлена за фактом наявності
+ *     `SEO.svelte`, який ніхто не підключив. Доводиться ГРАФОМ імпортів —
+ *     чому саме так, див. розділ «Досяжність» нижче.
  *  3. **Псевдонім імпорту ≠ ім'я файлу** (§ 5.2). Пошук за назвою компонента не
  *     знаходить місць його використання, і зв'язок «testid ↔ компонент ↔ файл»
  *     тихо розривається.
@@ -80,7 +82,14 @@ const isTest = (f: string) => /[.](test|spec)[.]ts$/.test(f);
  * `orphan-assets`).
  */
 const sources = all.filter((f) => !isTest(f));
-const code = new Map(sources.map((f) => [f, withoutComments(readFileSync(join(ROOT, f), 'utf8'))]));
+
+/**
+ * Текст без коментарів для КОЖНОГО файлу, включно з перевірками: граф досяжності
+ * нижче починається й з них, тож їхні імпорти теж треба читати.
+ */
+const rawCode = new Map(all.map((f) => [f, readFileSync(join(ROOT, f), 'utf8')]));
+const allCode = new Map(all.map((f) => [f, withoutComments(rawCode.get(f)!)]));
+const code = new Map(sources.map((f) => [f, allCode.get(f)!]));
 
 describe('перевірка жива', () => {
 	it('джерела знайдено', () => {
@@ -103,18 +112,6 @@ describe('структура (PROJECT-STRUCTURE-v8 § 8)', () => {
 		).toEqual([]);
 	});
 
-	it('немає осиротілих компонентів (§ 4.3)', () => {
-		const components = sources.filter((f) => f.startsWith('src/lib/') && f.endsWith('.svelte'));
-		const orphans = components.filter((file) => {
-			const name = basename(file);
-			return !sources.some((other) => other !== file && code.get(other)!.includes(name));
-		});
-		expect(
-			orphans,
-			`ніде не імпортовані — підключити або видалити, «хай полежить» немає:\n${orphans.join('\n')}`
-		).toEqual([]);
-	});
-
 	it('псевдонім імпорту збігається з іменем файлу (§ 5.2)', () => {
 		const re = /import\s+([A-Z][A-Za-z0-9]*)\s+from\s+["'][^"']*\/([A-Z][A-Za-z0-9]*)\.svelte["']/g;
 		const bad: string[] = [];
@@ -134,6 +131,238 @@ describe('структура (PROJECT-STRUCTURE-v8 § 8)', () => {
 			.filter((f) => f.startsWith('src/lib/') && f.endsWith('.svelte'))
 			.filter((f) => !/^[A-Z][A-Za-z0-9]*\.svelte$/.test(basename(f)));
 		expect(bad, `компонент не PascalCase:\n${bad.join('\n')}`).toEqual([]);
+	});
+});
+
+/*
+ * ДОСЯЖНІСТЬ: граф імпортів, а не пошук імені
+ * (PROJECT-STRUCTURE-v9 § 4.3.1, `PS-REACHABILITY`, HIGH).
+ *
+ * ## Чим був поганий пошук імені
+ *
+ * Тут стояла перевірка «немає осиротілих компонентів»: для кожного
+ * `src/lib/**.svelte` вона шукала ІМ'Я ФАЙЛУ в тексті решти джерел. Вона
+ * пропускала два цілих класи, і канон v9 називає обидва:
+ *
+ *  1. **Ланцюжок сиріт.** `A.svelte` імпортує `B.svelte`, а `A` не імпортує
+ *     ніхто — і `B` виглядає використаним, бо його ім'я в тексті `A` є. Мертвим
+ *     при цьому лежить усе піддерево.
+ *  2. **`.ts`-модулі не перевірялися взагалі** — ні сервіси, ні контролери, ні
+ *     дані. У `Slovko` після ручного прибирання семи сиріт аудит за два дні
+ *     знайшов ще чотири, серед них `services/firebase/types.ts` на 110 рядків,
+ *     що описував схему, від якої база вже переїхала: осиротілий файл не просто
+ *     лежав — він розповідав неправду наступному читачеві.
+ *
+ * І третій клас, дрібніший: згадка імені в ПЕРЕВІРЦІ рахувалася як
+ * використання. Тому корпус свідомо не містив файлів перевірок — але це
+ * лікувало симптом, а не спосіб міряти.
+ *
+ * ## Що знайшов граф на першому ж прогоні
+ *
+ * `src/lib/index.ts` — заглушка `npm create svelte` з одного коментаря, яку не
+ * імпортує ніхто (псевдонім `$lib` веде в теку, а не в цей файл). Пошук імені
+ * не міг її побачити двічі: вона `.ts`, і слово `index` зустрічається всюди.
+ * Видалена тим самим комітом.
+ *
+ * ## Межі методу, і кожна названа явно
+ *
+ * Мовчазний пропуск тут був би гіршим за відсутність перевірки, тому все, чого
+ * розбір не вміє, ЧЕРВОНІЄ:
+ *
+ *  - специфікатор, схожий на проєктний (`./`, `../`, `$lib/`, `src/`), який не
+ *    розв'язався у файл на диску, — знахідка, а не пропуск;
+ *  - шаблон `import.meta.glob`, який матчер не розбирає, — знахідка;
+ *  - файл, названий у `NOT_IN_GRAPH` і зниклий із диска, — знахідка.
+ */
+
+/** Розширення, які пробуються до специфікатора без розширення. */
+const EXTENSIONS = ['', '.ts', '.svelte', '.svelte.ts', '.js', '/index.ts', '/index.js'];
+
+/**
+ * Файли, яких у графі імпортів немає ЗА ПОБУДОВОЮ, — з причиною поруч.
+ *
+ * Перелік лише скорочується, і кожен запис звіряється з диском: зникнення файлу
+ * робить запис червоним, а не мовчки зайвим.
+ */
+const NOT_IN_GRAPH: Readonly<Record<string, string>> = {
+	'src/app.d.ts':
+		'декларації для середовища: TypeScript бере їх із `include` у tsconfig, ' +
+		'імпортувати такий файл нема звідки'
+};
+
+/**
+ * Точки входу — те, що вантажить не наш код, а фреймворк, раннер чи збірник.
+ *
+ * Файли перевірок теж точки входу, і це не послаблення: модуль, який імпортує
+ * ЛИШЕ тест, справді використовується (його перевіряють), тоді як модуль, чиє
+ * ім'я лише ЗГАДАНЕ в тесті, ребра не отримує. Саме ця різниця й губилася в
+ * пошуку за іменем.
+ */
+const isEntryPoint = (file: string): boolean =>
+	/^src\/routes\/.*\+[^/]+\.(svelte|ts)$/.test(file) ||
+	/^src\/hooks\.(client|server)\.ts$/.test(file) ||
+	/^src\/service-worker\./.test(file) ||
+	/^src\/params\//.test(file) ||
+	isTest(file);
+
+/** Специфікатори, які веде не наш граф. `./$types` генерує SvelteKit у .svelte-kit/. */
+const EXTERNAL = /^\$(app|env|service-worker)\b|^\.\/\$types$|^\.\.\/\$types$/;
+
+/**
+ * `(?!\s*\.)` відсікає `import.meta.*`: інакше `import.meta.glob('…/*.ts')`
+ * потрапляв би сюди обрізаним прибирачем коментарів (див. розбір glob нижче) і
+ * рахувався як битий шлях. Шаблони glob розбираються окремо й із сирого тексту.
+ */
+const IMPORT_RE = /(?:^|[\s;{}()])(?:import|export)(?!\s*\.)[\s\S]{0,400}?["']([^"']+)["']/g;
+const DYNAMIC_RE = /import\s*\(\s*["']([^"']+)["']\s*\)/g;
+const GLOB_RE = /import\.meta\.glob\w*\s*\(\s*["']([^"']+)["']/g;
+
+/** `?raw`, `?url`, `?inline` — запити Vite; на шлях до файлу вони не впливають. */
+const withoutQuery = (spec: string) => spec.replace(/[?#].*$/, '');
+
+const isProjectLocal = (spec: string) =>
+	/^\.{1,2}\//.test(spec) || spec === '$lib' || spec.startsWith('$lib/') || spec.startsWith('src/');
+
+/** Специфікатор → шлях від кореня проєкту, або null, якщо файлу немає. */
+function resolveSpecifier(spec: string, from: string): string | null {
+	const clean = withoutQuery(spec);
+	let base: string;
+	if (clean === '$lib') base = 'src/lib/index';
+	else if (clean.startsWith('$lib/')) base = 'src/lib/' + clean.slice('$lib/'.length);
+	else if (/^\.{1,2}\//.test(clean)) base = posix.join(toPosix(dirname(from)), clean);
+	else if (clean.startsWith('src/')) base = clean;
+	else return null;
+	base = posix.normalize(base);
+	for (const ext of EXTENSIONS) {
+		const candidate = base + ext;
+		if (existsSync(join(ROOT, candidate)) && statSync(join(ROOT, candidate)).isFile()) {
+			return candidate;
+		}
+	}
+	return null;
+}
+
+/** Шаблон `import.meta.glob` → регулярка по шляху. `null` — шаблон не розібрано. */
+function globToRegExp(pattern: string): RegExp | null {
+	if (/[{}[\]!(]/.test(pattern)) return null;
+	const escaped = pattern
+		.split('**')
+		.map((part) =>
+			part
+				.split('*')
+				.map((atom) => atom.replace(/[.+^$|\\]/g, (ch) => '\\' + ch))
+				.join('[^/]*')
+		)
+		.join('.*');
+	return new RegExp('^' + escaped + '$');
+}
+
+const graph = new Map<string, Set<string>>();
+const unresolved: string[] = [];
+const unparsedGlobs: string[] = [];
+
+for (const file of all) {
+	const text = allCode.get(file)!;
+	const targets = new Set<string>();
+
+	for (const re of [IMPORT_RE, DYNAMIC_RE]) {
+		for (const match of text.matchAll(re)) {
+			const spec = match[1];
+			if (EXTERNAL.test(spec)) continue;
+			if (!isProjectLocal(spec)) continue;
+			const target = resolveSpecifier(spec, file);
+			if (target) targets.add(target);
+			else unresolved.push(`${file} → ${spec}`);
+		}
+	}
+
+	/*
+	 * Шаблони glob читаються з СИРОГО тексту, і причина конкретна: шаблон
+	 * `'./lib/i18n/locales/*.ts'` містить `/*`, тож спільний `withoutComments()`
+	 * бачить у ньому початок блокового коментаря й обрізає шаблон до
+	 * `./lib/i18n/locales`. Прибирач не вміє в рядкові літерали, і вчити його
+	 * цьому означало б переписати модуль, від якого залежать шість гейтів.
+	 *
+	 * Ціна читання сирого тексту — згадка `import.meta.glob` у коментарі дала б
+	 * ребра, яких у збірці немає. Тому рядок із коментарем відкидається за
+	 * ознакою: `//` перед збігом або `*` на початку рядка.
+	 */
+	for (const match of rawCode.get(file)!.matchAll(GLOB_RE)) {
+		const lineStart = rawCode.get(file)!.lastIndexOf('\n', match.index) + 1;
+		const prefix = rawCode.get(file)!.slice(lineStart, match.index);
+		if (prefix.includes('//') || /^\s*[*]/.test(prefix)) continue;
+		const pattern = match[1];
+		const asPath = /^\.{1,2}\//.test(pattern)
+			? posix.normalize(posix.join(toPosix(dirname(file)), pattern))
+			: pattern.startsWith('$lib/')
+				? 'src/lib/' + pattern.slice('$lib/'.length)
+				: pattern;
+		const re = globToRegExp(asPath);
+		if (!re) {
+			unparsedGlobs.push(`${file} → ${pattern}`);
+			continue;
+		}
+		for (const candidate of all) if (re.test(candidate)) targets.add(candidate);
+	}
+
+	graph.set(file, targets);
+}
+
+const reachable = new Set<string>();
+const stack = all.filter(isEntryPoint);
+while (stack.length > 0) {
+	const file = stack.pop()!;
+	if (reachable.has(file)) continue;
+	reachable.add(file);
+	for (const target of graph.get(file) ?? []) stack.push(target);
+}
+
+/** Судимий корпус: те, що їде у збірку. Точки входу досяжні за визначенням. */
+const judged = sources.filter((file) => !(file in NOT_IN_GRAPH));
+
+describe('досяжність модулів (PROJECT-STRUCTURE-v9 § 4.3.1)', () => {
+	it('перевірка жива: точки входу й ребра знайдено', () => {
+		const entries = all.filter(isEntryPoint);
+		expect(entries.length, 'жодної точки входу — маска маршрутів зламана').toBeGreaterThan(3);
+		const edges = [...graph.values()].reduce((sum, set) => sum + set.size, 0);
+		expect(edges, 'жодного ребра — розбір імпортів зламався').toBeGreaterThan(50);
+		// Досяжність БЕЗ ребер дала б рівно точки входу, і «сиротами» стало б усе
+		// інше; зворотне (усе досяжне) означало б ребро в кожен файл.
+		expect(reachable.size).toBeGreaterThan(entries.length);
+	});
+
+	it('кожен проєктний специфікатор розв’язується у файл', () => {
+		expect(
+			[...new Set(unresolved)],
+			'імпорт, схожий на проєктний, не знайшов файлу: або шлях битий, або розбір ' +
+				'не знає цієї форми. Тихо пропустити його означало б оголосити сиротою ' +
+				`те, на що насправді посилаються:\n${[...new Set(unresolved)].join('\n')}`
+		).toEqual([]);
+	});
+
+	it('кожен шаблон import.meta.glob розібрано', () => {
+		expect(
+			unparsedGlobs,
+			'шаблон glob не розібрано — усі файли за ним лишилися без ребра й ' +
+				`виглядають сиротами:\n${unparsedGlobs.join('\n')}`
+		).toEqual([]);
+	});
+
+	it('кожен модуль досяжний графом від точки входу', () => {
+		const orphans = judged.filter((file) => !reachable.has(file));
+		expect(
+			orphans,
+			'до цих файлів немає шляху від жодної точки входу — підключити або ' +
+				`видалити, «хай полежить» немає (§ 4.3):\n${orphans.join('\n')}`
+		).toEqual([]);
+	});
+
+	it('у NOT_IN_GRAPH немає записів без файлу на диску', () => {
+		const stale = Object.keys(NOT_IN_GRAPH).filter((file) => !existsSync(join(ROOT, file)));
+		expect(
+			stale,
+			`запис обіцяє виняток для файлу, якого немає — вилучити:\n${stale.join('\n')}`
+		).toEqual([]);
 	});
 });
 
