@@ -165,3 +165,103 @@ describe('медіа: є джерело, яке грає Safari', () => {
 		expect(bad, bad.join('\n')).toEqual([]);
 	});
 });
+
+/**
+ * Сироти в `static/` (PROJECT-STRUCTURE-v9 § 2.1, `PS-STATIC-ORPHANS`, MEDIUM;
+ * третє правило `GATE-STRUCTURE`).
+ *
+ * ## Чому це не видно нізвідки
+ *
+ * `adapter-static` копіює `static/` у `build/` ЦІЛКОМ, без розбору, чи хтось на
+ * файл посилається. Забутий файл їде на хостинг і лишається там назавжди:
+ * збірка про нього не каже, гейт над HTML дивиться на розмітку, бюджет бандла
+ * рахує скрипти. Заміряно каноном 2026-08-28 в `as5.odesa.ua`: 57 файлів із 86
+ * не згадані ніде, разом 1 504 КБ — більша частина ваги сайту нікому не
+ * потрібна.
+ *
+ * Тут ціна вища за середню: два відеофайли з `static/video/` важать 44 МБ, а
+ * два аудіо — ще 4.6 МБ. Забути тут один файл дорожче, ніж забути десять у
+ * `as5`.
+ *
+ * ## Перевірка навпаки до тієї, що вище
+ *
+ * Сусідня перевірка йде від КОДУ до диска: посилання `{base}/…` мусить мати
+ * файл. Ця — від ДИСКА до коду: файл мусить мати того, хто його просить. Разом
+ * вони замикають обидва напрямки, і саме тому це різні перевірки, а не одна.
+ *
+ * ## Чому пошук за іменем, а не за шляхом
+ *
+ * Портфоліо посилається на картинки БЕЗ теки: у `src/lib/data/projects.ts`
+ * лежить `img: 'cv_web.jpg'`, а `images/` підставляється в розмітці. Тобто
+ * шляху `images/cv_web.jpg` у коді немає взагалі, і пошук за шляхом оголосив би
+ * сиротами всі десять картинок портфоліо.
+ *
+ * Ціна цього рішення названа чесно: `static/images/cv_web.jpg` і
+ * `static/images/archive/cv_web.jpg` — різні файли з однаковим іменем, і за
+ * іменем вони нерозрізненні. Обидва справді використовуються (архів `/2026-04/`
+ * тримає власний, коротший перелік проєктів — це знімок, а не дубль), тож
+ * помилки тут немає; але якби один із них помер, ця перевірка цього не
+ * побачила б. Точніше вміє лише гейт над `build/`, а він дивиться на розмітку.
+ */
+describe('сироти в static/ (PROJECT-STRUCTURE-v9 § 2.1)', () => {
+	/**
+	 * Корпус, у якому ресурс може бути затребуваний. `static/llms.txt` і
+	 * `static/robots.txt` входять свідомо: вони самі посилаються на адреси сайту.
+	 */
+	const CORPUS_DIRS = ['src', 'scripts', 'tests', 'docs'];
+	const CORPUS_FILES = ['static/llms.txt', 'static/robots.txt', 'svelte.config.js', 'README.md'];
+
+	const corpus = [
+		...CORPUS_DIRS.flatMap((dir) =>
+			existsSync(join(ROOT, dir))
+				? walk(join(ROOT, dir), (n) => /\.(ts|js|mjs|svelte|css|md|json)$/.test(n))
+				: []
+		),
+		...CORPUS_FILES.filter((f) => existsSync(join(ROOT, f))).map((f) => join(ROOT, f))
+	]
+		.map((f) => readFileSync(f, 'utf8'))
+		.join('\n');
+
+	/**
+	 * Файли, які ніхто не згадує НАВМИСНО, — з причиною. Перелік лише
+	 * скорочується, і кожен запис звіряється з диском.
+	 */
+	const UNREFERENCED_ON_PURPOSE: Readonly<Record<string, string>> = {
+		'.nojekyll': 'прапорець для GitHub Pages: його читає хостинг, а не код',
+		'sitemap.xml': 'генерується `scripts/generate-sitemap.mjs` під час збірки',
+		'app-version.json': 'пише `scripts/bump-version.mjs`, читає рантайм за фіксованою адресою'
+	};
+
+	const files = walk(STATIC, () => true).map((f) => f.slice(toPosix(STATIC).length + 1));
+
+	it('перевірка жива: файли static/ і корпус прочитано', () => {
+		expect(files.length, 'у static/ нічого не знайдено — обхід зламано').toBeGreaterThan(10);
+		expect(corpus.length, 'корпус порожній — читати нічого').toBeGreaterThan(10000);
+		// Без цієї умови «сиріт немає» було б зеленим від зламаного пошуку.
+		const referenced = files.filter((f) => corpus.includes(f.split('/').pop()!));
+		expect(
+			referenced.length,
+			'жоден файл static/ не згаданий — пошук шукає не там'
+		).toBeGreaterThan(5);
+	});
+
+	it('кожен файл static/ хтось просить', () => {
+		const orphans = files
+			.filter((f) => !(f in UNREFERENCED_ON_PURPOSE))
+			.filter((f) => !corpus.includes(f) && !corpus.includes(f.split('/').pop()!))
+			.map((f) => `${f} (${Math.round(statSync(join(STATIC, f)).size / 1024)} КБ)`);
+		expect(
+			orphans,
+			'`adapter-static` копіює static/ цілком: цей файл поїде на хостинг і ' +
+				`лишиться там назавжди, а жоден інший гейт його не побачить:\n${orphans.join('\n')}`
+		).toEqual([]);
+	});
+
+	it('у переліку винятків немає файлів, яких уже немає', () => {
+		const stale = Object.keys(UNREFERENCED_ON_PURPOSE).filter((f) => !existsSync(join(STATIC, f)));
+		expect(
+			stale,
+			`запис звільняє від перевірки файл, якого немає — вилучити:\n${stale.join('\n')}`
+		).toEqual([]);
+	});
+});
