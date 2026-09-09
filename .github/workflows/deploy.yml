@@ -18,8 +18,14 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+# Тут стояв `env: FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true`, і він не робив
+# нічого, окрім шкоди. Заміряно 2026-09-10 читанням `runs.using` в `action.yml`
+# кожного мажора: усі шість дій цього файлу — `node24`, а composite
+# `upload-pages-artifact@v5` усередині пінить `upload-artifact@v7`. Тобто
+# форсувати не було чого; натомість прапорець ховав би попередження, якби мажор
+# колись опустили (`upload-artifact@v5`, наприклад, досі на `node20`).
+# Перелік перевірених мажорів із датами тримає `src/ci.test.ts`
+# (CI-CD-AND-TOOLS-v9 § 1.9, `CI-ACTION-RUNTIME`).
 
 jobs:
   build_site:

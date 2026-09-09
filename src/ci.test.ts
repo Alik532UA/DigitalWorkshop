@@ -382,3 +382,203 @@ describe('версія Node узгоджена в трьох місцях (§ 2.
 		).toBe(enginesMajor);
 	});
 });
+
+/**
+ * Мажор дії не каже, на якому Node вона працює
+ * (CI-CD-AND-TOOLS-v9 § 1.9, `CI-ACTION-RUNTIME`, MEDIUM; `GATE-CI-PIPELINE`).
+ *
+ * ## Чому номер релізу тут не джерело
+ *
+ * Рантайм дії лежить у полі `runs.using` її `action.yml` — і мажор про нього не
+ * каже НІЧОГО. Канон заміряв 2026-08-23 у восьми репозиторіях: `upload-artifact@v5`
+ * і `configure-pages@v5` стоять на `node20`, тобто очевидне «підняти на v5»
+ * попередження на цих двох діях не зняло б узагалі. Друга пастка гірша:
+ * `upload-pages-artifact` — composite, Node він не запускає, а попередження дає
+ * `upload-artifact` УСЕРЕДИНІ нього, тобто вказує на дію, якої у workflow немає.
+ *
+ * ## Заміряно тут, командою, а не з пам'яті (2026-09-10)
+ *
+ * ```bash
+ * curl -s https://raw.githubusercontent.com/<owner>/<action>/<major>/action.yml | grep "using:"
+ * ```
+ *
+ * Усі шість дій цього workflow віддали `node24`; `upload-pages-artifact@v5`
+ * віддав `composite` і всередині пінить `upload-artifact@v7` (теж `node24`).
+ * Для порівняння, тим самим прогоном: `upload-artifact@v5` — `node20`, рівно як
+ * і каже канон.
+ *
+ * ## Що з цього випливає для env
+ *
+ * У workflow стояв `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true`. Оскільки жодна
+ * дія тут `node20` не оголошує, він не робить нічого — окрім одного: ховає
+ * попередження, якщо колись мажор опустять. Це той самий клас, що
+ * `continue-on-error` на гейті, тільки тихіший, тож він прибраний, а його роль
+ * узяв цей інваріант.
+ *
+ * ## Межа
+ *
+ * Перевірка не ходить у мережу: у CI це залежність від стороннього сервісу, а
+ * тест, що падає від мережі, привчає не дивитися на червоне. Тому вона стереже
+ * ІНШЕ — щоб кожен `uses:` був у переліку ПЕРЕВІРЕНИХ мажорів. Підняття дії
+ * тепер неможливе без того, щоб хтось прочитав її `action.yml` і записав дату.
+ */
+const VERIFIED_ACTION_MAJORS: Readonly<
+	Record<string, { major: string; using: string; checked: string }>
+> = {
+	'actions/checkout': { major: 'v7', using: 'node24', checked: '2026-09-10' },
+	'actions/setup-node': { major: 'v7', using: 'node24', checked: '2026-09-10' },
+	'actions/cache': { major: 'v6', using: 'node24', checked: '2026-09-10' },
+	'actions/upload-artifact': { major: 'v7', using: 'node24', checked: '2026-09-10' },
+	'actions/upload-pages-artifact': {
+		major: 'v5',
+		// composite: власного Node не запускає, всередині пінить upload-artifact@v7
+		using: 'composite → upload-artifact@v7 (node24)',
+		checked: '2026-09-10'
+	},
+	'actions/deploy-pages': { major: 'v5', using: 'node24', checked: '2026-09-10' }
+};
+
+describe('рантайм кожної дії перевірений (§ 1.9)', () => {
+	const used = [...all.matchAll(/uses:\s*([\w.-]+\/[\w.-]+)@(v\d+)/g)].map((m) => ({
+		action: m[1],
+		major: m[2]
+	}));
+
+	it('перевірка жива: дії у workflow знайдено', () => {
+		expect(used.length, 'у workflow немає жодного `uses:` — розбір зламано').toBeGreaterThan(3);
+	});
+
+	it('кожна дія стоїть на перевіреному мажорі', () => {
+		const unknown = used
+			.filter((u) => VERIFIED_ACTION_MAJORS[u.action]?.major !== u.major)
+			.map((u) => {
+				const known = VERIFIED_ACTION_MAJORS[u.action];
+				return known
+					? `${u.action}@${u.major} — перевірявся ${known.major} (${known.using}, ${known.checked})`
+					: `${u.action}@${u.major} — дії немає в переліку перевірених`;
+			});
+		expect(
+			[...new Set(unknown)],
+			'мажор дії про рантайм не каже нічого: прочитати `runs.using` в `action.yml` ' +
+				'САМЕ цього мажора й записати результат із датою:\n' +
+				[...new Set(unknown)].join('\n')
+		).toEqual([]);
+	});
+
+	it('жоден рантайм у переліку не є node20', () => {
+		const outdated = Object.entries(VERIFIED_ACTION_MAJORS)
+			.filter(([, v]) => /node(1[0-9]|20)\b/.test(v.using))
+			.map(([action, v]) => `${action}@${v.major} — ${v.using}`);
+		expect(
+			outdated,
+			`GitHub уже підмінює node20 на node24, а згодом це стане помилкою:\n${outdated.join('\n')}`
+		).toEqual([]);
+	});
+
+	it('у переліку немає дій, яких у workflow вже немає', () => {
+		const usedNames = new Set(used.map((u) => u.action));
+		const stale = Object.keys(VERIFIED_ACTION_MAJORS).filter((a) => !usedNames.has(a));
+		expect(stale, `запис про дію, якої у workflow немає — вилучити:\n${stale.join('\n')}`).toEqual(
+			[]
+		);
+	});
+
+	it('рантайм не форсується змінною середовища', () => {
+		// `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24` мовчить там, де мусить бути видно:
+		// дія, опущена на node20, перестала б попереджати, і цей інваріант лишився б
+		// єдиним сигналом — а він дивиться в перелік, а не в реальний action.yml.
+		//
+		// Коментарі YAML прибираються, і це не дрібниця: пояснення, ЧОМУ прапорця
+		// тут немає, стоїть у самому workflow і цитує його ім'я. Без прибирання
+		// перевірка червоніла б на власному поясненні — рівно той клас, який у
+		// цьому проєкті вже ловив `test-runners`, `security-canon` і
+		// `analytics-canon`. Спільний `withoutComments()` тут не годиться: він
+		// знає `//` і `/* */`, а не `#`.
+		const withoutYamlComments = all
+			.split('\n')
+			.map((line) => line.replace(/(^|\s)#.*$/, ''))
+			.join('\n');
+		expect(
+			/FORCE_JAVASCRIPT_ACTIONS_TO_NODE24/.test(withoutYamlComments),
+			'форсування ховає попередження про node20 замість того, щоб підняти дію'
+		).toBe(false);
+	});
+});
+
+/**
+ * Вивантажується та збірка, яку перевіряли
+ * (CI-CD-AND-TOOLS-v9 § 1.10, `CI-DEPLOY-ORDER`, HIGH; `GATE-CI-PIPELINE`).
+ *
+ * ## Дефект живе в ПОРЯДКУ кроків, і тому його не бачить жоден гейт
+ *
+ * Кожен гейт міряє теку `build/`, яка на момент ЙОГО погляду правильна. Заміряно
+ * 2026-08-26 в `adoptananimal`: `playwright.config.ts` піднімав власний сервер
+ * командою `npm run build && npm run preview` — у ту саму теку `build/`, але без
+ * змінних, які має лише збірка для деплою. Крок E2E стояв НИЖЧЕ збірки, тож
+ * порядок вийшов такий: правильна збірка → зелений `check:build` над нею → E2E
+ * перезаписує `build/` → `upload-pages-artifact` вивантажує саме її. Сайт
+ * відкривався (пререндер робить шляхи відносними), але `canonical` кожної з 229
+ * сторінок і кожен `<loc>` у `sitemap.xml` вказували на корінь СУСІДНЬОГО сайту.
+ *
+ * ## Чому це стосується саме цього проєкту
+ *
+ * `playwright.config.ts` тут теж збирає сам:
+ * `webServer.command === 'npm run build && npm run preview …'`. Тобто крок
+ * `test:e2e` — теж запис у `build/`, і зараз він стоїть ВИЩЕ збірки для деплою.
+ * Поки що це правильно, і саме тому закріплюється: «зараз порядок правильний»
+ * без інваріанта означає лише те, що ніхто не питав.
+ *
+ * Ознака «крок пише в build/» береться з `playwright.config.ts`, а не
+ * вписується сюди константою: якщо колись `webServer` перестане збирати, умова
+ * зникне разом із причиною, а не лишиться зайвим рядком.
+ */
+describe('порядок деплою (§ 1.10)', () => {
+	const e2eBuildsItself = /webServer[\s\S]*?command:[^\n]*npm run build/.test(
+		readFileSync('playwright.config.ts', 'utf8')
+	);
+
+	/** Команди, після яких уміст `build/` уже інший. */
+	const WRITES_BUILD = e2eBuildsItself
+		? /npm run build|vite build|npm run test:e2e|npm run preview/
+		: /npm run build|vite build|npm run preview/;
+
+	/** Збірка САМЕ для деплою: `npm run build` без нічого зайвого поруч. */
+	const DEPLOY_BUILD = /run:\s*npm run build\s*$/m;
+
+	const steps = files.flatMap((file) => stepsOf(readWorkflow(file)).map((s) => ({ ...s, file })));
+
+	it('перевірка жива: кроки й крок вивантаження знайдено', () => {
+		expect(steps.length, 'розбір кроків дав нуль').toBeGreaterThan(5);
+		expect(
+			steps.some((s) => /upload-pages-artifact/.test(s.body)),
+			'у workflow немає кроку upload-pages-artifact — перевіряти порядок нема чого'
+		).toBe(true);
+		expect(
+			e2eBuildsItself,
+			'ознака знята з playwright.config.ts; якщо webServer перестав збирати — ' +
+				'оновити цей опис, а не залишати умову без причини'
+		).toBe(true);
+	});
+
+	it('між збіркою для деплою і вивантаженням ніхто не пише в build/', () => {
+		const uploadAt = steps.findIndex((s) => /upload-pages-artifact/.test(s.body));
+		const buildAt = steps.findLastIndex((s, i) => i < uploadAt && DEPLOY_BUILD.test(s.body));
+
+		expect(
+			buildAt,
+			'перед вивантаженням немає кроку `run: npm run build` — вивантажується ' +
+				'тека, яку зібрав хтось інший'
+		).toBeGreaterThan(-1);
+
+		const offenders = steps
+			.slice(buildAt + 1, uploadAt)
+			.filter((s) => WRITES_BUILD.test(s.body))
+			.map((s) => `${s.file} → «${s.name}»`);
+		expect(
+			offenders,
+			'ці кроки перезаписують build/ ПІСЛЯ збірки для деплою, тобто вивантажиться ' +
+				'не та тека, яку перевіряли гейти. Прогони з власною збіркою (Playwright, ' +
+				`Lighthouse) стоять ВИЩЕ збірки для деплою:\n${offenders.join('\n')}`
+		).toEqual([]);
+	});
+});
