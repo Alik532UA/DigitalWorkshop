@@ -109,6 +109,15 @@ jobs:
       - name: Check build output
         run: npm run check:build
 
+      # Бюджет бандла міряє КРИТИЧНИЙ ШЛЯХ сторінки, а не суму `entry/`: при
+      # route-based code splitting там 2.9 КБ, і такий гейт зелений завжди
+      # (PERFORMANCE-v9 § 10.1). Окремим кроком, а не всередині `check:build`:
+      # два різні вердикти мусять бути видні окремо, інакше перший червоний
+      # ховає другий.
+      - name: Bundle budget
+        if: ${{ !cancelled() }}
+        run: npm run check:bundle
+
       # Єдина машинна перевірка правила «артефакт збірки не комітиться»
       # (CI-CD-AND-TOOLS-v8 § 1.5, VERSIONING-v8 § 1.4). Падає, якщо збірка
       # змінила відстежуваний файл — типово це app-version.json із buildTime.
