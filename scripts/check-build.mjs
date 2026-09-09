@@ -283,6 +283,56 @@ for (const file of files) {
 	}
 }
 
+// --- 3A. У кожного мета-тега рівно один власник (SEO-v9 `SEO-HEAD-SINGLE-OWNER`) ---
+//
+// `<svelte:head>` ДОПИСУЄ, а не заміщує. Коли макет і сторінка обидва оголошують
+// `description` чи `canonical`, у `<head>` їдуть ОБИДВА — і сторінка виглядає
+// правильною в джерелах, бо кожен із двох файлів окремо правильний. Який із
+// двох тегів візьме кравлер, не визначено, тож дубль canonical означає, що
+// сторінка може випасти з індексу мовчки.
+//
+// Тут три власники `<svelte:head>` — `SEO.svelte`, `+error.svelte` і сторінка
+// чеклиста, — плюс `app.html` із трьома статичними мета-тегами. Тобто перетин
+// можливий у будь-який момент, а в джерелах він невидимий: побачити його можна
+// лише в зібраному `<head>`.
+//
+// `hreflang` сюди не входить навмисно: у нього власників стільки, скільки мов.
+{
+	/** Теги, яких у документі мусить бути рівно один. */
+	const SINGLE_OWNER = {
+		'<title>': /<title[\s>]/g,
+		canonical: /<link[^>]+rel="canonical"/g,
+		robots: /<meta[^>]+name="robots"/g,
+		description: /<meta[^>]+name="description"/g,
+		viewport: /<meta[^>]+name="viewport"/g,
+		'color-scheme': /<meta[^>]+name="color-scheme"/g,
+		'theme-color': /<meta[^>]+name="theme-color"/g,
+		charset: /<meta[^>]+charset=/g,
+		'og:title': /<meta[^>]+property="og:title"/g,
+		'og:description': /<meta[^>]+property="og:description"/g,
+		'og:image': /<meta[^>]+property="og:image"/g,
+		'og:url': /<meta[^>]+property="og:url"/g
+	};
+
+	// Канарка: якщо жоден шаблон не збігся ніде, перевірка «дублів немає» була б
+	// зеленою на порожньому місці — рівно те, від чого застерігає § 1 канону.
+	let seen = 0;
+	for (const file of files) {
+		const html = readFileSync(file, 'utf8');
+		for (const [name, re] of Object.entries(SINGLE_OWNER)) {
+			const count = (html.match(re) ?? []).length;
+			if (count > 0) seen++;
+			if (count > 1) {
+				fail(
+					`${file}: «${name}» оголошено ${count} рази — у мета-тега два власники ` +
+						`(<svelte:head> дописує, а не заміщує)`
+				);
+			}
+		}
+	}
+	if (seen === 0) fail('жоден мета-тег не знайдено — розбір <head> зламався');
+}
+
 // --- 4. Canonical мовної версії веде на неї саму (SEO-v8 § 2.1) ---
 
 for (const lang of LANGUAGES) {
