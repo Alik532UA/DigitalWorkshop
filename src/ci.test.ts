@@ -304,6 +304,91 @@ describe('гейти не ховають один одного (CI-CD-AND-TOOLS-
  * ратчет на нулі коштує нічого — зате перша ж спроба «швидко полагодити install»
  * стає видимою в прогоні, а не через пів року.
  */
+/**
+ * Гейт по `build/` не звітує про збірку, якої не було
+ * (CI-CD-AND-TOOLS-v9 § 1.8 `CI-NO-GATE-MASKING`, HIGH — зворотний бік того
+ * самого правила; `GATE-CI-NO-MASKING`).
+ *
+ * ## Чому це окрема умова, а не та сама
+ *
+ * Перевірка вище вимагає `!cancelled()` від НЕЗАЛЕЖНИХ гейтів: інакше один
+ * червоний позбавляє звіту всі наступні. Ця вимагає протилежного від тих, що
+ * читають `build/`, і причина в тому, що прапорець на них означає інше.
+ *
+ * `!cancelled()` дивиться на стан JOB, а не на те, чи є артефакт. Крок із ним
+ * запускається й тоді, коли `Build` УПАВ або був пропущений через попередній
+ * червоний. А `build/` на раннері до того моменту вже лежить — його робить
+ * власна збірка Playwright у `webServer`. Тобто гейт міряє теку, якої щойно не
+ * вдалося зробити, і каже про неї «витримано». Зелений вердикт про чужий
+ * артефакт гірший за пропущений крок: пропуск видно в списку, вердикт — ні.
+ *
+ * Знайдено 2026-09-11 на `Bundle budget`: він єдиний із трьох споживачів
+ * `build/` ніс голий `!cancelled()`. Правило, яке це забороняє, було записане
+ * прозою в докблоці сусідньої перевірки («кроки, що залежать від `build/` …
+ * `!cancelled()` НЕ отримують») — і не перевірялося нічим.
+ *
+ * ## Що вважається правильним
+ *
+ * Не «прибрати прапорець». Намір автора законний: `check:build` не мусить
+ * ховати `check:bundle`, це два різні вердикти. Законний спосіб — прив'язати
+ * запуск до НАСЛІДКУ кроку збірки (`steps.<id>.outcome == 'success'`), а не до
+ * стану job. Тоді після червоного `check:build` бюджет усе одно рахується, а
+ * після червоної збірки — ні.
+ *
+ * ## Зворотний експеримент (AI-AGENT-PITFALLS-v9 § 1.1)
+ *
+ * Проведено 2026-09-11: умову в `Bundle budget` повернуто до голого
+ * `!cancelled()` — червоне з назвою кроку; `id: build` прибрано з кроку
+ * збірки — червоне «крок збірки без `id`». Після відкату зелено.
+ */
+describe('гейт по build/ не звітує про збірку, якої не було (§ 1.8)', () => {
+	/** Кроки, які ЧИТАЮТЬ build/, але не роблять його самі. */
+	const BUILD_CONSUMER = /check:build|check:bundle|lhci|git diff --exit-code/;
+	const MAKES_BUILD = /run:\s*npm run build\b/;
+
+	const steps = files.flatMap((file) => stepsOf(readWorkflow(file)).map((s) => ({ ...s, file })));
+	const builders = steps.filter((s) => MAKES_BUILD.test(s.body));
+	const consumers = steps.filter((s) => BUILD_CONSUMER.test(s.body) && !MAKES_BUILD.test(s.body));
+
+	it('перевірка жива: крок збірки і споживачі build/ знайдено', () => {
+		expect(
+			builders.length,
+			'кроку `npm run build` у workflow немає — розбір дивиться не туди'
+		).toBeGreaterThan(0);
+		expect(
+			consumers.length,
+			'жодного кроку, що читає build/, — розбір дивиться не туди'
+		).toBeGreaterThanOrEqual(2);
+	});
+
+	it('крок збірки має id, на який можна послатися', () => {
+		const withoutId = builders
+			.filter((s) => !/^\s*id:\s*[A-Za-z0-9_-]+\s*$/m.test(s.body))
+			.map((s) => `${s.file}: ${s.name}`);
+		expect(
+			withoutId,
+			'без `id` наступні кроки не можуть відрізнити «збірка вдалася» від ' +
+				`«job поки не скасовано»:\n${withoutId.join('\n')}`
+		).toEqual([]);
+	});
+
+	it('споживач build/ з !cancelled() прив’язаний до наслідку збірки', () => {
+		const ids = builders
+			.map((s) => /^\s*id:\s*([A-Za-z0-9_-]+)\s*$/m.exec(s.body)?.[1])
+			.filter((id): id is string => Boolean(id));
+		const offenders = consumers
+			.filter((s) => /!cancelled\(\)/.test(s.body))
+			.filter((s) => !ids.some((id) => new RegExp(String.raw`steps\.${id}\.outcome`).test(s.body)))
+			.map((s) => `${s.file}: ${s.name}`);
+		expect(
+			offenders,
+			'`!cancelled()` дивиться на стан job, а не на наявність артефакту: після ' +
+				'впалої збірки крок порахує теку від власної збірки Playwright і ' +
+				`звітує «витримано» про артефакт, якого немає:\n${offenders.join('\n')}`
+		).toEqual([]);
+	});
+});
+
 describe('install у CI не глушить перевірку peer-залежностей', () => {
 	it('жоден workflow не кличе npm із --legacy-peer-deps', () => {
 		const offenders = files.filter((file) => /--legacy-peer-deps/.test(readWorkflow(file)));
