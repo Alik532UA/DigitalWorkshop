@@ -43,7 +43,22 @@ export default defineConfig({
 		 */
 		reducedMotion: 'reduce'
 	},
-	projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+	/*
+	 * Перевірка ідентичності — окремий проєкт-залежність, а не `globalSetup`.
+	 *
+	 * `globalSetup` виконується ДО підняття `webServer`, тобто питати сервер
+	 * там нема в кого. Проєкт у `dependencies` гарантовано йде після нього й
+	 * перед першим тестом, і при `--project=chromium` Playwright підтягує його
+	 * сам (CI-CD-AND-TOOLS-v9 § 1.11 `CI-E2E-TARGET-IDENTITY`).
+	 */
+	projects: [
+		{ name: 'identity', testMatch: /target-identity\.setup\.ts/ },
+		{
+			name: 'chromium',
+			use: { ...devices['Desktop Chrome'] },
+			dependencies: ['identity']
+		}
+	],
 	webServer: {
 		/*
 		 * ПРЕВ'Ю ЗІБРАНОГО САЙТУ, а не dev-сервер (CODE-QUALITY-v8 § 5.7).
