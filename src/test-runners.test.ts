@@ -227,4 +227,32 @@ describe('поріг часу перевірки не повертається �
 				'мало: перевірка на 1013 мс у спокої падала на холодному прогоні без жодного дефекту'
 		).toBe(true);
 	});
+
+	/**
+	 * Хуки мають власний бюджет, і `testTimeout` на них не поширюється.
+	 *
+	 * Заміряно 2026-09-10: повний `npm run test:unit` упав із
+	 * `Hook timed out in 10000ms` у `beforeEach` файлу `hotkeys.test.ts`, який
+	 * окремо проходить 22/22 за 5 с. Тобто підняття `testTimeout` до 20000
+	 * закрило половину випадків, а найдорожча робота набору
+	 * (`vi.resetModules()` + `await import()`) живе саме в хуках.
+	 *
+	 * Порівняння, а не окреме число: два пороги, які розходяться, — це не
+	 * рішення, а недогляд, і саме так воно тут і сталося.
+	 */
+	it('hookTimeout оголошений і не менший за testTimeout', () => {
+		const config = withoutComments(readFileSync(join(ROOT, CONFIG), 'utf8'));
+		const hook = /hookTimeout\s*:\s*(\d+)/.exec(config);
+		const test = /testTimeout\s*:\s*(\d+)/.exec(config);
+		expect(
+			hook,
+			'hookTimeout не оголошений: хуки лишаються на типових 10000 мс, і на ' +
+				'холодному прогоні набір червоніє без жодного дефекту'
+		).not.toBeNull();
+		expect(
+			Number(hook![1]),
+			`hookTimeout ${hook![1]} менший за testTimeout ${test?.[1]}: та сама робота ` +
+				'у хуці дістає менше часу, ніж у тесті'
+		).toBeGreaterThanOrEqual(Number(test![1]));
+	});
 });
