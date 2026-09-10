@@ -1,7 +1,7 @@
 {
 	"name": "digital-workshop-svelte",
 	"private": true,
-	"version": "0.0.273",
+	"version": "0.0.274",
 	"type": "module",
 	"engines": {
 		"node": ">=22"
@@ -46,7 +46,6 @@
 		"vitest": "^3.0.0"
 	},
 	"dependencies": {
-		"lucide-svelte": "^0.562.0",
-		"zod": "^4.3.6"
+		"lucide-svelte": "^0.562.0"
 	}
 }

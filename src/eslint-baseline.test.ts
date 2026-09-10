@@ -115,7 +115,10 @@ const DEBT: Readonly<Record<string, number>> = {
 	'svelte/no-navigation-without-resolve': 22,
 	// 16 → 15: у `education.ts` зник невикористаний `type EducationItem` разом
 	// із рантайм-схемами реєстрів (SVELTEKIT-DATA-v9 § 7.3 `SKD-SATISFIES`).
-	'@typescript-eslint/no-unused-vars': 15,
+	// 15 → 14: `TranslationSchema` — саме той випадок, який це правило й
+	// називало вголос: «assigned a value but only used as a type». Схема пішла,
+	// разом із нею бібліотека з критичного шляху.
+	'@typescript-eslint/no-unused-vars': 14,
 	'svelte/require-each-key': 15,
 	// 8 → 7: `LanguageState.init()` читає `?lang=` один раз усередині функції, і
 	// на цей об'єкт ніхто не підписаний — придушено точково з причиною поруч.

@@ -1,6 +1,5 @@
 import { goto } from '$app/navigation';
 import { bcp47, DEFAULT_LANGUAGE, langPath } from '$lib/i18n/routing';
-import { z } from 'zod';
 import { en } from './locales/en';
 import { enUS } from './locales/en-us';
 import { uk } from './locales/uk';
@@ -232,152 +231,174 @@ export function getLanguage(): LanguageState {
 	return state;
 }
 
-const TranslationSchema = z.object({
-    lastUpdate: z.string(),
-    title: z.array(z.string()),
-    title_mobile: z.string(),
-    nav: z.object({
-        about: z.string(),
-        portfolio: z.string(),
-        website: z.string(),
-        apps: z.string(),
-        games: z.string(),
-        // Ukraine-only social initiative: absent from the other locales
-        promo: z.string().optional(),
-        contact: z.string(),
-        settings: z.string(),
-        language: z.string(),
-        theme: z.string(),
-        close: z.string(),
-        menu: z.string()
-    }),
-    hero: z.object({
-        greeting: z.string(),
-        description: z.string(),
-        description_sea_desktop: z.string(),
-        description_sea_mobile: z.string(),
-        buttons: z.object({
-            website: z.string(),
-            apps: z.string(),
-            games: z.string(),
-            promo: z.string().optional()
-        })
-    }),
-    portfolio: z.object({
-        title: z.string(),
-        subtitle: z.string(),
-        // Prefix in front of a project's "feature" line; carries its own colon so
-        // each locale can pick the right punctuation
-        featureLabel: z.string(),
-        projects: z.record(z.string(), z.object({
-            title: z.string(),
-            description: z.string(),
-            tech: z.string(),
-            feature: z.string(),
-            linkText: z.string()
-        }))
-    }),
-    tabs: z.object({
-        website: z.object({
-            title: z.string(),
-            intro: z.string(),
-            benefitsTitle: z.string(),
-            benefits: z.array(z.object({
-                h: z.string(),
-                p: z.string()
-            })),
-            cta: z.string()
-        }),
-        apps: z.object({
-            title: z.string(),
-            intro: z.string(),
-            faq: z.array(z.object({
-                q: z.string(),
-                a: z.string()
-            })),
-            cta: z.string()
-        }),
-        games: z.object({
-            title: z.string(),
-            intro: z.string(),
-            faq: z.array(z.object({
-                q: z.string(),
-                a: z.string()
-            })),
-            cta: z.string()
-        }),
-        // The special offer is a Ukrainian social initiative (free sites for
-        // Ukrainian creative schools, EUR support fee, referral programme). It is
-        // not on offer to other audiences, so only uk.ts carries this section.
-        promo: z.object({
-            title: z.string(),
-            pageTitle: z.string().optional(),
-            intro: z.string(),
-            faq: z.array(z.object({
-                q: z.string(),
-                a: z.string()
-            })),
-            cta: z.string()
-        }).optional()
-    }),
-    pdf_modal: z.object({
-        title: z.string(),
-        ats: z.string(),
-        dark: z.string(),
-        light: z.string()
-    }),
-    education: z.object({
-        title: z.string(),
-        institutions: z.record(z.string(), z.string()),
-        descriptions: z.record(z.string(), z.string())
-    }),
-    experience: z.object({
-        title: z.string(),
-        showNonIT: z.string(),
-        hideNonIT: z.string(),
-        roles: z.record(z.string(), z.string()),
-        descriptions: z.record(z.string(), z.string())
-    }),
-    skills: z.object({
-        title: z.string(),
-        showMore: z.string(),
-        hideMore: z.string(),
-        categories: z.object({
-            it: z.string(),
-            design3d: z.string(),
-            video: z.string(),
-            tools: z.string()
-        }),
-        platforms: z.object({
-            desktop: z.string(),
-            web: z.string(),
-            mobile: z.string()
-        }),
-        items: z.record(z.string(), z.string())
-    }),
-    other: z.object({
-        title: z.string(),
-        iq: z.string(),
-        olympics: z.string(),
-        driver: z.string(),
-        languages: z.object({
-            title: z.string(),
-            uk: z.string(),
-            en: z.string(),
-            ru: z.string()
-        }),
-        hobbies: z.array(z.string())
-    }),
-    about: z.object({
-        hobbiesTitle: z.string()
-    }),
-    footer: z.object({
-        ask: z.string(),
-        order: z.string()
-    })
-});
+/** Питання-відповідь у вкладці; форма спільна для трьох вкладок. */
+type Faq = { q: string; a: string };
 
-export type Translations = z.infer<typeof TranslationSchema>;
+/**
+ * Форма словника локалі — ТИП, а не рантайм-схема.
+ *
+ * Тут стояв `TranslationSchema = z.object({…})` на сто сорок п'ять рядків, а
+ * поруч — єдиний рядок, який ним користувався:
+ * `export type Translations = z.infer<typeof TranslationSchema>`. Тобто схема
+ * не валідувала НІЧОГО: ні `.parse()`, ні `.safeParse()` над нею не викликали
+ * ніде, вона існувала виключно як спосіб записати тип.
+ *
+ * Ціну за це платив кожен відвідувач. `z` — значення, а не тип, тож імпорт не
+ * стирався при компіляції; цей модуль лежить на критичному шляху КОЖНОЇ
+ * сторінки (його тягне `+layout.svelte`), і разом із ним туди їхала вся
+ * бібліотека. Заміряно 2026-09-10 на зібраному сайті: чанк
+ * `chunks/DJ7RNFkW.js` — 478 238 Б сирих, 150 388 Б gzip — стояв у
+ * `modulepreload` усіх сорока двох мовних сторінок, 404 і `/2026-04/`.
+ *
+ * Гейт бюджету цього не бачив, і причина не в порозі: `check:bundle` ділить
+ * критичний шлях на «код» і «дані» ПО ЧАНКАХ, за маркером словників. Rollup
+ * поклав бібліотеку в той самий чанк, що й сорок два словники, — і її вага
+ * рахувалася як контент, тобто в стелю коду не входила взагалі.
+ *
+ * Заміна на звичайний тип нічого не послаблює: `.parse()` не викликався, тож
+ * жодної перевірки не зникло. Паритет словників, як і раніше, тримає анотація
+ * `: Translations` у кожному з сорока двох файлів (`src/i18n-canon.test.ts`
+ * стежить, щоб вона нікуди не поділася) — тобто його завжди тримав компілятор.
+ */
+export type Translations = {
+	lastUpdate: string;
+	title: string[];
+	title_mobile: string;
+	nav: {
+		about: string;
+		portfolio: string;
+		website: string;
+		apps: string;
+		games: string;
+		/** Ukraine-only social initiative: absent from the other locales */
+		promo?: string;
+		contact: string;
+		settings: string;
+		language: string;
+		theme: string;
+		close: string;
+		menu: string;
+	};
+	hero: {
+		greeting: string;
+		description: string;
+		description_sea_desktop: string;
+		description_sea_mobile: string;
+		buttons: {
+			website: string;
+			apps: string;
+			games: string;
+			promo?: string;
+		};
+	};
+	portfolio: {
+		title: string;
+		subtitle: string;
+		/**
+		 * Prefix in front of a project's "feature" line; carries its own colon so
+		 * each locale can pick the right punctuation
+		 */
+		featureLabel: string;
+		projects: Record<
+			string,
+			{
+				title: string;
+				description: string;
+				tech: string;
+				feature: string;
+				linkText: string;
+			}
+		>;
+	};
+	tabs: {
+		website: {
+			title: string;
+			intro: string;
+			benefitsTitle: string;
+			benefits: { h: string; p: string }[];
+			cta: string;
+		};
+		apps: {
+			title: string;
+			intro: string;
+			faq: Faq[];
+			cta: string;
+		};
+		games: {
+			title: string;
+			intro: string;
+			faq: Faq[];
+			cta: string;
+		};
+		/**
+		 * The special offer is a Ukrainian social initiative (free sites for
+		 * Ukrainian creative schools, EUR support fee, referral programme). It is
+		 * not on offer to other audiences, so only uk.ts carries this section.
+		 */
+		promo?: {
+			title: string;
+			pageTitle?: string;
+			intro: string;
+			faq: Faq[];
+			cta: string;
+		};
+	};
+	pdf_modal: {
+		title: string;
+		ats: string;
+		dark: string;
+		light: string;
+	};
+	education: {
+		title: string;
+		institutions: Record<string, string>;
+		descriptions: Record<string, string>;
+	};
+	experience: {
+		title: string;
+		showNonIT: string;
+		hideNonIT: string;
+		roles: Record<string, string>;
+		descriptions: Record<string, string>;
+	};
+	skills: {
+		title: string;
+		showMore: string;
+		hideMore: string;
+		categories: {
+			it: string;
+			design3d: string;
+			video: string;
+			tools: string;
+		};
+		platforms: {
+			desktop: string;
+			web: string;
+			mobile: string;
+		};
+		items: Record<string, string>;
+	};
+	other: {
+		title: string;
+		iq: string;
+		olympics: string;
+		driver: string;
+		languages: {
+			title: string;
+			uk: string;
+			en: string;
+			ru: string;
+		};
+		hobbies: string[];
+	};
+	about: {
+		hobbiesTitle: string;
+	};
+	footer: {
+		ask: string;
+		order: string;
+	};
+};
 
 export const translations: Record<Language, Translations> = {
     en, 'en-us': enUS, uk, ja, es, fr, pt, it, de, nl, be,
