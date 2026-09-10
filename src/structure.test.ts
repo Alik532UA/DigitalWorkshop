@@ -367,6 +367,117 @@ describe('досяжність модулів (PROJECT-STRUCTURE-v9 § 4.3.1)', 
 });
 
 /**
+ * Дані, які віддає `load()`, хтось читає (PROJECT-STRUCTURE-v9 § 4.3.1
+ * `PS-REACHABILITY`, HIGH — той самий клас на рівень вище; `GATE-STRUCTURE`).
+ *
+ * ## Чому граф імпортів цього не бачить
+ *
+ * Перевірка досяжності вище доводить, що до модуля є шлях від точки входу.
+ * `+page.ts` САМ є точкою входу, тож усе, що він імпортує, вважається
+ * використаним — навіть якщо результат його `load()` не читає ніхто.
+ *
+ * Заміряно 2026-09-11: `src/routes/2026-04/+page.ts` віддає `experience`,
+ * `education` і `skills`, а `+page.svelte` поруч не оголошує `$props()`
+ * взагалі. Три реєстри, їхні типи й п'ятнадцять іконок їхали в чанк маршруту
+ * заради даних, яких не малює жоден піксель. Для графа імпортів усе було
+ * «використане».
+ *
+ * ## Чому перевірка по КЛЮЧАХ, а не по сусідньому файлу
+ *
+ * Наївна умова «біля `+page.ts` є `+page.svelte` з `$props()`» дала б хибну
+ * знахідку на `[[lang=lang]]/+page.ts`: його `routeLanguage` і `language`
+ * читає `+layout.svelte` через `page.data.*`, тобто в іншому файлі й іншим
+ * способом. Тому кожен ключ шукається по всьому `src/` як `data.<ключ>` —
+ * і `$props()`, і `page.data`, і `$page.data` під це підпадають однаково.
+ */
+describe('результат load() хтось читає', () => {
+	/**
+	 * Знахідки, залишені свідомо: ключ → причина. Список ЛИШЕ СКОРОЧУЄТЬСЯ, і
+	 * запис, який більше не є знахідкою, вилучається (перевіряється нижче).
+	 */
+	const LOAD_UNREAD: Readonly<Record<string, string>> = {
+		'src/routes/2026-04/+page.ts':
+			'архівний маршрут не малює резюме; вибір між «підключити» і «видалити» продуктовий — див. PROJECT-CONTEXT.md'
+	};
+
+	const loadFiles = sources.filter((f) => /^src\/routes\/.*\+(page|layout)\.ts$/.test(f));
+
+	/** Ключі верхнього рівня з об'єкта, який повертає `load`. */
+	function returnedKeys(file: string): string[] {
+		const text = code.get(file)!;
+		const at = text.indexOf('load');
+		if (at === -1) return [];
+		const ret = text.indexOf('return {', at);
+		if (ret === -1) return [];
+		let depth = 0;
+		let end = ret + 'return '.length;
+		for (let i = ret + 'return '.length; i < text.length; i++) {
+			if (text[i] === '{') depth++;
+			else if (text[i] === '}') {
+				depth--;
+				if (depth === 0) {
+					end = i;
+					break;
+				}
+			}
+		}
+		const body = text.slice(ret + 'return {'.length, end);
+		const keys: string[] = [];
+		let level = 0;
+		for (const part of body.split('\n')) {
+			const line = part.trim();
+			const m = /^([A-Za-z_$][\w$]*)\s*[:,]/.exec(line);
+			if (level === 0 && m) keys.push(m[1]);
+			for (const ch of line) {
+				if ('{(['.includes(ch)) level++;
+				else if ('})]'.includes(ch)) level--;
+			}
+		}
+		return keys;
+	}
+
+	const readers = sources
+		.filter((f) => !/\+(page|layout)\.ts$/.test(f))
+		.map((f) => code.get(f)!)
+		.join('\n');
+
+	const unread = loadFiles
+		.map((file) => ({ file, keys: returnedKeys(file) }))
+		.filter(({ keys }) => keys.length > 0)
+		.filter(({ keys }) => keys.every((k) => !new RegExp(String.raw`data\.${k}\b`).test(readers)));
+
+	it('перевірка жива: у маршрутах знайдено load() з ключами', () => {
+		const withKeys = loadFiles.filter((f) => returnedKeys(f).length > 0);
+		expect(
+			withKeys.length,
+			'жоден `load()` не віддає ключів — розбір дивиться не туди'
+		).toBeGreaterThan(0);
+	});
+
+	it('кожен ключ load() читається як data.<ключ>', () => {
+		const offenders = unread
+			.filter(({ file }) => !(file in LOAD_UNREAD))
+			.map(({ file, keys }) => `${file}: ${keys.join(', ')}`);
+		expect(
+			offenders,
+			'граф імпортів вважає такий ланцюжок використаним, бо `+page.ts` — сама ' +
+				`точка входу. Підключити або видалити:\n${offenders.join('\n')}`
+		).toEqual([]);
+	});
+
+	it('у LOAD_UNREAD немає записів, які вже не є знахідкою', () => {
+		const unreadFiles = new Set(unread.map((u) => u.file));
+		const stale = Object.keys(LOAD_UNREAD).filter(
+			(file) => !existsSync(join(ROOT, file)) || !unreadFiles.has(file)
+		);
+		expect(
+			stale,
+			`запис звільняє від перевірки те, чого вже немає — вилучити:\n${stale.join('\n')}`
+		).toEqual([]);
+	});
+});
+
+/**
  * Канонічні межі § 7. Порядок важливий: перший збіг виграє, тож маршрутна
  * сторінка мусить перевірятися до загального правила для `.svelte`.
  */
