@@ -228,5 +228,27 @@ export default ts.config(
 			'no-restricted-globals': 'off',
 			'no-restricted-properties': 'off'
 		}
+	},
+	{
+		/*
+		 * `.cjs` — CommonJS за визначенням, і `require` там не стиль, а єдиний
+		 * спосіб.
+		 *
+		 * У проєкті `"type": "module"`, тож розширення `.cjs` носять рівно ті
+		 * файли, які МУСЯТЬ бути CommonJS, бо їх читає стороння програма своїм
+		 * завантажувачем. Сьогодні такий один — `lighthouserc.cjs`: LHCI
+		 * підключає конфіг через `require`, і ESM він там не приймає.
+		 *
+		 * Заборона `no-require-imports` цінна саме для `src/` — там `require`
+		 * означає обхід бандлера. Тут вона забороняє єдину доступну форму, тобто
+		 * пропонує не писати конфіг узагалі.
+		 *
+		 * Правило не належить до базового набору (`src/eslint-baseline.test.ts`),
+		 * тож вимкнення точкове й нічого з CRITICAL/HIGH не послаблює.
+		 */
+		files: ['**/*.cjs'],
+		rules: {
+			'@typescript-eslint/no-require-imports': 'off'
+		}
 	}
 );
