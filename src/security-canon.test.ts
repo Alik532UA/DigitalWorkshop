@@ -1,5 +1,6 @@
 // @vitest-environment node
-import { readFileSync } from 'node:fs';
+import { globSync, readFileSync } from 'node:fs';
+import { join, resolve, sep } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { withoutComments } from './test-support/source-text';
 
@@ -13,6 +14,7 @@ import { withoutComments } from './test-support/source-text';
  * звіряє, що хеш скрипта справді потрапив у політику. Цей файл ловить
  * причину, той — наслідок.
  */
+const ROOT = resolve(__dirname, '..');
 const appHtml = readFileSync('src/app.html', 'utf8');
 const svelteConfig = readFileSync('svelte.config.js', 'utf8');
 
@@ -167,5 +169,75 @@ describe('скрипт першого кадру', () => {
 		const value = appHtml.match(/name="color-scheme"[^>]*content="([^"]+)"/)?.[1];
 		expect(value, 'мета-тега color-scheme немає').toBeTruthy();
 		expect(value).not.toBe('light');
+	});
+});
+
+/**
+ * Атрибути медіа-елементів не задаються розгортанням
+ * (SECURITY-v9 § 6.4 `SEC-CSP-SPREAD-HANDLER`, HIGH; `GATE-INLINE-HANDLERS`).
+ *
+ * ## Чому саме `img`, `iframe`, `video`
+ *
+ * Свій обробник завантаження Svelte додає лише їм: щоб знати, коли ресурс
+ * приїхав, компілятор чіпляє `onload`/`onerror`. Поки атрибути виписані
+ * поіменно, він робить це через `addEventListener` у скомпільованому модулі —
+ * і CSP на це не дивиться взагалі.
+ *
+ * З розгортанням `{...obj}` склад атрибутів відомий лише в рантаймі, тож
+ * компілятор перекладає їх на елемент як АТРИБУТИ. Обробник події, записаний
+ * атрибутом, — це інлайн-скрипт, а хеші `script-src` на обробники подій не
+ * поширюються в принципі: там потрібен `'unsafe-hashes'`, якого тут немає й
+ * бути не повинно.
+ *
+ * Наслідок тихий у той бік, який найдорожче ловити: політика блокує обробник,
+ * зображення не повідомляє про завантаження, а сама картинка малюється. Тобто
+ * дефект видно лише в консолі й лише на ЗІБРАНОМУ сайті — а консоль машиною
+ * тут не міряється (AI-AGENT-PITFALLS-v9 § 2.1).
+ *
+ * ## Що НЕ є знахідкою
+ *
+ * Розгортання на `<svg>` у компонентах прапорів (`{...$$restProps}`, сорок два
+ * файли) законне: власних обробників завантаження Svelte туди не додає, тож
+ * атрибута-обробника звідти не з'явиться.
+ *
+ * ## Зворотний експеримент (AI-AGENT-PITFALLS-v9 § 1.1)
+ *
+ * Проведено 2026-09-11: у `FlagBE.svelte` тег `<svg` тимчасово замінено на
+ * `<img` — перевірка червоніє й називає файл із рядком. Після відкату зелено.
+ */
+describe('розгортання атрибутів на медіа (§ 6.4)', () => {
+	const MEDIA = ['img', 'iframe', 'video'];
+	const components = globSync('src/**/*.svelte', { cwd: ROOT }).map((f) => f.split(sep).join('/'));
+
+	it('перевірка жива: компоненти й медіа-теги знайдено', () => {
+		expect(components.length, 'жодного .svelte — перевірка дивиться не туди').toBeGreaterThan(20);
+		const withMedia = components.filter((f) =>
+			MEDIA.some((tag) =>
+				new RegExp(String.raw`<${tag}[\s>]`).test(readFileSync(join(ROOT, f), 'utf8'))
+			)
+		);
+		expect(withMedia.length, 'у джерелах немає жодного img/iframe/video').toBeGreaterThan(0);
+	});
+
+	it('жоден img/iframe/video не бере {...spread}', () => {
+		const offenders: string[] = [];
+		for (const file of components) {
+			const source = withoutComments(readFileSync(join(ROOT, file), 'utf8'));
+			for (const tag of MEDIA) {
+				// Від відкривального тега до найближчого `>`: розгортання всередині
+				// саме цього тега, а не будь-де на сторінці.
+				for (const m of source.matchAll(new RegExp(String.raw`<${tag}[\s][^>]*>`, 'g'))) {
+					if (/\{\s*\.\.\./.test(m[0])) {
+						offenders.push(`${file}: ${m[0].replace(/\s+/g, ' ').slice(0, 80)}`);
+					}
+				}
+			}
+		}
+		expect(
+			offenders,
+			'Svelte додає таким елементам onload/onerror, а з розгортанням записує їх ' +
+				'АТРИБУТАМИ. Хеші script-src на обробники подій не поширюються, тож ' +
+				`політика їх заблокує — мовчки, лише в консолі зібраного сайту:\n${offenders.join('\n')}`
+		).toEqual([]);
 	});
 });
