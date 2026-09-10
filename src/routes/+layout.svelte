@@ -3,11 +3,11 @@
     import { fade } from "svelte/transition";
     import { setUiState, getTabs, getTheme, getBackground, getMenu } from "$lib/controllers/UiState.svelte";
     import { setLanguageState } from "$lib/i18n/LanguageState.svelte";
-    import { page } from "$app/state";
+    import { page, updated } from "$app/state";
     import { LANGUAGE_ROUTE_ID } from "$lib/i18n/routing";
     import { migrateStorage } from "$lib/services/storageMigration";
     import { initAnalytics, trackPageView } from "$lib/services/analytics";
-    import { afterNavigate } from "$app/navigation";
+    import { afterNavigate, beforeNavigate } from "$app/navigation";
     import { logService } from "$lib/services/logService.svelte";
     import { debugMode } from "$lib/services/debugMode.svelte";
     import { hotkeys } from "$lib/services/hotkeys.svelte";
@@ -38,6 +38,30 @@
     // this keeps it in step with the browser back and forward buttons.
     $effect(() => {
         language.current = page.data.language ?? "uk";
+    });
+
+    /*
+     * Відкрита вкладка переживає деплой (VERSIONING-v9 § 6.1
+     * `VER-OPEN-TAB-SURVIVES`, HIGH; `GATE-STALE-BUILD`).
+     *
+     * GitHub Pages замінює `build/` ЦІЛКОМ, а імена чанків несуть хеш вмісту.
+     * Тобто після деплою старі чанки зникають назавжди. Вкладка, відкрита до
+     * нього, при клієнтському переході просить `nodes/4.<старий хеш>.js` —
+     * файл, якого на хостингу вже немає.
+     *
+     * `updated` стає `true`, коли опитування помічає нову версію (інтервал
+     * заданий у `svelte.config.js`; без нього SvelteKit не питає ніколи, і цей
+     * прапорець не піднімається взагалі). Тоді перехід іде ПОВНИМ
+     * завантаженням: браузер бере свіжий `index.html` зі свіжими іменами
+     * чанків, і сторінка не ламається.
+     *
+     * `willUnload` пропускається свідомо: браузер і так виконує повний перехід,
+     * а призначення в цьому випадку може бути невідоме (`to` — `null`).
+     */
+    beforeNavigate(({ willUnload, to }) => {
+        if (updated.current && !willUnload && to?.url) {
+            location.href = to.url.href;
+        }
     });
 
     // Start RUM Core Web Vitals collection (OBSERVABILITY-v8 § 2.1)
