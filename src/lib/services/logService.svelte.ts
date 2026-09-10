@@ -164,7 +164,10 @@ class LogService {
         if (!browser) return;
         try {
             // Зберігаємо тільки останні 50 для сесії, щоб не перевантажувати STORAGE
-            const shortHistory = this.history.slice(-50);
+            // `$state.snapshot` перед серіалізацією (SVELTE-CORE-v9 § 1.6
+            // `SC-SNAPSHOT-BOUNDARY`): `slice` віддає звичайний масив, але його
+            // елементи лишаються проксі, і за межу застосунку їхати їм не можна.
+            const shortHistory = $state.snapshot(this.history.slice(-50));
             sessionStorage.set(SESSION_STORAGE_KEY, JSON.stringify({
                 history: shortHistory,
                 errorCount: this.errorCount

@@ -275,7 +275,11 @@ export class BetaChecklistState {
 	private persist(): void {
 		// Фасад повертає false, якщо не зберіг (приватний режим, квота). Втратити
 		// збереження прийнятно; втратити сторінку — ні, тому виняток сюди не летить.
-		if (!storage.setJSON(STORAGE_KEY, this.marks)) {
+		// `$state.snapshot`, а не сам проксі (SVELTE-CORE-v9 § 1.6
+		// `SC-SNAPSHOT-BOUNDARY`): `setJSON` — це `JSON.stringify` у фасаді, тобто
+		// межа серіалізації. `stringify` проксі пробачає, решта стоків — ні, і
+		// звичка мусить бути одна на всі.
+		if (!storage.setJSON(STORAGE_KEY, $state.snapshot(this.marks))) {
 			logService.warn('storage', 'Beta checklist progress was not saved: storage is unavailable');
 		}
 	}
