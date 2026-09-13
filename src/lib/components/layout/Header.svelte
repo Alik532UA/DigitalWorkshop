@@ -11,6 +11,7 @@
     } from "$lib/controllers/UiState.svelte";
     import HeaderArcSvg from "../ui/arcs/HeaderArcSvg.svelte";
     import DebugSettingsDropdown from "../ui/DebugSettingsDropdown.svelte";
+    import ThemeOptions from "../ui/ThemeOptions.svelte";
     import { spring } from "svelte/motion";
     import { Menu, X, Settings } from "lucide-svelte";
     import { fly } from "svelte/transition";
@@ -138,6 +139,15 @@
             return () => document.removeEventListener('mousedown', handleClickOutside);
         }
     });
+
+    /*
+     * Панель закривається кліком поза нею — `pointerleave` на кнопці теми
+     * тоді не приходить, і сторінка лишилася б у показаній темі назавжди.
+     * Решта прев'ю живе в `ui/ThemeOptions.svelte` разом із кнопками.
+     */
+    $effect(() => {
+        if (!settingsOpen) theme.previewTheme(null);
+    });
 </script>
 
 <svelte:window
@@ -221,18 +231,7 @@
                             <div class="settings-group">
                                 <span class="label">{t.nav.theme}</span>
                                 <div class="options">
-                                    <button 
-                                        class:active={theme.current === 'dark'} 
-                                        onclick={() => theme.set('dark')}
-                                    >Dark</button>
-                                    <button 
-                                        class:active={theme.current === 'light'} 
-                                        onclick={() => theme.set('light')}
-                                    >Light</button>
-                                    <button 
-                                        class:active={theme.current === 'colorful'} 
-                                        onclick={() => theme.set('colorful')}
-                                    >Color</button>
+                                    <ThemeOptions />
                                 </div>
                             </div>
                         </div>
@@ -499,6 +498,7 @@
         color: #1a1a1a;
         font-weight: 700;
     }
+
 
     /* The language row can hold 20+ two-letter codes; unlike the 3-item theme
        row it needs to wrap instead of squeezing every button flex:1. */

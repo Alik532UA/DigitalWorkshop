@@ -504,7 +504,10 @@ const DATA_MODULES = /^src\/lib\/(i18n\/locales|data)\//;
 const OVERSIZED: Readonly<Record<string, number>> = {
 	'src/routes/[[lang=lang]]/+page.svelte': 1222,
 	'src/lib/controllers/SeaPageState.svelte.ts': 505,
-	'src/lib/components/layout/Header.svelte': 495,
+	// 495 → 483 (2026-09-13): кнопки вибору теми поїхали в `ui/ThemeOptions.svelte`
+	// разом із власною палітрою. Число підтягнуте одразу — запас, лишений у
+	// стелі, це тихий дозвіл відрости назад.
+	'src/lib/components/layout/Header.svelte': 483,
 	'src/lib/components/sea/ClockOverlay.svelte': 460,
 	'src/lib/components/sea/TopControls.svelte': 440
 };

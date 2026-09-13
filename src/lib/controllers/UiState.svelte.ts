@@ -221,7 +221,57 @@ export class ThemeState {
     }
 
     /** Явний вибір користувача: застосовується й запам'ятовується. */
+    /**
+     * Тема, яку показуємо «на пробу» під курсором, або `null`
+     * (THEME-SWITCHER § 2.1).
+     *
+     * ОКРЕМО від `current`: та означає «що обрано», нею світиться `.active`, і
+     * прев'ю в те саме поле змусило б підсвітку їхати за курсором, а після
+     * відведення сторінка лишалася б у тій темі, на якій мишу востаннє тримали.
+     */
+    previewed = $state<ThemeType | null>(null);
+
+    /** Знімає клас плавного переходу, коли той доїхав (§ 5). */
+    private shiftTimer: ReturnType<typeof setTimeout> | null = null;
+
+    /**
+     * Показує тему «на пробу», поки курсор на її кнопці; `null` — вертає обрану.
+     *
+     * Нічого не зберігає й не чіпає `current`: малює документ напряму. Тому
+     * `apply()` тут не годиться — він саме `current` і пише.
+     *
+     * `isChanging` гасить прев'ю: поки триває справжня зміна, курсор зазвичай
+     * іде з кнопки, і `previewTheme(null)` повернув би СТАРУ тему поверх щойно
+     * обраної.
+     */
+    previewTheme = (theme: ThemeType | null) => {
+        if (!browser || this.isChanging) return;
+        this.previewed = theme;
+        this.startThemeShift();
+        document.documentElement.setAttribute("data-theme", theme ?? this.current);
+    };
+
+    /**
+     * Вмикає плавний перехід кольорів на час зміни теми.
+     *
+     * Тривалість із ЗАПАСОМ над 0,56 с із `app.css`, а не те саме число — щоб не
+     * тримати копію тривалості у двох місцях. Знімає клас ЛИШЕ таймер: зняття в
+     * обробнику обривало б перехід на половині, бо вибір теми ховає панель, а її
+     * прибирання кличе `previewTheme(null)`.
+     */
+    private startThemeShift() {
+        if (!browser) return;
+        document.documentElement.classList.add("theme-shifting");
+        if (this.shiftTimer) clearTimeout(this.shiftTimer);
+        this.shiftTimer = setTimeout(() => {
+            document.documentElement.classList.remove("theme-shifting");
+            this.shiftTimer = null;
+        }, 900);
+    }
+
     set(theme: ThemeType) {
+        this.previewed = null;
+        this.startThemeShift();
         this.apply(theme);
         if (browser) {
             storage.set("theme", theme);
