@@ -141,6 +141,20 @@ export const BETA_CHECKS: readonly BetaCheck[] = [
 		negative: true
 	},
 	{
+		id: 'common_9',
+		category: { uk: 'Теми', en: 'Themes' },
+		/*
+		 * Локатора тут немає, бо й дії немає: пункт просить НАВЕСТИ курсор і
+		 * нічого не чіпати. Саме в цьому й суть перевірки — показ теми мусить
+		 * статися без вибору й безслідно зникнути, щойно курсор піде.
+		 */
+		text: {
+			uk: "На комп'ютері наведіть курсор на кнопку теми, якою ЗАРАЗ не користуєтесь, і нічого не чіпайте. Сторінка мусить показати цю тему цілком, а щойно курсор піде — повернутися до попередньої. Самі кнопки мусять бути пофарбовані кожна під СВОЮ тему, а не всі під поточну.",
+			en: 'On a desktop, hover the button of a theme you are NOT using and touch nothing. The page must show that theme in full and return to the previous one as soon as the pointer leaves. The buttons themselves must each be coloured in THEIR OWN theme, not all in the current one.'
+		},
+		coverage: 'manual'
+	},
+	{
 		id: 'common_2',
 		category: { uk: 'Теми', en: 'Themes' },
 		text: {
