@@ -70,6 +70,54 @@ const weightOf = (vote: Vote): number => VOTE_ORDER.indexOf(vote);
 
 export const tabOf = (check: BetaCheck): string => check.id.split('_')[0];
 
+/**
+ * Локатор пункта — з його `id`, у kebab-case (§ 5.6, TESTID-AND-NAMING-v9 § 1.2).
+ *
+ * До 9.3 канон радив СТАЛІ назви — `beta-check-item`, `beta-vote-ok-btn`, — і цей
+ * проєкт їх послухався. Рядок чеклиста малюється по разу на пункт, тож на вкладці
+ * з 19 пунктами під одним локатором опинялося 19 елементів: `getByTestId` кидає
+ * `strict mode violation`, і перевірку доводилося писати через `.nth()`, тобто
+ * прив'язаною до порядку, який змінюється першою ж вставкою. Тут це навіть
+ * встигло вирости у власний ALLOWLIST «законних дублікатів» у
+ * `tests/testid-runtime.spec.ts` — шість імен, які гейт мусив пробачати.
+ *
+ * `id` пункта при цьому НЕ змінюється (§ 2.2), тобто нікому не стирається
+ * прогрес: міняється лише атрибут у розмітці.
+ */
+export const tidOf = (id: string): string => id.replace(/_/g, '-');
+
+/**
+ * Прочитане зі сховища — НЕДОВІРЕНИЙ ВВІД (§ 8.6).
+ *
+ * Ключ переживає і зміну чеклиста, і зміну формату позначки, і сусідні проєкти
+ * на тому самому origin. Найчастіший випадок безневинний і найгірший: пункт
+ * ПРИБРАЛИ з чеклиста, а позначка лишилася — вона рахувалася б у знаменнику
+ * `Object.keys(this.marks).length` у звіті й давала б «MARKED: 40 of 37», число,
+ * яке не означає нічого й не має де виправитися.
+ *
+ * Фільтрується і склад (`id` мусить бути в чеклисті), і форма: у сховищі може
+ * лежати позначка старого формату або чужий ключ.
+ */
+const VOTES: readonly Vote[] = ['fail', 'weird', 'ok'];
+
+function isMark(value: unknown): value is Mark {
+	if (typeof value !== 'object' || value === null) return false;
+	const m = value as Record<string, unknown>;
+	return VOTES.includes(m.vote as Vote) && typeof m.version === 'string';
+}
+
+function readMarks(): Record<string, Mark> {
+	const raw = storage.getJSON<unknown>(STORAGE_KEY);
+	if (typeof raw !== 'object' || raw === null) return {};
+
+	const known = new Set(BETA_CHECKS.map((check) => check.id));
+	const out: Record<string, Mark> = {};
+	for (const [id, value] of Object.entries(raw as Record<string, unknown>)) {
+		if (known.has(id) && isMark(value)) out[id] = value;
+	}
+	return out;
+}
+
 export class BetaChecklistState {
 	marks = $state<Record<string, Mark>>({});
 	activeTab = $state<string>(BETA_TABS[0].id);
@@ -102,10 +150,24 @@ export class BetaChecklistState {
 	 */
 	private copiedTimer: ReturnType<typeof setTimeout> | undefined;
 
+	/**
+	 * Чи зведена кнопка стирання (§ 6.3).
+	 *
+	 * «Стерти позначки» — ЄДИНА незворотна дія на сторінці, і вона стоїть у тому
+	 * самому рядку, що й «скопіювати звіт», до якого тягнуться щоразу. Ціна
+	 * помилки несиметрична: година роботи проти одного зайвого кліка.
+	 *
+	 * Не `confirm()`: нативний діалог блокує потік, виглядає чужим у будь-якій
+	 * темі, не перекладається на 42 мови й у headless вимагає окремого обробника,
+	 * тобто ускладнює e2e § 5.7 на рівному місці.
+	 */
+	clearArmed = $state(false);
+
 	constructor() {
 		// Фасад сам має guard на browser і не кидає, тож зайвої перевірки тут не
-		// треба; зіпсоване значення він віддає як відсутнє (UI-UX-v8 § 1.1).
-		this.marks = storage.getJSON<Record<string, Mark>>(STORAGE_KEY) ?? {};
+		// треба; зіпсоване значення він віддає як відсутнє (UI-UX-v8 § 1.1). А от
+		// СКЛАД прочитаного фасад не знає — його звіряє `readMarks()` (§ 8.6).
+		this.marks = readMarks();
 	}
 
 	/** Пункти вкладки в порядку показу: рівень покриття, далі порядок оголошення. */
@@ -143,9 +205,29 @@ export class BetaChecklistState {
 		this.persist();
 	}
 
+	/**
+	 * Стирання у два кроки (§ 6.3): перший виклик лише зводить кнопку, другий
+	 * стирає. Повертає `true`, коли позначки справді зникли, — сторінці це
+	 * потрібно, щоб не гасити підпис звіту на першому натисканні.
+	 */
+	requestClear(): boolean {
+		if (!this.clearArmed) {
+			this.clearArmed = true;
+			return false;
+		}
+		this.clear();
+		return true;
+	}
+
+	/** Знімає зведення, не стираючи нічого: кнопка не лишається зарядженою. */
+	disarmClear(): void {
+		this.clearArmed = false;
+	}
+
 	clear(): void {
 		this.marks = {};
 		this.fallbackReport = '';
+		this.clearArmed = false;
 		storage.remove(STORAGE_KEY);
 	}
 

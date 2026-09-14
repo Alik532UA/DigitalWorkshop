@@ -215,6 +215,44 @@ export const BETA_CHECKS: readonly BetaCheck[] = [
 		test: 'src/lib/services/storageMigration.test.ts'
 	},
 	{
+		/*
+		 * common_10 … common_12 дописані при переході на канон 9.3 (§ 3.4).
+		 *
+		 * Вкладка мала 2 пункти для людини проти 5 покритих — тобто людина
+		 * відкривала її заради двох рядків, а решту часу витрачала на контрольну
+		 * групу. Пункти нижче написані ПІСЛЯ читання `src/app.css` (рядки з
+		 * `prefers-reduced-motion` і `html.theme-shifting`) та `i18n/routing.ts`,
+		 * а не вигадані під потрібне число: кожен називає вияв, який справді є в
+		 * коді, і жоден не дублює наявних.
+		 */
+		id: 'common_10',
+		category: { uk: 'Рух', en: 'Motion' },
+		text: {
+			uk: 'Увімкніть у системі «зменшити рух» (Windows: Параметри → Спеціальні можливості → Візуальні ефекти → Ефекти анімації вимкнути; macOS: Універсальний доступ → Дисплей → Зменшити рух) і перемкніть тему на сайті. Кольори мусять змінитися ОДРАЗУ, без плавного переливу, — але сама тема змінитися мусить.',
+			en: 'Turn on reduced motion in your system (Windows: Settings → Accessibility → Visual effects → Animation effects off; macOS: Accessibility → Display → Reduce motion) and switch the theme on the site. The colours must change AT ONCE, with no fade — but the theme itself must still change.'
+		},
+		coverage: 'manual'
+	},
+	{
+		id: 'common_11',
+		category: { uk: 'Рух', en: 'Motion' },
+		text: {
+			uk: 'З увімкненим «зменшити рух» пройдіть головну сторінку згори донизу. Нічого не мусить саме собою рухатися, блимати чи плисти — ні тло, ні картки, ні кнопки.',
+			en: 'With reduced motion on, go through the main page from top to bottom. Nothing may move, blink or drift by itself — not the background, not the cards, not the buttons.'
+		},
+		coverage: 'manual',
+		negative: true
+	},
+	{
+		id: 'common_12',
+		category: { uk: 'Мова', en: 'Language' },
+		text: {
+			uk: 'Виберіть тему, відмінну від початкової, потім змініть мову, а тоді поверніться кнопкою «назад» у браузері. Мова мусить повернутися на попередню, а вибрана вами тема — залишитися тією, яку ви обрали.',
+			en: 'Pick a theme other than the starting one, then change the language, then press the browser Back button. The language must return to the previous one, while the theme you picked must stay the one you picked.'
+		},
+		coverage: 'manual'
+	},
+	{
 		id: 'common_8',
 		category: { uk: 'Мова', en: 'Language' },
 		text: {
@@ -499,6 +537,16 @@ export const BETA_UI = {
 	copyReport: { uk: 'Скопіювати звіт', en: 'Copy the report' },
 	copied: { uk: 'Скопійовано', en: 'Copied' },
 	clearMarks: { uk: 'Стерти мої позначки', en: 'Clear my marks' },
+	/**
+	 * Другий крок стирання (§ 6.3). Напис мусить казати, що станеться при
+	 * НАСТУПНОМУ натисканні, а не описувати стан кнопки: «зведено» людина
+	 * прочитала б як «уже стерто».
+	 */
+	clearConfirm: { uk: 'Точно стерти? Натисніть ще раз', en: 'Really clear? Press again' },
+	screens: { uk: 'Екрани цієї вкладки:', en: 'Screens on this tab:' },
+	coveredBy: { uk: 'Перевіряє тест:', en: 'Checked by:' },
+	screenHome: { uk: 'Головна сторінка', en: 'Main page' },
+	backHome: { uk: 'На головну', en: 'Home' },
 	clipboardFailed: {
 		uk: 'Буфер обміну недоступний. Виділіть текст нижче і скопіюйте вручну — нічого не втрачено.',
 		en: 'The clipboard is unavailable. Select the text below and copy it by hand — nothing is lost.'

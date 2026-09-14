@@ -111,6 +111,29 @@ describe('покриття (§ 5.2)', () => {
 		);
 		expect(without, `вкладка без жодного пункта для людини: ${without.join(', ')}`).toEqual([]);
 	});
+
+	/**
+	 * § 3.4 `BETA-LEVEL-BALANCE`. Контрольна група корисна доти, доки вона
+	 * лишається групою, а не списком: кожен `covered`-пункт витрачає час живої
+	 * людини там, де автотест уже дивиться.
+	 *
+	 * Знайдено при переході на канон 9.3: вкладка `common` мала 2 пункти `manual`
+	 * проти 5 `covered` — людина відкривала її заради двох рядків.
+	 */
+	it('у вкладці covered не переважає manual (§ 3.4)', () => {
+		const skewed = tabIds
+			.map((tab) => {
+				const own = BETA_CHECKS.filter((c) => tabOf(c) === tab);
+				const n = (level: string) => own.filter((c) => c.coverage === level).length;
+				return { tab, manual: n('manual'), covered: n('covered') };
+			})
+			.filter((row) => row.covered > row.manual);
+
+		expect(
+			skewed.map((r) => `${r.tab}: covered ${r.covered} > manual ${r.manual}`),
+			'контрольна група більша за роботу — половина часу людини йде туди, де тест уже дивиться'
+		).toEqual([]);
+	});
 });
 
 /**

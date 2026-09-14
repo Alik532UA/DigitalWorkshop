@@ -36,25 +36,30 @@ import { expect, test } from '@playwright/test';
  */
 
 /**
- * Локатори, які повторюються ЗАКОННО: рядки чеклиста та кнопки в них існують
- * по одному на пункт вкладки.
+ * Локатори, які повторюються ЗАКОННО.
+ *
+ * **Перелік порожній, і це результат правки, а не недогляд.** Доти вкладка
+ * чеклиста тримала тут шість імен: канон до 9.3 радив СТАЛІ назви рядка
+ * (`beta-check-item`, `beta-vote-ok-btn`), а рядок малюється по разу на пункт —
+ * тобто до дев'ятнадцяти елементів під однією назвою. Цей перелік був не
+ * послабленням гейта, а способом ужитися з поганою порадою: `getByTestId` на
+ * такій сторінці кидає `strict mode violation`, і тест доводилося писати через
+ * `.nth()`, прив'язавшись до порядку пунктів.
+ *
+ * BETA-CHECKLIST-v9 § 5.6 вимагає локатор із `id` пункта
+ * (`beta-check-common-1-item`), тож законних дублікатів на сторінці не лишилося
+ * жодного. Порожній об'єкт лишається на місці НАВМИСНО: гейт звіряє РІВНІСТЬ
+ * множин, тож новий випадковий дубль тут почервоніє, а не мовчки допишеться.
  */
 const REPEATED: Record<string, readonly string[]> = {
 	home: [],
 	archive: [],
-	beta: [
-		'beta-check-category-text',
-		'beta-check-item',
-		'beta-check-text',
-		'beta-vote-fail-btn',
-		'beta-vote-ok-btn',
-		'beta-vote-weird-btn'
-	]
+	beta: []
 };
 
 const PAGES = [
 	{ key: 'home', url: '/DigitalWorkshop/', ready: 'sea-hero-cta-btn' },
-	{ key: 'beta', url: '/DigitalWorkshop/beta-test-checklists/', ready: 'beta-check-item' },
+	{ key: 'beta', url: '/DigitalWorkshop/beta-test-checklists/', ready: 'beta-progress-value' },
 	{ key: 'archive', url: '/DigitalWorkshop/2026-04/', ready: '' }
 ];
 

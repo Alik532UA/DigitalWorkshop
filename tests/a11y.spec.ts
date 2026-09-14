@@ -106,6 +106,7 @@ test.describe('темна тема', () => {
  */
 test('сторінка чеклиста не має машинно-виявних порушень WCAG', async ({ page }) => {
 	await page.goto('/DigitalWorkshop/beta-test-checklists/');
-	await expect(page.getByTestId('beta-check-item').first()).toBeVisible();
+	// Локатор більше не повторюється (§ 5.6), тому `.first()` тут зайвий.
+	await expect(page.getByTestId('beta-progress-value')).toBeVisible();
 	await audit(page, 'betaChecklist');
 });

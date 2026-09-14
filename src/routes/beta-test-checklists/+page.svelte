@@ -1,14 +1,11 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
+	import { resolve } from '$app/paths';
 	import { getLanguage } from '$lib/i18n/LanguageState.svelte';
-	import {
-		BETA_TABS,
-		BETA_UI,
-		VOTE_ORDER,
-		type BetaCheck,
-		type Localized
-	} from '$lib/data/betaChecklist';
+	import { BETA_TABS, BETA_UI, type BetaCheck, type Localized } from '$lib/data/betaChecklist';
 	import { BetaChecklistState, COVERAGE_ORDER } from '$lib/controllers/BetaChecklistState.svelte';
+	import BetaCheckItem from '$lib/components/beta/BetaCheckItem.svelte';
+	import BetaReport from '$lib/components/beta/BetaReport.svelte';
 
 	/**
 	 * Сторінка чеклиста бета-тестування (BETA-CHECKLIST-v8).
@@ -59,6 +56,42 @@
 	 * знадобилося б окреме правило «номер мусить збігатися з позицією».
 	 */
 	const numberOf = (check: BetaCheck) => activeChecks.indexOf(check) + 1;
+
+	/**
+	 * Екрани вкладки — посиланнями (§ 8.4).
+	 *
+	 * Перелік той самий, який читає інваріант § 5.1 «кожен маршрут заявлений рівно
+	 * однією вкладкою», тобто він не може розійтися з дійсністю непоміченим.
+	 * Окремий список «корисних посилань» поповнити забувають; цей — ні, без нього
+	 * не збереться перевірка.
+	 *
+	 * `[[lang=lang]]` — корінь: у мові за замовчуванням сегмента немає, а решту
+	 * мов вибирають перемикачем, тож вести тестувальника на `/en/` зі сторінки,
+	 * відкритої українською, було б підміною.
+	 *
+	 * Адреса через `resolve()`, а не склеюванням із `base`: він типізований проти
+	 * переліку реальних маршрутів, тож помилка стає помилкою компіляції, а не
+	 * мовчазним 404. Заразом це не додає боргу `no-navigation-without-resolve`,
+	 * який у цьому проєкті лише спадає (`src/eslint-baseline.test.ts`).
+	 */
+	const ROOT_ROUTE = '[[lang=lang]]';
+	const HOME = resolve('/[[lang=lang]]', {});
+
+	const screensOf = (routes: readonly string[]) =>
+		routes.map((route) => ({
+			route,
+			isRoot: route === ROOT_ROUTE,
+			// Назва — з того самого маршруту, а не з третього списку: корінь має
+			// власний підпис, решта маршрутів названі самі собою й читаються.
+			label: route === ROOT_ROUTE ? pick(BETA_UI.screenHome) : route,
+			// Локатор — лише kebab-case ASCII (TESTID-AND-NAMING-v9 § 1.2): у
+			// маршруті кореня є дужки й знак рівності, які в назві неприпустимі.
+			slug: route === ROOT_ROUTE ? 'home' : route.replace(/[^a-z0-9]+/gi, '-').toLowerCase()
+		}));
+
+	const screens = $derived(
+		screensOf(BETA_TABS.find((tab) => tab.id === state.activeTab)?.routes ?? [])
+	);
 </script>
 
 <svelte:head>
@@ -67,11 +100,19 @@
 
 <main class="beta-page">
 	<header class="beta-header">
+		<!--
+			Вихід зі сторінки (§ 8.4): тестувальник приходить за прямим посиланням,
+			у нього немає ні історії, ні пункта меню — сторінки немає в меню за § 4.
+		-->
+		<a class="beta-back" href={HOME} data-testid="beta-back-link">← {pick(BETA_UI.backHome)}</a>
+
 		<h1>{pick(BETA_UI.pageTitle)}</h1>
 		<p class="beta-intro">{pick(BETA_UI.intro)}</p>
 
 		<div class="beta-meta">
-			<span class="beta-version">{pick(BETA_UI.build)} {state.version}</span>
+			<span class="beta-version" data-testid="beta-version-text"
+				>{pick(BETA_UI.build)} {state.version}</span
+			>
 			<span class="beta-progress" data-testid="beta-progress-value">
 				{pick(BETA_UI.marked)} {state.progress.done} / {state.progress.total}
 			</span>
@@ -89,92 +130,55 @@
 				data-testid="beta-tab-{tab.id}-btn"
 			>
 				{pick(tab.title)}
-				<span class="beta-tab-count">{progress.done}/{progress.total}</span>
+				<span class="beta-tab-count" data-testid="beta-tab-{tab.id}-progress-text"
+					>{progress.done}/{progress.total}</span
+				>
 			</button>
 		{/each}
 	</nav>
 
 	<h2 class="beta-tab-title">{pick(activeTabTitle)}</h2>
 
+	{#if screens.length > 0}
+		<p class="beta-screens">
+			<span>{pick(BETA_UI.screens)}</span>
+			{#each screens as screen (screen.route)}
+				<!--
+					`resolve()` стоїть у самому атрибуті, а не приїжджає змінною: правило
+					`no-navigation-without-resolve` перевіряє ВИРАЗ, тож заздалегідь
+					обчислений рядок воно рахує за склеєну адресу й борг зростає. Заразом
+					тут видно, що обидва маршрути звіряються з реальним переліком на етапі
+					компіляції.
+				-->
+				<a
+					class="beta-screen"
+					href={screen.isRoot ? HOME : resolve('/2026-04')}
+					data-testid="beta-screen-{screen.slug}-link"
+				>
+					{screen.label}
+				</a>
+			{/each}
+		</p>
+	{/if}
+
 	{#each byLevel as { coverage, items } (coverage)}
 		<section class="beta-level" data-testid="beta-level-{coverage}-section">
-			<h3 class="beta-level-title">{pick(BETA_UI.levelTitle[coverage])}</h3>
+			<h3 class="beta-level-title">
+				{pick(BETA_UI.levelTitle[coverage])}
+				<!-- Скільки пунктів у блоці — видно до того, як у нього заходити (§ 8.7). -->
+				<span class="beta-level-count">{items.length}</span>
+			</h3>
 			<p class="beta-level-note">{pick(BETA_UI.levelNote[coverage])}</p>
 
 			<ul class="beta-list">
 				{#each items as check (check.id)}
-					{@const mark = state.markOf(check.id)}
-					<li class="beta-item" class:marked={mark !== undefined} data-testid="beta-check-item">
-						<div class="beta-item-head">
-							<span class="beta-item-number">{numberOf(check)}</span>
-							<span class="beta-item-category" data-testid="beta-check-category-text">
-								{pick(check.category)}
-							</span>
-							{#if check.negative}
-								<span class="beta-item-negative">{pick(BETA_UI.boundary)}</span>
-							{/if}
-						</div>
-
-						<p class="beta-item-text" data-testid="beta-check-text">{pick(check.text)}</p>
-
-						{#if state.isStale(check.id)}
-							<!-- Позначка з іншої версії НЕ зникає — вона все ще щось означає, —
-							     але мусить бути видно, що вона стороння, і в поступ цієї збірки
-							     вона не рахується (§ 3.1). -->
-							<p class="beta-item-stale" data-testid="beta-check-stale-hint">
-								{pick(BETA_UI.staleHint).replace('{version}', mark?.version ?? '')}
-							</p>
-						{/if}
-
-						<div class="beta-votes" role="group" aria-label={pick(BETA_UI.answer)}>
-							{#each VOTE_ORDER as vote (vote)}
-								<button
-									class="beta-vote beta-vote-{vote}"
-									class:chosen={mark?.vote === vote}
-									aria-pressed={mark?.vote === vote}
-									onclick={() => state.vote(check.id, vote)}
-									data-testid="beta-vote-{vote}-btn"
-								>
-									{pick(BETA_UI.voteLabel[vote])}
-								</button>
-							{/each}
-						</div>
-					</li>
+					<BetaCheckItem {check} {state} {pick} number={numberOf(check)} />
 				{/each}
 			</ul>
 		</section>
 	{/each}
 
-	<footer class="beta-footer">
-		<button
-			class="beta-report"
-			onclick={() => state.copyReport(language.current)}
-			data-testid="beta-report-btn"
-		>
-			{state.copied ? pick(BETA_UI.copied) : pick(BETA_UI.copyReport)}
-		</button>
-		<button class="beta-clear" onclick={() => state.clear()} data-testid="beta-clear-btn">
-			{pick(BETA_UI.clearMarks)}
-		</button>
-
-		{#if state.fallbackReport}
-			<!-- Запасний шлях (§ 6.2): буфер обміну відмовляє буденно — вкладка не у
-			     фокусі, сторінка не через https, немає дозволу. Перша версія в такому
-			     разі лише писала в лог: кнопка виглядала натиснутою, а звіту не було
-			     НІДЕ, тобто вся робота тестувальника зникала на останньому кроці. -->
-			<p class="beta-report-hint" data-testid="beta-report-hint">
-				{pick(BETA_UI.clipboardFailed)}
-			</p>
-			<textarea
-				class="beta-report-input"
-				readonly
-				rows="14"
-				value={state.fallbackReport}
-				aria-label={pick(BETA_UI.reportText)}
-				data-testid="beta-report-input"
-			></textarea>
-		{/if}
-	</footer>
+	<BetaReport {state} {pick} language={language.current} />
 </main>
 
 <style>
@@ -186,10 +190,50 @@
 		color: var(--text-primary);
 	}
 
+	/* 44px — мінімальна сенсорна зона, і для посилання теж (ACCESSIBILITY-v9). */
+	.beta-back {
+		display: inline-flex;
+		align-items: center;
+		min-height: 44px;
+		margin-bottom: 0.5rem;
+		color: var(--text-secondary);
+		text-decoration: none;
+	}
+
+	.beta-back:hover {
+		color: var(--text-primary);
+		text-decoration: underline;
+	}
+
 	.beta-header h1 {
 		margin: 0;
 		font-size: clamp(1.6rem, 4vw, 2.4rem);
 		line-height: 1.2;
+	}
+
+	.beta-screens {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem;
+		margin: 1rem 0 0;
+		font-size: 0.9rem;
+		color: var(--text-secondary);
+	}
+
+	.beta-screen {
+		display: inline-flex;
+		align-items: center;
+		min-height: 44px;
+		padding: 0 0.7rem;
+		border: 1px dashed var(--border-color);
+		border-radius: 0.6rem;
+		color: var(--text-primary);
+		text-decoration: none;
+	}
+
+	.beta-screen:hover {
+		border-style: solid;
 	}
 
 	.beta-intro {
@@ -269,9 +313,23 @@
 	}
 
 	.beta-level-title {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
 		margin: 0;
 		font-size: 1.05rem;
 	}
+
+	.beta-level-count {
+		padding: 0.05rem 0.45rem;
+		border: 1px solid var(--border-color);
+		border-radius: 999px;
+		font-size: 0.8rem;
+		font-weight: 400;
+		color: var(--text-secondary);
+		font-variant-numeric: tabular-nums;
+	}
+
 
 	.beta-level-note {
 		margin: 0.35rem 0 0;
@@ -288,185 +346,28 @@
 		gap: 1rem;
 	}
 
-	.beta-item {
-		padding: 1rem 1.1rem;
-		border: 1px solid var(--border-color);
-		border-radius: 0.9rem;
-		background: var(--card-bg);
-	}
 
-	.beta-item.marked {
-		border-left-width: 4px;
-	}
 
-	.beta-item-head {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 0.6rem;
-		font-size: 0.8rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		color: var(--text-secondary);
-	}
 
-	.beta-item-number {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		min-width: 1.6rem;
-		height: 1.6rem;
-		border-radius: 50%;
-		border: 1px solid var(--border-color);
-		font-variant-numeric: tabular-nums;
-	}
 
-	.beta-item-negative {
-		padding: 0.1rem 0.45rem;
-		border: 1px dashed var(--border-color);
-		border-radius: 0.4rem;
-	}
 
-	.beta-item-text {
-		margin: 0.6rem 0 0;
-		line-height: 1.6;
-	}
 
-	.beta-item-stale {
-		margin: 0.6rem 0 0;
-		font-size: 0.85rem;
-		color: var(--text-secondary);
-		font-style: italic;
-	}
 
-	.beta-votes {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem;
-		margin-top: 0.9rem;
-	}
 
-	.beta-vote {
-		min-height: 44px;
-		padding: 0.5rem 0.9rem;
-		border: 1px solid var(--border-color);
-		border-radius: 0.6rem;
-		background: transparent;
-		color: var(--text-primary);
-		font: inherit;
-		font-size: 0.9rem;
-		cursor: pointer;
-		transition: var(--transition);
-	}
 
-	.beta-vote:hover {
-		border-color: var(--text-secondary);
-	}
 
-	/*
-	 * Обраний стан позначається рамкою, її товщиною І напівжирним — не лише
-	 * кольором (§ 3.2, ACCESSIBILITY-v8): інакше він недоступний тому, хто
-	 * кольори не розрізняє. Колір лишається як підсилення для решти.
-	 */
-	.beta-vote.chosen {
-		border-width: 2px;
-		font-weight: 700;
-	}
 
-	.beta-vote-fail.chosen {
-		border-color: #ef4444;
-		color: #ef4444;
-	}
 
-	.beta-vote-weird.chosen {
-		border-color: #f59e0b;
-		color: #f59e0b;
-	}
 
-	.beta-vote-ok.chosen {
-		border-color: #10b981;
-		color: #10b981;
-	}
 
-	.beta-footer {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.75rem;
-		margin-top: 3rem;
-		padding-top: 1.5rem;
-		border-top: 1px solid var(--border-color);
-	}
 
-	.beta-report,
-	.beta-clear {
-		min-height: 44px;
-		padding: 0.6rem 1.3rem;
-		border-radius: 999px;
-		border: 1px solid var(--border-color);
-		font: inherit;
-		font-weight: 600;
-		cursor: pointer;
-		transition: var(--transition);
-	}
 
-	.beta-report {
-		border: none;
-		background: var(--gradient);
-		/*
-		 * ТЕМНИЙ текст, а не `#fff`.
-		 *
-		 * `--gradient` побудований на `--accent-primary`, а той приходить із
-		 * `tabColors` — і всі п'ять акцентів ПАСТЕЛЬНІ (`#86efac`, `#93c5fd`,
-		 * `#d8b4fe`, `#fdba74`, `#f9a8d4`). Білий текст на них дає 1.40–1.81:1, а
-		 * на другому стопі градієнта 2.22–2.83:1, тобто не проходить НІДЕ.
-		 *
-		 * Гірше: на сторінках, куди не доїжджає `--accent-primary` (він ставиться
-		 * інлайном на `.app-wrapper` у кореневому layout), `--gradient` не
-		 * розв'язується взагалі, тло лишається світлим тлом сторінки — і білий
-		 * підпис зникає ЦІЛКОМ. Заміряно axe 2026-08-23: 1.08:1 на кнопці звіту
-		 * чеклиста, тобто напис був фактично невидимий.
-		 *
-		 * `#1d1d1f` (той самий, що `--text-primary` світлої теми) дає на цих
-		 * акцентах 5.95–11.99:1. Колір зашитий літералом навмисно: поверхня
-		 * пастельна в БУДЬ-ЯКІЙ темі, бо `tabColors` від теми не залежить, — отже
-		 * текст на ній мусить бути темним і в темній темі теж.
-		 */
-		color: #1d1d1f;
-	}
 
-	.beta-report:hover {
-		filter: brightness(1.1);
-	}
 
-	.beta-clear {
-		background: transparent;
-		color: var(--text-secondary);
-	}
 
-	.beta-clear:hover {
-		color: var(--text-primary);
-	}
 
-	.beta-report-hint {
-		flex-basis: 100%;
-		margin: 0.5rem 0 0;
-		font-size: 0.9rem;
-		color: var(--text-secondary);
-	}
 
-	.beta-report-input {
-		flex-basis: 100%;
-		width: 100%;
-		padding: 0.75rem;
-		border: 1px solid var(--border-color);
-		border-radius: 0.6rem;
-		background: var(--card-bg);
-		color: var(--text-primary);
-		font-family: monospace;
-		font-size: 0.8rem;
-		line-height: 1.5;
-		resize: vertical;
-	}
+
 
 	/*
 	 * Кільце фокуса — `--focus-ring`, а не `--accent-primary`: акцент ставить
@@ -475,10 +376,8 @@
 	 * зник би зовсім (UI-UX-v8 § 1.6).
 	 */
 	.beta-tab:focus-visible,
-	.beta-vote:focus-visible,
-	.beta-report:focus-visible,
-	.beta-clear:focus-visible,
-	.beta-report-input:focus-visible {
+	.beta-back:focus-visible,
+	.beta-screen:focus-visible {
 		outline: 3px solid var(--focus-ring);
 		outline-offset: 3px;
 	}

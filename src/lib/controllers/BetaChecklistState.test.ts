@@ -38,6 +38,56 @@ vi.stubGlobal('localStorage', {
 	clear: vi.fn()
 });
 
+/**
+ * Прочитане зі сховища — недовірений ввід (§ 8.6, `BETA-MARKS-UNTRUSTED`).
+ *
+ * Ключ переживає і зміну чеклиста, і зміну формату позначки. Найчастіший випадок
+ * безневинний і найгірший: пункт ПРИБРАЛИ з чеклиста, а позначка лишилася — вона
+ * рахувалася б у звіті й давала б «MARKED: 40 of 37», число, яке не означає
+ * нічого й не має де виправитися.
+ */
+describe('позначки зі сховища (§ 8.6)', () => {
+	const load = (raw: unknown) => {
+		vi.stubGlobal('localStorage', {
+			getItem: vi.fn(() => JSON.stringify(raw)),
+			setItem: vi.fn(),
+			removeItem: vi.fn(),
+			clear: vi.fn()
+		});
+		return new BetaChecklistState();
+	};
+
+	it('перевірка жива: справжня позначка доїжджає', () => {
+		const state = load({ common_2: { vote: 'ok', version: 'x' } });
+		expect(state.markOf('common_2')?.vote).toBe('ok');
+	});
+
+	it('позначка пункта, якого вже немає в чеклисті, не потрапляє в стан', () => {
+		const state = load({
+			common_2: { vote: 'ok', version: 'x' },
+			sea_999: { vote: 'ok', version: 'x' }
+		});
+
+		expect(state.markOf('sea_999'), 'позначка видаленого пункта вижила').toBeUndefined();
+		expect(Object.keys(state.marks)).toEqual(['common_2']);
+	});
+
+	it('позначка зіпсованої форми дорівнює відсутній', () => {
+		const state = load({
+			common_2: { vote: 'maybe', version: 'x' },
+			common_3: { vote: 'ok' },
+			common_4: 'ok'
+		});
+
+		expect(Object.keys(state.marks), 'у стан потрапило те, що позначкою не є').toEqual([]);
+	});
+
+	it('чужий вміст під ключем не кладе сторінку', () => {
+		expect(() => load('не об’єкт')).not.toThrow();
+		expect(Object.keys(load('не об’єкт').marks)).toEqual([]);
+	});
+});
+
 const COPIED_LABEL_MS = 2000;
 
 describe('підпис «скопійовано» (PERFORMANCE-v8 § 6)', () => {
@@ -89,6 +139,31 @@ describe('підпис «скопійовано» (PERFORMANCE-v8 § 6)', () => 
 		// А свій строк другий клік відпрацьовує повністю.
 		vi.advanceTimersByTime(1000);
 		expect(state.copied).toBe(false);
+	});
+
+	it('стирання вимагає ДВОХ натискань (§ 6.3)', async () => {
+		await state.copyReport('uk');
+		state.vote('common_2', 'ok');
+		expect(state.progress.done, 'перевірка мертва: позначка не поставилася').toBe(1);
+
+		// Перше натискання лише зводить кнопку. Саме тут і зникала година роботи:
+		// «стерти» стоїть у тому самому рядку, що й «скопіювати звіт».
+		expect(state.requestClear()).toBe(false);
+		expect(state.clearArmed).toBe(true);
+		expect(state.progress.done, 'перше ж натискання стерло позначки').toBe(1);
+
+		expect(state.requestClear()).toBe(true);
+		expect(state.progress.done).toBe(0);
+		expect(state.clearArmed, 'кнопка лишилася зведеною після стирання').toBe(false);
+	});
+
+	it('зведення знімається без стирання', () => {
+		state.vote('common_2', 'ok');
+		state.requestClear();
+		state.disarmClear();
+
+		expect(state.clearArmed).toBe(false);
+		expect(state.progress.done, 'знімання зведення стерло позначки').toBe(1);
 	});
 
 	it('dispose() знімає таймер, і той не чіпає стан після знищення сторінки', async () => {

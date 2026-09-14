@@ -46,7 +46,7 @@ const SLACK = 0.5;
 
 const PAGES = [
 	{ key: 'головна', url: '/DigitalWorkshop/', ready: 'sea-hero-cta-btn' },
-	{ key: 'чеклист', url: '/DigitalWorkshop/beta-test-checklists/', ready: 'beta-check-item' }
+	{ key: 'чеклист', url: '/DigitalWorkshop/beta-test-checklists/', ready: 'beta-progress-value' }
 ];
 
 for (const { key, url, ready } of PAGES) {
