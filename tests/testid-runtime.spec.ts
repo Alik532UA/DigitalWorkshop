@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 /**
  * Локатори унікальні на ЗІБРАНІЙ сторінці (TESTID-AND-NAMING-v9 § 5;

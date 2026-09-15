@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 /**
  * Сама сторінка чеклиста (BETA-CHECKLIST-v9 § 5.7, `BETA-PAGE-E2E`).

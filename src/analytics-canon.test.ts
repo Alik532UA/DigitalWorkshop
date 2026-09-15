@@ -1,12 +1,13 @@
 // @vitest-environment node
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { withoutComments } from './test-support/source-text';
 
 /**
- * Інваріанти аналітики (ANALYTICS-v8 § 2.1–2.3).
+ * Інваріанти аналітики (ANALYTICS-v9 § 2.1–2.3, § 5.2 — `GATE-ANALYTICS`).
  *
- * Усі три правила нижче ламаються тихо й в один бік: аналітика перестає
+ * Усі правила нижче ламаються тихо й в один бік: аналітика перестає
  * працювати, а код лишається таким, що виглядає робочим. Симптому немає взагалі —
  * ні в консолі, ні у збірці, ні у звіті. Дізнатися можна лише через тиждень, коли
  * у звітах GA порожньо, або, найгірше, ніколи — якщо порожньо не буде, бо події
@@ -48,10 +49,93 @@ describe('ідентифікатор ресурсу', () => {
 	});
 });
 
-describe('гарди відправки', () => {
+describe('гарди відправки (§ 2.1.1, AN-GUARD-TEST-TRAFFIC)', () => {
 	/** § 2.1: без цього події з локальної розробки їдуть у продакшн-ресурс. */
 	it('події не надсилаються з dev-середовища', () => {
 		expect(/browser\s*&&\s*!dev/.test(source), 'немає гарда browser && !dev').toBe(true);
+	});
+
+	/**
+	 * § 2.1.1: `!dev` САМ ПО СОБІ не рятує, і це заміряно. E2E піднімає
+	 * `npm run build && npm run preview` — production-збірку, де `dev === false`.
+	 * До ревізії 9.4 канону кожен прогін тестів слав справжні події в бойовий GA4.
+	 */
+	it('перевіряється ще й `isTestOrLocal()` — у preview `dev` дорівнює false', () => {
+		expect(
+			/!isTestOrLocal\(\)/.test(source),
+			'без цього прогін E2E над preview шле події в продакшн-ресурс'
+		).toBe(true);
+	});
+
+	it('`isTestOrLocal` дивиться і на хост, і на прапорець автоматизації', () => {
+		// Хост ловить preview і ручний перегляд збірки; webdriver — Playwright на
+		// будь-якій адресі, зокрема на справжньому домені.
+		expect(source).toContain('localhost');
+		expect(source).toContain('127.0.0.1');
+		expect(source).toContain('navigator.webdriver');
+	});
+
+	it('`enabled` — функція, а не константа модуля', () => {
+		// Константа обчислюється на імпорті, тобто до першої навігації: хост тоді
+		// ще не той, а при prerender `window` немає взагалі.
+		expect(/const enabled\s*=\s*\(\)\s*=>/.test(source), '`enabled` перестала бути функцією').toBe(
+			true
+		);
+	});
+});
+
+describe('другий рівень: мережу в E2E глушить фікстура (§ 5.2, AN-E2E-BLOCK)', () => {
+	const E2E_DIR = 'tests';
+	const FIXTURES = join(E2E_DIR, 'fixtures.ts').replace(/\\/g, '/');
+	const fixtures = readFileSync(FIXTURES, 'utf8');
+
+	/** Усе, що Playwright виконує як тести: специфікації та сетап-проєкти. */
+	function specFiles(dir: string, acc: string[] = []): string[] {
+		for (const name of readdirSync(dir)) {
+			const full = join(dir, name).replace(/\\/g, '/');
+			if (statSync(full).isDirectory()) specFiles(full, acc);
+			else if (/\.(spec|setup)\.ts$/.test(full)) acc.push(full);
+		}
+		return acc;
+	}
+
+	it('специфікації знайдено — інакше перевіряти нема чого', () => {
+		expect(specFiles(E2E_DIR).length, 'обхід тек перестав знаходити файли').toBeGreaterThan(0);
+	});
+
+	it('модуль фікстур не містить тестів', () => {
+		// Інакше перший же імпорт звідти зареєструє їх удруге — вже в проєкті
+		// файлу-споживача.
+		expect(/^\s*(test|setup)\s*\(/m.test(fixtures), `${FIXTURES} містить тест`).toBe(false);
+	});
+
+	it('глушилка вішається на `context`, а не на `page`', () => {
+		// `page.route()` живе на одному об'єкті Page; context покриває і спливні
+		// вікна, і сторінки, відкриті пізніше.
+		expect(fixtures).toContain('blockAnalytics(context)');
+	});
+
+	it('кожен власний `browser.newContext()` глушиться окремо', () => {
+		// Фікстура перевизначає ТОЙ контекст, який Playwright дає тесту. Контекст,
+		// створений усередині тесту руками, — інший об'єкт, і маршрутів на ньому
+		// немає. Саме там сиділа б остання щілина другого рівня.
+		const unguarded: string[] = [];
+		for (const file of specFiles(E2E_DIR)) {
+			const text = readFileSync(file, 'utf8');
+			for (const [, name] of text.matchAll(/const (\w+) = await browser\.newContext\(/g)) {
+				if (!text.includes(`blockAnalytics(${name})`)) unguarded.push(`${file}: ${name}`);
+			}
+		}
+		expect(unguarded, 'контекст створено руками й не заглушено').toEqual([]);
+	});
+
+	it('жодна специфікація не бере `test` напряму з @playwright/test', () => {
+		const leaks = specFiles(E2E_DIR).filter((file) =>
+			/import\s+(?:type\s+)?\{[^}]*\btest\b[^}]*\}\s+from\s+['"]@playwright\/test['"]/.test(
+				readFileSync(file, 'utf8')
+			)
+		);
+		expect(leaks, 'ці файли обходять фікстуру, тож їхні сторінки ходять у GA4').toEqual([]);
 	});
 
 	/** § 2.4: автоматичний page_view у SPA рахує не те. */

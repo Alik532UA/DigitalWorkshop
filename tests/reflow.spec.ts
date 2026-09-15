@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 /**
  * WCAG SC 1.4.10 Reflow: 320 CSS px без горизонтального гортання

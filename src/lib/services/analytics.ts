@@ -18,7 +18,7 @@ const GA_ID: string = "G-91TWFXBR3Z";
  * Значення, з яким файл переноситься в новий проєкт: із ним усе нижче стає
  * no-op — скрипт не вантажиться й нічого не надсилається.
  *
- * Порівняння ТОЧНЕ, а не `GA_ID.includes("XXXX")`, як було (ANALYTICS-v8 § 2.2,
+ * Порівняння ТОЧНЕ, а не `GA_ID.includes("XXXX")`, як було (ANALYTICS-v9 § 2.2,
  * HIGH). Підрядок хибив в обидва боки: справжній ідентифікатор, у якому
  * трапилося б `XXXX`, він відкидав, а будь-який інший плейсхолдер —
  * `G-YYYYYYYYYY`, `G-000000000` — пропускав як налаштований, і події поїхали б у
@@ -29,8 +29,20 @@ const PLACEHOLDER: string = "G-XXXXXXXXXX";
 
 const isConfigured = GA_ID !== PLACEHOLDER && /^G-[A-Z0-9]{6,}$/.test(GA_ID);
 
-// `dev` keeps local work from landing in the same property as real traffic.
-const enabled = browser && !dev && isConfigured;
+/**
+ * Локальне середовище або автоматизований тест (Playwright, Puppeteer тощо).
+ * Запобігає засміченню аналітики під час розробки, локального прев'ю та E2E-тестів.
+ */
+const isTestOrLocal = () => {
+	if (!browser || typeof window === 'undefined') return false;
+	const hostname = window.location?.hostname ?? '';
+	const isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]';
+	const isWebDriver = typeof navigator !== 'undefined' && Boolean(navigator.webdriver);
+	return isLocal || isWebDriver;
+};
+
+// `dev`, `localhost` та автотести відключають аналітику, щоб тестовий трафік не потрапляв у продакшн.
+const enabled = () => browser && !dev && !isTestOrLocal() && isConfigured;
 
 export type AnalyticsEvent =
 	| 'project_view'
@@ -55,7 +67,7 @@ declare global {
 let started = false;
 
 export function initAnalytics() {
-	if (!enabled || started) return;
+	if (!enabled() || started) return;
 	started = true;
 
 	const dataLayer = (window.dataLayer = window.dataLayer ?? []);
@@ -79,7 +91,7 @@ export function initAnalytics() {
 }
 
 export function trackPageView() {
-	if (!enabled) return;
+	if (!enabled()) return;
 	// afterNavigate can fire before onMount on the initial load, so neither
 	// caller may assume the other ran first. initAnalytics is idempotent, and
 	// gtag queues into dataLayer until its script arrives.
@@ -92,7 +104,7 @@ export function trackPageView() {
 }
 
 export function track(event: AnalyticsEvent, params: EventParams = {}) {
-	if (!enabled) return;
+	if (!enabled()) return;
 	initAnalytics();
 	window.gtag?.("event", event, params);
 }
