@@ -2,12 +2,12 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: 'main'
+    branches: [main, dev]
+  # Ті самі гейти ДО мержу, без деплою (CI-CD-AND-TOOLS-v9 § 1.12,
+  # `CI-PRE-MERGE-GATE`). Job публікації нижче відсікається умовою на гілку.
+  pull_request:
+    branches: [main]
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
 
 # `cancel-in-progress: false` — і це не оптимізація, а умова того, що гейти
 # взагалі виконуються (CI-CD-AND-TOOLS-v8 § 1.3, AI-AGENT-PITFALLS-v8 § 1.4).
@@ -30,6 +30,9 @@ concurrency:
 jobs:
   build_site:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -69,7 +72,7 @@ jobs:
       # тоді послаблення стане відходом, а не порогом.
       - name: Audit dependencies
         if: ${{ !cancelled() }}
-        run: npm audit --audit-level=high
+        run: npm run audit:ci
 
       # Кеш браузерів між прогонами: `npm ci` їх не приносить, а
       # `playwright install` без кешу качає ~130 МБ щоразу.
@@ -93,11 +96,12 @@ jobs:
         run: npm run test:e2e -- --project=chromium
 
       - name: Upload Playwright report
-        if: failure()
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
         with:
           name: playwright-report
           path: playwright-report/
+          if-no-files-found: ignore
           retention-days: 7
 
       - name: Build
@@ -108,6 +112,7 @@ jobs:
       # написаний — прибитий `<html lang>` на всіх 42 мовах і CSP, що не
       # покривала власний інлайн-скрипт, — у джерелах виглядали правильно.
       - name: Check build output
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: npm run check:build
 
       # Бюджет бандла міряє КРИТИЧНИЙ ШЛЯХ сторінки, а не суму `entry/`: при
@@ -131,9 +136,11 @@ jobs:
       # (CI-CD-AND-TOOLS-v8 § 1.5, VERSIONING-v8 § 1.4). Падає, якщо збірка
       # змінила відстежуваний файл — типово це app-version.json із buildTime.
       - name: Build must not touch tracked files
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: git diff --exit-code
 
       - name: Lighthouse Audit
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: npx @lhci/cli@0.15.1 autorun --config=./lighthouserc.cjs
 
       - name: Upload Artifacts
@@ -143,8 +150,15 @@ jobs:
           path: 'build/'
 
   deploy:
+    # Публікація лише з гілки деплою: PR отримує всі гейти вище й жодного
+    # деплою (CI-CD-AND-TOOLS-v9 § 1.12).
+    if: github.ref == 'refs/heads/main'
     needs: build_site
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    timeout-minutes: 15
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

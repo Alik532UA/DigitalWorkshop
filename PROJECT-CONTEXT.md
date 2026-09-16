@@ -204,7 +204,7 @@ teatralo4ka.odesa.ua і з VetCrewGames, плюс підвал adoptananimal. К
 | `npm run check:build`             | CI, після `build` | єдиний гейт по зібраному HTML: мова кожної сторінки, canonical, noindex, hreflang, CSP і хеші інлайн-скриптів, robots↔sitemap, а для прихованої сторінки — ПРОТИЛЕЖНЕ до всього цього |
 | `npm run check:bundle`            | CI, після `build` | бюджет бандла по КРИТИЧНОМУ ШЛЯХУ сторінки (усі `<script module>` і `modulepreload` плюс їхні статичні імпорти, gzip), окремо код і окремо реєстри даних; сума `entry/` як міра заборонена канаркою                    |
 | `git diff --exit-code`            | CI, після `build` | збірка змінила відстежуваний файл                                                                                                                                                     |
-| `npm audit --audit-level=high`    | CI                | вразливості залежностей (усіх, не лише прод — див. «Прийняті рішення»)                                                                                                                |
+| `npm run audit:ci`                | CI                | вразливості залежностей (усіх, не лише прод — див. «Прийняті рішення»); обгортка `scripts/check-audit.mjs` відрізняє знахідку від збою реєстру npm (CI-CD-AND-TOOLS-v9 § 1.15)                                                                                                                |
 | `npx @lhci/cli autorun` Lighthouse | CI, після `build` | пороги продуктивності, доступності, best-practices і SEO над `build/` — див. `lighthouserc.cjs`                                                                                       |
 
 Файли перевірок: `a11y-static`, `canon-files`, `analytics-canon`, `app-html-lang`, `beta-checklist`, `ci`,
