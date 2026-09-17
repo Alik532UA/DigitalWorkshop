@@ -356,10 +356,23 @@ describe('гейти не ховають один одного (CI-CD-AND-TOOLS-
 		).toEqual([]);
 	});
 
+	/**
+	 * Крок, що біжить ЛИШЕ при падінні, гейтом не є за визначенням: його вердикт
+	 * нічого не каже про продукт, він реагує на чужий вердикт. Три класи § 1.8
+	 * такого кроку не описують — це четвертий рід, і впізнається він за умовою.
+	 *
+	 * Без цього рядка перевірка ловила сповіщення в `budgets.yml`: у тілі Issue
+	 * згадано `npm run check:bundle`, і класифікація за ЗГАДКОЮ зарахувала крок у
+	 * післязбіркові гейти. Тобто перевірка падала на тексті повідомлення.
+	 */
+	// Крапка в JS без прапорця `s` не збігається з переносом рядка, тож вираз
+	// лишається в межах одного рядка `if:` і без класу з екранованим `\n`.
+	const isFailureHandler = (body: string) => /if:.*failure\(\)/.test(body);
+
 	it('післязбірковий гейт несе умову на результат збірки', () => {
 		const afterBuild = files.flatMap((file) =>
 			stepsOf(readWorkflow(file))
-				.filter((s) => BUILD_DEPENDENT.test(s.body))
+				.filter((s) => BUILD_DEPENDENT.test(s.body) && !isFailureHandler(s.body))
 				.map((s) => ({ ...s, file }))
 		);
 		const seenBuild = new Set<string>();
@@ -624,7 +637,11 @@ const VERIFIED_ACTION_MAJORS: Readonly<
 		using: 'composite → upload-artifact@v7 (node24)',
 		checked: '2026-09-10'
 	},
-	'actions/deploy-pages': { major: 'v5', using: 'node24', checked: '2026-09-10' }
+	'actions/deploy-pages': { major: 'v5', using: 'node24', checked: '2026-09-10' },
+	// Заміряно командою з повідомлення гейта:
+	// `gh api repos/actions/github-script/contents/action.yml?ref=v8` → node24.
+	// Звірено й з v9 — там те саме, тобто підйом мажора рантайму не змінить.
+	'actions/github-script': { major: 'v8', using: 'node24', checked: '2026-09-17' }
 };
 
 describe('рантайм кожної дії перевірений (§ 1.9)', () => {
