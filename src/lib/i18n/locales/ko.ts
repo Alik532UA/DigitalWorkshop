@@ -82,6 +82,13 @@ export const ko: Translations = {
                 feature: "음악 학교의 요구에 맞춘 현대적이고 빠른 웹사이트.",
                 linkText: "웹사이트 방문"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: '오데사 보호소의 동물 입양 사이트. 필터로 고양이와 강아지를 찾고 즐겨찾기에 담아 입양 신청서를 보낼 수 있습니다.',
+                feature: '4개 언어를 지원하며 나이·크기·성별로 걸러 볼 수 있고, 즐겨찾기는 새로고침해도 남습니다.',
+                linkText: '웹사이트 방문'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

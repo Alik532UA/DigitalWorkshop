@@ -82,6 +82,13 @@ export const da: Translations = {
                 feature: "En moderne, hurtig hjemmeside tilpasset behovene hos en musikskole.",
                 linkText: "Besøg hjemmesiden"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Adoptionssite for et dyreinternat i Odessa: profiler på katte og hunde med filtre, favoritter og ansøgningsformular.',
+                feature: 'Fire sprog, filtre efter alder, størrelse og køn, og en favoritliste der overlever genindlæsning.',
+                linkText: 'Besøg hjemmesiden'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

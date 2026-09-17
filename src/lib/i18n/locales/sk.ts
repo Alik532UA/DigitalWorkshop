@@ -82,6 +82,13 @@ export const sk: Translations = {
                 feature: "Moderný, rýchly web prispôsobený potrebám hudobnej školy.",
                 linkText: "Navštíviť web"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Web na adopciu zvierat z odeského útulku: profily mačiek a psov s filtrami, obľúbené a formulár žiadosti.',
+                feature: 'Štyri jazyky, filtre podľa veku, veľkosti a pohlavia a obľúbené, ktoré prežijú načítanie stránky.',
+                linkText: 'Navštíviť web'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

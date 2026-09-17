@@ -44,6 +44,11 @@ export const enUS: Translations = {
                 ...en.portfolio.projects.as5,
                 description: "A wonderful school! We have many joint projects outside the site. By the way, this is my first client under the special offer for creative and charitable organizations."
             },
+            adoptananimal: {
+                ...en.portfolio.projects.adoptananimal,
+                description: "Animal adoption site for an Odesa shelter: cat and dog profiles with filters, favorites, and an adoption application form.",
+                feature: "Four languages, filters by age, size and sex, and a favorites list that survives a reload."
+            },
             vetcrew: {
                 ...en.portfolio.projects.vetcrew,
                 description: "A series of educational games about animals. A nonprofit passion project aimed at bringing attention to those who cannot protect themselves. Inspired by the incredible VetCrew!"

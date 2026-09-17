@@ -82,6 +82,13 @@ export const lv: Translations = {
                 feature: "Moderna, ātra vietne, kas pielāgota mūzikas skolas vajadzībām.",
                 linkText: "Apmeklēt vietni"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Odesas patversmes dzīvnieku adopcijas vietne: kaķu un suņu kartītes ar filtriem, izlase un pieteikuma forma.',
+                feature: 'Četras valodas, filtri pēc vecuma, izmēra un dzimuma un izlases saraksts, kas pārdzīvo lapas pārlādi.',
+                linkText: 'Apmeklēt vietni'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

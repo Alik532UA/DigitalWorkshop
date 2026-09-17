@@ -82,6 +82,13 @@ export const nl: Translations = {
                 feature: "Een moderne, snelle website afgestemd op de behoeften van een muziekschool.",
                 linkText: "Bezoek website"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Adoptiesite voor dieren van een asiel in Odessa: profielen van katten en honden met filters, favorieten en een aanvraagformulier.',
+                feature: 'Vier talen, filters op leeftijd, formaat en geslacht, en een favorietenlijst die een herlaadbeurt overleeft.',
+                linkText: 'Bezoek website'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

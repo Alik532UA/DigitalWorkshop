@@ -82,6 +82,13 @@ export const ja: Translations = {
                 feature: "音楽学校のニーズに合わせたモダンで高速なウェブサイト。",
                 linkText: "ウェブサイトを見る"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'オデーサの保護施設の動物里親サイト。猫と犬のカードを絞り込みで探し、お気に入りに登録し、申込フォームから応募できます。',
+                feature: '4言語対応。年齢・大きさ・性別で絞り込め、お気に入りは再読み込みしても残ります。',
+                linkText: 'ウェブサイトを見る'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

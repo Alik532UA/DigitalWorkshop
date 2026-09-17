@@ -82,6 +82,13 @@ export const ga: Translations = {
                 feature: "Suíomh nua-aimseartha, tapa atá saincheaptha do riachtanais scoil ceoil.",
                 linkText: "Tabhair Cuairt ar an Suíomh"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Suíomh uchtála ainmhithe do dhídean in Odessa: próifílí cat agus madraí le scagairí, ceanáin agus foirm iarratais.',
+                feature: 'Ceithre theanga, scagairí de réir aoise, méide agus gnéis, agus liosta ceanán a mhaireann tar éis athlódála.',
+                linkText: 'Tabhair Cuairt ar an Suíomh'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

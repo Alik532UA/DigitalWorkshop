@@ -82,6 +82,13 @@ export const ca: Translations = {
                 feature: "Un lloc modern i ràpid adaptat a les necessitats d'una escola de música.",
                 linkText: "Visita el lloc"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Lloc d\'adopció d\'animals d\'un refugi d\'Odessa: fitxes de gats i gossos amb filtres, preferits i formulari de sol·licitud.',
+                feature: 'Quatre idiomes, filtres per edat, mida i sexe, i una llista de preferits que sobreviu a la recàrrega.',
+                linkText: 'Visita el lloc'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

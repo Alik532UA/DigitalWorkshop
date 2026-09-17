@@ -82,6 +82,13 @@ export const ro: Translations = {
                 feature: "Un site modern și rapid, adaptat nevoilor unei școli de muzică.",
                 linkText: "Vizitează site-ul"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Site de adopție a animalelor dintr-un adăpost din Odesa: fișe de pisici și câini cu filtre, favorite și formular de cerere.',
+                feature: 'Patru limbi, filtre după vârstă, mărime și sex și o listă de favorite care supraviețuiește reîncărcării.',
+                linkText: 'Vizitează site-ul'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

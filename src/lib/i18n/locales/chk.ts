@@ -89,6 +89,13 @@ export const chk: Translations = {
                 feature: "Website mi watteoch, mecheres, mi föri fän sukulen music kewe.",
                 linkText: "Süki Website"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Neni website fan animal adoption seni Odesa shelter: kaan cats me dogs, filters, favorites, me eu application form.',
+                feature: 'Fan ruanu fos, filter ren ier, watte me sex, me favorite list mi nom mwirin reload.',
+                linkText: 'Süki Website'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

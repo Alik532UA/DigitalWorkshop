@@ -82,6 +82,13 @@ export const sq: Translations = {
                 feature: "Një faqe moderne, e shpejtë e përshtatur për nevojat e një shkolle muzikore.",
                 linkText: "Vizito Faqen"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Faqe për adoptimin e kafshëve nga një strehë në Odesa: skeda macesh dhe qensh me filtra, të preferuarat dhe formular aplikimi.',
+                feature: 'Katër gjuhë, filtra sipas moshës, madhësisë dhe gjinisë dhe një listë të preferuarash që i mbijeton ringarkimit.',
+                linkText: 'Vizito Faqen'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

@@ -40,5 +40,6 @@ export const PROJECTS: ProjectEntry[] = [
     { id: 'cv_web', img: 'cv_web.jpg', icon: FileUser, site: 'cv', tabs: ['website'] },
     { id: 'and_dvergr', img: 'AndDvergrShallSpeakAI.jpg', icon: Gamepad2, link: 'https://www.youtube.com/@AndDvergrShallSpeakAI', tabs: ['games'] },
     { id: 'as5', img: 'as5_odesa_ua.jpg', icon: Globe, site: 'as5', tabs: ['website', 'promo'] },
-    { id: 'vetcrew', img: 'VetCrewGames.jpg', icon: Gamepad2, site: 'vetcrewgames', tabs: ['games'] }
+    { id: 'vetcrew', img: 'VetCrewGames.jpg', icon: Gamepad2, site: 'vetcrewgames', tabs: ['games'] },
+    { id: 'adoptananimal', img: 'adoptananimal.jpg', icon: Globe, site: 'adoptananimal', tabs: ['website', 'promo'] }
 ];

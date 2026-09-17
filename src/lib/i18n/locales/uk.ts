@@ -84,6 +84,13 @@ export const uk: Translations = {
                 feature: 'Сучасний швидкий сайт, створений з урахуванням потреб музичної школи.',
                 linkText: 'Відкрити сайт'
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Сайт прилаштування тварин одеського притулку: картки котів і собак із фільтрами, обране та форма заявки на прихисток.',
+                feature: 'Чотири мови, фільтри за віком, розміром і статтю та обране, яке переживає перезавантаження.',
+                linkText: 'Відкрити сайт'
+            },
             vetcrew: {
                 title: 'VetCrew Games',
                 tech: 'Svelte',

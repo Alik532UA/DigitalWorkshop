@@ -82,6 +82,13 @@ export const cy: Translations = {
                 feature: "Gwefan fodern, gyflym wedi'i theilwra i anghenion ysgol gerddoriaeth.",
                 linkText: "Ymweld â'r Wefan"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Gwefan mabwysiadu anifeiliaid ar gyfer lloches yn Odesa: proffiliau cathod a chŵn gyda hidlyddion, ffefrynnau a ffurflen gais.',
+                feature: 'Pedair iaith, hidlyddion yn ôl oedran, maint a rhyw, a rhestr ffefrynnau sy’n goroesi ail-lwytho.',
+                linkText: 'Ymweld â\'r Wefan'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

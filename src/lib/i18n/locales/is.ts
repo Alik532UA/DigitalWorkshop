@@ -82,6 +82,13 @@ export const is: Translations = {
                 feature: "Nútímaleg, hröð vefsíða sniðin að þörfum tónlistarskóla.",
                 linkText: "Heimsækja vefsíðu"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Vefur fyrir ættleiðingu dýra úr athvarfi í Odessa: spjöld katta og hunda með síum, uppáhald og umsóknareyðublað.',
+                feature: 'Fjögur tungumál, síur eftir aldri, stærð og kyni, og uppáhaldslisti sem lifir endurhleðslu af.',
+                linkText: 'Heimsækja vefsíðu'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

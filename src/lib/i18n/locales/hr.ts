@@ -82,6 +82,13 @@ export const hr: Translations = {
                 feature: "Moderna, brza stranica prilagođena potrebama glazbene škole.",
                 linkText: "Posjeti stranicu"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Stranica za udomljavanje životinja iz odeskog skloništa: profili mačaka i pasa s filtrima, favoriti i obrazac zahtjeva.',
+                feature: 'Četiri jezika, filtri po dobi, veličini i spolu te popis favorita koji preživi ponovno učitavanje.',
+                linkText: 'Posjeti stranicu'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

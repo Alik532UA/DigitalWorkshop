@@ -82,6 +82,13 @@ export const et: Translations = {
                 feature: "Kaasaegne, kiire veebisait, mis on kohandatud muusikakooli vajadustele.",
                 linkText: "Külasta veebisaiti"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Odessa varjupaiga loomade kodu otsimise sait: kasside ja koerte kaardid filtritega, lemmikud ja taotlusvorm.',
+                feature: 'Neli keelt, filtrid vanuse, suuruse ja soo järgi ning lemmikute loend, mis elab üle lehe uuestilaadimise.',
+                linkText: 'Külasta veebisaiti'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

@@ -82,6 +82,13 @@ export const lt: Translations = {
                 feature: "Moderni, greita svetainė, pritaikyta muzikos mokyklos poreikiams.",
                 linkText: "Aplankyti svetainę"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Odesos prieglaudos gyvūnų priglobimo svetainė: kačių ir šunų kortelės su filtrais, mėgstami ir paraiškos forma.',
+                feature: 'Keturios kalbos, filtrai pagal amžių, dydį ir lytį bei mėgstamų sąrašas, išliekantis po puslapio perkrovimo.',
+                linkText: 'Aplankyti svetainę'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

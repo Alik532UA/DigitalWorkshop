@@ -89,6 +89,13 @@ export const pon: Translations = {
                 feature: "Website kalaimwahu, marahra me konehng anahn en sukuhl en mwusik.",
                 linkText: "Ritingada Website"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Wasahn adoption en mahn akan sang shelter en Odesa: pali en katt oh kidi, filter kan, favorite kan, oh application form.',
+                feature: 'Lokaia pahieu, filter en sounpar, laud, oh ohl/lih, oh favorite list me kin mihmi mwurin reload.',
+                linkText: 'Ritingada Website'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

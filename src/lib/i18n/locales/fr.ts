@@ -82,6 +82,13 @@ export const fr: Translations = {
                 feature: "Un site moderne et rapide, adapté aux besoins d'une école de musique.",
                 linkText: "Visiter le site"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Site d\'adoption d\'animaux d\'un refuge d\'Odessa : fiches de chats et de chiens avec filtres, favoris et formulaire de demande.',
+                feature: 'Quatre langues, des filtres par âge, taille et sexe, et une liste de favoris qui survit au rechargement.',
+                linkText: 'Visiter le site'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

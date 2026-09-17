@@ -82,6 +82,13 @@ export const tr: Translations = {
                 feature: "Bir müzik okulunun ihtiyaçlarına göre uyarlanmış modern, hızlı bir web sitesi.",
                 linkText: "Siteyi Ziyaret Et"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Odessa barınağı için hayvan sahiplendirme sitesi: filtrelerle kedi ve köpek kartları, favoriler ve başvuru formu.',
+                feature: 'Dört dil, yaşa, boyuta ve cinsiyete göre filtreler ve sayfa yenilense de kalan favoriler listesi.',
+                linkText: 'Siteyi Ziyaret Et'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

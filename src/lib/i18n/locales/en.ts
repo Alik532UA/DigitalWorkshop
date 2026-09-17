@@ -88,6 +88,13 @@ export const en: Translations = {
                 feature: "A modern, fast website tailored to the needs of a music school.",
                 linkText: "Visit Website"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Animal adoption site for an Odesa shelter: cat and dog profiles with filters, favourites, and an adoption application form.',
+                feature: 'Four languages, filters by age, size and sex, and a favourites list that survives a reload.',
+                linkText: 'Visit Website'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

@@ -89,6 +89,13 @@ export const yap: Translations = {
                 feature: "Reb e website nib ga'ay, ni ma'ay, ni fan ko skul ko music.",
                 linkText: "Ligeg e Website"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Website ko adoption ko gamanman u Odesa shelter: card ko cat nge dog, filter, favorite, nge application form.',
+                feature: 'Aningeg e thin, filter ko duw, ga’ngin, nge pumo’on/ppin, nge favorite ni ma par u tomuren e reload.',
+                linkText: 'Ligeg e Website'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

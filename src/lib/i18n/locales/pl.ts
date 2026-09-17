@@ -82,6 +82,13 @@ export const pl: Translations = {
                 feature: "Nowoczesna, szybka strona dostosowana do potrzeb szkoły muzycznej.",
                 linkText: "Odwiedź stronę"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Serwis adopcyjny zwierząt z odeskiego schroniska: profile kotów i psów z filtrami, ulubione i formularz zgłoszenia.',
+                feature: 'Cztery języki, filtry według wieku, rozmiaru i płci oraz lista ulubionych, która przetrwa przeładowanie.',
+                linkText: 'Odwiedź stronę'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

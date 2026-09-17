@@ -82,6 +82,13 @@ export const mt: Translations = {
                 feature: "Sit modern u mgħaġġel imfassal għall-bżonnijiet ta' skola tal-mużika.",
                 linkText: "Żur is-Sit"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Sit għall-adozzjoni ta\' annimali minn kenn f\'Odessa: profili ta\' qtates u klieb b\'filtri, favoriti u formola ta\' applikazzjoni.',
+                feature: 'Erba\' lingwi, filtri skont l-età, id-daqs u s-sess, u lista ta\' favoriti li tibqa\' wara li terġa\' ttella\' l-paġna.',
+                linkText: 'Żur is-Sit'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

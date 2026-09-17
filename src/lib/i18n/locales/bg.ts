@@ -82,6 +82,13 @@ export const bg: Translations = {
                 feature: "Съвременен, бърз сайт, съобразен с нуждите на музикално училище.",
                 linkText: "Посети сайта"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Сайт за осиновяване на животни от одески приют: профили на котки и кучета с филтри, любими и формуляр за заявка.',
+                feature: 'Четири езика, филтри по възраст, размер и пол и списък с любими, който преживява презареждане.',
+                linkText: 'Посети сайта'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

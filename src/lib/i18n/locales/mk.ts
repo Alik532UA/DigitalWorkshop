@@ -82,6 +82,13 @@ export const mk: Translations = {
                 feature: "Модерен, брз сајт прилагоден на потребите на музичко училиште.",
                 linkText: "Посети го сајтот"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Сајт за домување животни од одески прифатилиште: картички на мачки и кучиња со филтри, омилени и формулар за барање.',
+                feature: 'Четири јазика, филтри по возраст, големина и пол и листа омилени што преживува освежување.',
+                linkText: 'Посети го сајтот'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

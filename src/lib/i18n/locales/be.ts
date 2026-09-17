@@ -82,6 +82,13 @@ export const be: Translations = {
                 feature: "Сучасны хуткі сайт, створаны з улікам патрэб музычнай школы.",
                 linkText: "Наведаць сайт"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Сайт уладкавання жывёл адэскага прытулку: карткі катоў і сабак з фільтрамі, абранае і форма заяўкі на прытулак.',
+                feature: 'Чатыры мовы, фільтры паводле ўзросту, памеру і полу і абранае, якое перажывае перазагрузку.',
+                linkText: 'Наведаць сайт'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

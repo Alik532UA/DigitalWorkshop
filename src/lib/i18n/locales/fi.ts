@@ -82,6 +82,13 @@ export const fi: Translations = {
                 feature: "Moderni, nopea verkkosivu räätälöity musiikkikoulun tarpeisiin.",
                 linkText: "Vieraile sivustolla"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Odessalaisen eläinsuojan adoptiosivusto: kissojen ja koirien kortit suodattimineen, suosikit ja hakemuslomake.',
+                feature: 'Neljä kieltä, suodattimet iän, koon ja sukupuolen mukaan sekä suosikkilista, joka säilyy sivun latauksen yli.',
+                linkText: 'Vieraile sivustolla'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

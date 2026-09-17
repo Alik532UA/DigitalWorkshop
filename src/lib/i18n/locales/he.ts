@@ -85,6 +85,13 @@ export const he: Translations = {
                 feature: "אתר מודרני ומהיר המותאם לצרכי בית ספר למוזיקה.",
                 linkText: "בקרו באתר"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'אתר אימוץ בעלי חיים של מקלט באודסה: כרטיסי חתולים וכלבים עם מסננים, מועדפים וטופס בקשה.',
+                feature: 'ארבע שפות, מסננים לפי גיל, גודל ומין, ורשימת מועדפים ששורדת רענון של הדף.',
+                linkText: 'בקרו באתר'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

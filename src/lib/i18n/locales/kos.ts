@@ -89,6 +89,13 @@ export const kos: Translations = {
                 feature: "Sie website yohk, sa, ma fal nu ke enenu lun sie sukul music.",
                 linkText: "Liye Website"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Nien website nu adoption lun kosro Odesa: kaat lun cat ac dog wi filter, ma saok, ac form in siyuk.',
+                feature: 'Kas akosr, filter ke yac, lupa, ac mukul/mutan, ac ma saok ma oan na tukun reload.',
+                linkText: 'Liye Website'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

@@ -82,6 +82,13 @@ export const de: Translations = {
                 feature: "Eine moderne, schnelle Website, zugeschnitten auf die Bedürfnisse einer Musikschule.",
                 linkText: "Website besuchen"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Vermittlungsseite für Tiere eines Tierheims in Odessa: Katzen- und Hundeprofile mit Filtern, Favoriten und Antragsformular.',
+                feature: 'Vier Sprachen, Filter nach Alter, Größe und Geschlecht sowie eine Favoritenliste, die das Neuladen übersteht.',
+                linkText: 'Website besuchen'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

@@ -82,6 +82,13 @@ export const no: Translations = {
                 feature: "En moderne, rask nettside tilpasset behovene til en musikkskole.",
                 linkText: "Besøk nettsiden"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Adopsjonsside for et dyreinternat i Odessa: profiler av katter og hunder med filtre, favoritter og søknadsskjema.',
+                feature: 'Fire språk, filtre etter alder, størrelse og kjønn, og en favorittliste som overlever en ny innlasting.',
+                linkText: 'Besøk nettsiden'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

@@ -82,6 +82,13 @@ export const crh: Translations = {
                 feature: "Musıqa mektebiniñ ihtiyaclarına köre uyarlanğan zamanaviy, çabuk sayt.",
                 linkText: "Saytnı ziyaret etiñiz"
             },
+            adoptananimal: {
+                title: 'Adopt an Animal',
+                tech: 'SvelteKit',
+                description: 'Odessa sıgınağınıñ ayvanlarnı asrav saytı: mışıq ve köpek kartaları, süzgüçler, sevimliler ve müracaat forması.',
+                feature: 'Dört til, yaş, ölçü ve cins boyunca süzgüçler ve qayta yüklevden soñ da qalğan sevimliler cedveli.',
+                linkText: 'Saytnı ziyaret etiñiz'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",
