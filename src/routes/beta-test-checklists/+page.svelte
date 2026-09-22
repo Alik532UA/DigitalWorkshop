@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
 	import { resolve } from '$app/paths';
+	import type { Pathname } from '$app/types';
 	import { getLanguage } from '$lib/i18n/LanguageState.svelte';
 	import { BETA_TABS, BETA_UI, type BetaCheck, type Localized } from '$lib/data/betaChecklist';
 	import { BetaChecklistState, COVERAGE_ORDER } from '$lib/controllers/BetaChecklistState.svelte';
@@ -33,8 +34,21 @@
 	// шлях (PERFORMANCE-v8 § 6).
 	onDestroy(() => state.dispose());
 
-	/** Дві мови в даних; решта 40 мов бачить англійський текст (§ 2.4). */
-	const isUk = $derived(language.current === 'uk');
+	/**
+	 * Дві мови в даних; решта 40 мов бачить англійський текст (§ 2.4).
+	 *
+	 * І саме тому тут потрібна ВЛАСНА кнопка мови (§ 8.3, `BETA-OWN-LANG-BTN`).
+	 * Мов інтерфейсу сорок дві, мов чеклиста дві — і з цього виходив тупик,
+	 * якого не видно з даних: людина, чий сайт відкрився мальтійською, бачила
+	 * чеклист англійською й НЕ МАЛА ЧИМ перемкнути його на українську. Мовний
+	 * перемикач сайту дає їй сорок дві мови інтерфейсу, а чеклист розуміє дві.
+	 *
+	 * `null` означає «як на сайті»: доки кнопку не натиснули, поведінка та сама,
+	 * що була, і адреса сторінки не змінюється ніколи.
+	 */
+	const isUk = $derived(
+		state.checklistLanguage ? state.checklistLanguage === 'uk' : language.current === 'uk'
+	);
 	const pick = (text: Localized) => (isUk ? text.uk : text.en);
 
 	const activeChecks = $derived(state.checksOf(state.activeTab));
@@ -104,7 +118,7 @@
 			Вихід зі сторінки (§ 8.4): тестувальник приходить за прямим посиланням,
 			у нього немає ні історії, ні пункта меню — сторінки немає в меню за § 4.
 		-->
-		<a class="beta-back" href={HOME} data-testid="beta-back-link">← {pick(BETA_UI.backHome)}</a>
+		<a class="beta-back" href={HOME} data-testid="beta-home-link">← {pick(BETA_UI.backHome)}</a>
 
 		<h1>{pick(BETA_UI.pageTitle)}</h1>
 		<p class="beta-intro">{pick(BETA_UI.intro)}</p>
@@ -113,6 +127,15 @@
 			<span class="beta-version" data-testid="beta-version-text"
 				>{pick(BETA_UI.build)} {state.version}</span
 			>
+			<button
+				type="button"
+				class="beta-lang"
+				onclick={() => (state.checklistLanguage = isUk ? 'en' : 'uk')}
+				data-testid="beta-lang-btn"
+			>
+				{pick(BETA_UI.langSwitch)}
+			</button>
+
 			<span class="beta-progress" data-testid="beta-progress-value">
 				{pick(BETA_UI.marked)} {state.progress.done} / {state.progress.total}
 			</span>
@@ -150,9 +173,28 @@
 					тут видно, що обидва маршрути звіряються з реальним переліком на етапі
 					компіляції.
 				-->
+				<!--
+					АДРЕСА БЕРЕТЬСЯ З МАРШРУТУ, А НЕ ВПИСУЄТЬСЯ ЛІТЕРАЛОМ (§ 8.4).
+
+					Доти тут стояло `screen.isRoot ? HOME : resolve('/2026-04')` —
+					і працювало рівно тому, що не-кореневий маршрут у проєкті
+					ОДИН. Другий зробив би всі посилання однаковими, і жодна
+					перевірка цього не побачила б: перелік екранів звірявся з
+					маршрутами, а самі адреси — ні з чим. Канон називає цей
+					випадок прямо: підставляти «перший, що трапиться» не можна.
+
+					`resolve()` стоїть ПРЯМО в атрибуті, бо правило
+					`svelte/no-navigation-without-resolve` дивиться на сам
+					атрибут: виклик, схований у помічник, для нього не існує, а
+					борг за цим правилом у проєкті лише спадає.
+
+					Приведення типу потрібне тому, що `tab.routes` оголошені як
+					`readonly string[]`; перевіряє ці рядки інваріант § 5.1,
+					який звіряє їх із деревом `src/routes`, а не компілятор.
+				-->
 				<a
 					class="beta-screen"
-					href={screen.isRoot ? HOME : resolve('/2026-04')}
+					href={screen.isRoot ? HOME : resolve(`/${screen.route}` as Pathname)}
 					data-testid="beta-screen-{screen.slug}-link"
 				>
 					{screen.label}
@@ -191,6 +233,20 @@
 	}
 
 	/* 44px — мінімальна сенсорна зона, і для посилання теж (ACCESSIBILITY-v9). */
+	/* Кнопка мови чеклиста: 44 px на дотик дає `min-height` з `inline-flex`. */
+	.beta-lang {
+		display: inline-flex;
+		align-items: center;
+		min-height: 44px;
+		border: 0;
+		padding: 0;
+		background: none;
+		font: inherit;
+		color: inherit;
+		text-decoration: underline;
+		cursor: pointer;
+	}
+
 	.beta-back {
 		display: inline-flex;
 		align-items: center;

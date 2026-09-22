@@ -114,3 +114,38 @@ test('перше натискання «стерти» нічого не сти�
 	await page.getByTestId('beta-clear-btn').click();
 	await expect(page.getByTestId('beta-progress-value')).not.toHaveText(marked);
 });
+
+/**
+ * § 8.3 `BETA-OWN-LANG-BTN`: мов інтерфейсу сорок дві, мов чеклиста дві.
+ * Кнопка перемикає РІВНО чеклист — адреса й мова сайту лишаються як були,
+ * інакше вона дублювала б мовний перемикач шапки й нічого не вирішувала.
+ */
+test('кнопка мови перемикає чеклист, не чіпаючи адреси', async ({ page }) => {
+	await page.goto(URL);
+	const title = page.getByTestId('beta-tab-common-btn');
+	const before = await title.innerText();
+	const url = page.url();
+
+	await page.getByTestId('beta-lang-btn').click();
+
+	await expect(title, 'кнопка нічого не перемкнула').not.toHaveText(before);
+	expect(page.url(), 'кнопка чеклиста змінила адресу сторінки').toBe(url);
+});
+
+/**
+ * § 8.4 `BETA-SCREEN-LINKS`: посилання на екран веде туди, що названо в даних.
+ * Доти адреса не-кореневого екрана була вписана літералом і працювала лише
+ * тому, що такий маршрут у проєкті один.
+ */
+test('посилання на екран веде на названий маршрут', async ({ page }) => {
+	await page.goto(URL);
+	await page.getByTestId('beta-tab-sea-btn').click();
+
+	const links = page.locator('[data-testid^="beta-screen-"]');
+	const count = await links.count();
+	expect(count, 'вкладка не показала жодного екрана').toBeGreaterThan(0);
+
+	for (let i = 0; i < count; i++) {
+		await expect(links.nth(i)).toHaveAttribute('href', /.+/);
+	}
+});

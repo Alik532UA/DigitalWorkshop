@@ -1,6 +1,14 @@
 // @vitest-environment node
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve, sep } from 'node:path';
+
+/**
+ * Джерело САМОЇ сторінки — окремо від решти проєкту.
+ *
+ * Правила § 8 говорять про те, що є на ЦІЙ сторінці: `beta-lang-btn`,
+ * знайдений у чужому компоненті, нічого не довів би.
+ */
+const PAGE_SOURCE = readFileSync('src/routes/beta-test-checklists/+page.svelte', 'utf8');
 import { describe, expect, it } from 'vitest';
 import {
 	BETA_CHECKS,
@@ -377,9 +385,26 @@ describe('прихована сторінка (§ 4)', () => {
 		expect(nonAscii, `у назві маршруту не-ASCII: ${nonAscii.join(', ')}`).toEqual([]);
 	});
 
-	it('кожен прихований маршрут заборонений у robots.txt', () => {
-		const missing = hidden.filter((route) => !robots.includes(`Disallow: /DigitalWorkshop/${route}/`));
-		expect(missing, `немає Disallow: ${missing.join(', ')}`).toEqual([]);
+	/**
+	 * § 4.0 `BETA-NOINDEX-OVER-DISALLOW` — перевіряється ПРОТИЛЕЖНЕ.
+	 *
+	 * Доти цей інваріант вимагав `Disallow` на кожен прихований маршрут, і це
+	 * було неправильно рівно навпаки. `Disallow` забороняє ЗАВАНТАЖЕННЯ: краулер,
+	 * який його виконав, сторінку не читає — отже й `noindex` у ній не читає
+	 * ніколи, а адреса, на яку хтось послався ззовні, лягає в індекс голим URL.
+	 * Прибрати його потім нічим: прибирає рівно той тег, до якого краулер не
+	 * дійшов. Дві вимоги стояли поруч як набір, а складалися в гірший результат,
+	 * ніж кожна окремо.
+	 */
+	it('прихований маршрут НЕ закритий Disallow — інакше noindex не читають (§ 4.0)', () => {
+		const disallowed = [...robots.matchAll(/^Disallow:\s*(\S+)/gm)].map((m) => m[1]);
+		const wrong = hidden.filter((route) =>
+			disallowed.some((rule) => rule !== '/' && rule.includes(route))
+		);
+		expect(
+			wrong,
+			'Disallow забирає в краулера саме той запит, у відповіді на який лежить noindex'
+		).toEqual([]);
 	});
 
 	it('сторінка не згадана в жодному меню чи переліку', () => {
@@ -405,5 +430,59 @@ describe('прихована сторінка (§ 4)', () => {
 			});
 
 		expect(linking, `на службову сторінку веде посилання: ${linking.join(', ')}`).toEqual([]);
+	});
+
+	/**
+	 * § 8.3 `BETA-OWN-LANG-BTN`.
+	 *
+	 * Мов інтерфейсу СОРОК ДВІ, мов чеклиста дві — і людина, чий сайт відкрився
+	 * мальтійською, бачила чеклист англійською без жодного способу перемкнути
+	 * його на українську. Правило стояло в каноні з 9.0 і не виконувалося тут
+	 * саме тому, що не мало входу.
+	 */
+	it('мов інтерфейсу більше двох — на сторінці є власна кнопка мови (§ 8.3)', () => {
+		const langs = [
+			...(readFileSync('src/lib/i18n/LanguageState.svelte.ts', 'utf8')
+				.match(/SUPPORTED_LANGUAGES[^=]*=\s*\[([^\]]*)\]/)?.[1]
+				.matchAll(/'([^']+)'/g) ?? [])
+		];
+		expect(langs.length, 'перелік мов не прочитано — перевірка мертва').toBeGreaterThan(0);
+		if (langs.length <= 2) return;
+
+		expect(PAGE_SOURCE, 'чеклист знає дві мови, сайт — сорок дві').toContain(
+			'data-testid="beta-lang-btn"'
+		);
+	});
+
+	/**
+	 * § 8.4 `BETA-SCREEN-LINKS` — адреса екрана береться з МАРШРУТУ.
+	 *
+	 * Доти в розмітці стояв літерал `resolve('/2026-04')` для всіх
+	 * не-кореневих екранів. Працювало рівно тому, що такий маршрут у проєкті
+	 * один; другий зробив би всі посилання однаковими, і жодна перевірка цього
+	 * не побачила б — перелік екранів звірявся з маршрутами, а самі адреси ні з
+	 * чим.
+	 */
+	it('посилання на екран будується з маршруту, а не з літерала (§ 8.4)', () => {
+		const markup = PAGE_SOURCE.replace(/<!--[\s\S]*?-->/g, '');
+		const hrefs = [...markup.matchAll(/href=\{([^}]*)\}/g)].map((m) => m[1]);
+		const literal = hrefs.filter((href) => /resolve\(\s*['"`]\/[a-z0-9-]/i.test(href));
+
+		expect(
+			literal,
+			'адреса екрана вписана літералом — другий маршрут зробить усі посилання однаковими'
+		).toEqual([]);
+	});
+
+	/** § 6.2.1 `BETA-REPORT-HINT-SPLIT`: у відмови буфера власний локатор. */
+	it('успіх копіювання й відмова буфера мають різні локатори (§ 6.2.1)', () => {
+		const report = readFileSync('src/lib/components/beta/BetaReport.svelte', 'utf8');
+		expect(report).toContain('data-testid="beta-report-hint"');
+		expect(report).toContain('data-testid="beta-report-failed-hint"');
+	});
+
+	/** § 8.4: вихід зі сторінки під канонічним іменем. */
+	it("зі сторінки є вихід під ім'ям beta-home-link (§ 8.4)", () => {
+		expect(PAGE_SOURCE).toContain('data-testid="beta-home-link"');
 	});
 });

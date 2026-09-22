@@ -163,6 +163,19 @@ export class BetaChecklistState {
 	 */
 	clearArmed = $state(false);
 
+	/**
+	 * МОВА ЧЕКЛИСТА, обрана на самій сторінці (§ 8.3, `BETA-OWN-LANG-BTN`).
+	 *
+	 * Живе в контролері, а не в сторінці, з двох причин. Перша технічна:
+	 * `+page.svelte` уже тримає локальну змінну `state`, і `$state` поруч із нею
+	 * дає `store_rune_conflict`. Друга по суті: вибір мови — такий самий стан
+	 * чеклиста, як активна вкладка, і місце йому тут.
+	 *
+	 * `null` означає «як на сайті»: доки кнопку не натиснули, поведінка та сама,
+	 * що була.
+	 */
+	checklistLanguage = $state<'uk' | 'en' | null>(null);
+
 	constructor() {
 		// Фасад сам має guard на browser і не кидає, тож зайвої перевірки тут не
 		// треба; зіпсоване значення він віддає як відсутнє (UI-UX-v8 § 1.1). А от
@@ -213,20 +226,38 @@ export class BetaChecklistState {
 	requestClear(): boolean {
 		if (!this.clearArmed) {
 			this.clearArmed = true;
+			this.rearm();
 			return false;
 		}
 		this.clear();
 		return true;
 	}
 
+	/**
+	 * Зведення знімається САМО через п'ять секунд (§ 6.3.1, `BETA-CLEAR-DISARM`).
+	 *
+	 * `disarmClear()` існував і його не кликав ніхто: кнопка лишалася зведеною
+	 * до перезавантаження, тобто наступний прихід на сторінку починався з того,
+	 * що між усією роботою і порожнім списком стоїть ОДНЕ натискання — і вигляд
+	 * кнопки про це вже не кричав, бо людина не бачила, як вона зводилася.
+	 */
+	private armTimer: ReturnType<typeof setTimeout> | undefined;
+
+	private rearm(): void {
+		clearTimeout(this.armTimer);
+		this.armTimer = setTimeout(() => (this.clearArmed = false), 5000);
+	}
+
 	/** Знімає зведення, не стираючи нічого: кнопка не лишається зарядженою. */
 	disarmClear(): void {
+		clearTimeout(this.armTimer);
 		this.clearArmed = false;
 	}
 
 	clear(): void {
 		this.marks = {};
 		this.fallbackReport = '';
+		clearTimeout(this.armTimer);
 		this.clearArmed = false;
 		storage.remove(STORAGE_KEY);
 	}
@@ -241,6 +272,8 @@ export class BetaChecklistState {
 	dispose(): void {
 		clearTimeout(this.copiedTimer);
 		this.copiedTimer = undefined;
+		clearTimeout(this.armTimer);
+		this.armTimer = undefined;
 	}
 
 	/** Скільки пунктів вкладки позначено ЦІЄЮ версією збірки. */

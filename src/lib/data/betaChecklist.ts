@@ -547,6 +547,14 @@ export const BETA_UI = {
 	coveredBy: { uk: 'Перевіряє тест:', en: 'Checked by:' },
 	screenHome: { uk: 'Головна сторінка', en: 'Main page' },
 	backHome: { uk: 'На головну', en: 'Home' },
+	/**
+	 * Підпис кнопки мови ЧЕКЛИСТА (§ 8.3, `BETA-OWN-LANG-BTN`).
+	 *
+	 * Не переклад одного напису, а назви мов: кнопка називає ту мову, НА ЯКУ
+	 * перемикає, і людина, яка мови сторінки не розуміє, мусить прочитати саме
+	 * це слово.
+	 */
+	langSwitch: { uk: 'English', en: 'Українська' },
 	clipboardFailed: {
 		uk: 'Буфер обміну недоступний. Виділіть текст нижче і скопіюйте вручну — нічого не втрачено.',
 		en: 'The clipboard is unavailable. Select the text below and copy it by hand — nothing is lost.'
