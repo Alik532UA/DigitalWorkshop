@@ -29,6 +29,24 @@
 	const state = new BetaChecklistState();
 	const language = getLanguage();
 
+	function selectTab(id: string) {
+		state.activeTab = id;
+		if (typeof window !== 'undefined') {
+			const url = new URL(window.location.href);
+			url.searchParams.set('tab', id);
+			window.history.replaceState(window.history.state, '', url.href);
+		}
+	}
+
+	$effect(() => {
+		if (typeof window !== 'undefined') {
+			const param = new URL(window.location.href).searchParams.get('tab');
+			if (param && BETA_TABS.some((t) => t.id === param)) {
+				state.activeTab = param;
+			}
+		}
+	});
+
 	// Контролер тримає таймер підпису «скопійовано». Без цього рядка він
 	// переживає сторінку: піти з чеклиста одразу після копіювання — звичайний
 	// шлях (PERFORMANCE-v8 § 6).
@@ -149,7 +167,7 @@
 				class="beta-tab"
 				class:active={state.activeTab === tab.id}
 				aria-pressed={state.activeTab === tab.id}
-				onclick={() => (state.activeTab = tab.id)}
+				onclick={() => selectTab(tab.id)}
 				data-testid="beta-tab-{tab.id}-btn"
 			>
 				{pick(tab.title)}
@@ -163,7 +181,7 @@
 	<h2 class="beta-tab-title">{pick(activeTabTitle)}</h2>
 
 	{#if screens.length > 0}
-		<p class="beta-screens">
+		<p class="beta-screens" data-sveltekit-preload-data="off">
 			<span>{pick(BETA_UI.screens)}</span>
 			{#each screens as screen (screen.route)}
 				<!--
@@ -280,16 +298,19 @@
 	.beta-screen {
 		display: inline-flex;
 		align-items: center;
+		justify-content: center;
 		min-height: 44px;
+		min-width: 44px;
 		padding: 0 0.7rem;
-		border: 1px dashed var(--border-color);
+		border: 1px solid var(--border-color);
 		border-radius: 0.6rem;
+		background: var(--card-bg);
 		color: var(--text-primary);
 		text-decoration: none;
 	}
 
 	.beta-screen:hover {
-		border-style: solid;
+		border-color: var(--text-secondary);
 	}
 
 	.beta-intro {

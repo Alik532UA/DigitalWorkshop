@@ -4,7 +4,6 @@ import { logService } from '$lib/services/logService.svelte';
 import {
 	BETA_CHECKS,
 	BETA_TABS,
-	VOTE_ORDER,
 	type BetaCheck,
 	type Coverage,
 	type Mark,
@@ -55,18 +54,17 @@ export const COVERAGE_ORDER: readonly Coverage[] = ['manual', 'testable', 'cover
  */
 const VOTE_LABEL: Record<Vote, string> = {
 	fail: 'НЕ ПРАЦЮЄ',
-	weird: 'ПРАЦЮЄ, АЛЕ ДИВНО',
+	unclear: 'НЕ ЗРОЗУМІЛО',
+	skip: 'ПРОПУЩЕНО',
 	ok: 'ПРАЦЮЄ'
 };
 
+const REPORT_ORDER: Record<Vote, number> = { fail: 0, unclear: 1, skip: 2, ok: 3 };
+
 /**
  * Поламане вгорі: звіт читають зверху, і найдорожче в ньому — перші рядки.
- *
- * Вага береться з `VOTE_ORDER`, а не оголошується вдруге: порядок «спершу
- * гірше» один і той самий на сторінці й у звіті, і два переліки розійшлися б на
- * першій же зміні.
  */
-const weightOf = (vote: Vote): number => VOTE_ORDER.indexOf(vote);
+const weightOf = (vote: Vote): number => REPORT_ORDER[vote] ?? 99;
 
 export const tabOf = (check: BetaCheck): string => check.id.split('_')[0];
 
@@ -98,13 +96,7 @@ export const tidOf = (id: string): string => id.replace(/_/g, '-');
  * Фільтрується і склад (`id` мусить бути в чеклисті), і форма: у сховищі може
  * лежати позначка старого формату або чужий ключ.
  */
-const VOTES: readonly Vote[] = ['fail', 'weird', 'ok'];
-
-function isMark(value: unknown): value is Mark {
-	if (typeof value !== 'object' || value === null) return false;
-	const m = value as Record<string, unknown>;
-	return VOTES.includes(m.vote as Vote) && typeof m.version === 'string';
-}
+const VOTES: readonly Vote[] = ['ok', 'fail', 'unclear', 'skip'];
 
 function readMarks(): Record<string, Mark> {
 	const raw = storage.getJSON<unknown>(STORAGE_KEY);
@@ -113,7 +105,14 @@ function readMarks(): Record<string, Mark> {
 	const known = new Set(BETA_CHECKS.map((check) => check.id));
 	const out: Record<string, Mark> = {};
 	for (const [id, value] of Object.entries(raw as Record<string, unknown>)) {
-		if (known.has(id) && isMark(value)) out[id] = value;
+		if (!known.has(id)) continue;
+		if (typeof value === 'object' && value !== null) {
+			const m = value as Record<string, unknown>;
+			const vote = m.vote === 'weird' ? 'unclear' : m.vote;
+			if (VOTES.includes(vote as Vote) && typeof m.version === 'string') {
+				out[id] = { vote: vote as Vote, version: m.version };
+			}
+		}
 	}
 	return out;
 }

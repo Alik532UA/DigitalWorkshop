@@ -48,7 +48,7 @@ export type Coverage =
 	/** Покрито; файл названий, і його існування перевіряється. */
 	| 'covered';
 
-export type Vote = 'fail' | 'weird' | 'ok';
+export type Vote = 'ok' | 'fail' | 'unclear' | 'skip';
 
 /** Позначка несе версію збірки — інакше список стає звітом про минуле. */
 export interface Mark {
@@ -589,11 +589,12 @@ export const BETA_UI = {
 		}
 	} satisfies Record<Coverage, Localized>,
 	voteLabel: {
+		ok: { uk: 'Працює', en: 'Works' },
 		fail: { uk: 'Не працює', en: 'Broken' },
-		weird: { uk: 'Працює, але дивно', en: 'Works, but odd' },
-		ok: { uk: 'Працює', en: 'Works' }
+		unclear: { uk: 'Не зрозуміло', en: 'Unclear' },
+		skip: { uk: 'Пропустити', en: 'Skip' }
 	} satisfies Record<Vote, Localized>
 };
 
 /** Порядок кнопок відповіді: від найгіршого до найкращого, як у звіті. */
-export const VOTE_ORDER: readonly Vote[] = ['fail', 'weird', 'ok'];
+export const VOTE_ORDER: readonly Vote[] = ['ok', 'fail', 'unclear', 'skip'];

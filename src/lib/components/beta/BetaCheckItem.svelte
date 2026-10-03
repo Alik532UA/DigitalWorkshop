@@ -37,7 +37,15 @@
 	const tid = $derived(tidOf(check.id));
 </script>
 
-<li class="beta-item" class:marked={mark !== undefined} data-testid="beta-check-{tid}-item">
+<li
+	class="beta-item"
+	class:marked={mark !== undefined}
+	class:beta-item--ok={mark?.vote === 'ok'}
+	class:beta-item--fail={mark?.vote === 'fail'}
+	class:beta-item--unclear={mark?.vote === 'unclear'}
+	class:beta-item--skip={mark?.vote === 'skip'}
+	data-testid="beta-check-{tid}-item"
+>
 	<div class="beta-item-head">
 		<span class="beta-item-number">{number}</span>
 		<span class="beta-item-category" data-testid="beta-check-{tid}-category-text">
@@ -82,6 +90,10 @@
 
 <style>
 	.beta-item {
+		--vote-ok: light-dark(#15803d, #22c55e);
+		--vote-fail: light-dark(#dc2626, #ef4444);
+		--vote-unclear: light-dark(#b45309, #fbbf24);
+		--vote-skip: light-dark(#0284c7, #38bdf8);
 		padding: 1rem 1.1rem;
 		border: 1px solid var(--border-color);
 		border-radius: 0.9rem;
@@ -89,8 +101,13 @@
 	}
 
 	.beta-item.marked {
-		border-left-width: 4px;
+		border-width: 2px;
 	}
+
+	.beta-item.beta-item--ok { border-color: var(--vote-ok); }
+	.beta-item.beta-item--fail { border-color: var(--vote-fail); }
+	.beta-item.beta-item--unclear { border-color: var(--vote-unclear); }
+	.beta-item.beta-item--skip { border-color: var(--vote-skip); }
 
 	.beta-item-head {
 		display: flex;
@@ -159,6 +176,26 @@
 		transition: var(--transition);
 	}
 
+	.beta-vote-ok {
+		background: color-mix(in srgb, var(--card-bg), var(--vote-ok) 8%);
+		border-color: color-mix(in srgb, var(--border-color), var(--vote-ok) 35%);
+	}
+
+	.beta-vote-fail {
+		background: color-mix(in srgb, var(--card-bg), var(--vote-fail) 8%);
+		border-color: color-mix(in srgb, var(--border-color), var(--vote-fail) 35%);
+	}
+
+	.beta-vote-unclear {
+		background: color-mix(in srgb, var(--card-bg), var(--vote-unclear) 8%);
+		border-color: color-mix(in srgb, var(--border-color), var(--vote-unclear) 35%);
+	}
+
+	.beta-vote-skip {
+		background: color-mix(in srgb, var(--card-bg), var(--vote-skip) 8%);
+		border-color: color-mix(in srgb, var(--border-color), var(--vote-skip) 35%);
+	}
+
 	.beta-vote:hover {
 		border-color: var(--text-secondary);
 	}
@@ -169,23 +206,32 @@
 	 * кольори не розрізняє. Колір лишається як підсилення для решти.
 	 */
 	.beta-vote.chosen {
-		border-width: 2px;
+		border-width: 4px;
 		font-weight: 700;
 	}
 
-	.beta-vote-fail.chosen {
-		border-color: #ef4444;
-		color: #ef4444;
-	}
-
-	.beta-vote-weird.chosen {
-		border-color: #f59e0b;
-		color: #f59e0b;
-	}
-
 	.beta-vote-ok.chosen {
-		border-color: #10b981;
-		color: #10b981;
+		border-color: var(--vote-ok);
+		color: var(--vote-ok);
+		background: color-mix(in srgb, var(--card-bg), var(--vote-ok) 18%);
+	}
+
+	.beta-vote-fail.chosen {
+		border-color: var(--vote-fail);
+		color: var(--vote-fail);
+		background: color-mix(in srgb, var(--card-bg), var(--vote-fail) 18%);
+	}
+
+	.beta-vote-unclear.chosen {
+		border-color: var(--vote-unclear);
+		color: var(--vote-unclear);
+		background: color-mix(in srgb, var(--card-bg), var(--vote-unclear) 18%);
+	}
+
+	.beta-vote-skip.chosen {
+		border-color: var(--vote-skip);
+		color: var(--vote-skip);
+		background: color-mix(in srgb, var(--card-bg), var(--vote-skip) 18%);
 	}
 
 	/*
