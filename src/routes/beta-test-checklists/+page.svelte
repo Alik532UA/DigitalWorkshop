@@ -242,6 +242,35 @@
 </main>
 
 <style>
+	:global(html:has(.beta-page)),
+	:global(body:has(.beta-page)) {
+		-ms-overflow-style: auto !important;
+		scrollbar-width: thin !important;
+		scrollbar-color: var(--border-color) var(--bg-color) !important;
+	}
+
+	:global(html:has(.beta-page))::-webkit-scrollbar,
+	:global(body:has(.beta-page))::-webkit-scrollbar {
+		display: block !important;
+		width: 8px !important;
+	}
+
+	:global(html:has(.beta-page))::-webkit-scrollbar-track,
+	:global(body:has(.beta-page))::-webkit-scrollbar-track {
+		background: var(--bg-color) !important;
+	}
+
+	:global(html:has(.beta-page))::-webkit-scrollbar-thumb,
+	:global(body:has(.beta-page))::-webkit-scrollbar-thumb {
+		background: var(--border-color) !important;
+		border-radius: 4px !important;
+	}
+
+	:global(html:has(.beta-page))::-webkit-scrollbar-thumb:hover,
+	:global(body:has(.beta-page))::-webkit-scrollbar-thumb:hover {
+		background: var(--text-secondary) !important;
+	}
+
 	.beta-page {
 		max-width: 60rem;
 		margin: 0 auto;
@@ -250,19 +279,28 @@
 		color: var(--text-primary);
 	}
 
-	/* 44px — мінімальна сенсорна зона, і для посилання теж (ACCESSIBILITY-v9). */
-	/* Кнопка мови чеклиста: 44 px на дотик дає `min-height` з `inline-flex`. */
+	/* 44px — мінімальна сенсорна зона для інтерактивних елементів (ACCESSIBILITY-v9). */
 	.beta-lang {
 		display: inline-flex;
 		align-items: center;
-		min-height: 44px;
-		border: 0;
-		padding: 0;
-		background: none;
+		justify-content: center;
+		min-height: 38px;
+		min-width: 44px;
+		padding: 0.35rem 0.85rem;
+		border: 1px solid var(--border-color);
+		border-radius: 999px;
+		background: var(--card-bg);
 		font: inherit;
-		color: inherit;
-		text-decoration: underline;
+		font-size: 0.9rem;
+		color: var(--text-primary);
+		text-decoration: none;
 		cursor: pointer;
+		transition: var(--transition);
+		white-space: nowrap;
+	}
+
+	.beta-lang:hover {
+		border-color: var(--text-secondary);
 	}
 
 	.beta-back {
@@ -323,7 +361,8 @@
 	.beta-meta {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.5rem 1.25rem;
+		align-items: center;
+		gap: 0.6rem 1rem;
 		margin-top: 1.25rem;
 		font-size: 0.9rem;
 		color: var(--text-secondary);
@@ -331,10 +370,17 @@
 
 	.beta-version,
 	.beta-progress {
-		padding: 0.3rem 0.7rem;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 38px;
+		padding: 0.35rem 0.85rem;
 		border: 1px solid var(--border-color);
 		border-radius: 999px;
 		background: var(--card-bg);
+		font-variant-numeric: tabular-nums;
+		line-height: 1.2;
+		white-space: nowrap;
 	}
 
 	.beta-tabs {

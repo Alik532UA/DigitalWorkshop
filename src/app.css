@@ -278,6 +278,39 @@ body::-webkit-scrollbar {
 }
 
 /*
+ * Чеклист бета-тестування (BETA-CHECKLIST-v8) вимагає видимого візуального скролу
+ * та стандартної поведінки прокручування.
+ */
+html:has(.beta-page),
+body:has(.beta-page) {
+    -ms-overflow-style: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) var(--bg-color);
+}
+
+html:has(.beta-page)::-webkit-scrollbar,
+body:has(.beta-page)::-webkit-scrollbar {
+    display: block;
+    width: 8px;
+}
+
+html:has(.beta-page)::-webkit-scrollbar-track,
+body:has(.beta-page)::-webkit-scrollbar-track {
+    background: var(--bg-color);
+}
+
+html:has(.beta-page)::-webkit-scrollbar-thumb,
+body:has(.beta-page)::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+html:has(.beta-page)::-webkit-scrollbar-thumb:hover,
+body:has(.beta-page)::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+/*
  * ПЛАВНА ЗМІНА ТЕМИ — і під курсором, і по-справжньому (THEME-SWITCHER § 5).
  *
  * Клас вішає контролер (`controllers/UiState.svelte.ts`): `previewTheme` — поки
