@@ -572,8 +572,10 @@ for (const file of files) {
 	} else {
 		const robots = readFileSync(robotsPath, 'utf8');
 		for (const route of HIDDEN_ROUTES) {
-			if (!robots.includes(`Disallow: ${BASE}/${route}/`)) {
-				fail(`robots.txt не забороняє /${route}/ — прихована сторінка відкрита кравлеру`);
+			if (robots.includes(`Disallow: ${BASE}/${route}/`)) {
+				fail(
+					`robots.txt містить Disallow: ${BASE}/${route}/ — краулер не прочитає noindex (BETA-CHECKLIST § 4.0, BETA-NOINDEX-OVER-DISALLOW)`
+				);
 			}
 		}
 		const advertised = robots.match(/^\s*Sitemap:\s*(\S+)/im)?.[1];
