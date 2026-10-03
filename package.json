@@ -1,7 +1,7 @@
 {
 	"name": "digital-workshop-svelte",
 	"private": true,
-	"version": "0.0.298",
+	"version": "0.0.299",
 	"type": "module",
 	"engines": {
 		"node": ">=22"
@@ -48,5 +48,8 @@
 	},
 	"dependencies": {
 		"lucide-svelte": "^0.562.0"
+	},
+	"overrides": {
+		"cookie": "^0.7.2"
 	}
 }
