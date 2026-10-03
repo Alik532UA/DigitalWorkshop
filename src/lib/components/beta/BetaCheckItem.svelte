@@ -90,6 +90,7 @@
 
 <style>
 	.beta-item {
+		color-scheme: light dark;
 		--vote-ok: light-dark(#15803d, #22c55e);
 		--vote-fail: light-dark(#dc2626, #ef4444);
 		--vote-unclear: light-dark(#b45309, #fbbf24);
