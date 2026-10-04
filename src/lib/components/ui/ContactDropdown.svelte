@@ -1,10 +1,10 @@
 <script lang="ts">
     import { fly } from 'svelte/transition';
     import { config } from '$lib/config';
-    import telegramIcon from '$lib/assets/social/telegram.svg';
-    import viberIcon from '$lib/assets/social/viber.svg';
-    import whatsappIcon from '$lib/assets/social/whatsapp.svg';
-    import linkedinIcon from '$lib/assets/social/linkedin.svg';
+    import telegramIcon from '$lib/assets/social/message_telegram_512.svg';
+    import viberIcon from '$lib/assets/social/message_viber_512.svg';
+    import whatsappIcon from '$lib/assets/social/message_whatsapp_512.svg';
+    import linkedinIcon from '$lib/assets/social/message_linkedin_512.svg';
 
     /**
      * Розкривач із чотирма способами зв'язку.
