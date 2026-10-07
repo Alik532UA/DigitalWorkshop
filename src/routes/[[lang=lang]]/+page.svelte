@@ -1036,7 +1036,7 @@
 		text-decoration: none;
 		font-size: 0.95rem; /* Було 1.1rem */
 		font-weight: 600;
-		transition: all 0.3s ease;
+		transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
 		border: none;
 	}
 
