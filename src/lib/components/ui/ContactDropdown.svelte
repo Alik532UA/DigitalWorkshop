@@ -129,6 +129,10 @@
     }
 
     function handleFocusOut(event: FocusEvent) {
+        // На сенсорних пристроях дотик викликає втрату фокуса тригером через
+        // `inert`, проте на телефоні розкривач закривається тапом поза межами,
+        // а не втратою фокуса клавіатури.
+        if (isTouch) return;
         const next = event.relatedTarget;
         if (next instanceof Node && wrapperEl?.contains(next)) return;
         // Фокус пішов геть — без цього розкривач лишався б відкритим назавжди.
