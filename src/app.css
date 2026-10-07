@@ -477,21 +477,21 @@ html.theme-shifting *:not(canvas) {
     opacity: 0.9;
 }
 
-/* Кнопка проєкту / CTA.
-   Використовуємо стабільний непрозорий var(--accent-primary), щоб кнопка
-   ніколи не стрибала кольором при скролі (коли браузер оптимізує шари) та
-   щоб крізь неї не просвічувала темна тінь картки (.info-block).
-   Без рамки/обводки — чистий акцентний стиль. */
+/* Скляна кнопка проєкту / CTA.
+   Напівпрозорий акцентний тон + backdrop-filter дають справжнє скло: крізь кнопку
+   м'яко просвічує розмите море.
+   Тон беремо через color-mix від --accent-primary (правильний колір на кожному слайді).
+   Без рамки/обводки — щоб кнопка лишалась чистим склом. */
 .project-btn.glass {
     position: relative !important;
-    background: var(--accent-primary) !important;
+    background: color-mix(in srgb, var(--accent-primary) 50%, transparent) !important;
     color: white !important;
     border: none !important;
     outline: 1px solid transparent !important;
     box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22) !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    animation: none !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    will-change: backdrop-filter;
     transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease !important;
 }
 
@@ -503,12 +503,52 @@ html.theme-shifting *:not(canvas) {
 
 .project-btn.glass:hover {
     transform: scale(1.02) !important;
-    background: color-mix(in srgb, var(--accent-primary) 85%, white) !important;
+    background: color-mix(in srgb, var(--accent-primary) 65%, transparent) !important;
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Тінь картки на першому слайді: м'яке кругове розмиття без зміщення вниз (0 0 24px),
+   щоб чорна тінь картки не падала вниз за межі картки і не просвічувала крізь скляну кнопку. */
+.slide-wrapper.active .slide-hero {
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+.slide-hero .contact-dropdown-wrapper {
+    bottom: -72px !important;
+}
+
+/* --- Плавне наростання блюру кнопок активного слайда (як у .info-block::before) ---
+   При появі слайда чи зміні вкладок кнопка плавно нарощує blur після 0.8s затримки,
+   синхронно з контейнером картки. */
+@keyframes buttonBlurIn {
+    0% {
+        backdrop-filter: blur(0px);
+        -webkit-backdrop-filter: blur(0px);
+    }
+    100% {
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+}
+
+.slide-wrapper.active .project-btn.glass {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    animation: buttonBlurIn 5s ease 0.8s backwards !important;
+    transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.slide-wrapper:not(.active) .project-btn.glass {
+    backdrop-filter: blur(0px) !important;
+    -webkit-backdrop-filter: blur(0px) !important;
+    animation: none !important;
+    transition: backdrop-filter 0.3s ease, -webkit-backdrop-filter 0.3s ease !important;
 }
 
 .sea-container.clock-active .project-btn.glass {
     animation: none !important;
+    backdrop-filter: blur(0px) !important;
+    -webkit-backdrop-filter: blur(0px) !important;
 }
 
 /* --- Плавна поява blur при поверненні кнопки/іконки з режиму соцмереж (ContactDropdown) ---
