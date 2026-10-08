@@ -638,3 +638,155 @@ svg {
         font-size: 2rem;
     }
 }
+
+/* ==========================================================================
+   Sea Page Entrance Animations (Плавна поява елементів при завантаженні)
+   ========================================================================== */
+
+@keyframes seaEntranceFade {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes seaEntranceTop {
+    0% {
+        opacity: 0;
+        transform: translateY(-28px);
+    }
+    100% {
+        opacity: 0.5;
+        transform: translateY(0);
+    }
+}
+
+@keyframes seaEntranceLeft {
+    0% {
+        opacity: 0;
+        transform: translateX(-48px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes seaEntranceCenter {
+    0% {
+        opacity: 0;
+        transform: translateY(32px) scale(0.97);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes seaEntranceRight {
+    0% {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes seaEntranceBottom {
+    0% {
+        opacity: 0;
+        transform: translateY(32px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.sea-container .background-video {
+    animation: seaEntranceFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.sea-container:not(.clock-active) .top-controls {
+    animation: seaEntranceTop 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.1s backwards;
+}
+
+.sea-container:not(.clock-active) .left-carousel-wrapper {
+    animation: seaEntranceLeft 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.15s backwards;
+}
+
+.sea-container:not(.clock-active) .info-layout {
+    animation: seaEntranceCenter 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.22s backwards;
+}
+
+.sea-container:not(.clock-active) .sidebar-icons .sidebar-item:nth-child(1) {
+    animation: seaEntranceRight 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.28s backwards;
+}
+
+.sea-container:not(.clock-active) .sidebar-icons .sidebar-item:nth-child(2) {
+    animation: seaEntranceRight 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.36s backwards;
+}
+
+.sea-container:not(.clock-active) .sidebar-icons .sidebar-item:nth-child(3) {
+    animation: seaEntranceRight 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.44s backwards;
+}
+
+.sea-container:not(.clock-active) .sidebar-icons .sidebar-item:nth-child(4) {
+    animation: seaEntranceRight 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.52s backwards;
+}
+
+.sea-container:not(.clock-active) .sidebar-icons .sidebar-item:nth-child(5) {
+    animation: seaEntranceRight 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.60s backwards;
+}
+
+.sea-container:not(.clock-active) .sidebar-icons .sidebar-item:nth-child(n+6) {
+    animation: seaEntranceRight 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.68s backwards;
+}
+
+.sea-container:not(.clock-active) .bottom-right-controls {
+    animation: seaEntranceBottom 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.62s backwards;
+}
+
+@media (max-width: 768px) {
+    @keyframes seaEntranceCenterMobile {
+        0% {
+            opacity: 0;
+            transform: translate(-50%, 32px) scale(0.97);
+        }
+        100% {
+            opacity: 1;
+            transform: translate(-50%, 0) scale(1);
+        }
+    }
+
+    @keyframes seaEntranceMobileNav {
+        0% {
+            opacity: 0;
+            transform: translate(-50%, 35px);
+        }
+        100% {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+    }
+
+    .sea-container:not(.clock-active) .info-layout {
+        animation: seaEntranceCenterMobile 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.22s backwards;
+    }
+
+    .sea-container:not(.clock-active) .nav-controls-container {
+        animation: seaEntranceMobileNav 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.3s backwards;
+    }
+
+    .sea-container:not(.clock-active) .sidebar-icons .sidebar-item {
+        animation: none;
+    }
+
+    .sea-container:not(.clock-active) .bottom-right-controls {
+        animation: none;
+    }
+}
