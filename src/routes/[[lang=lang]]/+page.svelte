@@ -25,12 +25,12 @@
 	import iconMessage from '$lib/assets/tabler/message.svg?raw';
 	import iconArrowUp from '$lib/assets/tabler/arrow-big-up.svg?raw';
 	import iconArrowDown from '$lib/assets/tabler/arrow-big-down.svg?raw';
-	import iconArrowRight from '$lib/assets/tabler/arrow-big-right.svg?raw';
-	import iconArrowLeft from '$lib/assets/tabler/arrow-big-left.svg?raw';
-
-	const prevTabLabel = 'Previous tab';
 
 	const state = new SeaPageState();
+	const slot1Label = $derived(state.currentIndex > 0 ? 'Previous slide' : 'Previous tab');
+	const slot2Label = $derived(
+		state.currentIndex < state.totalSlides - 1 ? 'Next slide' : 'Next tab'
+	);
 	const audioState = new AudioState();
 	const clockState = new ClockState();
 
@@ -248,49 +248,33 @@
 	<div class="info-layout" role="presentation">
 		<!-- Navigation arrows (Vertical on desktop, in header on mobile) -->
 		<div class="slide-nav-arrows" class:gallery-open={state.isGalleryOpen} class:is-ios={state.isIOS}>
-			{#if state.currentIndex > 0}
-				<button
-					class="slide-nav-arrow arrow-up"
-					class:inactive={!state.isMouseActive && !state.isMobile}
-					onclick={() => state.goToSlide(state.currentIndex - 1)}
-					aria-label="Previous slide"
-					data-testid="sea-slide-prev-btn"
-				>
+			<button
+				class="slide-nav-arrow"
+				class:arrow-up={state.currentIndex > 0}
+				class:arrow-prev-tab={state.currentIndex === 0}
+				class:inactive={!state.isMouseActive && !state.isMobile}
+				onclick={() => (state.currentIndex > 0 ? state.goToSlide(state.currentIndex - 1) : state.prevTab())}
+				aria-label={slot1Label}
+				data-testid="sea-slide-prev-btn"
+			>
+				<span class="slide-nav-icon" class:rotate-tab={state.currentIndex === 0}>
 					{@html iconArrowUp}
-				</button>
-			{:else}
-				<button
-					class="slide-nav-arrow arrow-prev-tab"
-					class:inactive={!state.isMouseActive && !state.isMobile}
-					onclick={() => state.prevTab()}
-					aria-label={prevTabLabel}
-					data-testid="sea-tab-prev-btn"
-				>
-					{@html iconArrowLeft}
-				</button>
-			{/if}
+				</span>
+			</button>
 
-			{#if state.currentIndex < state.totalSlides - 1}
-				<button
-					class="slide-nav-arrow arrow-down"
-					class:inactive={!state.isMouseActive && !state.isMobile}
-					onclick={() => state.goToSlide(state.currentIndex + 1)}
-					aria-label="Next slide"
-					data-testid="sea-slide-next-btn"
-				>
+			<button
+				class="slide-nav-arrow"
+				class:arrow-down={state.currentIndex < state.totalSlides - 1}
+				class:arrow-next-tab={state.currentIndex === state.totalSlides - 1}
+				class:inactive={!state.isMouseActive && !state.isMobile}
+				onclick={() => (state.currentIndex < state.totalSlides - 1 ? state.goToSlide(state.currentIndex + 1) : state.nextTab())}
+				aria-label={slot2Label}
+				data-testid="sea-slide-next-btn"
+			>
+				<span class="slide-nav-icon" class:rotate-tab={state.currentIndex === state.totalSlides - 1}>
 					{@html iconArrowDown}
-				</button>
-			{:else}
-				<button
-					class="slide-nav-arrow arrow-next-tab"
-					class:inactive={!state.isMouseActive && !state.isMobile}
-					onclick={() => state.nextTab()}
-					aria-label="Next tab"
-					data-testid="sea-tab-next-btn"
-				>
-					{@html iconArrowRight}
-				</button>
-			{/if}
+				</span>
+			</button>
 		</div>
 
 		<!-- Slides track -->
@@ -1317,6 +1301,20 @@
 		pointer-events: auto;
 		padding: 0;
 		opacity: 0.5;
+	}
+
+	.slide-nav-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
+		transform: rotate(0deg);
+		transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	.slide-nav-icon.rotate-tab {
+		transform: rotate(-90deg);
 	}
 
 	.slide-nav-arrow :global(svg) {

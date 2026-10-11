@@ -177,9 +177,6 @@ const LITERAL_LABEL_DEBT: readonly string[] = [
 	'src/lib/components/ui/arcs/RightSideArc.svelte :: "Colorful"',
 	'src/lib/components/ui/arcs/RightSideArc.svelte :: "Light"',
 	'src/lib/components/ui/LogCopyButton.svelte :: "Copy debug report — {appVersion}"',
-	'src/routes/[[lang=lang]]/+page.svelte :: "Previous slide"',
-	'src/routes/[[lang=lang]]/+page.svelte :: "Next slide"',
-	'src/routes/[[lang=lang]]/+page.svelte :: "Next tab"',
 	'src/routes/[[lang=lang]]/+page.svelte :: "Go to slide {i + 1}"'
 ];
 
