@@ -261,7 +261,7 @@ export class SeaPageState {
 			this.mouseX = (e as MouseEvent).clientX;
 		}
 
-		if (this.isSwiping && e && this.touchStartX <= this.windowWidth * this.LEFT_PANEL_SCROLL_RATIO) {
+		if (this.isSwiping && e && !this.isMobile && this.touchStartX <= this.windowWidth * this.LEFT_PANEL_SCROLL_RATIO) {
 			let currentY = 0;
 			let currentX = 0;
 			if ('touches' in e) {
@@ -336,7 +336,7 @@ export class SeaPageState {
 		const diffY = this.touchStartY - touchEndY;
 		const diffX = this.touchStartX - touchEndX;
 
-		if (this.touchStartX <= this.windowWidth * this.LEFT_PANEL_SCROLL_RATIO) {
+		if (!this.isMobile && this.touchStartX <= this.windowWidth * this.LEFT_PANEL_SCROLL_RATIO) {
 			return;
 		}
 
@@ -378,7 +378,7 @@ export class SeaPageState {
 
 		if (this.isScrolling) return;
 
-		if (this.mouseX <= this.windowWidth * this.LEFT_PANEL_SCROLL_RATIO) {
+		if (!this.isMobile && this.mouseX <= this.windowWidth * this.LEFT_PANEL_SCROLL_RATIO) {
 			const scrollDelta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
 			
 			const currentVal = this.manualCarouselOffset.current;
