@@ -144,6 +144,26 @@
 			window.removeEventListener('popstate', onPopState);
 		};
 	});
+
+	function fitCard(node: HTMLElement, _dep?: unknown) {
+		const check = () => {
+			if (!state.isMobile && window.innerWidth > 768) { node.style.removeProperty('--card-scale'); return; }
+			node.style.setProperty('--card-scale', '1');
+			const h = node.offsetHeight, winH = window.innerHeight, max = Math.min(winH * 0.85, winH - 160);
+			if (h > max && h > 0) {
+				let s = Math.max(0.65, Math.min(1, max / h));
+				node.style.setProperty('--card-scale', s.toFixed(3));
+				if (node.offsetHeight > max) {
+					s = Math.max(0.62, Math.min(s, s * (max / node.offsetHeight)));
+					node.style.setProperty('--card-scale', s.toFixed(3));
+				}
+			}
+		};
+		requestAnimationFrame(check);
+		window.addEventListener('resize', check, { passive: true });
+		if (document.fonts) document.fonts.ready.then(check);
+		return { update() { requestAnimationFrame(check); }, destroy() { window.removeEventListener('resize', check); } };
+	}
 </script>
 
 <svelte:window
@@ -295,7 +315,7 @@
 					     (ACCESSIBILITY-v8, SVELTE-UI-v8, анти-патерни). -->
 					<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 					<div class="slide-wrapper" class:active={state.currentIndex === 0} onclick={() => state.goToSlide(0)}>
-						<div class="info-slide glass-panel info-block slide-hero">
+						<div class="info-slide glass-panel info-block slide-hero" use:fitCard={langState.current}>
 							<div class="photo-wrapper">
 								<!-- Найбільше зображення першого екрана, тобто кандидат на LCP:
 								     `eager` + висока пріоритетність, а не `lazy`
@@ -377,7 +397,7 @@
 					     (ACCESSIBILITY-v8, SVELTE-UI-v8, анти-патерни). -->
 					<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 					<div class="slide-wrapper" class:active={state.currentIndex === 0} onclick={() => state.goToSlide(0)}>
-						<div class="info-slide glass-panel info-block slide-hero">
+						<div class="info-slide glass-panel info-block slide-hero" use:fitCard={langState.current}>
 							<div class="hero-text">
 								<h2 class="tab-title">{tabData?.title}</h2>
 								<p class="tab-intro">{@html tabData?.intro.replace(/\n/g, '<br />') ?? ''}</p>
@@ -405,7 +425,7 @@
 						     (ACCESSIBILITY-v8, SVELTE-UI-v8, анти-патерни). -->
 						<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 						<div class="slide-wrapper" class:active={state.currentIndex === i + 1} onclick={() => state.goToSlide(i + 1)}>
-							<div class="chunk-content">
+							<div class="chunk-content" use:fitCard={langState.current}>
 								{#each chunk as item}
 									<div class="info-slide glass-panel info-block content-item">
 										<h3 class="item-title">{item.h || item.q}</h3>
@@ -432,7 +452,7 @@
 							class:active={state.currentIndex === state.activeChunks.length + 1 + i}
 							onclick={() => state.goToSlide(state.activeChunks.length + 1 + i)}
 						>
-							<div class="info-slide glass-panel info-block slide-project">
+							<div class="info-slide glass-panel info-block slide-project" use:fitCard={langState.current}>
 								<div class="project-img">
 									<!-- Слайди проєктів зсунуті за межі екрана (`translateY` на
 									     трек), тож на першому кадрі жодне з цих зображень не
@@ -1231,16 +1251,6 @@
 		line-height: 1.6;
 	}
 
-	.chunk-content {
-		display: flex;
-		flex-direction: column;
-		gap: 2rem;
-		justify-content: center;
-		align-items: center;
-		height: 100%;
-		width: 100%;
-	}
-
 	/* Навігаційні стрілки */
 	@keyframes bounceArrowUp {
 		0%,
@@ -1384,13 +1394,6 @@
 		margin: 0;
 	}
 
-	.item-desc {
-		font-size: 1rem;
-		color: rgba(255, 255, 255, 0.85);
-		line-height: 1.5;
-		margin: 0;
-	}
-
 	.mobile-text {
 		display: none;
 	}
@@ -1518,13 +1521,16 @@
 			padding: 17px; /* Було 20px */
 		}
 
-		.info-block {
-			padding: 1.3rem; /* Було 1.5rem */
-		}
-
-		.project-img {
-			height: 136px; /* Було 160px */
-		}
+		.info-block { padding: calc(1.3rem * var(--card-scale, 1)); gap: calc(17px * var(--card-scale, 1)); }
+		.chunk-content { gap: calc(17px * var(--card-scale, 1)); height: auto; }
+		.content-item { gap: calc(0.5rem * var(--card-scale, 1)); }
+		.item-title { font-size: calc(1.3rem * var(--card-scale, 1)); }
+		.item-desc { font-size: calc(1rem * var(--card-scale, 1)); line-height: 1.5; }
+		.item-desc :global(ul.custom-list) { margin: calc(0.5rem * var(--card-scale, 1)) 0; padding-left: calc(1.3rem * var(--card-scale, 1)); }
+		.item-desc :global(ul.custom-list li) { margin-bottom: calc(0.25rem * var(--card-scale, 1)); }
+		.tab-title { font-size: calc(2.1rem * var(--card-scale, 1)); margin-bottom: calc(1rem * var(--card-scale, 1)); }
+		.tab-intro { font-size: calc(1rem * var(--card-scale, 1)); line-height: 1.6; }
+		.project-img { height: calc(136px * var(--card-scale, 1)); }
 
 		/* Стрілки перемикання слайдів у хедері на мобільному */
 		.slide-nav-arrows {
@@ -1557,17 +1563,9 @@
 			outline: 3px solid var(--focus-ring); outline-offset: 4px;
 		}
 
-		/* Зменшуємо заголовок щоб влазив на мобільному */
-		.hero-text {
-			font-size: 0.9rem; /* На мобільному ледь менше */
-		}
-
-		.project-content h3 {
-			font-size: 1.3rem; /* Було 1.5rem */
-		}
-
-		.project-desc {
-			font-size: 0.9rem; /* На мобільному ледь менше */
-		}
+		.hero-text { font-size: calc(0.9rem * var(--card-scale, 1)); }
+		.project-content h3 { font-size: calc(1.3rem * var(--card-scale, 1)); }
+		.project-desc { font-size: calc(0.9rem * var(--card-scale, 1)); }
+		.project-feature { font-size: calc(0.95rem * var(--card-scale, 1)); padding: calc(10px * var(--card-scale, 1)); }
 	}
 </style>
