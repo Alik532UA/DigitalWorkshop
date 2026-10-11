@@ -243,45 +243,43 @@
 	{/if}
 
 	<div class="info-layout" role="presentation">
-		<!-- Navigation arrows (Vertical) -->
-		{#if state.currentIndex > 0}
+		<!-- Navigation arrows (Vertical on desktop, in header on mobile) -->
+		<div class="slide-nav-arrows" class:gallery-open={state.isGalleryOpen} class:is-ios={state.isIOS}>
 			<button
 				class="slide-nav-arrow arrow-up"
+				class:slot-hidden={state.currentIndex === 0}
 				class:inactive={!state.isMouseActive && !state.isMobile}
-				transition:fade={{ duration: 200 }}
-				onclick={() => state.goToSlide(state.currentIndex - 1)}
+				onclick={() => { if (state.currentIndex > 0) state.goToSlide(state.currentIndex - 1); }}
 				aria-label="Previous slide"
+				aria-hidden={state.currentIndex === 0}
+				tabindex={state.currentIndex === 0 ? -1 : undefined}
 				data-testid="sea-slide-prev-btn"
 			>
 				{@html iconArrowUp}
 			</button>
-		{/if}
 
-		{#if state.currentIndex < state.totalSlides - 1}
-			<button
-				class="slide-nav-arrow arrow-down"
-				class:inactive={!state.isMouseActive && !state.isMobile}
-				in:fade={{ duration: 200, delay: 200 }}
-				out:fade={{ duration: 200 }}
-				onclick={() => state.goToSlide(state.currentIndex + 1)}
-				aria-label="Next slide"
-				data-testid="sea-slide-next-btn"
-			>
-				{@html iconArrowDown}
-			</button>
-		{:else if state.currentIndex === state.totalSlides - 1}
-			<button
-				class="slide-nav-arrow arrow-next-tab"
-				class:inactive={!state.isMouseActive && !state.isMobile}
-				in:fade={{ duration: 200, delay: 200 }}
-				out:fade={{ duration: 200 }}
-				onclick={() => state.nextTab()}
-				aria-label="Next tab"
-				data-testid="sea-tab-next-btn"
-			>
-				{@html iconArrowRight}
-			</button>
-		{/if}
+			{#if state.currentIndex < state.totalSlides - 1}
+				<button
+					class="slide-nav-arrow arrow-down"
+					class:inactive={!state.isMouseActive && !state.isMobile}
+					onclick={() => state.goToSlide(state.currentIndex + 1)}
+					aria-label="Next slide"
+					data-testid="sea-slide-next-btn"
+				>
+					{@html iconArrowDown}
+				</button>
+			{:else}
+				<button
+					class="slide-nav-arrow arrow-next-tab"
+					class:inactive={!state.isMouseActive && !state.isMobile}
+					onclick={() => state.nextTab()}
+					aria-label="Next tab"
+					data-testid="sea-tab-next-btn"
+				>
+					{@html iconArrowRight}
+				</button>
+			{/if}
+		</div>
 
 		<!-- Slides track -->
 		{#key state.currentTab}
@@ -1276,6 +1274,10 @@
 		}
 	}
 
+	.slide-nav-arrows {
+		display: contents;
+	}
+
 	.slide-nav-arrow {
 		position: absolute;
 		left: 50%;
@@ -1290,10 +1292,18 @@
 		cursor: pointer;
 		transition:
 			opacity 0.3s ease,
+			visibility 0.3s ease,
 			transform 0.3s ease;
 		pointer-events: auto;
 		padding: 0;
 		opacity: 0.5;
+	}
+
+	.slide-nav-arrow.slot-hidden {
+		visibility: hidden;
+		opacity: 0;
+		pointer-events: none;
+		animation: none;
 	}
 
 	.slide-nav-arrow :global(svg) {
@@ -1496,64 +1506,38 @@
 			height: 136px; /* Було 160px */
 		}
 
-		/* Стрілки перемикання слайдів на мобільному справа */
-		@keyframes bounceArrowUpMobile {
-			0%,
-			100% {
-				transform: translateY(0);
-			}
-			50% {
-				transform: translateY(-5px);
-			}
+		/* Стрілки перемикання слайдів у хедері на мобільному */
+		.slide-nav-arrows {
+			position: absolute; top: 2rem; left: calc(2rem + 2.5rem); right: calc(2rem + 11.5rem); z-index: 10002;
+			display: flex; align-items: center; justify-content: center; gap: 0.35rem; pointer-events: auto;
 		}
-		@keyframes bounceArrowDownMobile {
-			0%,
-			100% {
-				transform: translateY(0);
-			}
-			50% {
-				transform: translateY(5px);
-			}
-		}
-		@keyframes bounceArrowRightMobile {
-			0%,
-			100% {
-				transform: translateX(0);
-			}
-			50% {
-				transform: translateX(5px);
-			}
-		}
-
+		.slide-nav-arrows.is-ios { right: calc(2rem + 8.5rem); }
+		.slide-nav-arrows.gallery-open { display: none; }
 		.slide-nav-arrow {
-			left: auto;
-			right: 0.5rem;
-			opacity: 1; /* На мобільному стрілки завжди повністю видимі */
+			position: static; width: 36px; height: 36px; min-width: 36px; padding: 0; opacity: 1; flex-shrink: 0;
+			display: flex; align-items: center; justify-content: center;
+			background: transparent; border: none; cursor: pointer; transform: none; animation: none;
 		}
-		.slide-nav-arrow.arrow-up {
-			top: 55dvh; /* Трохи нижче центру (який на 50dvh) */
-			bottom: auto;
-			animation: bounceArrowUpMobile 2s infinite ease-in-out;
+		.slide-nav-arrow.slot-hidden {
+			visibility: hidden; opacity: 0; pointer-events: none;
 		}
-		.slide-nav-arrow.arrow-up:hover {
-			transform: translateY(-2px) scale(1.1);
+		.slide-nav-arrow.arrow-up, .slide-nav-arrow.arrow-down, .slide-nav-arrow.arrow-next-tab {
+			top: auto; bottom: auto; animation: none; transform: none;
 		}
-		.slide-nav-arrow.arrow-down {
-			top: 65dvh; /* Під верхньою стрілкою */
-			bottom: auto;
-			animation: bounceArrowDownMobile 2s infinite ease-in-out;
+		.slide-nav-arrow :global(svg) {
+			width: 1.3rem; height: 1.3rem; stroke: white !important; stroke-width: 1.5;
+			filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
 		}
-		.slide-nav-arrow.arrow-down:hover {
-			transform: translateY(2px) scale(1.1);
+		@media (hover: hover) and (pointer: fine) {
+			.slide-nav-arrow:hover :global(svg) {
+				stroke: white; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6)); transform: scale(1.15);
+			}
 		}
-
-		.slide-nav-arrow.arrow-next-tab {
-			top: 65dvh; /* Та ж позиція що й у arrow-down */
-			bottom: auto;
-			animation: bounceArrowRightMobile 2s infinite ease-in-out;
+		.slide-nav-arrow.arrow-up:hover, .slide-nav-arrow.arrow-down:hover, .slide-nav-arrow.arrow-next-tab:hover {
+			transform: none;
 		}
-		.slide-nav-arrow.arrow-next-tab:hover {
-			transform: translateX(2px) scale(1.1);
+		.slide-nav-arrow:focus-visible {
+			outline: 3px solid var(--focus-ring); outline-offset: 4px;
 		}
 
 		/* Зменшуємо заголовок щоб влазив на мобільному */
