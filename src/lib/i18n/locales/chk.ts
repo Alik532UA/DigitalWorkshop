@@ -96,6 +96,13 @@ export const chk: Translations = {
                 feature: 'Fan ruanu fos, filter ren ier, watte me sex, me favorite list mi nom mwirin reload.',
                 linkText: 'Süki Website'
             },
+            audioremote: {
+                title: "AudioRemote",
+                tech: "SvelteKit + Firebase + Tauri",
+                description: "Remote audio soundboard for schools and live events: real-time audio playback control from any device without uploading files to the cloud.",
+                feature: "Real-time sync via Firebase RTDB and secure local file access without cloud uploads.",
+                linkText: "Open app"
+            },
             deviantblaze: {
                 title: "Deviant Blaze",
                 tech: "Svelte 5 (Runes) + Web Audio API",

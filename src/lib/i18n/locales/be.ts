@@ -89,6 +89,13 @@ export const be: Translations = {
                 feature: 'Чатыры мовы, фільтры паводле ўзросту, памеру і полу і абранае, якое перажывае перазагрузку.',
                 linkText: 'Наведаць сайт'
             },
+            audioremote: {
+                title: "AudioRemote",
+                tech: "SvelteKit + Firebase + Tauri",
+                description: "Дыстанцыйная аўдыядошка для творчых школ і выступленняў: кіраванне музыкай у рэальным часе з любой прылады без запампоўкі аўдыяфайлаў у воблака.",
+                feature: "Сінхранізацыя ў рэальным часе праз Firebase RTDB і бяспечны лакальны доступ да файлаў.",
+                linkText: 'Наведаць сайт'
+            },
             deviantblaze: {
                 title: "Deviant Blaze",
                 tech: "Svelte 5 (Runes) + Web Audio API",

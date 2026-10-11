@@ -89,6 +89,13 @@ export const crh: Translations = {
                 feature: 'Dört til, yaş, ölçü ve cins boyunca süzgüçler ve qayta yüklevden soñ da qalğan sevimliler cedveli.',
                 linkText: 'Saytnı ziyaret etiñiz'
             },
+            audioremote: {
+                title: "AudioRemote",
+                tech: "SvelteKit + Firebase + Tauri",
+                description: "Yaratıcı mektepler ve çıqışlar içün uzaqtan audio tahtası: audio fayllarnı bulutqa yüklemeden her angi cihazdan kerçek vaqıtta muzıkanı idare etüv.",
+                feature: "Firebase RTDB arqalı kerçek vaqıtta sinhronsa ve yerli fayllarğa havfsız irişim.",
+                linkText: 'Saytnı ziyaret etiñiz'
+            },
             deviantblaze: {
                 title: "Deviant Blaze",
                 tech: "Svelte 5 (Runes) + Web Audio API",

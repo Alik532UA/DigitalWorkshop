@@ -89,6 +89,13 @@ export const ko: Translations = {
                 feature: '4개 언어를 지원하며 나이·크기·성별로 걸러 볼 수 있고, 즐겨찾기는 새로고침해도 남습니다.',
                 linkText: '웹사이트 방문'
             },
+            audioremote: {
+                title: "AudioRemote",
+                tech: "SvelteKit + Firebase + Tauri",
+                description: "Remote audio soundboard for schools and live events: real-time audio playback control from any device without uploading files to the cloud.",
+                feature: "Real-time sync via Firebase RTDB and secure local file access without cloud uploads.",
+                linkText: "Open app"
+            },
             deviantblaze: {
                 title: "Deviant Blaze",
                 tech: "Svelte 5 (Runes) + Web Audio API",

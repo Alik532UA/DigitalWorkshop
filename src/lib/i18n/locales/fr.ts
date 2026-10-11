@@ -89,6 +89,13 @@ export const fr: Translations = {
                 feature: 'Quatre langues, des filtres par âge, taille et sexe, et une liste de favoris qui survit au rechargement.',
                 linkText: 'Visiter le site'
             },
+            audioremote: {
+                title: "AudioRemote",
+                tech: "SvelteKit + Firebase + Tauri",
+                description: "Table d'harmonie audio à distance pour les écoles et les événements en direct : contrôle de lecture audio en temps réel sans téléversement vers le cloud.",
+                feature: "Synchronisation en temps réel via Firebase RTDB et accès sécurisé aux fichiers locaux.",
+                linkText: 'Visiter le site'
+            },
             deviantblaze: {
                 title: "Deviant Blaze",
                 tech: "Svelte 5 (Runes) + Web Audio API",
