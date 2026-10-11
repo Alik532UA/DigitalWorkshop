@@ -19,6 +19,7 @@
 	import TopControls from '$lib/components/sea/TopControls.svelte';
 	import ClockOverlay from '$lib/components/sea/ClockOverlay.svelte';
 	import LeftCarousel from '$lib/components/sea/LeftCarousel.svelte';
+	import MobileProjectsGallery from '$lib/components/sea/MobileProjectsGallery.svelte';
 	import SeaBackdrop from '$lib/components/sea/SeaBackdrop.svelte';
 
 	import iconMessage from '$lib/assets/tabler/message.svg?raw';
@@ -75,6 +76,7 @@
 		const tab = state.currentTab;
 		const idx = state.currentIndex;
 		const clock = clockState.isActive;
+		const gallery = state.isMobile && state.isGalleryOpen;
 
 		untrack(() => {
 			if (state.isInitializingUrl) {
@@ -83,16 +85,12 @@
 			}
 			const url = new URL(window.location.href);
 			url.searchParams.set('tab', tab);
-			if (idx > 0) {
-				url.searchParams.set('slide', idx.toString());
-			} else {
-				url.searchParams.delete('slide');
-			}
-			if (clock) {
-				url.searchParams.set('clock', '1');
-			} else {
-				url.searchParams.delete('clock');
-			}
+			if (idx > 0) url.searchParams.set('slide', idx.toString());
+			else url.searchParams.delete('slide');
+			if (clock) url.searchParams.set('clock', '1');
+			else url.searchParams.delete('clock');
+			if (gallery) url.searchParams.set('gallery', '1');
+			else url.searchParams.delete('gallery');
 			goto(url.toString(), { replaceState: true, keepFocus: true, noScroll: true });
 		});
 	});
@@ -108,26 +106,27 @@
 	onMount(() => {
 		const params = new URLSearchParams(window.location.search);
 		const initialTab = params.get('tab');
-		if (initialTab && state.tabsList.includes(initialTab)) {
-			state.currentTab = initialTab;
-		}
+		if (initialTab && state.tabsList.includes(initialTab)) state.currentTab = initialTab;
 
 		const initialSlide = parseInt(params.get('slide') || '0', 10);
-		if (!isNaN(initialSlide) && initialSlide > 0) {
-			state.currentIndex = initialSlide;
-		}
+		if (!isNaN(initialSlide) && initialSlide > 0) state.currentIndex = initialSlide;
 
 		const initialClock = params.get('clock');
-		if (initialClock === '1' || initialClock === 'true') {
-			clockState.isActive = true;
-		}
+		if (initialClock === '1' || initialClock === 'true') clockState.isActive = true;
+
+		const initialGallery = params.get('gallery');
+		if (initialGallery === '1' || initialGallery === 'true') state.isGalleryOpen = true;
 
 		const mediaQuery = window.matchMedia('(max-width: 768px)');
 		state.isMobile = mediaQuery.matches;
-		const handler = (e: MediaQueryListEvent) => {
-			state.isMobile = e.matches;
-		};
+		const handler = (e: MediaQueryListEvent) => { state.isMobile = e.matches; };
 		mediaQuery.addEventListener('change', handler);
+
+		const onPopState = () => {
+			const p = new URLSearchParams(window.location.search);
+			state.isGalleryOpen = (p.get('gallery') === '1' || p.get('gallery') === 'true') && state.isMobile;
+		};
+		window.addEventListener('popstate', onPopState);
 
 		state.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
 
@@ -137,7 +136,10 @@
 		// одного слухача, який пише в `state` уже НЕІСНУЮЧОЇ сторінки. Симптом
 		// накопичується поступово й на перезавантаженні зникає — тобто в браузері
 		// його майже не побачити.
-		return () => mediaQuery.removeEventListener('change', handler);
+		return () => {
+			mediaQuery.removeEventListener('change', handler);
+			window.removeEventListener('popstate', onPopState);
+		};
 	});
 </script>
 
@@ -161,21 +163,12 @@
 	}}
 	onmousemove={(e) => state.handleMove(e)}
 	ontouchmove={(e) => state.handleMove(e)}
-	onmousedown={(e) => {
-		state.handleMove(e);
-		state.handleTouchStart(e);
-	}}
+	onmousedown={(e) => { state.handleMove(e); state.handleTouchStart(e); }}
 	onmouseup={(e) => state.handleTouchEnd(e)}
 	onclick={(e) => state.handleMove(e)}
-	ontouchstart={(e) => {
-		state.handleMove(e);
-		state.handleTouchStart(e);
-	}}
+	ontouchstart={(e) => { state.handleMove(e); state.handleTouchStart(e); }}
 	ontouchend={(e) => state.handleTouchEnd(e)}
-	onwheel={(e) => {
-		state.handleMove(e);
-		state.handleWheel(e, (deltaY) => audioState.adjustVolumeByWheel(deltaY));
-	}}
+	onwheel={(e) => { state.handleMove(e); state.handleWheel(e, (deltaY) => audioState.adjustVolumeByWheel(deltaY)); }}
 	onmouseleave={() => (state.isMouseActive = false)}
 />
 
@@ -203,6 +196,14 @@
 			onCarouselItemEnter={(e, id) => state.handleCarouselItemEnter(e, id)}
 			onTooltipEnter={() => state.handleTooltipEnter()}
 			onTooltipLeave={() => state.handleTooltipLeave()}
+		/>
+	{:else}
+		<MobileProjectsGallery
+			isOpen={state.isGalleryOpen}
+			projects={state.projects}
+			onClose={() => state.closeGallery()}
+			onToggle={() => state.toggleGallery()}
+			onSelectProject={(tab) => { state.setTab(tab); state.closeGallery(); }}
 		/>
 	{/if}
 
@@ -232,12 +233,9 @@
 		isIOS={state.isIOS}
 		currentLanguage={langState.current}
 		bind:isLangOpen={state.isLangMenuOpen}
-		onToggleClock={() => clockState.toggle()}
-		onSelectLanguage={(lang) => langState.set(lang)}
-		onToggleClockFormat={() => clockState.toggleFormat()}
-		onToggleAudio={() => audioState.toggle()}
-		onToggleFullscreen={() => state.toggleFullscreen()}
-		onVolumeInput={() => audioState.onSliderInput()}
+		onToggleClock={() => clockState.toggle()} onSelectLanguage={(lang) => langState.set(lang)}
+		onToggleClockFormat={() => clockState.toggleFormat()} onToggleAudio={() => audioState.toggle()}
+		onToggleFullscreen={() => state.toggleFullscreen()} onVolumeInput={() => audioState.onSliderInput()}
 	/>
 
 	{#if clockState.isActive}

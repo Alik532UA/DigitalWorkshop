@@ -78,6 +78,7 @@ export class SeaPageState {
 	 * Тим же шляхом іде `CV`, де панель мов теж має один спільний вимикач.
 	 */
 	isLangMenuOpen = $state(false);
+	isGalleryOpen = $state(false);
 	mouseTimeout: ReturnType<typeof setTimeout> | undefined;
 
 	hoveredCarouselProject = $state<string | null>(null);
@@ -172,22 +173,22 @@ export class SeaPageState {
 		this.currentIndex = 0;
 	}
 
+	toggleGallery() {
+		this.isGalleryOpen = !this.isGalleryOpen;
+	}
+
+	closeGallery() {
+		this.isGalleryOpen = false;
+	}
+
 	nextTab() {
 		const idx = this.tabsList.indexOf(this.currentTab);
-		if (idx < this.tabsList.length - 1) {
-			this.setTab(this.tabsList[idx + 1]);
-		} else {
-			this.setTab(this.tabsList[0]);
-		}
+		this.setTab(idx < this.tabsList.length - 1 ? this.tabsList[idx + 1] : this.tabsList[0]);
 	}
 
 	prevTab() {
 		const idx = this.tabsList.indexOf(this.currentTab);
-		if (idx > 0) {
-			this.setTab(this.tabsList[idx - 1]);
-		} else {
-			this.setTab(this.tabsList[this.tabsList.length - 1]);
-		}
+		this.setTab(idx > 0 ? this.tabsList[idx - 1] : this.tabsList[this.tabsList.length - 1]);
 	}
 
 	lockScroll() {
@@ -315,6 +316,7 @@ export class SeaPageState {
 	}
 
 	handleTouchStart(e: TouchEvent | MouseEvent) {
+		if (this.isGalleryOpen) return;
 		if ('touches' in e) {
 			this.touchStartY = e.touches[0].clientY;
 			this.touchStartX = e.touches[0].clientX;
@@ -328,7 +330,7 @@ export class SeaPageState {
 	}
 
 	handleTouchEnd(e: TouchEvent | MouseEvent) {
-		if (this.isScrolling || !this.isSwiping) return;
+		if (this.isGalleryOpen || this.isScrolling || !this.isSwiping) return;
 		this.isSwiping = false;
 
 		const touchEndY = 'changedTouches' in e ? e.changedTouches[0].clientY : e.clientY;
@@ -376,7 +378,7 @@ export class SeaPageState {
 			return;
 		}
 
-		if (this.isScrolling) return;
+		if (this.isGalleryOpen || this.isScrolling) return;
 
 		if (!this.isMobile && this.mouseX <= this.windowWidth * this.LEFT_PANEL_SCROLL_RATIO) {
 			const scrollDelta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
@@ -503,6 +505,10 @@ export class SeaPageState {
 		 * «закриємо, якщо жодна інша клавіша не спрацювала».
 		 */
 		if (e.code === 'Escape') {
+			if (this.isGalleryOpen) {
+				this.closeGallery();
+				return true;
+			}
 			if (!this.isLangMenuOpen) return false;
 			this.isLangMenuOpen = false;
 			return true;
