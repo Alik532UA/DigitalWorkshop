@@ -26,6 +26,9 @@
 	import iconArrowUp from '$lib/assets/tabler/arrow-big-up.svg?raw';
 	import iconArrowDown from '$lib/assets/tabler/arrow-big-down.svg?raw';
 	import iconArrowRight from '$lib/assets/tabler/arrow-big-right.svg?raw';
+	import iconArrowLeft from '$lib/assets/tabler/arrow-big-left.svg?raw';
+
+	const prevTabLabel = 'Previous tab';
 
 	const state = new SeaPageState();
 	const audioState = new AudioState();
@@ -245,18 +248,27 @@
 	<div class="info-layout" role="presentation">
 		<!-- Navigation arrows (Vertical on desktop, in header on mobile) -->
 		<div class="slide-nav-arrows" class:gallery-open={state.isGalleryOpen} class:is-ios={state.isIOS}>
-			<button
-				class="slide-nav-arrow arrow-up"
-				class:slot-hidden={state.currentIndex === 0}
-				class:inactive={!state.isMouseActive && !state.isMobile}
-				onclick={() => { if (state.currentIndex > 0) state.goToSlide(state.currentIndex - 1); }}
-				aria-label="Previous slide"
-				aria-hidden={state.currentIndex === 0}
-				tabindex={state.currentIndex === 0 ? -1 : undefined}
-				data-testid="sea-slide-prev-btn"
-			>
-				{@html iconArrowUp}
-			</button>
+			{#if state.currentIndex > 0}
+				<button
+					class="slide-nav-arrow arrow-up"
+					class:inactive={!state.isMouseActive && !state.isMobile}
+					onclick={() => state.goToSlide(state.currentIndex - 1)}
+					aria-label="Previous slide"
+					data-testid="sea-slide-prev-btn"
+				>
+					{@html iconArrowUp}
+				</button>
+			{:else}
+				<button
+					class="slide-nav-arrow arrow-prev-tab"
+					class:inactive={!state.isMouseActive && !state.isMobile}
+					onclick={() => state.prevTab()}
+					aria-label={prevTabLabel}
+					data-testid="sea-tab-prev-btn"
+				>
+					{@html iconArrowLeft}
+				</button>
+			{/if}
 
 			{#if state.currentIndex < state.totalSlides - 1}
 				<button
@@ -1264,6 +1276,15 @@
 			transform: translate(-50%, 5px);
 		}
 	}
+	@keyframes bounceArrowLeft {
+		0%,
+		100% {
+			transform: translate(-50%, 0);
+		}
+		50% {
+			transform: translate(calc(-50% - 5px), 0);
+		}
+	}
 	@keyframes bounceArrowRight {
 		0%,
 		100% {
@@ -1292,18 +1313,10 @@
 		cursor: pointer;
 		transition:
 			opacity 0.3s ease,
-			visibility 0.3s ease,
 			transform 0.3s ease;
 		pointer-events: auto;
 		padding: 0;
 		opacity: 0.5;
-	}
-
-	.slide-nav-arrow.slot-hidden {
-		visibility: hidden;
-		opacity: 0;
-		pointer-events: none;
-		animation: none;
 	}
 
 	.slide-nav-arrow :global(svg) {
@@ -1332,6 +1345,15 @@
 	.slide-nav-arrow.arrow-up:hover {
 		animation-play-state: paused;
 		transform: translate(-50%, -2px) scale(1.1);
+	}
+
+	.slide-nav-arrow.arrow-prev-tab {
+		top: 8dvh;
+		animation: bounceArrowLeft 2s infinite ease-in-out;
+	}
+	.slide-nav-arrow.arrow-prev-tab:hover {
+		animation-play-state: paused;
+		transform: translate(calc(-50% - 2px), 0) scale(1.1);
 	}
 
 	.slide-nav-arrow.arrow-down {
@@ -1518,10 +1540,7 @@
 			display: flex; align-items: center; justify-content: center;
 			background: transparent; border: none; cursor: pointer; transform: none; animation: none;
 		}
-		.slide-nav-arrow.slot-hidden {
-			visibility: hidden; opacity: 0; pointer-events: none;
-		}
-		.slide-nav-arrow.arrow-up, .slide-nav-arrow.arrow-down, .slide-nav-arrow.arrow-next-tab {
+		.slide-nav-arrow.arrow-up, .slide-nav-arrow.arrow-down, .slide-nav-arrow.arrow-next-tab, .slide-nav-arrow.arrow-prev-tab {
 			top: auto; bottom: auto; animation: none; transform: none;
 		}
 		.slide-nav-arrow :global(svg) {
@@ -1533,7 +1552,7 @@
 				stroke: white; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6)); transform: scale(1.15);
 			}
 		}
-		.slide-nav-arrow.arrow-up:hover, .slide-nav-arrow.arrow-down:hover, .slide-nav-arrow.arrow-next-tab:hover {
+		.slide-nav-arrow.arrow-up:hover, .slide-nav-arrow.arrow-down:hover, .slide-nav-arrow.arrow-next-tab:hover, .slide-nav-arrow.arrow-prev-tab:hover {
 			transform: none;
 		}
 		.slide-nav-arrow:focus-visible {
