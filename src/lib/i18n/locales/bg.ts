@@ -89,6 +89,13 @@ export const bg: Translations = {
                 feature: 'Четири езика, филтри по възраст, размер и пол и списък с любими, който преживява презареждане.',
                 linkText: 'Посети сайта'
             },
+            deviantblaze: {
+                title: "Deviant Blaze",
+                tech: "Svelte 5 (Runes) + Web Audio API",
+                description: "Official interactive rock band web portal: studio piano, concert-grade VJ audio visualizer, media player, and gallery.",
+                feature: "Concert-grade audio visualizer powered by Web Audio API and interactive in-browser piano.",
+                linkText: 'Посети сайта'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

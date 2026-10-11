@@ -89,6 +89,13 @@ export const it: Translations = {
                 feature: 'Quattro lingue, filtri per età, taglia e sesso e un elenco di preferiti che sopravvive al ricaricamento.',
                 linkText: 'Visita il sito'
             },
+            deviantblaze: {
+                title: "Deviant Blaze",
+                tech: "Svelte 5 (Runes) + Web Audio API",
+                description: "Portale web interattivo ufficiale della rock band: pianoforte da studio, visualizzatore audio VJ di livello concerto, lettore multimediale e galleria.",
+                feature: "Visualizzatore audio di qualità da concerto basato su Web Audio API e pianoforte interattivo nel browser.",
+                linkText: 'Visita il sito'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

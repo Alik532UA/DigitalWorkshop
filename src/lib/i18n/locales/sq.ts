@@ -89,6 +89,13 @@ export const sq: Translations = {
                 feature: 'Katër gjuhë, filtra sipas moshës, madhësisë dhe gjinisë dhe një listë të preferuarash që i mbijeton ringarkimit.',
                 linkText: 'Vizito Faqen'
             },
+            deviantblaze: {
+                title: "Deviant Blaze",
+                tech: "Svelte 5 (Runes) + Web Audio API",
+                description: "Official interactive rock band web portal: studio piano, concert-grade VJ audio visualizer, media player, and gallery.",
+                feature: "Concert-grade audio visualizer powered by Web Audio API and interactive in-browser piano.",
+                linkText: 'Vizito Faqen'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

@@ -89,6 +89,13 @@ export const is: Translations = {
                 feature: 'Fjögur tungumál, síur eftir aldri, stærð og kyni, og uppáhaldslisti sem lifir endurhleðslu af.',
                 linkText: 'Heimsækja vefsíðu'
             },
+            deviantblaze: {
+                title: "Deviant Blaze",
+                tech: "Svelte 5 (Runes) + Web Audio API",
+                description: "Official interactive rock band web portal: studio piano, concert-grade VJ audio visualizer, media player, and gallery.",
+                feature: "Concert-grade audio visualizer powered by Web Audio API and interactive in-browser piano.",
+                linkText: 'Heimsækja vefsíðu'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

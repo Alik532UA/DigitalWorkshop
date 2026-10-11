@@ -89,6 +89,13 @@ export const lv: Translations = {
                 feature: 'Četras valodas, filtri pēc vecuma, izmēra un dzimuma un izlases saraksts, kas pārdzīvo lapas pārlādi.',
                 linkText: 'Apmeklēt vietni'
             },
+            deviantblaze: {
+                title: "Deviant Blaze",
+                tech: "Svelte 5 (Runes) + Web Audio API",
+                description: "Official interactive rock band web portal: studio piano, concert-grade VJ audio visualizer, media player, and gallery.",
+                feature: "Concert-grade audio visualizer powered by Web Audio API and interactive in-browser piano.",
+                linkText: 'Apmeklēt vietni'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

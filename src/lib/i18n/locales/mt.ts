@@ -89,6 +89,13 @@ export const mt: Translations = {
                 feature: 'Erba\' lingwi, filtri skont l-età, id-daqs u s-sess, u lista ta\' favoriti li tibqa\' wara li terġa\' ttella\' l-paġna.',
                 linkText: 'Żur is-Sit'
             },
+            deviantblaze: {
+                title: "Deviant Blaze",
+                tech: "Svelte 5 (Runes) + Web Audio API",
+                description: "Official interactive rock band web portal: studio piano, concert-grade VJ audio visualizer, media player, and gallery.",
+                feature: "Concert-grade audio visualizer powered by Web Audio API and interactive in-browser piano.",
+                linkText: 'Żur is-Sit'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

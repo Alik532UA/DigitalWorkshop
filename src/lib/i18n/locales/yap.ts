@@ -96,6 +96,13 @@ export const yap: Translations = {
                 feature: 'Aningeg e thin, filter ko duw, ga’ngin, nge pumo’on/ppin, nge favorite ni ma par u tomuren e reload.',
                 linkText: 'Ligeg e Website'
             },
+            deviantblaze: {
+                title: "Deviant Blaze",
+                tech: "Svelte 5 (Runes) + Web Audio API",
+                description: "Official interactive rock band web portal: studio piano, concert-grade VJ audio visualizer, media player, and gallery.",
+                feature: "Concert-grade audio visualizer powered by Web Audio API and interactive in-browser piano.",
+                linkText: 'Ligeg e Website'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

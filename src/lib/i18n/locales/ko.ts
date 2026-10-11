@@ -89,6 +89,13 @@ export const ko: Translations = {
                 feature: '4개 언어를 지원하며 나이·크기·성별로 걸러 볼 수 있고, 즐겨찾기는 새로고침해도 남습니다.',
                 linkText: '웹사이트 방문'
             },
+            deviantblaze: {
+                title: "Deviant Blaze",
+                tech: "Svelte 5 (Runes) + Web Audio API",
+                description: "Official interactive rock band web portal: studio piano, concert-grade VJ audio visualizer, media player, and gallery.",
+                feature: "Concert-grade audio visualizer powered by Web Audio API and interactive in-browser piano.",
+                linkText: '웹사이트 방문'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

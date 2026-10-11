@@ -89,6 +89,13 @@ export const ka: Translations = {
                 feature: 'ოთხი ენა, ფილტრები ასაკის, ზომისა და სქესის მიხედვით და რჩეულები, რომლებიც გვერდის გადატვირთვას გადაურჩება.',
                 linkText: 'ვებსაიტის მონახულება'
             },
+            deviantblaze: {
+                title: "Deviant Blaze",
+                tech: "Svelte 5 (Runes) + Web Audio API",
+                description: "Official interactive rock band web portal: studio piano, concert-grade VJ audio visualizer, media player, and gallery.",
+                feature: "Concert-grade audio visualizer powered by Web Audio API and interactive in-browser piano.",
+                linkText: 'ვებსაიტის მონახულება'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

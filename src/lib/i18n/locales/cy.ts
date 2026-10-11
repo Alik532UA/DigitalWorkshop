@@ -89,6 +89,13 @@ export const cy: Translations = {
                 feature: 'Pedair iaith, hidlyddion yn ôl oedran, maint a rhyw, a rhestr ffefrynnau sy’n goroesi ail-lwytho.',
                 linkText: 'Ymweld â\'r Wefan'
             },
+            deviantblaze: {
+                title: "Deviant Blaze",
+                tech: "Svelte 5 (Runes) + Web Audio API",
+                description: "Official interactive rock band web portal: studio piano, concert-grade VJ audio visualizer, media player, and gallery.",
+                feature: "Concert-grade audio visualizer powered by Web Audio API and interactive in-browser piano.",
+                linkText: 'Ymweld â\'r Wefan'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",

@@ -1,4 +1,4 @@
-import { Globe, Gamepad2, Box, FileUser } from 'lucide-svelte';
+import { Globe, Gamepad2, Box, FileUser, Flame } from 'lucide-svelte';
 import type { SiblingId } from '$lib/siblings';
 
 /**
@@ -35,6 +35,7 @@ export type ProjectEntry = {
 export const PROJECTS: ProjectEntry[] = [
     { id: 'slovko', img: 'slovko.jpg', icon: Globe, site: 'slovko', tabs: ['apps'] },
     { id: 'mindstep', img: 'mindstep.jpg', icon: Gamepad2, site: 'mindstep', tabs: ['games'] },
+    { id: 'deviantblaze', img: 'DeviantBlaze.webp', icon: Flame, site: 'deviantblaze', tabs: ['website', 'promo'] },
     { id: 'teatralo4ka', img: 'teatralo4ka.jpg', icon: Globe, site: 'teatralo4ka', tabs: ['website', 'promo'] },
     { id: 'cv3d', img: 'cv_3d.jpg', icon: Box, link: 'https://alik532ua.itch.io/alik-cv-interactive-3d-experience', tabs: ['games'] },
     { id: 'cv_web', img: 'cv_web.jpg', icon: FileUser, site: 'cv', tabs: ['website'] },

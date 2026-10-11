@@ -89,6 +89,13 @@ export const crh: Translations = {
                 feature: 'Dört til, yaş, ölçü ve cins boyunca süzgüçler ve qayta yüklevden soñ da qalğan sevimliler cedveli.',
                 linkText: 'Saytnı ziyaret etiñiz'
             },
+            deviantblaze: {
+                title: "Deviant Blaze",
+                tech: "Svelte 5 (Runes) + Web Audio API",
+                description: "Rok taqımınıñ resmiy interaktiv veb-portalı: studiya piyanosı, kontsert seviyesindeki VJ audio vizualizatorı, media pleyer ve galereya.",
+                feature: "Web Audio API esasında kontsert audio vizualizatorı ve brauzerde interaktiv piyano.",
+                linkText: 'Saytnı ziyaret etiñiz'
+            },
             vetcrew: {
                 title: "VetCrew Games",
                 tech: "Svelte",
