@@ -82,6 +82,13 @@
     });
 
     onMount(() => {
+        const onRejection = (e: PromiseRejectionEvent) =>
+            logService.error('app', `Unhandled rejection: ${String(e.reason)}`);
+        const onWindowError = (e: ErrorEvent) =>
+            logService.error('app', `${e.message} at ${e.filename}:${e.lineno}`);
+        window.addEventListener('unhandledrejection', onRejection);
+        window.addEventListener('error', onWindowError);
+
         logService.info('app', `App initialized in ${dev ? 'development' : 'production'} mode`);
         migrateStorage();
         initAnalytics();
@@ -102,6 +109,8 @@
         ];
 
         return () => {
+            window.removeEventListener('unhandledrejection', onRejection);
+            window.removeEventListener('error', onWindowError);
             cleanups.forEach(cleanup => {
                 if (typeof cleanup === 'function') cleanup();
             });
