@@ -92,9 +92,7 @@ const config = {
 		adapter: adapter({
 			fallback: '404.html'
 		}),
-		paths: {
-			base: '/DigitalWorkshop'
-		},
+		paths: { base: process.env.BASE_PATH ?? '/DigitalWorkshop', relative: false },
 		/*
 		 * Опитування версії — умова того, що відкрита вкладка переживе деплой
 		 * (VERSIONING-v9 § 6.1 `VER-OPEN-TAB-SURVIVES`, HIGH).

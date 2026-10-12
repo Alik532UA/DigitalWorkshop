@@ -54,6 +54,10 @@ function scrubUrl(raw: string): string {
  * лишиться читабельним у текстовому звіті, і вкладеність за п'ятий рівень там
  * не читає ніхто. Заразом це знімає питання циклів.
  */
+export function scrubPII(value: unknown, seen = new WeakSet()): unknown {
+	return scrub(value, seen);
+}
+
 function scrub(value: unknown, depth = 0): unknown {
 	if (depth > 5) return '«глибше не пишемо»';
 
