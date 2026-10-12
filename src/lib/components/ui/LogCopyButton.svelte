@@ -30,6 +30,7 @@
      * нього не міг би цього жесту дочекатися.
      */
     let copied = $state(false);
+    let fallbackReport = $state<string | null>(null);
     let copyTimer: ReturnType<typeof setTimeout> | undefined;
 
     const appVersion = logService.appVersion;
@@ -56,6 +57,7 @@
         const report = logService.getReport();
         try {
             await navigator.clipboard.writeText(report);
+            fallbackReport = null;
             copied = true;
             copyTimer = setTimeout(() => {
                 copied = false;
@@ -66,6 +68,7 @@
             // застосунку. У буфер запис іде, щоб наступний звіт показав, що
             // попередня спроба копіювання не вдалася (DEBUGGING-v8 § 1.3).
             logService.warn('ui', 'Clipboard write for the log report failed', error);
+            fallbackReport = report;
         }
     }
 </script>
@@ -76,6 +79,15 @@
         in:scale={{ duration: 300, start: 0.5 }}
         out:fade={{ duration: 200 }}
     >
+        {#if fallbackReport}
+            <textarea
+                class="log-fallback"
+                readonly
+                value={fallbackReport}
+                aria-label="Debug report fallback"
+                data-testid="debug-log-fallback-input"
+            ></textarea>
+        {/if}
         <button
             type="button"
             class="log-fab"
@@ -220,5 +232,22 @@
         .log-fab-container {
             bottom: 80px; /* Вище BottomNav */
         }
+    }
+
+    .log-fallback {
+        position: fixed;
+        bottom: 76px;
+        left: 16px;
+        width: min(38rem, calc(100vw - 32px));
+        height: min(40dvh, 20rem);
+        z-index: 9999;
+        padding: 8px;
+        font-family: monospace;
+        font-size: 0.75rem;
+        background: #1e1e1e;
+        color: #ffffff;
+        border: 2px solid #ef4444;
+        border-radius: 8px;
+        resize: none;
     }
 </style>
