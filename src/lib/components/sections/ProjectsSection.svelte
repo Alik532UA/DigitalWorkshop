@@ -67,6 +67,7 @@
                     <a
                         href={p.link}
                         target="_blank"
+                        rel="noopener noreferrer"
                         class="btn-primary project-btn glass"
                         onclick={() => track("project_click", { project: p.id, from: "portfolio" })}
                     >

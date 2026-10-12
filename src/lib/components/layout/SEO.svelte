@@ -2,6 +2,7 @@
     import { getLanguage, translations } from "$lib/i18n/LanguageState.svelte";
     import { page } from "$app/state";
     import { INDEXED_LANGUAGES, bcp47, isHiddenRoute, isIndexed, langUrl } from "$lib/i18n/routing";
+    import { jsonLdScript } from "$lib/security/jsonLd";
 
     // Spelled out rather than taken from page.url / $app/paths: these tags are
     // read out of the prerendered HTML, where page.url.origin is SvelteKit's
@@ -58,29 +59,27 @@
 
     // Structured data: this site sells web development, so describe the service
     // rather than leaving search engines to infer it from prose.
-    let serviceLd = $derived(
-        JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "ProfessionalService",
-            name: "DigitalWorkshop",
-            description,
-            url: canonical,
-            image: imageUrl,
-            areaServed: "UA",
-            provider: {
-                "@type": "Person",
-                name: "Alik Zapolnov",
-                jobTitle: "Web Developer",
-                url: `${SITE_ORIGIN}/CV/`
-            },
-            address: {
-                "@type": "PostalAddress",
-                addressLocality: "Odesa",
-                addressCountry: "UA"
-            },
-            knowsAbout: ["SvelteKit", "Svelte", "Web Development", "PWA", "Game Development"]
-        })
-    );
+    let serviceData = $derived({
+        "@context": "https://schema.org",
+        "@type": "ProfessionalService",
+        name: "DigitalWorkshop",
+        description,
+        url: canonical,
+        image: imageUrl,
+        areaServed: "UA",
+        provider: {
+            "@type": "Person",
+            name: "Alik Zapolnov",
+            jobTitle: "Web Developer",
+            url: `${SITE_ORIGIN}/CV/`
+        },
+        address: {
+            "@type": "PostalAddress",
+            addressLocality: "Odesa",
+            addressCountry: "UA"
+        },
+        knowsAbout: ["SvelteKit", "Svelte", "Web Development", "PWA", "Game Development"]
+    });
 </script>
 
 <svelte:head>
@@ -131,5 +130,5 @@
     <meta property="twitter:image" content={imageUrl} />
 
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-    {@html `<script type="application/ld+json">${serviceLd}</` + `script>`}
+    {@html jsonLdScript(serviceData)}
 </svelte:head>

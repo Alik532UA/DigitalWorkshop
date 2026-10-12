@@ -2,6 +2,7 @@
     import { t } from "$lib/i18n/LanguageState.svelte";
     import { getTabs, getBackground, type TabType, tabColors } from "$lib/controllers/UiState.svelte";
     import { base } from "$app/paths";
+    import { sanitizeHtml } from "$lib/security/sanitize";
 
     const tabs = getTabs();
     const background = getBackground();
@@ -76,7 +77,7 @@
                             </button>
                         {:else if part.content}
                             <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                            {@html part.content.replace(/\n/g, '<br />')}
+                            {@html sanitizeHtml(part.content.replace(/\n/g, '<br />'))}
                         {/if}
                     {/each}
                 </h1>
@@ -107,7 +108,7 @@
                         </button>
                     {:else if part.content}
                         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                        {@html part.content.replace(/\n/g, '<br />')}
+                        {@html sanitizeHtml(part.content.replace(/\n/g, '<br />'))}
                     {/if}
                 {/each}
             </h1>

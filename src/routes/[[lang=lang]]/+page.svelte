@@ -25,6 +25,7 @@
 	import iconMessage from '$lib/assets/tabler/message.svg?raw';
 	import iconArrowUp from '$lib/assets/tabler/arrow-big-up.svg?raw';
 	import iconArrowDown from '$lib/assets/tabler/arrow-big-down.svg?raw';
+	import { sanitizeSvg, sanitizeHtml } from '$lib/security/sanitize';
 
 	const state = new SeaPageState();
 	const slot1Label = $derived(state.currentIndex > 0 ? 'Previous slide' : 'Previous tab');
@@ -278,7 +279,7 @@
 				data-testid="sea-slide-prev-btn"
 			>
 				<span class="slide-nav-icon" class:rotate-tab={state.currentIndex === 0}>
-					{@html iconArrowUp}
+					{@html sanitizeSvg(iconArrowUp)}
 				</span>
 			</button>
 
@@ -292,7 +293,7 @@
 				data-testid="sea-slide-next-btn"
 			>
 				<span class="slide-nav-icon" class:rotate-tab={state.currentIndex === state.totalSlides - 1}>
-					{@html iconArrowDown}
+					{@html sanitizeSvg(iconArrowDown)}
 				</span>
 			</button>
 		</div>
@@ -368,7 +369,7 @@
 								}}
 							>
 								<p>
-									{@html state.formattedGreeting}<br /><br />
+									{@html sanitizeHtml(state.formattedGreeting)}<br /><br />
 									<span class="desktop-text">{t.hero.description_sea_desktop}</span>
 									<span class="mobile-text">{t.hero.description_sea_mobile}</span>
 								</p>
@@ -376,6 +377,7 @@
 									<a
 										href={config.telegramUrl}
 										target="_blank"
+										rel="noopener noreferrer"
 										class="btn-primary project-btn glass"
 										data-testid="sea-hero-cta-btn"
 									>
@@ -400,11 +402,12 @@
 						<div class="info-slide glass-panel info-block slide-hero" use:fitCard={langState.current}>
 							<div class="hero-text">
 								<h2 class="tab-title">{tabData?.title}</h2>
-								<p class="tab-intro">{@html tabData?.intro.replace(/\n/g, '<br />') ?? ''}</p>
+								<p class="tab-intro">{@html sanitizeHtml(tabData?.intro.replace(/\n/g, '<br />') ?? '')}</p>
 								<ContactDropdown customStyle="margin-top: 2rem;">
 									<a
 										href={config.telegramUrl}
 										target="_blank"
+										rel="noopener noreferrer"
 										class="btn-primary project-btn glass"
 										data-testid="sea-tab-cta-btn"
 									>
@@ -429,7 +432,7 @@
 								{#each chunk as item}
 									<div class="info-slide glass-panel info-block content-item">
 										<h3 class="item-title">{item.h || item.q}</h3>
-										<div class="item-desc">{@html state.parseMarkdown(item.p || item.a)}</div>
+										<div class="item-desc">{@html sanitizeHtml(state.parseMarkdown(item.p || item.a))}</div>
 									</div>
 								{/each}
 							</div>
@@ -474,7 +477,7 @@
 									</div>
 									<p class="project-desc">{data.description}</p>
 									<p class="project-feature"><strong>{t.portfolio.featureLabel}</strong> {data.feature}</p>
-									<a href={p.link} target="_blank" class="btn-primary project-btn glass">
+									<a href={p.link} target="_blank" rel="noopener noreferrer" class="btn-primary project-btn glass">
 										{data.linkText}
 										<ExternalLink size={20} />
 									</a>
@@ -518,7 +521,7 @@
 						onmouseleave={() => (state.hoveredTab = null)}
 						onclick={() => state.setTab(tab.id)}
 					>
-						{@html tab.icon}
+						{@html sanitizeSvg(tab.icon)}
 					</button>
 				</div>
 			{/each}
@@ -530,13 +533,14 @@
 				<a
 					href={config.telegramUrl}
 					target="_blank"
+					rel="noopener noreferrer"
 					class="glass-icon"
 					class:bg-blue={state.currentIndex > 0}
 					data-testid="sea-contact-btn"
 					style="--mask-url: url({squircleUrl});"
 					aria-label="Contact via Telegram"
 				>
-					{@html iconMessage}
+					{@html sanitizeSvg(iconMessage)}
 				</a>
 			</ContactDropdown>
 		</div>

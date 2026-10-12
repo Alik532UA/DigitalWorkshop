@@ -8,6 +8,7 @@
 	import iconMinimize from '$lib/assets/tabler/arrows-minimize.svg?raw';
 	import iconMusicOn from '$lib/assets/tabler/music.svg?raw';
 	import iconMusicOff from '$lib/assets/tabler/music-off.svg?raw';
+	import { sanitizeSvg } from '$lib/security/sanitize';
 
 	interface Props {
 		isMouseActive: boolean;
@@ -143,7 +144,7 @@
 		aria-label="Toggle Clock"
 		data-testid="sea-clock-btn"
 	>
-		{@html iconClock}
+		{@html sanitizeSvg(iconClock)}
 	</button>
 	<!--
 		Обгортка НЕ реагує на наведення, і це навмисно.
@@ -170,7 +171,7 @@
 			aria-haspopup={isClockActive ? undefined : 'menu'}
 			aria-expanded={isClockActive ? undefined : isLangOpen}
 		>
-			{@html iconLanguage}
+			{@html sanitizeSvg(iconLanguage)}
 		</button>
 
 		{#if isLangOpen && !isClockActive}
@@ -228,7 +229,7 @@
 			aria-label="Toggle Audio"
 			data-testid="sea-audio-btn"
 		>
-			{@html isAudioPlaying ? iconMusicOn : iconMusicOff}
+			{@html sanitizeSvg(isAudioPlaying ? iconMusicOn : iconMusicOff)}
 		</button>
 		<div class="volume-slider-container">
 			<input
@@ -251,7 +252,7 @@
 			aria-label="Toggle Fullscreen"
 			data-testid="sea-fullscreen-btn"
 		>
-			{@html isFullscreen ? iconMinimize : iconMaximize}
+			{@html sanitizeSvg(isFullscreen ? iconMinimize : iconMaximize)}
 		</button>
 	{/if}
 </div>

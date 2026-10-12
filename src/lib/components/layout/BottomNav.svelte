@@ -17,12 +17,12 @@
 
 <nav class="mobile-bottom-header" style="--glass-blur-dynamic: blur(20px);">
     <div class="mobile-bottom-header__content">
-        <a href={config.telegramUrl} target="_blank" class="bottom-btn">
+        <a href={config.telegramUrl} target="_blank" rel="noopener noreferrer" class="bottom-btn">
             <MessageSquare size={20} />
             <span>{t.footer.ask}</span>
         </a>
         
-        <a href={config.telegramUrl} target="_blank" class="bottom-btn cta">
+        <a href={config.telegramUrl} target="_blank" rel="noopener noreferrer" class="bottom-btn cta">
             <Zap size={20} />
             <span>{orderText}</span>
         </a>

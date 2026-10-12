@@ -135,6 +135,7 @@
         <a
             href={config.telegramUrl}
             target="_blank"
+            rel="noopener noreferrer"
             class="footer-btn"
             style="left: {leftBtnStyles.left}; bottom: {leftBtnStyles.bottom}; --rot: {leftBtnStyles.rot};"
             data-testid="footer-ask-btn"
@@ -144,6 +145,7 @@
         <a
             href={config.telegramUrl}
             target="_blank"
+            rel="noopener noreferrer"
             class="footer-btn"
             style="left: {rightBtnStyles.left}; bottom: {rightBtnStyles.bottom}; --rot: {rightBtnStyles.rot};"
             data-testid="footer-order-btn"

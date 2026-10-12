@@ -23,7 +23,7 @@
             </div>
 
             <div class="cta-section">
-                <a href={config.telegramUrl} target="_blank" class="btn-primary large-btn glass" data-testid="website-cta-btn">
+                <a href={config.telegramUrl} target="_blank" rel="noopener noreferrer" class="btn-primary large-btn glass" data-testid="website-cta-btn">
                     {t.tabs.website.cta} <ChevronRight size={20} />
                 </a>
             </div>

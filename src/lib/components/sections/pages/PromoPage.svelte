@@ -3,6 +3,7 @@
 	import { CircleHelp, WandSparkles } from "lucide-svelte";
 	import { t } from '$lib/i18n/LanguageState.svelte';
 	import SectionContainer from '../../ui/SectionContainer.svelte';
+	import { sanitizeHtml } from '$lib/security/sanitize';
 
 	function processMarkdown(text: string): string {
 		return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
@@ -31,12 +32,12 @@
 								{#if line.trim().startsWith('*')}
 									<div class="faq-list-item">
 										<span class="bullet">•</span>
-										<span>{@html processMarkdown(line.trim().substring(1).trim())}</span>
+										<span>{@html sanitizeHtml(processMarkdown(line.trim().substring(1).trim()))}</span>
 									</div>
 								{:else if line.trim() === ''}
 									<div class="faq-spacer"></div>
 								{:else}
-									<p class="faq-text-line">{@html processMarkdown(line)}</p>
+									<p class="faq-text-line">{@html sanitizeHtml(processMarkdown(line))}</p>
 								{/if}
 							{/each}
 						</div>
@@ -45,7 +46,7 @@
 			</div>
 
 			<div class="cta-section">
-				<a href={config.telegramUrl} target="_blank" class="btn-primary large-btn glass" data-testid="promo-cta-btn">
+				<a href={config.telegramUrl} target="_blank" rel="noopener noreferrer" class="btn-primary large-btn glass" data-testid="promo-cta-btn">
 					{promo.cta}
 				</a>
 			</div>
