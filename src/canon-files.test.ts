@@ -140,7 +140,7 @@ const CORPUS = ['src', 'scripts', 'tests', 'docs']
 
 /** Скільки файлів корпусу цитують цей файл пакета. Мажор `v8`/`v9` — обидва. */
 const mentionsOf = (name: string) =>
-	CORPUS.filter(({ text }) => new RegExp(`${name}-v[89]`).test(text)).length;
+	CORPUS.filter(({ text }) => new RegExp(`${name}-v([89]|10)`).test(text)).length;
 
 describe('перевірка жива', () => {
 	it('розділ вибору й корпус прочитано', () => {
