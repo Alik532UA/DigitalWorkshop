@@ -25,6 +25,7 @@ export const handleError: HandleClientError = ({ error, event, status }) => {
 	if (status === 404) return;
 
 	const normalized = error instanceof Error ? error : new Error(String(error));
+	if (normalized.message.includes('ResizeObserver loop')) return;
 	const key = errorToMessageKey(error);
 	logService.error(
 		'app',
