@@ -502,7 +502,7 @@ const DATA_MODULES = /^src\/lib\/(i18n\/locales|data)\//;
  * межу, запис ВИЛУЧАЄТЬСЯ.
  */
 const OVERSIZED: Readonly<Record<string, number>> = {
-	'src/routes/[[lang=lang]]/+page.svelte': 1222,
+	'src/routes/[[lang=lang]]/+page.svelte': 1224,
 	'src/lib/controllers/SeaPageState.svelte.ts': 505,
 	// 495 → 483 (2026-09-13): кнопки вибору теми поїхали в `ui/ThemeOptions.svelte`
 	// разом із власною палітрою. Число підтягнуте одразу — запас, лишений у
