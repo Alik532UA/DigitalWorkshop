@@ -59,3 +59,14 @@ jobs:
           path: .lighthouseci/
           if-no-files-found: ignore
           retention-days: 7
+
+      - name: Add Lighthouse summary
+        if: ${{ always() }}
+        run: |
+          echo "## 🚦 Lighthouse CI Audit Result" >> $GITHUB_STEP_SUMMARY
+          echo "Target commit: \`${{ github.event.workflow_run.head_sha || github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          if [ -d .lighthouseci ]; then
+            echo "✅ Audit completed. Full HTML reports uploaded as artifact \`lighthouse-report\`." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Audit did not generate reports or was skipped." >> $GITHUB_STEP_SUMMARY
+          fi
