@@ -1,4 +1,3 @@
-// src/fluid-sizing.test.ts
 // @vitest-environment node
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
