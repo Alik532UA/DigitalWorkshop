@@ -214,7 +214,7 @@
 		width: min(calc(100vw - 2rem), 480px);
 		margin: 0 auto;
 		display: grid;
-		grid-template-columns: repeat(2, 1fr);
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 		gap: 0.75rem;
 		padding-top: max(5.5rem, calc(env(safe-area-inset-top, 0px) + 5rem));
 		padding-bottom: max(6rem, calc(env(safe-area-inset-bottom, 0px) + 5rem));

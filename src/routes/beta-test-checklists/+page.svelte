@@ -319,7 +319,7 @@
 
 	.beta-header h1 {
 		margin: 0;
-		font-size: clamp(1.6rem, 4vw, 2.4rem);
+		font-size: clamp(1.6rem, 1.2rem + 1.5vw, 2.4rem);
 		line-height: 1.2;
 	}
 

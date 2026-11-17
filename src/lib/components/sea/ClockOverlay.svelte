@@ -326,7 +326,7 @@
 	.clock-digit {
 		display: inline-grid;
 		justify-items: center;
-		font-size: clamp(4rem, 12vw, 10rem);
+		font-size: clamp(4rem, 2rem + 6vw, 10rem);
 	}
 
 	.clock-digit .digit-cell {
@@ -372,12 +372,12 @@
 	}
 
 	.clock-seconds {
-		font-size: clamp(2.5rem, 7vw, 5.5rem);
+		font-size: clamp(2.5rem, 1.5rem + 3.5vw, 5.5rem);
 		opacity: 0.6;
 	}
 
 	.clock-ampm {
-		font-size: clamp(1.5rem, 4vw, 3rem);
+		font-size: clamp(1.5rem, 1rem + 2vw, 3rem);
 		opacity: 0.6;
 		margin-left: 0.5rem;
 		align-self: flex-end;
