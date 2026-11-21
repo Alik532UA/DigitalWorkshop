@@ -197,6 +197,10 @@ class LogService {
         }
     }
 
+    get logs(): LogEntry[] {
+        return this.history;
+    }
+
     getReport(): string {
         const header = [
             '--- LOG REPORT ---',

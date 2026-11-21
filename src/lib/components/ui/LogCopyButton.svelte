@@ -4,54 +4,33 @@
     import { onDestroy } from 'svelte';
     import { debugMode } from '$lib/services/debugMode.svelte';
     import { logService } from '$lib/services/logService.svelte';
-    import { Check, Copy } from 'lucide-svelte';
+    import { Check, Copy, Eye, RotateCcw, EyeOff } from 'lucide-svelte';
     import { fade, scale } from 'svelte/transition';
+    import ErrorLogModal from './ErrorLogModal.svelte';
 
-    /**
-     * Службове табло: номер версії, лічильник помилок і збір звіту — ОДИН елемент.
-     *
-     * **Форма змінюється, місце — ні.** У спокої це капсула з номером версії; коли
-     * є помилки — червоний кружок із їхньою кількістю; після копіювання — галочка.
-     * Доти номера версії не було на екрані взагалі: у підвалі рядок із ним стояв
-     * закомментованим, тож на скріншоті збою не було видно, з якої він збірки.
-     *
-     * **Видимість (DEBUGGING-v8 § 2.1, із відхиленням).** У dev табло видиме
-     * ЗАВЖДИ, а не лише за наявності помилок, як приписує канон: воно тепер несе
-     * номер версії, а його ховати нема сенсу — саме в dev він і потрібен.
-     *
-     * **У проді доти воно було НЕДОСЯЖНЕ.** `dev && errorCount > 0` означало, що
-     * логер збирає кільцевий буфер на пристроях відвідувачів і звіт із нього
-     * забрати неможливо — функція існувала лише на папері. Тепер два входи, різні
-     * за природою: `?debug=1` (працює на дотику, пересилається посиланням) і серія
-     * натискань `V` (для того, хто вже за клавіатурою; зберігається між сеансами).
-     *
-     * **Сам жест `V` живе в кореневому layout, а не тут** — бо в проді цей
-     * компонент не відмальований, доки жест не спрацював, тож слухач усередині
-     * нього не міг би цього жесту дочекатися.
-     */
     let copied = $state(false);
     let fallbackReport = $state<string | null>(null);
     let copyTimer: ReturnType<typeof setTimeout> | undefined;
+    let showMenu = $state(false);
+    let isModalOpen = $state(false);
+    let userDismissed = $state(false);
+    let menuX = $state(16);
+    let menuY = $state(60);
 
     const appVersion = logService.appVersion;
 
-    /*
-     * `browser &&` обовʼязковий: під час пререндеру звернення до
-     * `page.url.searchParams` кидає «Cannot access url.searchParams on a page with
-     * prerendering enabled» і валить збірку цілком.
-     */
     const urlDebug = $derived(browser && page.url.searchParams.get('debug') === '1');
-    /*
-     * `?debug=1` діє ПОВЕРХ збереженого стану: посилання з ним мусить показати
-     * табло навіть тому, хто раніше сховав його серією натискань. Інакше
-     * найнадійніший шлях (єдиний досяжний на дотику) можна було б заблокувати
-     * назавжди.
-     */
-    const isVisible = $derived(urlDebug || debugMode.enabled);
+    const isVisible = $derived((urlDebug || debugMode.enabled) && !userDismissed);
 
     onDestroy(() => {
         if (copyTimer) clearTimeout(copyTimer);
     });
+
+    function handleGlobalKeydown(e: KeyboardEvent) {
+        if (e.key === 'Escape' && showMenu) {
+            showMenu = false;
+        }
+    }
 
     async function copyReport() {
         const report = logService.getReport();
@@ -63,15 +42,47 @@
                 copied = false;
             }, 1500);
         } catch (error) {
-            // `warn`, а не `error`: `navigator.clipboard` відсутній на не-HTTPS
-            // origin і відмовляє без дозволу — це стан середовища, не збій
-            // застосунку. У буфер запис іде, щоб наступний звіт показав, що
-            // попередня спроба копіювання не вдалася (DEBUGGING-v8 § 1.3).
             logService.warn('ui', 'Clipboard write for the log report failed', error);
             fallbackReport = report;
         }
     }
+
+    function openMenu(e: MouseEvent) {
+        e.stopPropagation();
+        const target = e.currentTarget as HTMLElement | null;
+        const rect = target?.getBoundingClientRect();
+        if (rect) {
+            menuX = rect.left;
+            menuY = Math.max(8, rect.top - 180);
+        }
+        showMenu = !showMenu;
+    }
+
+    function handleCopyReport() {
+        showMenu = false;
+        void copyReport();
+    }
+
+    function handleViewErrors() {
+        showMenu = false;
+        isModalOpen = true;
+    }
+
+    function handleClearLogs() {
+        showMenu = false;
+        logService.clear();
+    }
+
+    function handleHideBadge() {
+        showMenu = false;
+        userDismissed = true;
+        if (debugMode.enabled) {
+            debugMode.toggle();
+        }
+    }
 </script>
+
+<svelte:window onkeydown={handleGlobalKeydown} onclick={() => { if (showMenu) showMenu = false; }} />
 
 {#if isVisible}
     <div
@@ -93,18 +104,14 @@
             class="log-fab"
             class:has-errors={logService.errorCount > 0}
             class:copied
-            onclick={copyReport}
+            onclick={openMenu}
+            oncontextmenu={(e) => { e.preventDefault(); openMenu(e); }}
             title="Copy debug report — {appVersion} ({logService.errorCount} errors)"
             aria-label="Copy debug report — {appVersion}"
+            aria-haspopup="menu"
+            aria-expanded={showMenu}
             data-testid="app-version-value"
         >
-            <!--
-                Номер версії стоїть у ВСІХ трьох станах, і це виправлення, а не смак.
-                Доти лічильник помилок його ЗАМІНЯВ — а на dev-сторінці помилки є майже
-                завжди, тож версії не було видно ніколи, тобто головна річ на таблі
-                зникала саме там, де вона потрібна. Лічильник ДОДАЄТЬСЯ до номера, а не
-                стає замість нього.
-            -->
             {#if copied}
                 <Check size={14} class="hint-icon" />
             {:else if logService.errorCount > 0}
@@ -114,6 +121,61 @@
             {/if}
             <span class="version">{appVersion}</span>
         </button>
+
+        {#if showMenu}
+            <div
+                class="context-menu"
+                role="menu"
+                tabindex="-1"
+                style="left: {menuX}px; top: {menuY}px;"
+                data-testid="service-badge-context-menu"
+                onclick={(e) => e.stopPropagation()}
+                onkeydown={(e) => { if (e.key === 'Escape') showMenu = false; }}
+            >
+                <button
+                    type="button"
+                    role="menuitem"
+                    class="menu-item"
+                    onclick={handleCopyReport}
+                    data-testid="service-badge-copy-report-btn"
+                >
+                    <Copy size={14} />
+                    <span>Скопіювати повний звіт</span>
+                </button>
+                <button
+                    type="button"
+                    role="menuitem"
+                    class="menu-item"
+                    onclick={handleViewErrors}
+                    data-testid="service-badge-view-errors-btn"
+                >
+                    <Eye size={14} />
+                    <span>Переглянути помилки ({logService.errorCount})</span>
+                </button>
+                <button
+                    type="button"
+                    role="menuitem"
+                    class="menu-item"
+                    onclick={handleClearLogs}
+                    data-testid="service-badge-clear-btn"
+                >
+                    <RotateCcw size={14} />
+                    <span>Скинути лічильник</span>
+                </button>
+                <button
+                    type="button"
+                    role="menuitem"
+                    class="menu-item menu-item--hide"
+                    onclick={handleHideBadge}
+                    data-testid="service-badge-hide-btn"
+                >
+                    <EyeOff size={14} />
+                    <span>Приховати табло</span>
+                </button>
+            </div>
+        {/if}
+
+        <ErrorLogModal isOpen={isModalOpen} onclose={() => (isModalOpen = false)} />
     </div>
 {/if}
 
@@ -130,12 +192,9 @@
         align-items: center;
         justify-content: center;
         gap: 4px;
-
-        /* Капсула: номер версії в коло не влазить. */
         min-height: 32px;
         padding: 0 8px;
         border-radius: 16px;
-
         background: var(--card-bg);
         color: var(--text-primary);
         border: 2px solid var(--border-color);
@@ -152,52 +211,26 @@
         font-size: 10px;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         line-height: 1;
-        /* Номер читає той, хто дивиться на скріншот, тож він не має «розсипатися». */
         white-space: nowrap;
     }
 
-    /*
-     * Іконка копіювання — підказка, що капсула клікабельна, а не окрема дія. Тому
-     * вона дрібніша за номер і тане: головне тут число версії.
-     */
     .log-fab :global(.hint-icon) {
         opacity: 0.6;
         flex: none;
     }
 
-    /*
-     * Форма НЕ змінюється між станами: капсула лишається капсулою, бо номер версії
-     * лишається на місці. Доти помилки перетворювали табло на кружок 32px — тобто
-     * зникала не лише версія, а й сама впізнаваність елемента: у куті зʼявлялося щось
-     * інше, і його доводилося перечитувати.
-     */
-
-    /*
-     * Червоний темніший за #ef4444 — за WCAG AA, не за смаком: білий текст на
-     * попередньому давав 3.76:1 при потрібних 4.5. Тепер 5.46:1. Лічильник помилок
-     * читають саме тоді, коли щось пішло не так, тобто це найгірший кандидат на
-     * «майже читно».
-     */
     .log-fab.has-errors {
         background: #c92a2a;
         color: white;
         border-color: #7f1d1d;
     }
 
-    /* The green follows the same rule: #2f9e44 gave 3.45:1 under white text, #237a35 gives 5.38:1. */
     .log-fab.copied {
         background: #237a35;
         color: white;
         border-color: #1b5e20;
     }
 
-    /*
-     * Лічильник — плашка ПЕРЕД номером, а не текст замість нього.
-     *
-     * Темніший червоний за тло самої капсули (#7f1d1d на #c92a2a): білий текст дає на
-     * ньому 10:1, а сама плашка читається як окремий елемент, а не як пляма. Червоне
-     * на червоному тут навмисно — сигнал один, і роздвоювати його кольором нема сенсу.
-     */
     .count {
         font-size: 0.75rem;
         font-weight: 700;
@@ -208,14 +241,6 @@
         color: #ffffff;
     }
 
-    /*
-     * Розмір залежить від СПОСОБУ ВВЕДЕННЯ, а не від ширини вікна: на десктопі
-     * 700px кнопка лишалася б маленькою для миші, а на планшеті 1024px — маленькою
-     * для дотику (ACCESSIBILITY-v8 § 8, DEBUGGING-v8 § 2.2). Доти тут стояв
-     * `max-width: 768px`, який ЗМЕНШУВАВ кнопку до 36px саме там, де потрібні 44.
-     * Підняття над нижньою навігацією лишається — воно про розкладку, а не про
-     * розмір цілі.
-     */
     @media (hover: none) {
         .log-fab {
             min-height: 44px;
@@ -230,7 +255,7 @@
 
     @media (max-width: 768px) {
         .log-fab-container {
-            bottom: 80px; /* Вище BottomNav */
+            bottom: 80px;
         }
     }
 
@@ -249,5 +274,51 @@
         border: 2px solid #ef4444;
         border-radius: 8px;
         resize: none;
+    }
+
+    .context-menu {
+        position: fixed;
+        z-index: 10000;
+        background: #1e1e24;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+        padding: 6px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        min-width: 210px;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        font-size: 0.8125rem;
+        color: #f1f5f9;
+        background: transparent;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        text-align: left;
+        transition: background 0.15s ease;
+    }
+
+    .menu-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .menu-item--hide {
+        color: #94a3b8;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        margin-top: 4px;
+        padding-top: 8px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .log-fab, .menu-item {
+            transition: none;
+        }
     }
 </style>
