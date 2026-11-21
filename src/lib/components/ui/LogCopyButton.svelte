@@ -6,7 +6,6 @@
     import { logService } from '$lib/services/logService.svelte';
     import { Check, Copy, Eye, RotateCcw, EyeOff } from 'lucide-svelte';
     import { fade, scale } from 'svelte/transition';
-    import ErrorLogModal from './ErrorLogModal.svelte';
 
     let copied = $state(false);
     let fallbackReport = $state<string | null>(null);
@@ -140,7 +139,7 @@
                     data-testid="service-badge-copy-report-btn"
                 >
                     <Copy size={14} />
-                    <span>Скопіювати повний звіт</span>
+                    <span>Copy diagnostic report</span>
                 </button>
                 <button
                     type="button"
@@ -150,7 +149,7 @@
                     data-testid="service-badge-view-errors-btn"
                 >
                     <Eye size={14} />
-                    <span>Переглянути помилки ({logService.errorCount})</span>
+                    <span>View error logs ({logService.errorCount})</span>
                 </button>
                 <button
                     type="button"
@@ -160,7 +159,7 @@
                     data-testid="service-badge-clear-btn"
                 >
                     <RotateCcw size={14} />
-                    <span>Скинути лічильник</span>
+                    <span>Clear error logs</span>
                 </button>
                 <button
                     type="button"
@@ -170,12 +169,16 @@
                     data-testid="service-badge-hide-btn"
                 >
                     <EyeOff size={14} />
-                    <span>Приховати табло</span>
+                    <span>Hide badge</span>
                 </button>
             </div>
         {/if}
 
-        <ErrorLogModal isOpen={isModalOpen} onclose={() => (isModalOpen = false)} />
+        {#if isModalOpen}
+            {#await import('./ErrorLogModal.svelte') then { default: ErrorLogModal }}
+                <ErrorLogModal isOpen={isModalOpen} onclose={() => (isModalOpen = false)} />
+            {/await}
+        {/if}
     </div>
 {/if}
 

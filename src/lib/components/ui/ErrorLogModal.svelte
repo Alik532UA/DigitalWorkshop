@@ -16,7 +16,7 @@
 	let copied = $state(false);
 	let copyTimer: ReturnType<typeof setTimeout> | undefined;
 
-	const labelClose = 'Закрити';
+	const labelClose = 'Close';
 
 	const allLogs = $derived(logService.logs);
 	const errorCount = $derived(allLogs.filter((e) => e.level === 'error').length);
@@ -71,7 +71,7 @@
 				<div class="header-left">
 					<div class="icon-wrap"><Bug size={18} /></div>
 					<div>
-						<h2 id="error-log-modal-title" class="modal-title" data-testid="error-log-modal-title">Журнал помилок та подій</h2>
+						<h2 id="error-log-modal-title" class="modal-title" data-testid="error-log-modal-title">Error and Event Log</h2>
 						<span class="version-badge">v{logService.appVersion}</span>
 					</div>
 				</div>
@@ -83,25 +83,25 @@
 			<div class="modal-toolbar">
 				<div class="tabs" role="tablist" data-testid="error-log-modal-tabs">
 					<button type="button" role="tab" aria-selected={activeFilter === 'all'} class="tab" class:tab--active={activeFilter === 'all'} onclick={() => (activeFilter = 'all')} data-testid="error-log-modal-all-tab">
-						Всі <span class="tab-badge tab-badge--all">{allLogs.length}</span>
+						All <span class="tab-badge tab-badge--all">{allLogs.length}</span>
 					</button>
 					<button type="button" role="tab" aria-selected={activeFilter === 'error'} class="tab" class:tab--active={activeFilter === 'error'} onclick={() => (activeFilter = 'error')} data-testid="error-log-modal-error-tab">
-						Помилки <span class="tab-badge tab-badge--error">{errorCount}</span>
+						Errors <span class="tab-badge tab-badge--error">{errorCount}</span>
 					</button>
 					<button type="button" role="tab" aria-selected={activeFilter === 'warn'} class="tab" class:tab--active={activeFilter === 'warn'} onclick={() => (activeFilter = 'warn')} data-testid="error-log-modal-warn-tab">
-						Увага <span class="tab-badge tab-badge--warn">{warnCount}</span>
+						Warnings <span class="tab-badge tab-badge--warn">{warnCount}</span>
 					</button>
 					<button type="button" role="tab" aria-selected={activeFilter === 'info'} class="tab" class:tab--active={activeFilter === 'info'} onclick={() => (activeFilter = 'info')} data-testid="error-log-modal-info-tab">
-						Інфо <span class="tab-badge tab-badge--info">{infoCount}</span>
+						Info <span class="tab-badge tab-badge--info">{infoCount}</span>
 					</button>
 				</div>
 
 				<div class="actions">
-					<button type="button" class="btn-action" class:btn-action--copied={copied} onclick={handleCopy} data-testid="error-log-modal-copy-btn" aria-label="Скопіювати звіт">
-						{#if copied}<Check size={14} /><span>Скопійовано</span>{:else}<Copy size={14} /><span>Копіювати звіт</span>{/if}
+					<button type="button" class="btn-action" class:btn-action--copied={copied} onclick={handleCopy} data-testid="error-log-modal-copy-btn">
+						{#if copied}<Check size={14} /><span>Copied</span>{:else}<Copy size={14} /><span>Copy report</span>{/if}
 					</button>
-					<button type="button" class="btn-action btn-action--danger" onclick={() => logService.clear()} disabled={allLogs.length === 0} data-testid="error-log-modal-clear-btn" aria-label="Очистити журнал">
-						<Trash2 size={14} /><span>Очистити</span>
+					<button type="button" class="btn-action btn-action--danger" onclick={() => logService.clear()} disabled={allLogs.length === 0} data-testid="error-log-modal-clear-btn">
+						<Trash2 size={14} /><span>Clear</span>
 					</button>
 				</div>
 			</div>
@@ -110,7 +110,7 @@
 				{#if filteredList.length === 0}
 					<div class="empty-state" data-testid="error-log-modal-empty-message">
 						<Check size={28} class="empty-icon" />
-						<p class="empty-text">Журнал порожній. Жодної події не зафіксовано!</p>
+						<p class="empty-text">Log is empty. No events recorded!</p>
 					</div>
 				{:else}
 					<div class="event-list">
